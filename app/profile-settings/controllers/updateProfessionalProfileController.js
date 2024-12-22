@@ -1,24 +1,23 @@
 import useUpdateManager from "@/constants/controller_templates/put_controller_template";
-
 import { useRouter } from "next/navigation";
 
-export const ResetPasswordManager = ({ password }) => {
+export const UpdateProfessionalProfileManager = () => {
   const router = useRouter();
   const { updateCaller, isLoading, isSuccess, error, data } = useUpdateManager(
-    `/auth/password-reset`,
-    [],
+    `/users/professional-profile/update`,
+    ["userDetails"],
     false,
-    false
+    true
   );
-  const resetPassword = async (email) => {
+  const updateProfile = async (details) => {
     try {
-      await updateCaller(email);
+      await updateCaller(details);
     } catch (error) {
-      console.error("password reset error:", error);
+      console.error("error:", error);
     }
   };
   return {
-    resetPassword,
+    updateProfile,
     data,
     isLoading,
     isSuccess,

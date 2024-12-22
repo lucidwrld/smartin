@@ -3,20 +3,18 @@ import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import AuthShell from "@/components/auth/AuthShell";
 
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import useRegisterUser from "./controller/register_controller";
 import { toast } from "react-toastify";
-import validateNoLeadingOrTrailingSpaces from "@/components/ValidateNoSpaces";
-import validatePassword from "@/components/ValidatePassword";
 
 import TermsModal from "@/components/TermsModal";
 import PrivacyModal from "@/components/privacyModal";
+import { validateFormSubmission } from "@/utils/validateForm";
 
 const CreateAccountPage = () => {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const router = useRouter();
-  const [accountType, setAccountType] = useState("Client");
 
   const initialData = {
     fullname: "",
@@ -40,29 +38,21 @@ const CreateAccountPage = () => {
     }
   }, [isSuccess]);
 
-  const validateForm = () => {
-    const isValidSpaces = validateNoLeadingOrTrailingSpaces(formData);
-
-    return (
-      isValidSpaces &&
-      formData.fullname !== "" &&
-      formData.phone !== "" &&
-      formData.email !== "" &&
-      validatePassword(formData.password) &&
-      agreedToTerms
-    );
-  };
+  const formRef = useRef(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (validateForm()) {
-      await registerUser(formData);
-    } else {
-      toast.info(
-        "Please fill all fields, ensure the password meets the criteria and agree to the terms and conditions."
-      );
+    if (!agreedToTerms) {
+      toast.info("Please agree to the terms and conditions.");
+      return;
     }
+
+    if (!validateFormSubmission(formRef, formData)) {
+      return;
+    }
+
+    await registerUser(formData);
   };
 
   return (
@@ -71,115 +61,131 @@ const CreateAccountPage = () => {
       title={`Create Account`}
       subtitle1={`Already have an account?`}
       subtitle2={`Login`}
-      onClick={handleSubmit}
+      // onClick={handleSubmit}
       buttonText={`Sign up`}
+      form="registrationForm"
       subtitle2Click={() => {
         router.push("/auth/login");
       }}
     >
-      {accountType === "Consultant" && (
-        <div className="flex w-full items-center gap-2">
-          <div
-            className="w-full bg-brandOrange h-2 rounded-full 
-          
-          "
-          ></div>
-          <div className="w-full bg-[#CDCDCE] h-2 rounded-full "></div>
-        </div>
-      )}
       <div className="w-full h-fit">
-        <div className="flex flex-col w-full relative">
-          <div className=" w-full flex flex-col md:flex-row gap-3">
+        <form id="registrationForm" ref={formRef} onSubmit={handleSubmit}>
+          <div className="flex flex-col w-full relative">
+            <div className=" w-full flex flex-col md:flex-row gap-3">
+              <div className="w-full">
+                <InputWithFullBoarder
+                  label="Phone Number"
+                  id="phone_number"
+                  isRequired={true}
+                  placeholder="e.g. +1 for US, +44 for UK"
+                  value={formData.phone}
+                  type="tel"
+                  customValidator={(value) => {
+                    // Check if it starts with + and has at least one number after
+                    const hasCountryCode = /^\+\d/.test(value);
+
+                    return {
+                      isValid: hasCountryCode,
+                      message: value
+                        ? "Phone number must start with country code (e.g., +1)"
+                        : "Your phone number is required",
+                    };
+                  }}
+                  onChange={(e) => {
+                    let value = e.target.value;
+                    // Ensure the + is always there
+                    if (!value.startsWith("+")) {
+                      value = "+" + value;
+                    }
+                    // Remove any non-digit characters except the +
+                    value = value.replace(/[^\d+]/g, "");
+
+                    setFormData({ ...formData, phone: value });
+                  }}
+                />
+              </div>
+            </div>
             <div className="w-full">
               <InputWithFullBoarder
-                label={`Phone Number`}
-                id={`phone_number`}
+                id={`fullname`}
+                label={`Full Name`}
+                value={formData.fullname}
+                customErrorMessage={"Your full name is required"}
                 isRequired={true}
-                value={formData.phone}
                 onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
+                  setFormData({ ...formData, fullname: e.target.value })
                 }
               />
+              <InputWithFullBoarder
+                id={"email"}
+                label={`Email Address`}
+                isRequired={true}
+                type={"email"}
+                value={formData.email}
+                customErrorMessage={"please input a valid email"}
+                onChange={(e) => {
+                  setFormData({
+                    ...formData,
+                    email: e.target.value.toLowerCase(),
+                  });
+                }}
+              />
+
+              <InputWithFullBoarder
+                hasSuffix={true}
+                isRequired={true}
+                id={"password"}
+                label={"Password"}
+                type={viewPassword ? `text` : `password`}
+                value={formData.password}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
+                icon={
+                  viewPassword ? (
+                    <AiOutlineEyeInvisible
+                      onClick={() => setViewPassword(!viewPassword)}
+                    />
+                  ) : (
+                    <AiOutlineEye
+                      onClick={() => setViewPassword(!viewPassword)}
+                    />
+                  )
+                }
+              />
+              <label className="flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  className="mt-1"
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                />
+                <div className="flex h-fit flex-wrap gap-1 w-auto ">
+                  <p className="text-sm w-fit     text-gray-600">
+                    I understand and agree to the
+                  </p>
+                  <span
+                    className="text-brandOrange w-auto text-sm   cursor-pointer"
+                    onClick={() =>
+                      document.getElementById("term_modal").showModal()
+                    }
+                  >
+                    Terms and Conditions
+                  </span>
+                  and
+                  <span
+                    onClick={() =>
+                      document.getElementById("privacy_modal").showModal()
+                    }
+                    className="text-brandOrange text-sm w-auto cursor-pointer"
+                  >
+                    Privacy Policy
+                  </span>
+                </div>
+              </label>
             </div>
           </div>
-          <div className="w-full">
-            <InputWithFullBoarder
-              id={`fullname`}
-              label={`Full Name`}
-              value={formData.fullname}
-              isRequired={true}
-              onChange={(e) =>
-                setFormData({ ...formData, fullname: e.target.value })
-              }
-            />
-            <InputWithFullBoarder
-              id={"email"}
-              label={`Email Address`}
-              isRequired={true}
-              type={"email"}
-              value={formData.email}
-              onChange={(e) => {
-                setFormData({
-                  ...formData,
-                  email: e.target.value.toLowerCase(),
-                });
-              }}
-            />
-
-            <InputWithFullBoarder
-              hasSuffix={true}
-              isRequired={true}
-              id={"password"}
-              label={"Password"}
-              type={viewPassword ? `text` : `password`}
-              value={formData.password}
-              onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
-              }
-              icon={
-                viewPassword ? (
-                  <AiOutlineEyeInvisible
-                    onClick={() => setViewPassword(!viewPassword)}
-                  />
-                ) : (
-                  <AiOutlineEye
-                    onClick={() => setViewPassword(!viewPassword)}
-                  />
-                )
-              }
-            />
-            <label className="flex items-start gap-2">
-              <input
-                type="checkbox"
-                className="mt-1"
-                checked={agreedToTerms}
-                onChange={(e) => setAgreedToTerms(e.target.checked)}
-              />
-              <div className="flex h-fit flex-wrap gap-1 w-auto ">
-                <p className="text-sm w-fit     text-gray-600">
-                  I understand and agree to the
-                </p>
-                <span
-                  className="text-brandOrange w-auto text-sm   cursor-pointer"
-                  onClick={() =>
-                    document.getElementById("term_modal").showModal()
-                  }
-                >
-                  Terms and Conditions
-                </span>
-                and
-                <span
-                  onClick={() =>
-                    document.getElementById("privacy_modal").showModal()
-                  }
-                  className="text-brandOrange text-sm w-auto cursor-pointer"
-                >
-                  Privacy Policy
-                </span>
-              </div>
-            </label>
-          </div>
-        </div>
+        </form>
       </div>
       <PrivacyModal />
       <TermsModal />

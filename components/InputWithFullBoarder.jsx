@@ -1,118 +1,262 @@
-import React from "react";
-import { AiOutlineEyeInvisible } from "react-icons/ai";
+import React, { useState, useEffect } from "react";
 
 const InputWithFullBoarder = ({
   id,
-  type,
+  type = "text",
   value,
   onChange,
+  form,
   label,
   tokens,
   checked,
   onClick,
-  isRequired,
+  isRequired = false,
   className,
   min,
   labelClass,
   labelColor,
   message,
   maxLength,
+  minLength,
+  showCharacterCount = false,
   disabled = false,
   hasSuffix,
   placeholder,
   row = "50",
   icon,
   accept,
-none,
+  none,
   isTextArea = false,
   wrapperClassName,
-
+  customValidator,
+  customErrorMessage,
   ...props
 }) => {
-  const inputStyleClass =
-    "border border-[#D0D5DD] bg-gray6 p-2 rounded-md placeholder:text-[12px] outline-none focus:outline-none";
-  return (
-    <div
-      className={`flex flex-col text-brandBlack h-fit  ${!none && "mb-4"} ${wrapperClassName} gap-1`}
-    >
-      {label && (
-        <>
-        <label
-          className={`font-medium flex ${labelClass} gap-1 text-[0.75rem] whitespace-nowrap f leading-[125%] ${
-            labelColor ?? "text-[#101928]"
-          }`}
-          htmlFor={id}
-        >
-          {label}{message && <span className="text-brandOrange italic  font-medium  text-[0.70rem] leading-[125%] ">
-          
-          {" "} - {message}
-        </span>}{isRequired && <p className="text-red-600">*</p>}
+  const [error, setError] = useState("");
+  const [touched, setTouched] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-        {tokens && <h3 className="text-[14px] w-full text-right font-medium  text-[#667185]">1 USD ≈ 2 Tokens</h3>}
-        </label>
-        
-        {id === "password" && <span className="text-brandOrange italic  font-medium  text-[0.75rem] leading-[125%] ">
-          
-          Ensure your password has atleast One uppercase, lowercase,
-          special character and number 
-        </span>}
-      </>
-      )}
-      {isTextArea ? (
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password) => {
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    const hasMinLength = password.length >= 8;
+
+    const errors = [];
+    if (!hasUpperCase) errors.push("uppercase letter");
+    if (!hasLowerCase) errors.push("lowercase letter");
+    if (!hasNumber) errors.push("number");
+    if (!hasSpecialChar) errors.push("special character");
+    if (!hasMinLength) errors.push("minimum 8 characters");
+
+    return errors;
+  };
+
+  const validateInput = (inputValue) => {
+    if (customValidator) {
+      const customValidation = customValidator(inputValue);
+      if (!customValidation.isValid) {
+        setError(customValidation.message);
+        return;
+      }
+      setError(""); // Clear any existing errors
+      return;
+    }
+
+    if (!isRequired && !inputValue) {
+      setError("");
+      return;
+    }
+
+    if (isRequired && !inputValue) {
+      setError("This field is required");
+      return;
+    }
+
+    // Text length validation
+    if (inputValue) {
+      if (minLength && inputValue.length < minLength) {
+        setError(`Minimum ${minLength} characters required`);
+        return;
+      }
+      if (maxLength && inputValue.length > maxLength) {
+        setError(`Maximum ${maxLength} characters allowed`);
+        return;
+      }
+    }
+
+    switch (type) {
+      case "email":
+        if (!validateEmail(inputValue)) {
+          setError("Please enter a valid email address");
+        } else {
+          setError("");
+        }
+        break;
+
+      case "password":
+        const passwordErrors = validatePassword(inputValue);
+        if (passwordErrors.length > 0) {
+          setError(`Password missing: ${passwordErrors.join(", ")}`);
+        } else {
+          setError("");
+        }
+        break;
+
+      case "number":
+        if (isNaN(inputValue)) {
+          setError("Please enter a valid number");
+        } else if (min && Number(inputValue) < Number(min)) {
+          setError(`Value must be at least ${min}`);
+        } else {
+          setError("");
+        }
+        break;
+
+      default:
+        setError("");
+    }
+  };
+
+  const handleChange = (e) => {
+    const newValue = e.target.value;
+    if (onChange) {
+      onChange(e);
+    }
+    validateInput(newValue);
+  };
+
+  const handleBlur = () => {
+    setTouched(true);
+    validateInput(value);
+  };
+
+  const inputStyleClass = `
+    border rounded-md p-2 outline-none focus:outline-none
+    ${error && touched ? "border-red-500" : "border-gray-300"}
+    ${disabled ? "bg-gray-100" : "bg-white"}
+  `;
+
+  const commonInputProps = {
+    id,
+    name: id,
+    form,
+    "aria-invalid": error && touched,
+    "aria-describedby": error && touched ? `${id}-error` : undefined,
+    required: isRequired,
+    disabled,
+    value,
+    onChange: handleChange,
+    onBlur: handleBlur,
+    placeholder,
+    ...props,
+  };
+
+  const renderInput = () => {
+    if (isTextArea) {
+      return (
         <textarea
-          id={id}
+          {...commonInputProps}
           className={`${className} ${inputStyleClass}`}
           cols="50"
           rows={row}
           maxLength={maxLength}
-          placeholder={placeholder}
-          value={value}
-          disabled={disabled}
-          onChange={onChange}
-          {...props}
-        ></textarea>
-      ) : hasSuffix ? (
-        <div
-          className={`border border-[#D0D5DD] bg-gray6 p-2 rounded-md placeholder:text-[12px] ${className} outline-none focus:outline-none flex items-center justify-between `}
-        >
-          <input
-            onClick={onClick}
-            type={type}
-            maxLength={maxLength}
-            placeholder={placeholder}
-            id={id}
-            accept={accept}
-            disabled={disabled}
-            checked={checked}
-            min={min}
-            color="white"
-            value={value}
-            onChange={onChange}
-            {...props}
-            className={` bg-transparent outline-none focus:outline-none w-full placeholder:text-[12px] mr-4 `}
-          />{" "}
-          <div>{icon}</div>
-        </div>
-      ) : (
-        <input
-          onClick={onClick}
-          type={type}
-          id={id}
-          accept={accept}
-          placeholder={placeholder}
-          checked={checked}
-          min={min}
-          disabled={disabled}
-          maxLength={maxLength}
-          color="white"
-          value={value}
-          onChange={onChange}
-          {...props}
-          className={
-            // type !== "password" &&
-            `border border-[#D0D5DD] bg-gray6 p-2 rounded-md ${className} placeholder:text-[12px] outline-none focus:outline-none `
-          }
         />
+      );
+    }
+
+    if (hasSuffix) {
+      return (
+        <div className={`${inputStyleClass} flex items-center justify-between`}>
+          <input
+            {...commonInputProps}
+            type={type === "password" && showPassword ? "text" : type}
+            className="bg-transparent outline-none w-full"
+            maxLength={maxLength}
+            min={min}
+            accept={accept}
+            checked={checked}
+            onClick={onClick}
+          />
+          <div className="flex items-center">
+            {type === "password" && (
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="p-1"
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            )}
+            {icon}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <input
+        {...commonInputProps}
+        type={type === "password" && showPassword ? "text" : type}
+        className={`${className} ${inputStyleClass}`}
+        maxLength={maxLength}
+        min={min}
+        accept={accept}
+        checked={checked}
+        onClick={onClick}
+      />
+    );
+  };
+
+  return (
+    <div
+      className={`flex flex-col gap-1 ${!none && "mb-4"} ${wrapperClassName}`}
+    >
+      {label && (
+        <label
+          className={`text-sm font-medium flex gap-1 ${labelClass} ${
+            labelColor ?? "text-gray-900"
+          }`}
+          htmlFor={id}
+        >
+          {label}
+          {message && (
+            <span className="text-orange-500 italic text-xs"> - {message}</span>
+          )}
+          {isRequired && <span className="text-red-600">*</span>}
+          {tokens && (
+            <span className="text-sm w-full text-right text-gray-600">
+              1 USD ≈ 2 Tokens
+            </span>
+          )}
+        </label>
+      )}
+
+      {renderInput()}
+
+      {error && touched && (
+        <p
+          className="text-red-500 text-xs mt-1"
+          role="alert"
+          id={`${id}-error`}
+        >
+          {customErrorMessage || error}
+        </p>
+      )}
+
+      {showCharacterCount && (
+        <div className="flex justify-end mt-1">
+          <span className="text-xs text-gray-500">
+            {value ? value.length : 0}
+            {maxLength ? ` / ${maxLength}` : ""}
+          </span>
+        </div>
       )}
     </div>
   );

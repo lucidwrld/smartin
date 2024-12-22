@@ -12,6 +12,8 @@ const AuthShell = ({
   progress,
   isLoading,
   buttonText,
+
+  form,
   onClick,
   subtitle2Click,
 }) => {
@@ -25,7 +27,7 @@ const AuthShell = ({
       <div className={`h-full max-w-[50%] w-full relative hidden md:flex`}>
         <img
           src={
-            "https://img.freepik.com/free-photo/low-angle-young-people-having-fun-party_23-2151108202.jpg"
+            "https://img.freepik.com/free-photo/pyramid-cocktails-decorated-with-cherries-stands-table_8353-556.jpg"
           }
           className={`w-full h-full object-cover`}
         />
@@ -50,7 +52,9 @@ const AuthShell = ({
             buttonText={buttonText}
             progress={progress}
             isLoading={isLoading}
-            onClick={onClick}
+            form={form} // Add this
+            type="submit"
+            // onClick={onClick}
             className={`w-full py-3 h-[50px]`}
           />
           {pathname.includes("/login") && (

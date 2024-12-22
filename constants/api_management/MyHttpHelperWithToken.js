@@ -15,9 +15,9 @@ let retryCount = 0;
 AxiosWithToken.interceptors.request.use(
   async (config) => {
     const token = localStorage.getItem("token");
-    
-    const admintoken = localStorage.getItem("confidant-admin-token");
-   
+
+    const admintoken = localStorage.getItem("admin-token");
+
     if (!token && retryCount < 3) {
       // Retry the request after 100 milliseconds if the token is not available
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -28,7 +28,11 @@ AxiosWithToken.interceptors.request.use(
       // Send the request without a token after 3 retries
       return config;
     }
-    config.headers.Authorization = admintoken ? `${admintoken}` : token ? `${token}` : "";
+    config.headers.Authorization = admintoken
+      ? `${admintoken}`
+      : token
+      ? `${token}`
+      : "";
 
     return config;
   },
@@ -45,7 +49,7 @@ AxiosWithToken.interceptors.response.use(
   async (error) => {
     if (error.response && error.response.status === 401) {
       const token = localStorage.getItem("token");
-      const adminToken = localStorage.getItem("confidant-admin-token");
+      const adminToken = localStorage.getItem("admin-token");
 
       if (!token && !adminToken) {
         window.location.href = "/auth/login";

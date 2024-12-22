@@ -5,36 +5,14 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import useLoginManager from "./controller/login_controller";
-import { toast } from "react-toastify";
+// Add these imports at the top
+import { useRef } from "react"; // Add useRef to existing React imports
+import { validateFormSubmission } from "@/utils/validateForm";
 
-const CreateAccountPage = () => {
+const LoginPage = () => {
   const router = useRouter();
-
+  const formRef = useRef(null);
   const [viewPassword, setViewPassword] = useState(false);
-
-  useEffect(() => {
-    const getToken = async () => {
-      if (typeof window !== "undefined") {
-        let token = localStorage.getItem("deviceToken");
-
-        if (!token) {
-          await requestNotificationPermission();
-          token = localStorage.getItem("deviceToken");
-        }
-
-        if (token) {
-          setLoginDetails((prevDetails) => ({
-            ...prevDetails,
-            device_token: token,
-          }));
-          setFirebaseToken(token);
-        } else {
-        }
-      }
-    };
-
-    getToken();
-  }, []);
 
   const initialData = {
     email: "",
@@ -50,49 +28,64 @@ const CreateAccountPage = () => {
       subtitle1={`Don’t have an account?`}
       isLoading={isLoading}
       subtitle2={`Sign up`}
-      onClick={async (e) => {
-        e.preventDefault();
-        // await requestNotificationPermission();
-
-        await login(loginDetails);
-      }}
+      form="loginForm"
       buttonText={`Login`}
       subtitle2Click={() => {
         router.push("/auth/create-account");
       }}
     >
-      <div className="w-full ">
-        <InputWithFullBoarder
-          label={`Email Address`}
-          type={"email"}
-          isRequired={true}
-          value={loginDetails.email}
-          onChange={(e) => {
-            setLoginDetails({ ...loginDetails, email: e.target.value });
-          }}
-        />
-        <InputWithFullBoarder
-          hasSuffix={true}
-          label={`Password`}
-          isRequired={true}
-          type={viewPassword ? `text` : `password`}
-          value={loginDetails.password}
-          onChange={(e) => {
-            setLoginDetails({ ...loginDetails, password: e.target.value });
-          }}
-          icon={
-            viewPassword ? (
-              <AiOutlineEyeInvisible
-                onClick={() => setViewPassword(!viewPassword)}
-              />
-            ) : (
-              <AiOutlineEye onClick={() => setViewPassword(!viewPassword)} />
-            )
+      <form
+        id="loginForm"
+        className="w-full"
+        ref={formRef}
+        onSubmit={async (e) => {
+          e.preventDefault();
+
+          if (!validateFormSubmission(formRef, loginDetails)) {
+            return;
           }
-        />
-      </div>
+
+          await login(loginDetails);
+        }}
+      >
+        <div className="w-full ">
+          <InputWithFullBoarder
+            label={`Email Address`}
+            customErrorMessage={"Enter a valid email"}
+            type={"email"}
+            isRequired={true}
+            value={loginDetails.email}
+            onChange={(e) => {
+              setLoginDetails({ ...loginDetails, email: e.target.value });
+            }}
+          />
+          <InputWithFullBoarder
+            hasSuffix={true}
+            label={`Password`}
+            isRequired={true}
+            type={viewPassword ? `text` : `password`}
+            value={loginDetails.password}
+            customValidator={(value) => ({
+              isValid: value.length > 0,
+              message: value ? "" : "Password is required",
+            })}
+            onChange={(e) => {
+              setLoginDetails({ ...loginDetails, password: e.target.value });
+            }}
+            icon={
+              viewPassword ? (
+                <AiOutlineEyeInvisible
+                  onClick={() => setViewPassword(!viewPassword)}
+                />
+              ) : (
+                <AiOutlineEye onClick={() => setViewPassword(!viewPassword)} />
+              )
+            }
+          />
+        </div>
+      </form>
     </AuthShell>
   );
 };
 
-export default CreateAccountPage;
+export default LoginPage;
