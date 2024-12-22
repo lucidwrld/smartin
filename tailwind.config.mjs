@@ -1,17 +1,62 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    fontFamily: {
+      poppins: ["Poppins", "sans-serif"],
+    },
+
     extend: {
+      boxShadow: {
+        "custom-shadow": "0px 4px 4px 0px #00000017",
+      },
+      fontSize: {
+        "70px": "10px",
+        "16px": "16px",
+        "15px": "15px",
+        "14px": "14px",
+        "12px": "12px",
+        "10px": "10px",
+        "18px": "18px",
+        "40px": "40px",
+        "13px": "13px",
+        "20px": "20px",
+        "28px": "28px",
+        "24px": "24px",
+        "30px": "30px",
+        "32px": "32px",
+        "35px": "35px",
+      },
+      backgroundImage: {
+        gradientMain: "linear-gradient(180deg, #AE69D8 0%, #FF8336 100%)",
+      },
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        whiteColor: "#FFFFFF",
+        confiBlack: "#181918",
+        brandBlack: "#000000",
+        brandOrange: "#FE8235",
+        brandPurple: "#8D0BF0",
+        grey3: "#828282",
+        success: "#0F973D",
+        redColor: "#F10707",
+        backgroundOrange: "#FFF2E9",
+        lightGrey: "#D0D5DD",
+        mainLightGrey: "#F1F1F1",
+        dashboardBackground: "#F6F6F6",
+        textGrey: "#645D5D",
+        textGrey2: "#757575",
+        textGrey3: "#393938",
+        textGrey4: "#999796",
       },
     },
   },
-  plugins: [],
+  daisyui: {
+    base: false,
+    themes: ["light"],
+  },
+  plugins: [require("tailwind-scrollbar-hide"), require("daisyui")],
 };
