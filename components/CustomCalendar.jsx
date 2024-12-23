@@ -145,7 +145,7 @@ const CustomCalendar = ({ events = [], onDateSelect }) => {
   const weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 
   return (
-    <div className="w-full max-w-sm bg-white rounded-lg shadow p-4">
+    <div className="w-full max-w-sm bg-white rounded-lg shadow p-4 text-brandBlack">
       <h2 className="text-lg font-semibold mb-4">Event schedule</h2>
 
       <div className="relative flex items-center justify-center mb-4">

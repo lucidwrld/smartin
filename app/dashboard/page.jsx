@@ -4,11 +4,13 @@ import CustomButton from "@/components/Button";
 import CustomCalendar from "@/components/CustomCalendar";
 import EventTile from "@/components/events/EventTile";
 import TabManager from "@/components/TabManager";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const Dashboard = () => {
   const [currentView, setCurrentView] = useState(0);
   const list = ["My Events", "Upcoming Events", "Past Events"];
+  const route = useRouter();
 
   const events = [
     new Date(2024, 12, 1),
@@ -33,6 +35,9 @@ const Dashboard = () => {
           <CustomButton
             buttonText={"Create an Event"}
             buttonColor={"bg-lightPurple"}
+            onClick={() => {
+              route.push("/events/create-event");
+            }}
           />
         </div>
 
