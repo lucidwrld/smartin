@@ -15,8 +15,13 @@ const useGetUserDetailsManager = (enabled = true) => {
       }
     },
     {
-      enabled: enabled,
+      enabled,
       refetchOnWindowFocus: false,
+      staleTime: Infinity,
+      cacheTime: Infinity,
+      // Optionally add retry config
+      retry: 2,
+      retryDelay: 1000,
     }
   );
 };

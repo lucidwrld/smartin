@@ -23,7 +23,7 @@ const AuthShell = ({
     typeof window !== "undefined" && localStorage.getItem("token") !== null;
 
   return (
-    <div className="w-full h-screen py-10 flex relative items-center justify-center text-brandBlack ">
+    <div className="w-full h-screen py-0 flex relative items-center justify-center text-brandBlack ">
       <div className={`h-full max-w-[50%] w-full relative hidden md:flex`}>
         <img
           src={

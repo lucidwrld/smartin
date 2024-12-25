@@ -6,6 +6,8 @@ import EventTile from "@/components/events/EventTile";
 import TabManager from "@/components/TabManager";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import useGetAllEventsManager from "./controllers/getAllEventsController";
+import { InfiniteScroll } from "@/components/InfiniteScroll";
 
 const AllEventsPage = () => {
   const [currentView, setCurrentView] = useState(0);
@@ -22,6 +24,9 @@ const AllEventsPage = () => {
     console.log("Selected date:", date);
     // Do something with the selected date
   };
+
+  const { data, isLoading } = useGetAllEventsManager({});
+  const [page, setPage] = useState(1);
   return (
     <BaseDashboardNavigation title={"All Events"}>
       <div className="w-full relative gap-10">
@@ -51,9 +56,16 @@ const AllEventsPage = () => {
 
         <div className="flex items-start gap-10 w-full mt-3">
           <div className="max-w-[65%] w-full flex flex-col gap-4">
-            {[...Array(4)].map((el, i) => (
-              <EventTile key={i} />
-            ))}
+            <InfiniteScroll
+              currentPage={data?.pagination?.currentPage}
+              nextPage={data?.pagination?.nextPage}
+              isLoading={isLoading}
+              onLoadMore={() => setPage((prev) => prev + 1)}
+            >
+              {data?.data?.map((event, index) => (
+                <EventTile key={index} event={event} />
+              ))}
+            </InfiniteScroll>
           </div>
           <div className="max-w-[30%] w-full">
             <CustomCalendar events={events} onDateSelect={handleDateSelect} />;

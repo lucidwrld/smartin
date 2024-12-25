@@ -21,29 +21,19 @@ const useLoginManager = (email) => {
   };
 
   const mutation = useMutation(loginController, {
-    onSuccess: async (data) => {
-      const tokenGotten = data?.data?.authorization?.token;
-      const token = `Bearer ${tokenGotten}`;
-
-      const isAdmin = data?.data?.user?.roles?.name === "admin";
+    onSuccess: (data) => {
+      const token = data?.data?.token;
+      const isAdmin = data?.data?.user?.roles[0]?.name === "admin";
 
       localStorage.setItem("token", token);
 
-      await new Promise((resolve) => {
-        // Check for token in localStorage every 100 milliseconds
-        const intervalId = setInterval(() => {
-          if (localStorage.getItem("token") === token) {
-            clearInterval(intervalId);
-            resolve();
-          }
-        }, 100);
-      });
-
-      if (isAdmin) {
-        router.push(`/admin/dashboard`);
-      } else {
-        router.push(`/dashboard`);
+      // Verify token was saved
+      const savedToken = localStorage.getItem("token");
+      if (savedToken !== token) {
+        throw new Error("Token storage failed");
       }
+
+      router.push(isAdmin ? `/admin/dashboard` : `/dashboard`);
     },
 
     onError: (error) => {

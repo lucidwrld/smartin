@@ -92,8 +92,8 @@ const BaseDashboardNavigation = ({ children, title }) => {
         </div>
         <div onClick={handleLogout} className="w-[90%] mx-auto cursor-pointer">
           <ProfileAvatar
-            name="Sarah James"
-            email="SarahJames@chiliman.com"
+            name={data?.data?.user?.fullname}
+            email={data?.data?.user?.email}
             size="md" // sm, md, lg
           />
         </div>
@@ -174,7 +174,7 @@ const BaseDashboardNavigation = ({ children, title }) => {
               {/* {showNotification && (
                 <NotificationList showNotification={showNotification} />
               )} */}
-              <div className="rounded-full border-brandRed border-solid border-2 mr-[13px] cursor-pointer">
+              {/* <div className="rounded-full border-brandRed border-solid border-2 mr-[13px] cursor-pointer">
                 {" "}
                 <img
                   className=" object-cover h-[44px] w-[44px] p-[0.7px] rounded-full "
@@ -185,7 +185,7 @@ const BaseDashboardNavigation = ({ children, title }) => {
                   }
                   alt="user avatar"
                 />
-              </div>
+              </div> */}
               <div>
                 {/* <p className="flex items-center text-brandRed text-[13px] font-semibold leading-tight">
                   {data?.data?.user?.firstName} {data?.data?.user?.lastName}

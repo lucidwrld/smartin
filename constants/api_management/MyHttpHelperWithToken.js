@@ -14,31 +14,40 @@ let retryCount = 0;
 
 AxiosWithToken.interceptors.request.use(
   async (config) => {
+    const isAdminRoute = config.url?.includes("/admin");
     const token = localStorage.getItem("token");
+    const adminToken = localStorage.getItem("admin-token");
 
-    const admintoken = localStorage.getItem("admin-token");
+    console.log(`Route type: ${isAdminRoute ? "Admin" : "User"}`);
+    console.log("User token:", token);
+    console.log("Admin token:", adminToken);
 
-    if (!token && retryCount < 3) {
-      // Retry the request after 100 milliseconds if the token is not available
+    if (isAdminRoute && !adminToken && retryCount < 3) {
+      console.log(`Admin token retry attempt ${retryCount + 1}`);
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      retryCount++;
+      return AxiosWithToken.request(config);
+    } else if (!isAdminRoute && !token && retryCount < 3) {
+      console.log(`User token retry attempt ${retryCount + 1}`);
       await new Promise((resolve) => setTimeout(resolve, 100));
       retryCount++;
       return AxiosWithToken.request(config);
     }
-    if (!token && retryCount === 3) {
-      // Send the request without a token after 3 retries
+
+    if (retryCount === 3) {
+      console.log("Max retries reached, proceeding without token");
+      retryCount = 0;
       return config;
     }
-    config.headers.Authorization = admintoken
-      ? `${admintoken}`
-      : token
-      ? `${token}`
-      : "";
 
+    const authToken = isAdminRoute ? adminToken : token;
+    console.log("Using token:", authToken);
+
+    config.headers.Authorization = authToken || "";
+    retryCount = 0;
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 AxiosWithToken.interceptors.response.use(
@@ -48,9 +57,10 @@ AxiosWithToken.interceptors.response.use(
   },
   async (error) => {
     if (error.response && error.response.status === 401) {
+      console.error("this is the error response", error.response.status);
       const token = localStorage.getItem("token");
       const adminToken = localStorage.getItem("admin-token");
-
+      console.log(`this is token when 401 shows`, token);
       if (!token && !adminToken) {
         window.location.href = "/auth/login";
       }

@@ -11,9 +11,15 @@ import greyPeople from "./greyPeople.svg";
 import arrowRight from "./arrowRight.svg";
 import moreMore from "./moreMore.svg";
 import emptyState from "./Empty State.svg";
+import uploaded from "./uploaded.svg";
+import deleteIcon from "./deleteIcon.svg";
+import viewDocument from "./viewDocument.svg";
 
 export {
   emptyState,
+  viewDocument,
+  uploaded,
+  deleteIcon,
   purpleCalendar,
   arrowRight,
   moreMore,

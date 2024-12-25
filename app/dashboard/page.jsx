@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import BaseDashboardNavigation from "@/components/BaseDashboardNavigation";
+import useGetUserDetailsManager from "../profile-settings/controllers/get_UserDetails_controller";
 
 const StatCard = ({ icon: Icon, label, value, trend }) => (
   <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-brandBlack">
@@ -123,12 +124,16 @@ const Dashboard = () => {
     { title: "Christmas Dinner", date: "Dec 25, 2024", guestCount: 25 },
   ];
 
+  const { data: userDetails } = useGetUserDetailsManager();
+
   return (
     <BaseDashboardNavigation title="Dashboard">
       <div className="p-6 space-y-6 bg-gray-50 min-h-screen text-brandBlack">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Welcome back, Alex!</h1>
+            <h1 className="text-2xl font-bold">
+              Welcome back, {userDetails?.data?.user?.fullname}!
+            </h1>
             <p className="text-gray-600 mt-1">
               Here's what's happening with your events.
             </p>
