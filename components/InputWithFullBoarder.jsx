@@ -138,7 +138,7 @@ const InputWithFullBoarder = ({
   };
 
   const inputStyleClass = `
-    border rounded-md p-2 outline-none focus:outline-none
+    border rounded-md p-2 outline-none focus:outline-none placeholder:text-14px
     ${error && touched ? "border-red-500" : "border-gray-300"}
     ${disabled ? "bg-gray-100" : "bg-white"}
   `;

@@ -16,6 +16,7 @@ import { logo, logoMain } from "@/public/images";
 import { adminMenu, mainMenu } from "@/utils/menu";
 import useGetUserDetailsManager from "@/app/profile-settings/controllers/get_UserDetails_controller";
 import { notificationWithAlert } from "@/public/icons";
+import NotificationPopup from "./notifications/NotificationPopup";
 
 const BaseDashboardNavigation = ({ children, title }) => {
   const [showMenu, setShowMenu] = useState(false);
@@ -154,12 +155,21 @@ const BaseDashboardNavigation = ({ children, title }) => {
               </div>
             </div>
             <div className="hidden md:flex justify-end items-center">
-              <button
+              {/* <button
                 onClick={() => setShowNotification(!showNotification)}
                 className="mr-[10px] rounded-[50%] bg-gray-100 w-[41.8px] h-[41.8px] flex justify-center items-center ml-4 "
               >
                 <Image src={notificationWithAlert} alt="notification bell" />
-              </button>
+              </button> */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowNotification(!showNotification)}
+                  className="mr-[10px] rounded-[50%] bg-gray-100 w-[41.8px] h-[41.8px] flex justify-center items-center ml-4"
+                >
+                  <Image src={notificationWithAlert} alt="notification bell" />
+                </button>
+                <NotificationPopup isOpen={showNotification} />
+              </div>
 
               {/* notification display */}
               {/* {showNotification && (

@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import React from "react";
 
 const StepProgress = ({ steps, currentStep = 0, onStepClick }) => {
@@ -27,20 +28,30 @@ const StepProgress = ({ steps, currentStep = 0, onStepClick }) => {
 
                 {/* Number Circle */}
                 <div
-                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 ${
+                  className={`flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full border-2 ${
                     isActive
-                      ? "border-blue-500 bg-blue-500 text-white"
+                      ? "border-brandPurple bg-brandPurple text-white"
                       : index < currentStep
-                      ? "border-green-500 bg-green-500 text-white"
+                      ? "border-grey3 bg-whiteColor text-white"
                       : "border-gray-300 bg-white"
                   }`}
                 >
-                  <span className="text-sm font-medium">{index + 1}</span>
+                  {index < currentStep ? (
+                    <Check className="text-brandBlack " size={20} />
+                  ) : (
+                    <span className="text-sm font-medium">{index + 1}</span>
+                  )}
                 </div>
 
                 {/* Step Text */}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium">{step}</p>
+                  <p
+                    className={`truncate font-medium ${
+                      isActive ? "text-brandPurple" : "text-[#210B08]"
+                    }`}
+                  >
+                    {step}
+                  </p>
                   <p className="truncate text-xs">
                     {index < currentStep
                       ? "Completed"

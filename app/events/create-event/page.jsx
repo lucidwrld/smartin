@@ -4,12 +4,18 @@ import BaseDashboardNavigation from "@/components/BaseDashboardNavigation";
 import StepProgress from "@/components/StepProgress";
 import { EventDetailsStep } from "@/components/events/EventDetailsStep";
 import { InvitationSettingsStep } from "@/components/events/InvitationStep";
-import { PaymentStep } from "@/components/events/PaymentStep";
+// import { PaymentStep } from "@/components/events/PaymentStep";
+
 import { GalleryStep } from "@/components/events/GalleryStep";
 import { GiftRegistryStep } from "@/components/events/GiftRegistryStep";
 import { GuestListStep } from "@/components/events/GuestListStep";
+import PaymentStep from "@/components/events/PaymentStep";
+import { PaymentProofModal } from "@/components/events/PaymentProofModal";
+import { VerificationModal } from "@/components/events/VerificationModal";
 
 const CreateEventPage = () => {
+  const [showProofModal, setShowProofModal] = useState(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     // Event Details
@@ -126,7 +132,7 @@ const CreateEventPage = () => {
   return (
     <BaseDashboardNavigation title="Create Event">
       <div className="w-full max-w-7xl mx-auto px-4">
-        <div className="w-full space-y-8 text-brandBlack">
+        <div className="w-full space-y-6 text-brandBlack">
           <StepProgress
             steps={steps.map((step) => step.title)}
             currentStep={currentStep}
@@ -149,23 +155,58 @@ const CreateEventPage = () => {
                 <button
                   type="button"
                   onClick={handleSubmit}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+                  className="px-4 py-2 bg-brandPurple text-white rounded-lg"
                 >
-                  Submit
+                  Update List
                 </button>
               ) : (
                 <button
                   type="button"
-                  onClick={handleNext}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+                  onClick={() => {
+                    if (currentStep === 2) {
+                      if (formData.paymentMethod === "online") {
+                        // Handle online payment redirect here
+                      } else if (formData.paymentMethod === "bank") {
+                        setShowProofModal(true);
+                      } else if (formData.paymentMethod === "later") {
+                        // Handle save and redirect here
+                      }
+                    } else {
+                      handleNext();
+                    }
+                  }}
+                  className="px-4 py-2 bg-brandPurple text-white rounded-full"
                 >
-                  Next
+                  {currentStep === 2
+                    ? formData.paymentMethod === "online"
+                      ? "Proceed to payment"
+                      : formData.paymentMethod === "bank"
+                      ? "I have paid"
+                      : "Save and Continue Later"
+                    : currentStep > 2
+                    ? "Save"
+                    : "Continue"}
                 </button>
               )}
             </div>
           </form>
         </div>
       </div>
+      {/* Modals */}
+      <PaymentProofModal
+        isOpen={showProofModal}
+        onClose={() => {
+          setShowProofModal(false);
+          setShowVerificationModal(true);
+        }}
+      />
+      <VerificationModal
+        isOpen={showVerificationModal}
+        onClose={() => {
+          setShowVerificationModal(false);
+          // Handle redirect to events page
+        }}
+      />
     </BaseDashboardNavigation>
   );
 };

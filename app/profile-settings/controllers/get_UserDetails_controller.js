@@ -7,7 +7,7 @@ const useGetUserDetailsManager = (enabled = true) => {
     ["userDetails", enabled],
     async () => {
       try {
-        const [response] = [await AxiosWithToken.get(`/users/single`)];
+        const [response] = [await AxiosWithToken.get(`/user`)];
 
         return response.data;
       } catch (error) {

@@ -7,8 +7,10 @@ import {
   purpleTime,
 } from "@/public/icons";
 import StatusButton from "../StatusButton";
+import { useRouter } from "next/navigation";
 
 const EventTile = () => {
+  const route = useRouter();
   return (
     <div className="rounded-[16px] bg-whiteColor flex flex-col relative border border-grey3 h-[426px]">
       <div className="h-[60%] relative rounded-t-[16px] w-full">
@@ -51,6 +53,7 @@ const EventTile = () => {
             className={"border border-grey3"}
             textColor={"blackColor"}
             suffixIcon={arrowRight.src}
+            onClick={() => route.push("/events/event")}
           />
         </div>
       </div>

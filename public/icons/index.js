@@ -9,10 +9,14 @@ import purpleCalendar from "./purpleCalendar.svg";
 import purpleTime from "./purpleTime.svg";
 import greyPeople from "./greyPeople.svg";
 import arrowRight from "./arrowRight.svg";
+import moreMore from "./moreMore.svg";
+import emptyState from "./Empty State.svg";
 
 export {
+  emptyState,
   purpleCalendar,
   arrowRight,
+  moreMore,
   purpleTime,
   greyPeople,
   deleteConfirmation,
