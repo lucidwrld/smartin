@@ -15,8 +15,9 @@ import { logo, logoMain } from "@/public/images";
 
 import { adminMenu, mainMenu } from "@/utils/menu";
 import useGetUserDetailsManager from "@/app/profile-settings/controllers/get_UserDetails_controller";
-import { notificationWithAlert } from "@/public/icons";
+import { logout, notificationWithAlert } from "@/public/icons";
 import NotificationPopup from "./notifications/NotificationPopup";
+import ProfileAvatar from "./ProfileAvatar";
 
 const BaseDashboardNavigation = ({ children, title }) => {
   const [showMenu, setShowMenu] = useState(false);
@@ -53,7 +54,7 @@ const BaseDashboardNavigation = ({ children, title }) => {
             <img
               className="object-contain w-[60%] h-[51px] mx-2"
               src={logoMain.src}
-              alt="The Confidant logo"
+              alt="Smart Invites logo"
             />
           </div>
 
@@ -89,15 +90,13 @@ const BaseDashboardNavigation = ({ children, title }) => {
             )
           )}
         </div>
-        {/* <IconsWithText
-          onClick={handleLogout}
-          icon={svg_logouticon}
-          className="w-full mb-20"
-          // activeIcon={el?.activeIcon}
-          // path={el?.url}
-          iconSize="28px"
-          text={"Logout"}
-        /> */}
+        <div onClick={handleLogout} className="w-[90%] mx-auto cursor-pointer">
+          <ProfileAvatar
+            name="Sarah James"
+            email="SarahJames@chiliman.com"
+            size="md" // sm, md, lg
+          />
+        </div>
       </div>
       {/* this is where the mobile menu is */}
 
@@ -126,13 +125,13 @@ const BaseDashboardNavigation = ({ children, title }) => {
             />
           </Link>
         ))}
-        {/* <IconsWithText
+        <IconsWithText
           onClick={handleLogout}
-          icon={svg_logouticon}
+          icon={logout}
           className="w-full ml-4"
           iconSize="28px"
           text={"Logout"}
-        /> */}
+        />
       </div>
 
       {/* this is where the top section starts */}
