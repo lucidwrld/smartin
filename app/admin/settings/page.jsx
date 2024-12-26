@@ -1,15 +1,10 @@
 "use client";
 import BaseDashboardNavigation from "@/components/BaseDashboardNavigation";
 import MyEditor from "@/components/MyEditor";
-import AdminAccountDetails from "@/components/accounts/AdminAccountDetails";
-import AdminAccountUserSection from "@/components/accounts/AdminAccountUserSection";
-import ChangePasswordSection from "@/components/profile/ChangePasswordSection";
+
 import ConfigurationSection from "@/components/settings/ConfigurationSection";
 import React, { useEffect, useState } from "react";
 import useGetTermsManager from "./controllers/getTermsController";
-import GeneralCategoriesSection from "@/components/categories/GeneralCategoriesSection";
-import BlogCategoriesSection from "@/components/categories/BlogCategoriesSection";
-import useGetSettingsManager from "./controllers/getSettingsController";
 
 const AdminSettingsPage = () => {
   const [currentView, setCurrentView] = useState(0);
@@ -38,7 +33,6 @@ const AdminSettingsPage = () => {
           "Privacy Policy",
           "Consultant T&C",
           "General Categories",
-          "Blog Categories",
         ].map((el, i) => (
           <p
             key={i}
@@ -61,7 +55,6 @@ const AdminSettingsPage = () => {
           <MyEditor isLoading={isLoading} content={data?.data} />
         )}
         {currentView === 4 && <GeneralCategoriesSection />}
-        {currentView === 5 && <BlogCategoriesSection />}
       </div>
     </BaseDashboardNavigation>
   );

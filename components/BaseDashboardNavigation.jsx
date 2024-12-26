@@ -5,7 +5,7 @@ import IconsWithText from "./IconsWithText";
 // import NotificationList from "../modules/notification/NotificationList";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { IoCloseSharp } from "react-icons/io5";
 import { RiMenu2Fill } from "react-icons/ri";
 
@@ -22,6 +22,8 @@ import ProfileAvatar from "./ProfileAvatar";
 const BaseDashboardNavigation = ({ children, title }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
+  const pathname = usePathname();
+  const isAdminPath = pathname?.startsWith("/admin");
 
   const { data, isError, error, isLoading, isSuccess } =
     useGetUserDetailsManager();
@@ -58,7 +60,7 @@ const BaseDashboardNavigation = ({ children, title }) => {
             />
           </div>
 
-          {mainMenu.map((el, i) =>
+          {(isAdminPath ? adminMenu : mainMenu).map((el, i) =>
             el?.text === "Log Out" ? (
               <div
                 key={i}
@@ -111,7 +113,7 @@ const BaseDashboardNavigation = ({ children, title }) => {
           src={logo.src}
           alt="The Confidant logo"
         />
-        {mainMenu.map((el, i) => (
+        {(isAdminPath ? adminMenu : mainMenu).map((el, i) => (
           <Link
             key={i}
             className="w-[90%] mx-auto cursor-pointer"

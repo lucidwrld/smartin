@@ -1,16 +1,17 @@
 "use client";
-import AdminPageTop from "@/components/AdminPageTop";
+
 import BaseDashboardNavigation from "@/components/BaseDashboardNavigation";
 import SearchComponent from "@/components/SearchComponent";
-import PaginationRounded from "@/components/pagination";
+
 import TicketsTable from "@/components/support/TicketsTable";
-import UsersTable from "@/components/users/UsersTable";
-import { exportSVG, filter, searchComponent } from "@/public/icons";
+
+import { Download } from "lucide-react";
 
 import React, { useState } from "react";
 import useGetAllTicketsManager from "./controllers/getAllTicketsController";
 import useDebounce from "@/utils/UseDebounce";
 import { calculatePaginationRange } from "@/utils/calculatePaginationRange";
+import PaginationRounded from "@/components/Pagination";
 
 const AdminTicketsPage = () => {
   const [currentView, setCurrentView] = useState(0);
@@ -52,7 +53,7 @@ const AdminTicketsPage = () => {
           <div className="flex items-center justify-end gap-4 my-3">
             <div className="flex items-center gap-3">
               <SearchComponent />
-              {<img src={exportSVG.src} alt="" className="mt-1.5" />}
+              <Download className="w-6 h-6 mt-1.5 text-gray-600" />
             </div>
           </div>
         </div>
