@@ -1,9 +1,12 @@
-import PaginationRounded from "@/components/Pagination";
+import useGetEventInviteesManager from "@/app/events/controllers/getEventInviteesController";
+import CompletePagination from "@/components/CompletePagination";
 import StatusButton from "@/components/StatusButton";
 import TablesComponent from "@/components/TablesComponent";
-import React from "react";
+import React, { useState } from "react";
 
-const GuestListTab = () => {
+const GuestListTab = ({ eventId }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const { data, isLoading } = useGetEventInviteesManager({ eventId: eventId });
   const headers = [
     "Guest name",
     "Phone",
@@ -33,26 +36,22 @@ const GuestListTab = () => {
       <div className="h-[67vh] w-full relative">
         {
           <TablesComponent
-            // isLoading={isLoading}
-            data={[...Array(30)]}
+            isLoading={isLoading}
+            data={data?.data}
             getFormattedValue={getFormattedValue}
             headers={headers}
-            buttonFunction={() => {}}
             options={["View Guest", "Edit Guest Info", "Remove Guest"]}
             // Close popup function
           />
         }
       </div>
-      <div className="flex items-center justify-between mt-4">
-        <p className="text-14px text-brandBlack">1-10 of 195 items</p>
-        <PaginationRounded
-          defaultPage={1}
-          count={100}
-          onChange={(page) => {
-            setCurrentPage(page);
-          }}
+      {data?.data.length > 0 && (
+        <CompletePagination
+          setCurrentPage={setCurrentPage}
+          pagination={data?.pagination}
+          suffix={"Guests"}
         />
-      </div>
+      )}
     </div>
   );
 };

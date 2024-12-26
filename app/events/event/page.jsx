@@ -7,13 +7,25 @@ import TabManager from "@/components/TabManager";
 import EventDetailAndGalleryTab from "@/components/events/view/EventDetailAndGalleryTab";
 import GiftRegistryTab from "@/components/events/view/GiftRegistryTab";
 import GuestListTab from "@/components/events/view/GuestListTab";
+import { getQueryParams } from "@/utils/getQueryParams";
+import useGetSingleEventManager from "../controllers/getSingleEventController";
+import useGetEventAnalyticsManager from "../controllers/getEventAnalyticsController";
 
 const EventDetailsPage = () => {
+  const { id } = getQueryParams(["id"]);
+  const { data: event, isLoading } = useGetSingleEventManager({ eventId: id });
+  const { data: analytics, isLoading: loadingAnalytics } =
+    useGetEventAnalyticsManager({ eventId: id });
+
   const cards = [
-    { title: "Guests", count: 120, icon: Users },
-    { title: "Sent", count: 120, icon: Send },
-    { title: "Pending", count: 120, icon: Clock },
-    { title: "Accepted", count: 120, icon: UserRoundCheck },
+    { title: "Guests", count: analytics?.data?.totalInvites, icon: Users },
+    { title: "Sent", count: analytics?.data?.totalInvites, icon: Send },
+    { title: "Pending", count: analytics?.data?.pendingInvites, icon: Clock },
+    {
+      title: "Accepted",
+      count: analytics?.data?.acceptedInvites,
+      icon: UserRoundCheck,
+    },
   ];
 
   const [currentView, setCurrentView] = useState(0);
@@ -32,9 +44,16 @@ const EventDetailsPage = () => {
           list={list}
         />
       </div>
-      {currentView === 0 && <EventDetailAndGalleryTab />}
-      {currentView === 1 && <GiftRegistryTab />}
-      {currentView === 2 && <GuestListTab />}
+      {currentView === 0 && (
+        <EventDetailAndGalleryTab
+          event={event?.data[0]}
+          isLoading={isLoading}
+        />
+      )}
+      {currentView === 1 && (
+        <GiftRegistryTab event={event?.data[0]} isLoading={isLoading} />
+      )}
+      {currentView === 2 && <GuestListTab eventId={id} />}
     </BaseDashboardNavigation>
   );
 };

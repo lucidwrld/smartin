@@ -1,14 +1,20 @@
 "use client";
 import BaseDashboardNavigation from "@/components/BaseDashboardNavigation";
+import CompletePagination from "@/components/CompletePagination";
 import PaginationRounded from "@/components/Pagination";
 import StatusButton from "@/components/StatusButton";
 import StatusCard from "@/components/StatusCard";
 import TablesComponent from "@/components/TablesComponent";
 import UserCard from "@/components/UserCard";
 import { ArrowLeftRight, Clock } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
+import useGetAllTransactionsManager from "./controllers/getAllTransactionsController";
+import { formatAmount } from "@/utils/formatAmount";
+import { formatDateTime } from "@/utils/formatDateTime";
 
 const TransactionsPage = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const { data, isLoading } = useGetAllTransactionsManager({});
   const cards = [
     { title: "Total Transactions", count: 120, icon: ArrowLeftRight },
     { title: "Pending Confirmation", count: 120, icon: Clock },
@@ -24,11 +30,15 @@ const TransactionsPage = () => {
 
   const getFormattedValue = (el, index) => {
     return [
-      <UserCard letter={"E"} email={"Johndoe@email.com"} name={"John Doe"} />,
-      "$200,000",
-      <StatusButton status={"Paid"} />,
-      "Apr 12, 2023 | 09:32AM",
-      <StatusButton status={"Online Payment"} />,
+      <UserCard
+        letter={el?.fullname.charAt(0)}
+        email={el?.email}
+        name={el?.fullname}
+      />,
+      `\$${formatAmount(el?.amount)}`,
+      <StatusButton status={el?.status} />,
+      formatDateTime(el?.createdAt),
+      <StatusButton status={el?.narration || "Unknown"} />,
     ];
   };
   return (
@@ -42,8 +52,8 @@ const TransactionsPage = () => {
         <div className="h-[67vh] w-full relative">
           {
             <TablesComponent
-              // isLoading={isLoading}
-              data={[...Array(30)]}
+              isLoading={isLoading}
+              data={data?.data?.transactions}
               getFormattedValue={getFormattedValue}
               headers={headers}
               buttonFunction={() => {}}
@@ -56,16 +66,13 @@ const TransactionsPage = () => {
             />
           }
         </div>
-        <div className="flex items-center justify-between mt-4">
-          <p className="text-14px text-brandBlack">1-10 of 195 items</p>
-          <PaginationRounded
-            defaultPage={1}
-            count={100}
-            onChange={(page) => {
-              setCurrentPage(page);
-            }}
+        {data?.data?.transactions.length > 0 && (
+          <CompletePagination
+            setCurrentPage={setCurrentPage}
+            pagination={data?.data?.pagination}
+            suffix={"Guests"}
           />
-        </div>
+        )}
       </div>
     </BaseDashboardNavigation>
   );

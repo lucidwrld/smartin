@@ -8,43 +8,45 @@ import {
 } from "@/public/icons";
 import StatusButton from "../StatusButton";
 import { useRouter } from "next/navigation";
+import { formatDateToLongString } from "@/utils/formatDateToLongString";
+import { convertToAmPm } from "@/utils/timeStringToAMPM";
 
-const EventTile = () => {
+const EventTile = ({ event }) => {
   const route = useRouter();
   return (
     <div className="rounded-[16px] bg-whiteColor flex flex-col relative border border-grey3 h-[426px]">
       <div className="h-[60%] relative rounded-t-[16px] w-full">
         <img
-          src="https://img.freepik.com/free-vector/elegant-round-wedding-invitation-collection-template_52683-36859.jpg"
+          src={event?.image}
           className="rounded-t-[16px] object-cover w-full h-full"
           alt=""
         />
       </div>
       <div className="h-[40%] flex flex-col p-10 items-start gap-2 text-brandBlack">
         <div className="flex items-center justify-center gap-2">
-          <p className="text-16px leading-[24px] font-medium">
-            Chioma & Damilare's Wedding
-          </p>
-          <StatusButton status={"Active"} />
+          <p className="text-16px leading-[24px] font-medium">{event?.name}</p>
+          <StatusButton status={event?.isActive ? "Active" : "Inactive"} />
         </div>
         <div className="flex items-center justify-center gap-2">
           <div className="flex items-center gap-1.5">
             <img src={purpleCalendar.src} alt="" />
             <p className="text-16px leading-[24px] font-medium mr-2">
-              Tuesday, December 10, 2024
+              {formatDateToLongString(event?.date)}
             </p>
           </div>
           <div className="flex items-center gap-1.5">
             <img src={purpleTime.src} alt="" />
 
-            <p className="text-16px leading-[24px] font-medium">10:00 AM</p>
+            <p className="text-16px leading-[24px] font-medium uppercase">
+              {convertToAmPm(event?.time)}
+            </p>
           </div>
         </div>
         <div className="flex items-center justify-between gap-2 w-full">
           <div className="flex items-center gap-1.5 justify-between">
             <img src={greyPeople.src} alt="" />
             <p className="text-14px leading-[22px] font-medium ">
-              +50 invitees
+              {event?.no_of_invitees} invitees
             </p>
           </div>
           <CustomButton
@@ -53,7 +55,7 @@ const EventTile = () => {
             className={"border border-grey3"}
             textColor={"blackColor"}
             suffixIcon={arrowRight.src}
-            onClick={() => route.push("/events/event")}
+            onClick={() => route.push(`/events/event?id=${event.id}`)}
           />
         </div>
       </div>

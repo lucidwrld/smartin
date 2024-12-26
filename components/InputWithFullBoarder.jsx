@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 const InputWithFullBoarder = ({
   id,
@@ -58,6 +58,20 @@ const InputWithFullBoarder = ({
     return errors;
   };
 
+  const validateDate = (dateValue) => {
+    if (!dateValue) return;
+
+    const selectedDate = new Date(dateValue);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      return "Please select a future date";
+    }
+
+    return "";
+  };
+
   const validateInput = (inputValue) => {
     if (customValidator) {
       const customValidation = customValidator(inputValue);
@@ -65,7 +79,7 @@ const InputWithFullBoarder = ({
         setError(customValidation.message);
         return;
       }
-      setError(""); // Clear any existing errors
+      setError("");
       return;
     }
 
@@ -79,7 +93,6 @@ const InputWithFullBoarder = ({
       return;
     }
 
-    // Text length validation
     if (inputValue) {
       if (minLength && inputValue.length < minLength) {
         setError(`Minimum ${minLength} characters required`);
@@ -107,6 +120,11 @@ const InputWithFullBoarder = ({
         } else {
           setError("");
         }
+        break;
+
+      case "date":
+        const dateError = validateDate(inputValue);
+        setError(dateError || "");
         break;
 
       case "number":
@@ -137,6 +155,14 @@ const InputWithFullBoarder = ({
     validateInput(value);
   };
 
+  const getTodayDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const inputStyleClass = `
     border rounded-md p-2 outline-none focus:outline-none placeholder:text-14px
     ${error && touched ? "border-red-500" : "border-gray-300"}
@@ -155,6 +181,7 @@ const InputWithFullBoarder = ({
     onChange: handleChange,
     onBlur: handleBlur,
     placeholder,
+    ...(type === "date" && { min: getTodayDate() }),
     ...props,
   };
 

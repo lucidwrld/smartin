@@ -90,11 +90,12 @@ const BaseDashboardNavigation = ({ children, title }) => {
             )
           )}
         </div>
-        <div onClick={handleLogout} className="w-[90%] mx-auto cursor-pointer">
+        <div className="w-[90%] mx-auto cursor-pointer">
           <ProfileAvatar
             name={data?.data?.user?.fullname}
             email={data?.data?.user?.email}
             size="md" // sm, md, lg
+            onClick={handleLogout}
           />
         </div>
       </div>

@@ -4,23 +4,23 @@ import InputWithFullBoarder from "../InputWithFullBoarder";
 export const GiftRegistryStep = ({ formData, onFormDataChange }) => {
   const handleAddGift = () => {
     const newGifts = [
-      ...(formData.giftRegistry || []),
+      ...(formData.items || []),
       { itemName: "", itemLink: "", price: "" },
     ];
-    onFormDataChange("giftRegistry", newGifts);
+    onFormDataChange("items", newGifts);
   };
 
   const handleGiftChange = (index, field, value) => {
-    const newGifts = [...(formData.giftRegistry || [])];
+    const newGifts = [...(formData.items || [])];
     newGifts[index] = { ...newGifts[index], [field]: value };
-    onFormDataChange("giftRegistry", newGifts);
+    onFormDataChange("items", newGifts);
   };
 
   const removeGift = (indexToRemove) => {
-    const newGifts = (formData.giftRegistry || []).filter(
+    const newGifts = (formData.items || []).filter(
       (_, index) => index !== indexToRemove
     );
-    onFormDataChange("giftRegistry", newGifts);
+    onFormDataChange("items", newGifts);
   };
 
   return (
@@ -39,7 +39,7 @@ export const GiftRegistryStep = ({ formData, onFormDataChange }) => {
         </div>
 
         <div className="space-y-4">
-          {(formData.giftRegistry || []).map((gift, index) => (
+          {(formData.items || []).map((gift, index) => (
             <div key={index} className="relative border rounded-lg p-4">
               <button
                 onClick={() => removeGift(index)}
@@ -62,16 +62,16 @@ export const GiftRegistryStep = ({ formData, onFormDataChange }) => {
               <div className="space-y-2">
                 <InputWithFullBoarder
                   label="Item Name"
-                  value={gift.itemName}
+                  value={gift.name}
                   onChange={(e) =>
-                    handleGiftChange(index, "itemName", e.target.value)
+                    handleGiftChange(index, "name", e.target.value)
                   }
                 />
                 <InputWithFullBoarder
                   label="Item Link"
-                  value={gift.itemLink}
+                  value={gift.link}
                   onChange={(e) =>
-                    handleGiftChange(index, "itemLink", e.target.value)
+                    handleGiftChange(index, "link", e.target.value)
                   }
                 />
                 <InputWithFullBoarder
@@ -93,18 +93,24 @@ export const GiftRegistryStep = ({ formData, onFormDataChange }) => {
         <h3 className="text-lg font-semibold">Account Details</h3>
         <InputWithFullBoarder
           label="Bank Name"
-          value={formData.bankName}
-          onChange={(e) => onFormDataChange("bankName", e.target.value)}
+          value={formData.donation?.bank_name}
+          onChange={(e) =>
+            onFormDataChange("donation.bank_name", e.target.value)
+          }
         />
         <InputWithFullBoarder
           label="Account Number"
-          value={formData.accountNumber}
-          onChange={(e) => onFormDataChange("accountNumber", e.target.value)}
+          value={formData.donation?.account_number}
+          onChange={(e) =>
+            onFormDataChange("donation.account_number", e.target.value)
+          }
         />
         <InputWithFullBoarder
           label="Account Name"
-          value={formData.accountName}
-          onChange={(e) => onFormDataChange("accountName", e.target.value)}
+          value={formData.donation.account_name}
+          onChange={(e) =>
+            onFormDataChange("donation.account_name", e.target.value)
+          }
         />
       </div>
     </div>

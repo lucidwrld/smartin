@@ -9,7 +9,7 @@ const ProfileAvatar = ({ name, image, email, size = "md", onClick }) => {
   };
 
   return (
-    <div className="flex items-center gap-2 w-full" onClick={onClick}>
+    <div className="flex items-center gap-2 w-full">
       <div className={`${sizes[size]} shrink-0`}>
         {image ? (
           <img
@@ -27,7 +27,7 @@ const ProfileAvatar = ({ name, image, email, size = "md", onClick }) => {
         <h3 className="font-medium text-whiteColor ">{name}</h3>
         <p className="text-gray-200 truncate">{email}</p>
       </div>
-      <LogOutIcon className="text-white shrink-0" size={20} />
+      <LogOutIcon className="text-white shrink-0" size={20} onClick={onClick} />
     </div>
   );
 };
