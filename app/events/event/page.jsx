@@ -37,7 +37,7 @@ const EventDetailsPage = () => {
           <StatusCard key={index} {...card} />
         ))}
       </div>
-      <div className="sticky top-0 py-5 bg-[#F9FAFB] z-50">
+      <div className="sticky top-0 py-2 bg-[#F9FAFB] z-50">
         <TabManager
           currentView={currentView}
           setCurrentView={setCurrentView}
@@ -53,7 +53,9 @@ const EventDetailsPage = () => {
       {currentView === 1 && (
         <GiftRegistryTab event={event?.data[0]} isLoading={isLoading} />
       )}
-      {currentView === 2 && <GuestListTab eventId={id} />}
+      {currentView === 2 && (
+        <GuestListTab eventId={id} analytics={analytics?.data} />
+      )}
     </BaseDashboardNavigation>
   );
 };

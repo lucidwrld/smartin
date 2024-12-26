@@ -18,6 +18,9 @@ import useGetSingleEventManager from "../controllers/getSingleEventController";
 import { getQueryParams } from "@/utils/getQueryParams";
 import useFileUpload from "@/utils/fileUploadController";
 import GoBackButton from "@/components/GoBackButton";
+import { AddInviteesManager } from "../controllers/addInviteesController";
+import { UploadInviteeManager } from "../controllers/uploadInviteeController";
+import usePayForEventManager from "../controllers/payForEventController";
 
 const EventPage = () => {
   const { id, section } = getQueryParams(["id", "section"]);
@@ -43,6 +46,12 @@ const EventPage = () => {
   });
   const { isLoading: creating, createEvent } = CreateEventManager();
   const { isLoading: updating, updateEvent } = EditEventManager({});
+  const { addInvitees, isLoading: addingInvitees } = AddInviteesManager();
+  const { uploadInvitees, isLoading: uploadingInvitees } = UploadInviteeManager(
+    { eventId: id }
+  );
+
+  const {} = usePayForEventManager({});
 
   // Form data state
   const [formData, setFormData] = useState({
@@ -205,47 +214,58 @@ const EventPage = () => {
   };
 
   const handleSubmit = async () => {
-    try {
-      const updatedFormData = { ...formData };
-      updatedFormData.no_of_invitees = Number(formData.no_of_invitees);
-
-      // Handle cover image upload
-      if (coverFile) {
-        const imageUrl = await handleFileUpload(coverFile);
-        updatedFormData.image = imageUrl;
+    if (section.toLowerCase() === "guest list") {
+      //creating guestList on the go and only use it here.
+      if (formData.guestList.length > 0) {
+        const details = {
+          eventId: id,
+          invitees: formData.guestList,
+        };
+        addInvitees(details);
       }
+    } else {
+      try {
+        const updatedFormData = { ...formData };
+        updatedFormData.no_of_invitees = Number(formData.no_of_invitees);
 
-      // Handle gallery images upload
-      if (formData.gallery?.length > 0) {
-        // Separate files and URLs
-        const existingUrls = formData.gallery.filter(
-          (item) => !(item instanceof File)
-        );
-        const filesToUpload = formData.gallery.filter(
-          (item) => item instanceof File
-        );
-
-        // Only upload new files
-        if (filesToUpload.length > 0) {
-          const uploadPromises = filesToUpload.map((file) =>
-            handleFileUpload(file)
-          );
-          const newUrls = await Promise.all(uploadPromises);
-          updatedFormData.gallery = [...existingUrls, ...newUrls];
-        } else {
-          updatedFormData.gallery = existingUrls;
+        // Handle cover image upload
+        if (coverFile) {
+          const imageUrl = await handleFileUpload(coverFile);
+          updatedFormData.image = imageUrl;
         }
-      }
 
-      // Submit form data
-      if (isEditMode) {
-        await updateEvent(updatedFormData);
-      } else {
-        await createEvent(updatedFormData);
+        // Handle gallery images upload
+        if (formData.gallery?.length > 0) {
+          // Separate files and URLs
+          const existingUrls = formData.gallery.filter(
+            (item) => !(item instanceof File)
+          );
+          const filesToUpload = formData.gallery.filter(
+            (item) => item instanceof File
+          );
+
+          // Only upload new files
+          if (filesToUpload.length > 0) {
+            const uploadPromises = filesToUpload.map((file) =>
+              handleFileUpload(file)
+            );
+            const newUrls = await Promise.all(uploadPromises);
+            updatedFormData.gallery = [...existingUrls, ...newUrls];
+          } else {
+            updatedFormData.gallery = existingUrls;
+          }
+        }
+
+        // Submit form data
+        if (isEditMode) {
+          await updateEvent(updatedFormData);
+        } else {
+          await createEvent(updatedFormData);
+        }
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        // Handle error (show toast notification, etc.)
       }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      // Handle error (show toast notification, etc.)
     }
   };
 
@@ -257,11 +277,11 @@ const EventPage = () => {
     );
   }
 
-  const isSubmitting = creating || updating || uploadingFile;
+  const isSubmitting = creating || updating || uploadingFile || addingInvitees;
 
   return (
     <BaseDashboardNavigation title={isEditMode ? "Edit Event" : "Create Event"}>
-      {isEditMode && <GoBackButton />}
+      <div className="mb-3 w-full">{isEditMode && <GoBackButton />}</div>
       <div className="w-full max-w-7xl mx-auto px-4">
         <div className="w-full space-y-6 text-brandBlack">
           {!section && (
