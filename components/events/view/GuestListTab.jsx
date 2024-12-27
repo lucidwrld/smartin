@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { MessageCircle, Mail, MessageSquare, PlusCircle } from "lucide-react";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
+import StatusButtonWithBool from "@/components/StatusWithBool";
 
 const StatCard = ({ icon: Icon, label, value }) => (
   <div className="bg-white rounded-lg shadow p-4">
@@ -84,15 +85,21 @@ const GuestListTab = ({ eventId, analytics }) => {
   ];
 
   const getFormattedValue = (el, index) => [
-    "001",
-    "John Doe",
-    "08068111435",
-    "Johndoe@email.com",
-    <StatusButton status={"accepted"} />,
+    index + 1,
+    el?.name,
+    el?.phone,
+    el?.email || "No email",
+    <StatusButton status={el?.response} />,
     <div className="flex items-center gap-2">
-      <StatusButton status={"WhatsApp"} />
-      <StatusButton status={"SMS"} />
-      <StatusButton status={"Email"} />
+      <StatusButtonWithBool
+        isActive={el?.notification_sent?.whatsapp}
+        text="WhatsApp"
+      />
+      <StatusButtonWithBool isActive={el?.notification_sent?.sms} text="SMS" />
+      <StatusButtonWithBool
+        isActive={el?.notification_sent?.email}
+        text="Email"
+      />
     </div>,
   ];
 
