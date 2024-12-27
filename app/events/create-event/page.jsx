@@ -79,7 +79,7 @@ const EventPage = () => {
   // Initialize form data with event data in edit mode
   useEffect(() => {
     if (isEditMode && event) {
-      setFormData(event?.data[0]);
+      setFormData(event?.data);
 
       // Set initial step based on editSection parameter
       if (section) {

@@ -10,6 +10,8 @@ import GuestListTab from "@/components/events/view/GuestListTab";
 import { getQueryParams } from "@/utils/getQueryParams";
 import useGetSingleEventManager from "../controllers/getSingleEventController";
 import useGetEventAnalyticsManager from "../controllers/getEventAnalyticsController";
+import { TableArrangement } from "@/components/events/view/TableArrangement";
+import { ThankYouMessage } from "@/components/events/view/ThankYouMessage";
 
 const EventDetailsPage = () => {
   const { id } = getQueryParams(["id"]);
@@ -29,7 +31,13 @@ const EventDetailsPage = () => {
   ];
 
   const [currentView, setCurrentView] = useState(0);
-  const list = ["Event details", "Gift Registry", "Guest List"];
+  const list = [
+    "Event details",
+    "Gift Registry",
+    "Guest List",
+    "Table Arrangement",
+    "Thank you message",
+  ];
   return (
     <BaseDashboardNavigation title={"Event Detail"}>
       <div className="grid grid-cols-4 gap-4 p-4">
@@ -45,17 +53,16 @@ const EventDetailsPage = () => {
         />
       </div>
       {currentView === 0 && (
-        <EventDetailAndGalleryTab
-          event={event?.data[0]}
-          isLoading={isLoading}
-        />
+        <EventDetailAndGalleryTab event={event?.data} isLoading={isLoading} />
       )}
       {currentView === 1 && (
-        <GiftRegistryTab event={event?.data[0]} isLoading={isLoading} />
+        <GiftRegistryTab event={event?.data} isLoading={isLoading} />
       )}
       {currentView === 2 && (
         <GuestListTab eventId={id} analytics={analytics?.data} />
       )}
+      {currentView === 3 && <TableArrangement eventId={id} />}
+      {currentView === 4 && <ThankYouMessage eventId={id} />}
     </BaseDashboardNavigation>
   );
 };
