@@ -2,11 +2,12 @@
 import HeaderWithEdit from "@/components/HeaderWithEdit";
 import StatusButton from "@/components/StatusButton";
 import React from "react";
-import { Calendar, Clock, MapPin } from "lucide-react";
+import { Calendar, Clock, Mail, MapPin, Phone } from "lucide-react";
 import Gallery from "@/components/Gallery";
 import { convertToAmPm } from "@/utils/timeStringToAMPM";
 import { formatDateToLongString } from "@/utils/formatDateToLongString";
 import Loader from "@/components/Loader";
+import { QRCodeSVG } from "qrcode.react";
 import { useRouter } from "next/navigation";
 
 const EventDetailAndGalleryTab = ({ event, isLoading }) => {
@@ -19,6 +20,7 @@ const EventDetailAndGalleryTab = ({ event, isLoading }) => {
         title={"Event Details"}
         href={`/events/create-event?id=${event?.id}&section=event details`}
       />
+
       <div className="w-full flex flex-col md:flex-row items-start gap-10">
         <div className="w-full md:w-1/2 relative max-h-[60vh] h-full">
           <img
@@ -56,6 +58,7 @@ const EventDetailAndGalleryTab = ({ event, isLoading }) => {
           </div>
         </div>
       </div>
+
       <HeaderWithEdit
         title={"Gallery"}
         href={`/events/create-event?id=${event?.id}&section=gallery`}

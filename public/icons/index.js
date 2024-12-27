@@ -14,9 +14,13 @@ import emptyState from "./Empty State.svg";
 import uploaded from "./uploaded.svg";
 import deleteIcon from "./deleteIcon.svg";
 import viewDocument from "./viewDocument.svg";
+import accessCard from "./accessCard.svg";
+import googleCalendar from "./googleCalendar.svg";
 
 export {
   emptyState,
+  googleCalendar,
+  accessCard,
   viewDocument,
   uploaded,
   deleteIcon,

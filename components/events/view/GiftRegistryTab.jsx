@@ -65,14 +65,20 @@ const AccountDetails = ({ accountInfo, isLoading }) => {
   );
 };
 
-const GiftRegistryTab = ({ event }) => {
+const GiftRegistryTab = ({ event, isViewOnly = false }) => {
   return (
     <div className="space-y-6">
-      <HeaderWithEdit
-        title="Gift Registry"
-        href={`/events/create-event?id=${event?.id}&section=gift registry`}
-      />
-      <p className="text-gray-600">Create a personalized list of gifts</p>
+      {!isViewOnly && (
+        <HeaderWithEdit
+          title="Gift Registry"
+          href={`/events/create-event?id=${event?.id}&section=gift registry`}
+        />
+      )}
+      <p className="text-gray-600">
+        {isViewOnly
+          ? `Celebrate with ${event?.host} by sending a thoughtful gift! You can choose from their carefully curated gift registry or send them a cash gift to make their special day even more memorable. Your generosity means the world!`
+          : "Create a personalized list of gifts"}
+      </p>
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-4">
