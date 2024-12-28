@@ -1,7 +1,6 @@
 import axios from "axios";
 
-const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
-// const baseURL = "https://avowal-server.herokuapp.com/api/v1";
+const baseURL = "https://invite-app-34766b534099.herokuapp.com/api/v1";
 
 const AxiosWithToken = axios.create({
   baseURL: baseURL,
