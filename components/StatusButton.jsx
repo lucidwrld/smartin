@@ -128,7 +128,7 @@ const StatusButton = ({ status }) => {
 
   return (
     <button
-      className="text-12px rounded-[20px] px-5 py-1"
+      className="text-10px rounded-[20px] px-5 py-1"
       style={{ backgroundColor: styles.backgroundColor, color: styles.color }}
     >
       {styles.text}

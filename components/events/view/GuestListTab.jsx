@@ -7,7 +7,14 @@ import TablesComponent from "@/components/TablesComponent";
 import ModalManagement from "@/components/ModalManagement";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { MessageCircle, Mail, MessageSquare, PlusCircle } from "lucide-react";
+import {
+  MessageCircle,
+  Mail,
+  MessageSquare,
+  PlusCircle,
+  Send,
+  PlusIcon,
+} from "lucide-react";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import StatusButtonWithBool from "@/components/StatusWithBool";
 
@@ -79,9 +86,9 @@ const GuestListTab = ({ eventId, analytics, event }) => {
     "Guest name",
     "Phone",
     "Email",
-    "Acceptance",
-    "Channels",
     "Attendance",
+    "Acceptance",
+    "Invite Channels",
     "Action",
   ];
 
@@ -117,12 +124,20 @@ const GuestListTab = ({ eventId, analytics, event }) => {
         ))}
         <div className="flex gap-3 ml-auto">
           <CustomButton
+            buttonText="Send Invite"
+            prefixIcon={<Send className="w-4 h-4" />}
+            radius={"rounded-full"}
+          />
+          <CustomButton
             buttonText="Top up Slots"
-            icon={<PlusCircle className="w-4 h-4" />}
+            prefixIcon={<PlusCircle className="w-4 h-4" />}
             onClick={() => document.getElementById("payment_modal").showModal()}
+            radius={"rounded-full"}
           />
           <CustomButton
             buttonText="Add Guests"
+            prefixIcon={<PlusIcon className="w-4 h-4" />}
+            radius={"rounded-full"}
             onClick={() =>
               route.push(
                 `/events/create-event/?id=${eventId}&section=Guest List`
