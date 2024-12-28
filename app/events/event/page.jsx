@@ -59,7 +59,11 @@ const EventDetailsPage = () => {
         <GiftRegistryTab event={event?.data} isLoading={isLoading} />
       )}
       {currentView === 2 && (
-        <GuestListTab eventId={id} analytics={analytics?.data} />
+        <GuestListTab
+          eventId={id}
+          analytics={analytics?.data}
+          event={event?.data}
+        />
       )}
       {currentView === 3 && <TableArrangement eventId={id} />}
       {currentView === 4 && <ThankYouMessage eventId={id} />}

@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useParams } from "next/navigation";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
-const usePayForEventManager = () => {
+const usePayForEventManager = ({ eventId }) => {
   const queryClient = useQueryClient();
 
   const { confirmDetails } = useParams();

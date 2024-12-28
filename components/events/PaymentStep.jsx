@@ -98,15 +98,17 @@ const PaymentStep = ({ formData, onFormDataChange }) => {
         <SummaryItem label="Total" value="6000" />
       </div>
 
-      <div className="flex p-4 mb-8 bg-red-50 border border-red-100 rounded-lg">
-        <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
-        <div className="ml-3">
-          <h3 className="text-red-500 font-medium">Event Is Not Active</h3>
-          <p className="text-gray-600 mt-1">
-            Payment is needed to activate the event
-          </p>
+      {event?.isPaid && (
+        <div className="flex p-4 mb-8 bg-red-50 border border-red-100 rounded-lg">
+          <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
+          <div className="ml-3">
+            <h3 className="text-red-500 font-medium">Event Is Not Active</h3>
+            <p className="text-gray-600 mt-1">
+              Payment is needed to activate the event
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="space-y-4">
         <h3 className="text-gray-900">Select payment method</h3>

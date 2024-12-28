@@ -23,7 +23,7 @@ const StatCard = ({ icon: Icon, label, value }) => (
   </div>
 );
 
-const GuestListTab = ({ eventId, analytics }) => {
+const GuestListTab = ({ eventId, analytics, event }) => {
   const route = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [inviteCount, setInviteCount] = useState(50);
@@ -44,6 +44,7 @@ const GuestListTab = ({ eventId, analytics }) => {
     postCaller({
       eventId,
       no_of_invitees: inviteCount,
+      path: `/events/event/?id=${eventId}`,
     });
   };
 
@@ -51,7 +52,7 @@ const GuestListTab = ({ eventId, analytics }) => {
     {
       icon: PlusCircle,
       label: "Available Slots",
-      value: 50,
+      value: event?.slots_left,
       iconColor: "text-gray-600",
     },
     {
@@ -137,6 +138,7 @@ const GuestListTab = ({ eventId, analytics }) => {
           data={data?.data}
           getFormattedValue={getFormattedValue}
           headers={headers}
+          popUpFunction={(option, inx, selected) => {}}
           options={["View Guest", "Edit Guest Info", "Remove Guest"]}
         />
       </div>

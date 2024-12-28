@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import BaseDashboardNavigation from "@/components/BaseDashboardNavigation";
 import StepProgress from "@/components/StepProgress";
 import { EventDetailsStep } from "@/components/events/EventDetailsStep";
@@ -21,11 +21,13 @@ import GoBackButton from "@/components/GoBackButton";
 import { AddInviteesManager } from "../controllers/addInviteesController";
 import { UploadInviteeManager } from "../controllers/uploadInviteeController";
 import usePayForEventManager from "../controllers/payForEventController";
+import { handleSubmission } from "@/utils/formSubmissionValidation";
 
 const EventPage = () => {
   const { id, section } = getQueryParams(["id", "section"]);
   const isEditMode = Boolean(id);
   const formRef = useRef(null);
+  const router = useRouter();
 
   // State management
   const [showProofModal, setShowProofModal] = useState(false);
@@ -51,7 +53,7 @@ const EventPage = () => {
     { eventId: id }
   );
 
-  const {} = usePayForEventManager({});
+  const {} = usePayForEventManager({ eventId: id });
 
   // Form data state
   const [formData, setFormData] = useState({
@@ -121,7 +123,7 @@ const EventPage = () => {
       setFormData((prev) => ({
         ...prev,
         payment_type: value,
-        pay_later: value === "later",
+        pay_later: value === "later" || value === "bank",
       }));
     } else {
       setFormData((prev) => ({
@@ -214,7 +216,10 @@ const EventPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (section.toLowerCase() === "guest list") {
+    if (section && section.toLowerCase() === "guest list") {
+      if (!handleSubmission(section, formData, id)) {
+        return; // Stop here if validation failed
+      }
       //creating guestList on the go and only use it here.
       if (formData.guestList.length > 0) {
         const details = {
@@ -222,6 +227,7 @@ const EventPage = () => {
           invitees: formData.guestList,
         };
         addInvitees(details);
+        router.back();
       }
     } else {
       try {
@@ -319,7 +325,9 @@ const EventPage = () => {
                   if (currentStep === 2 && !section) {
                     if (formData.payment_type === "online") {
                       // Handle online payment redirect
+                      handleSubmit();
                     } else if (formData.payment_type === "bank") {
+                      handleSubmit();
                       setShowProofModal(true);
                     } else if (formData.payment_type === "later") {
                       handleSubmit();
@@ -342,8 +350,6 @@ const EventPage = () => {
                     : formData.payment_type === "bank"
                     ? "I have paid"
                     : "Save and Continue Later"
-                  : currentStep === visibleSteps.length - 1
-                  ? "Save"
                   : "Save"}
               </button>
             </div>

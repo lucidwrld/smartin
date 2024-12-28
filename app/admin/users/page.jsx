@@ -15,7 +15,7 @@ import useGetUsersManager from "./controllers/getAllUsersController";
 
 const UsersPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const { data, isLoading } = useGetUsersManager({});
+  const { data, isLoading } = useGetUsersManager({ page: currentPage });
   const cards = [
     { title: "Total Transactions", count: 120, icon: ArrowLeftRight },
     { title: "Pending Confirmation", count: 120, icon: Clock },
