@@ -11,10 +11,15 @@ import React, { useState } from "react";
 import useGetAllTransactionsManager from "./controllers/getAllTransactionsController";
 import { formatAmount } from "@/utils/formatAmount";
 import { formatDateTime } from "@/utils/formatDateTime";
+import useGetUserDetailsManager from "../profile-settings/controllers/get_UserDetails_controller";
 
 const TransactionsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const { data, isLoading } = useGetAllTransactionsManager({});
+  const { data: userDetail } = useGetUserDetailsManager();
+  const { data, isLoading } = useGetAllTransactionsManager({
+    user: userDetail?.data?.user?.id,
+    enabled: Boolean(userDetail?.data?.user?.id),
+  });
   const cards = [
     { title: "Total Transactions", count: 120, icon: ArrowLeftRight },
     { title: "Pending Confirmation", count: 120, icon: Clock },
