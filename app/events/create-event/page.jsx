@@ -22,6 +22,7 @@ import { AddInviteesManager } from "../controllers/addInviteesController";
 import { UploadInviteeManager } from "../controllers/uploadInviteeController";
 import usePayForEventManager from "../controllers/payForEventController";
 import { handleSubmission } from "@/utils/formSubmissionValidation";
+import { SubmitBankPaymentManager } from "../controllers/submitBankPaymentController";
 
 const EventPage = () => {
   const { id, section } = getQueryParams(["id", "section"]);
@@ -35,6 +36,7 @@ const EventPage = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [coverFile, setCoverFile] = useState(null);
   const [mediaFiles, setMediaFiles] = useState([]);
+  const [isCancel, setIsCancel] = useState(false);
 
   // Custom hooks
   const {
@@ -45,15 +47,26 @@ const EventPage = () => {
 
   const { data: event, isLoading: fetching } = useGetSingleEventManager({
     eventId: id,
+    enabled: Boolean(id),
   });
-  const { isLoading: creating, createEvent } = CreateEventManager();
-  const { isLoading: updating, updateEvent } = EditEventManager({});
+
+  const {
+    isLoading: creating,
+    createEvent,
+    data,
+    isSuccess,
+  } = CreateEventManager();
+  const { isLoading: updating, updateEvent } = EditEventManager({
+    eventId: id,
+  });
   const { addInvitees, isLoading: addingInvitees } = AddInviteesManager();
   const { uploadInvitees, isLoading: uploadingInvitees } = UploadInviteeManager(
     { eventId: id }
   );
 
-  const {} = usePayForEventManager({ eventId: id });
+  const { postCaller: payforevent, isLoading: paying } = usePayForEventManager({
+    eventId: id,
+  });
 
   // Form data state
   const [formData, setFormData] = useState({
@@ -76,7 +89,14 @@ const EventPage = () => {
     },
     gallery: [],
     pay_later: false,
+    currency: "NGN",
   });
+
+  useEffect(() => {
+    if (!formData.pay_later && isSuccess) {
+      window.location.href = data?.data?.checkoutUrl;
+    }
+  }, [isSuccess]);
 
   // Initialize form data with event data in edit mode
   useEffect(() => {
@@ -156,6 +176,8 @@ const EventPage = () => {
       title: "Payment",
       component: (
         <PaymentStep
+          event={event?.data}
+          isEditMode={isEditMode}
           formData={formData}
           onFormDataChange={handleFormDataChange}
         />
@@ -229,6 +251,8 @@ const EventPage = () => {
         addInvitees(details);
         router.back();
       }
+    } else if (section && section.toLowerCase() === "payment") {
+      setShowProofModal(true);
     } else {
       try {
         const updatedFormData = { ...formData };
@@ -283,7 +307,8 @@ const EventPage = () => {
     );
   }
 
-  const isSubmitting = creating || updating || uploadingFile || addingInvitees;
+  const isSubmitting =
+    creating || updating || uploadingFile || addingInvitees || paying;
 
   return (
     <BaseDashboardNavigation title={isEditMode ? "Edit Event" : "Create Event"}>
@@ -329,6 +354,7 @@ const EventPage = () => {
                     } else if (formData.payment_type === "bank") {
                       handleSubmit();
                       setShowProofModal(true);
+                      setIsCancel(false);
                     } else if (formData.payment_type === "later") {
                       handleSubmit();
                     }
@@ -343,7 +369,9 @@ const EventPage = () => {
                 {isSubmitting
                   ? "Processing..."
                   : isEditMode
-                  ? "Save Changes"
+                  ? section && section.toLowerCase() === "payment"
+                    ? "Submit proof of payment"
+                    : "Save Changes"
                   : currentStep === 2 && !section
                   ? formData.payment_type === "online"
                     ? "Proceed to payment"
@@ -358,10 +386,15 @@ const EventPage = () => {
       </div>
 
       <PaymentProofModal
+        eventId={id}
         isOpen={showProofModal}
+        isCancel={isCancel}
+        setIsCancel={setIsCancel}
         onClose={() => {
           setShowProofModal(false);
-          setShowVerificationModal(true);
+          if (!isCancel) {
+            setShowVerificationModal(true);
+          }
         }}
       />
       <VerificationModal

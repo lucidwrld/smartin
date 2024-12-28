@@ -1,12 +1,12 @@
 import usePostManager from "@/constants/controller_templates/post_controller_template";
 
-export const AddInviteesManager = () => {
+export const SubmitBankPaymentManager = () => {
   const { postCaller, isLoading, isSuccess, error, data } = usePostManager(
-    `/event/invitees/add`,
-    ["events_invitees", "event"],
+    `/event/pay/bank`,
+    ["transactions", "event"],
     true
   );
-  const addInvitees = async (details) => {
+  const submitPayment = async (details) => {
     try {
       await postCaller(details);
     } catch (error) {
@@ -14,7 +14,7 @@ export const AddInviteesManager = () => {
     }
   };
   return {
-    addInvitees,
+    submitPayment,
     data,
     isLoading,
     isSuccess,

@@ -1,16 +1,40 @@
 // PaymentProofModal.js
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Upload } from "lucide-react";
+import { SubmitBankPaymentManager } from "@/app/events/controllers/submitBankPaymentController";
+import useFileUpload from "@/utils/fileUploadController";
+import CustomButton from "../Button";
 
-export const PaymentProofModal = ({ isOpen, onClose }) => {
+export const PaymentProofModal = ({
+  isOpen,
+  onClose,
+  eventId,
+  setIsCancel,
+}) => {
   const [image, setImage] = useState(null);
-
+  const {
+    submitPayment,
+    isLoading: submittingProof,
+    isSuccess,
+  } = SubmitBankPaymentManager();
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       setImage(file);
     }
   };
+
+  useEffect(() => {
+    if (isSuccess) {
+      onClose();
+    }
+  }, [isSuccess]);
+
+  const {
+    progress,
+    handleFileUpload,
+    isLoading: uploadingFile,
+  } = useFileUpload();
 
   if (!isOpen) return null;
 
@@ -52,19 +76,35 @@ export const PaymentProofModal = ({ isOpen, onClose }) => {
           )}
 
           <div className="flex justify-end gap-3">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={onClose}
+            <CustomButton
+              buttonText={"Cancel"}
+              buttonColor={"bg-whiteColor border border-brandBlack"}
+              textColor={"text-brandBlack"}
+              className={"w-1/3"}
+              onClick={() => {
+                setIsCancel(true);
+                onClose();
+              }}
+            />
+
+            <CustomButton
+              buttonText={"Submit Proof of Payment"}
+              isLoading={submittingProof || uploadingFile}
+              className={"w-2/3"}
+              onClick={async () => {
+                let imageUrl = "";
+                if (image) {
+                  imageUrl = await handleFileUpload(image);
+                  // updatedFormData.image = imageUrl;
+                }
+                const details = {
+                  eventId: eventId,
+                  "image:": imageUrl,
+                };
+                await submitPayment(details);
+              }}
               disabled={!image}
-              className="px-6 py-2 bg-purple-600 text-white rounded-lg disabled:opacity-50"
-            >
-              Continue
-            </button>
+            />
           </div>
         </div>
       </div>

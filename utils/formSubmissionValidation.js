@@ -1,31 +1,43 @@
-// Helper validation functions
-const validateEmail = (email) => {
-  if (!email) return true; // Optional field
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-};
+import { countryCodes } from "./countryCodes";
 
-const validatePhoneNumber = (number) => {
-  if (!number) return false;
-
-  // Standard length is 10 digits after removing country code and any leading zero
-  const EXPECTED_LENGTH = 10;
-
-  // Clean the number of any formatting
-  const cleanNumber = number.replace(/\D/g, "");
-
-  if (cleanNumber.startsWith("0")) {
-    // If starts with 0, must be EXPECTED_LENGTH + 1 (including the 0)
-    return cleanNumber.length === EXPECTED_LENGTH + 1;
-  } else {
-    // If doesn't start with 0, must be EXPECTED_LENGTH
-    return cleanNumber.length === EXPECTED_LENGTH;
-  }
-};
-
-// Main submission handler
-const handleSubmission = (section, formData, id) => {
+export const handleSubmission = (section, formData, id) => {
   if (section && section.toLowerCase() === "guest list") {
     if (formData.guestList?.length > 0) {
+      // Validation helper functions
+      const validateEmail = (email) => {
+        if (!email) return true; // Optional field
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      };
+
+      const validatePhoneNumber = (number) => {
+        if (!number) return false;
+
+        // Find if the number starts with a valid country code
+        const hasValidCountryCode = countryCodes.some(({ code }) =>
+          number.startsWith(code)
+        );
+        if (!hasValidCountryCode) return false;
+
+        // Get the actual phone number part (after country code)
+        const codeLength = countryCodes.find(({ code }) =>
+          number.startsWith(code)
+        ).code.length;
+
+        const phonePartOnly = number.slice(codeLength);
+        const cleanNumber = phonePartOnly.replace(/\D/g, "");
+
+        // Standard length is 10 digits
+        const EXPECTED_LENGTH = 10;
+
+        if (cleanNumber.startsWith("0")) {
+          // If starts with 0, must be EXPECTED_LENGTH + 1 (including the 0)
+          return cleanNumber.length === EXPECTED_LENGTH + 1;
+        } else {
+          // If doesn't start with 0, must be EXPECTED_LENGTH
+          return cleanNumber.length === EXPECTED_LENGTH;
+        }
+      };
+
       // Validate each guest in the list
       const validationErrors = [];
 
@@ -42,10 +54,12 @@ const handleSubmission = (section, formData, id) => {
           validationErrors.push(`Guest ${rowNumber}: Invalid email format`);
         }
 
-        // Validate phone (required)
-        if (!validatePhoneNumber(guest.phone)) {
+        // Validate phone (required and must include country code)
+        if (!guest.phone) {
+          validationErrors.push(`Guest ${rowNumber}: Phone number is required`);
+        } else if (!validatePhoneNumber(guest.phone)) {
           validationErrors.push(
-            `Guest ${rowNumber}: Invalid phone number format`
+            `Guest ${rowNumber}: Invalid phone number format. Must include country code and valid number`
           );
         }
       });
@@ -58,13 +72,6 @@ const handleSubmission = (section, formData, id) => {
         return false;
       }
 
-      // If validation passes, proceed with submission
-      const details = {
-        eventId: id,
-        invitees: formData.guestList,
-      };
-      addInvitees(details);
-      router.back();
       return true;
     } else {
       alert("Please add at least one guest");
@@ -73,5 +80,3 @@ const handleSubmission = (section, formData, id) => {
   }
   return true; // For other sections
 };
-
-export { handleSubmission };

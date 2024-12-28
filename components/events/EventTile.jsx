@@ -10,6 +10,7 @@ import StatusButton from "../StatusButton";
 import { useRouter } from "next/navigation";
 import { formatDateToLongString } from "@/utils/formatDateToLongString";
 import { convertToAmPm } from "@/utils/timeStringToAMPM";
+import { Wallet } from "lucide-react";
 
 const EventTile = ({ event }) => {
   const route = useRouter();
@@ -49,14 +50,27 @@ const EventTile = ({ event }) => {
               {event?.no_of_invitees} invitees
             </p>
           </div>
-          <CustomButton
-            buttonText={"View Details"}
-            buttonColor={"bg-white"}
-            className={"border border-grey3"}
-            textColor={"blackColor"}
-            suffixIcon={arrowRight.src}
-            onClick={() => route.push(`/events/event?id=${event.id}`)}
-          />
+          <div className="w-full max-w-max flex items-center gap-3 ">
+            <CustomButton
+              buttonText={"View Details"}
+              buttonColor={"bg-white"}
+              className={"border border-grey3"}
+              textColor={"blackColor"}
+              suffixIcon={arrowRight.src}
+              onClick={() => route.push(`/events/event?id=${event.id}`)}
+            />
+            {!event?.isPaid && (
+              <CustomButton
+                buttonText={"Pay Now"}
+                suffixIcon={<Wallet />}
+                onClick={() =>
+                  route.push(
+                    `/events/create-event?id=${event.id}&section=Payment`
+                  )
+                }
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>

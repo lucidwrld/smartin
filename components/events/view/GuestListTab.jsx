@@ -51,6 +51,7 @@ const GuestListTab = ({ eventId, analytics, event }) => {
     postCaller({
       eventId,
       no_of_invitees: inviteCount,
+      currency: "NGN",
       path: `/events/event/?id=${eventId}`,
     });
   };

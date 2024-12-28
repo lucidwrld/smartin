@@ -2,7 +2,7 @@ import { useQuery } from "react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { toast } from "react-toastify";
 
-const useGetSingleEventManager = ({ eventId }) => {
+const useGetSingleEventManager = ({ eventId, enabled }) => {
   return useQuery({
     queryKey: ["event", eventId],
     queryFn: async () => {
@@ -13,7 +13,7 @@ const useGetSingleEventManager = ({ eventId }) => {
         throw new Error("Sorry: " + error.response?.data?.message);
       }
     },
-    // enabled: Boolean(movieId),
+    enabled: enabled,
     refetchOnWindowFocus: false,
   });
 };

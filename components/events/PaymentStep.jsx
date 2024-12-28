@@ -85,7 +85,12 @@ const BankDetails = ({ onCopy }) => (
   </div>
 );
 
-const PaymentStep = ({ formData, onFormDataChange }) => {
+const PaymentStep = ({
+  formData,
+  onFormDataChange,
+  isEditMode = false,
+  event,
+}) => {
   const handleCopyClick = (text) => navigator.clipboard.writeText(text);
 
   return (
@@ -98,7 +103,7 @@ const PaymentStep = ({ formData, onFormDataChange }) => {
         <SummaryItem label="Total" value="6000" />
       </div>
 
-      {event?.isPaid && (
+      {(!isEditMode || !event?.isPaid) && (
         <div className="flex p-4 mb-8 bg-red-50 border border-red-100 rounded-lg">
           <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
           <div className="ml-3">

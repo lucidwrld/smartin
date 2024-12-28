@@ -32,14 +32,14 @@ const TransactionsPage = () => {
   const getFormattedValue = (el, index) => {
     return [
       <UserCard
-        letter={el?.fullname.charAt(0)}
-        email={el?.email}
-        name={el?.fullname}
+        letter={el?.user?.fullname.charAt(0)}
+        email={el?.user?.email}
+        name={el?.user?.fullname}
       />,
       `\$${formatAmount(el?.amount)}`,
-      <StatusButton status={el?.status} />,
+      <StatusButton status={el?.payment_type} />,
       formatDateTime(el?.createdAt),
-      <StatusButton status={el?.narration || "Unknown"} />,
+      <StatusButton status={el?.approved ? "Approved" : "Pending"} />,
     ];
   };
   return (
@@ -54,7 +54,7 @@ const TransactionsPage = () => {
           {
             <TablesComponent
               isLoading={isLoading}
-              data={data?.data?.transactions}
+              data={data?.data}
               getFormattedValue={getFormattedValue}
               headers={headers}
               buttonFunction={() => {}}
@@ -67,11 +67,11 @@ const TransactionsPage = () => {
             />
           }
         </div>
-        {data?.data?.transactions.length > 0 && (
+        {data?.data.length > 0 && (
           <CompletePagination
             setCurrentPage={setCurrentPage}
-            pagination={data?.data?.pagination}
-            suffix={"Guests"}
+            pagination={data?.pagination}
+            suffix={"Payments"}
           />
         )}
       </div>

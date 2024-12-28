@@ -2,13 +2,14 @@
 import HeaderWithEdit from "@/components/HeaderWithEdit";
 import StatusButton from "@/components/StatusButton";
 import React from "react";
-import { Calendar, Clock, Mail, MapPin, Phone } from "lucide-react";
+import { Calendar, Clock, Mail, MapPin, Phone, Wallet } from "lucide-react";
 import Gallery from "@/components/Gallery";
 import { convertToAmPm } from "@/utils/timeStringToAMPM";
 import { formatDateToLongString } from "@/utils/formatDateToLongString";
 import Loader from "@/components/Loader";
 import { QRCodeSVG } from "qrcode.react";
 import { useRouter } from "next/navigation";
+import CustomButton from "@/components/Button";
 
 const EventDetailAndGalleryTab = ({ event, isLoading }) => {
   const route = useRouter();
@@ -56,6 +57,18 @@ const EventDetailAndGalleryTab = ({ event, isLoading }) => {
               <span className="text-sm">{event?.venue}</span>
             </div>
           </div>
+          {!event?.isPaid && (
+            <CustomButton
+              buttonText={"Pay Now"}
+              suffixIcon={<Wallet />}
+              className={"w-full "}
+              onClick={() =>
+                route.push(
+                  `/events/create-event?id=${event.id}&section=Payment`
+                )
+              }
+            />
+          )}
         </div>
       </div>
 
