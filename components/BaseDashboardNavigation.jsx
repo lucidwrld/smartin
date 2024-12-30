@@ -199,7 +199,7 @@ const BaseDashboardNavigation = ({ children, title }) => {
               </div>
             </div>
           </div>
-          <div className="max-h-[90%] ml-0 relative w-full md:w-[90%] md:mx-auto pb-10 mt-10">
+          <div className="max-h-[90%] ml-0 relative w-full md:w-[90%] md:mx-auto pb-10 mt-10 text-brandBlack">
             {children}
           </div>
         </div>

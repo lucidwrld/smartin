@@ -12,10 +12,17 @@ import React, { useState } from "react";
 import { formatAmount } from "@/utils/formatAmount";
 import { formatDateTime } from "@/utils/formatDateTime";
 import useGetAllTransactionsManager from "@/app/transactions/controllers/getAllTransactionsController";
+import TransactionDetailModal from "@/components/transactions/TransactionDetailModal";
+import { ConfirmBankPaymentManager } from "@/app/transactions/controllers/confirmBankPaymentController";
 
 const TransactionsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const { data, isLoading } = useGetAllTransactionsManager({});
+  const { data, isLoading } = useGetAllTransactionsManager({
+    page: currentPage,
+  });
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const { confirmBankPayment, isLoading: confirming } =
+    ConfirmBankPaymentManager();
   const cards = [
     { title: "Total Transactions", count: 120, icon: ArrowLeftRight },
     { title: "Pending Confirmation", count: 120, icon: Clock },
@@ -36,7 +43,7 @@ const TransactionsPage = () => {
         email={el?.user?.email}
         name={el?.user?.fullname}
       />,
-      `\$${formatAmount(el?.amount)}`,
+      `${el?.currency} ${formatAmount(el?.amount)}`,
       <StatusButton status={el?.payment_type} />,
       formatDateTime(el?.createdAt),
       <StatusButton status={el?.approved ? "Approved" : "Pending"} />,
@@ -57,12 +64,19 @@ const TransactionsPage = () => {
               data={data?.data}
               getFormattedValue={getFormattedValue}
               headers={headers}
-              buttonFunction={() => {}}
-              options={[
-                "View Transaction",
-                "Confirm Payment",
-                "Suspend Transaction",
-              ]}
+              popUpFunction={(option, inx, val) => {
+                if (inx === 0) {
+                  setSelectedTransaction(val);
+                }
+                if (inx === 1) {
+                  const details = {
+                    paymentId: val?.id,
+                    approve: true,
+                  };
+                  confirmBankPayment(details);
+                }
+              }}
+              options={["View Transaction", "Confirm Payment"]}
               // Close popup function
             />
           }
@@ -75,6 +89,11 @@ const TransactionsPage = () => {
           />
         )}
       </div>
+      <TransactionDetailModal
+        isOpen={Boolean(selectedTransaction)}
+        onClose={() => setSelectedTransaction(null)}
+        transaction={selectedTransaction}
+      />
     </BaseDashboardNavigation>
   );
 };

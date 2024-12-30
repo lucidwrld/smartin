@@ -1,14 +1,15 @@
 import useUpdateManager from "@/constants/controller_templates/put_controller_template";
 import { useRouter } from "next/navigation";
 
-export const UpdateProfileManager = () => {
+export const EditTableManager = ({ tableId }) => {
+  const router = useRouter();
   const { updateCaller, isLoading, isSuccess, error, data } = useUpdateManager(
-    `/user/update`,
-    ["userDetails"],
-    false,
+    `/event/tables/${tableId}`,
+    ["tables", "table"],
+    true,
     true
   );
-  const updateProfile = async (details) => {
+  const editTable = async (details) => {
     try {
       await updateCaller(details);
     } catch (error) {
@@ -16,7 +17,7 @@ export const UpdateProfileManager = () => {
     }
   };
   return {
-    updateProfile,
+    editTable,
     data,
     isLoading,
     isSuccess,

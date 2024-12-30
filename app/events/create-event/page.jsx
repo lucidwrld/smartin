@@ -59,7 +59,17 @@ const EventPage = () => {
   const { isLoading: updating, updateEvent } = EditEventManager({
     eventId: id,
   });
-  const { addInvitees, isLoading: addingInvitees } = AddInviteesManager();
+  const {
+    addInvitees,
+    isLoading: addingInvitees,
+    isSuccess: addedInvitee,
+  } = AddInviteesManager();
+
+  useEffect(() => {
+    if (addedInvitee) {
+      router.back();
+    }
+  }, [addedInvitee]);
   const { uploadInvitees, isLoading: uploadingInvitees } = UploadInviteeManager(
     { eventId: id }
   );
@@ -90,6 +100,10 @@ const EventPage = () => {
     gallery: [],
     pay_later: false,
     currency: "NGN",
+    thank_you_message: {
+      image: "",
+      message: "",
+    },
   });
 
   useEffect(() => {
@@ -249,7 +263,6 @@ const EventPage = () => {
           invitees: formData.guestList,
         };
         addInvitees(details);
-        router.back();
       }
     } else if (section && section.toLowerCase() === "payment") {
       setShowProofModal(true);

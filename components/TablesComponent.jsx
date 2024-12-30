@@ -124,6 +124,7 @@ const TablesComponent = ({
                               <img src={moreMore.src} alt="" />
                             ) : (
                               <CustomButton
+                                radius={"rounded-full"}
                                 className="p-1"
                                 buttonText={"View"}
                               />

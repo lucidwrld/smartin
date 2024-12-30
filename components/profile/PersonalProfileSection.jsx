@@ -7,21 +7,9 @@ import { UpdateProfileManager } from "@/app/profile-settings/controllers/updateP
 const PersonalProfileSection = ({ userDetails, refetch }) => {
   const { updateProfile, isLoading, isSuccess } = UpdateProfileManager();
 
-  const removeFromArrayyClick = (index) => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      languages: prevFormData.languages.filter((_, i) => i !== index),
-    }));
-  };
-
   const initialData = {
-    first_name: "",
-    last_name: "",
+    fullname: "",
     phone: "",
-    username: "",
-    profile_picture: "",
-    dob: "",
-    languages: ["English"],
   };
   const [formData, setFormData] = useState(initialData);
 
@@ -29,13 +17,8 @@ const PersonalProfileSection = ({ userDetails, refetch }) => {
     if (userDetails) {
       setFormData({
         ...formData,
-        first_name: userDetails?.first_name,
-        last_name: userDetails?.last_name,
+        fullname: userDetails?.fullname,
         phone: userDetails?.phone,
-        username: userDetails?.username,
-        profile_picture: userDetails?.profile_picture,
-        dob: userDetails?.dob,
-        languages: userDetails?.languages,
       });
     }
   }, [userDetails]);
@@ -54,21 +37,11 @@ const PersonalProfileSection = ({ userDetails, refetch }) => {
         <div className="w-full flex  flex-col md:flex-row gap-5">
           <div className="w-full">
             <InputWithFullBoarder
-              label={`First Name`}
+              label={`Full Name`}
               isRequired={true}
-              value={formData.first_name}
+              value={formData.fullname}
               onChange={(e) =>
-                setFormData({ ...formData, first_name: e.target.value })
-              }
-            />
-          </div>
-          <div className="w-full">
-            <InputWithFullBoarder
-              label={`Last Name`}
-              isRequired={true}
-              value={formData.last_name}
-              onChange={(e) =>
-                setFormData({ ...formData, last_name: e.target.value })
+                setFormData({ ...formData, fullname: e.target.value })
               }
             />
           </div>

@@ -1,22 +1,23 @@
 import useUpdateManager from "@/constants/controller_templates/put_controller_template";
 import { useRouter } from "next/navigation";
 
-export const UpdateProfileManager = () => {
+export const SuspendEventManager = ({ eventId }) => {
+  // const router = useRouter();
   const { updateCaller, isLoading, isSuccess, error, data } = useUpdateManager(
-    `/user/update`,
-    ["userDetails"],
-    false,
+    `/event/${eventId}/suspend`,
+    ["events", "event"],
+    true,
     true
   );
-  const updateProfile = async (details) => {
+  const suspendEvent = async () => {
     try {
-      await updateCaller(details);
+      await updateCaller();
     } catch (error) {
       console.error("error:", error);
     }
   };
   return {
-    updateProfile,
+    suspendEvent,
     data,
     isLoading,
     isSuccess,

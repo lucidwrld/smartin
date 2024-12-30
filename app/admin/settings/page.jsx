@@ -1,60 +1,55 @@
 "use client";
+
 import BaseDashboardNavigation from "@/components/BaseDashboardNavigation";
 import MyEditor from "@/components/MyEditor";
-
 import ConfigurationSection from "@/components/settings/ConfigurationSection";
 import React, { useEffect, useState } from "react";
 import useGetTermsManager from "./controllers/getTermsController";
+import { CreateTermsManager } from "./controllers/createTermsController";
+import TabManager from "@/components/TabManager";
 
 const AdminSettingsPage = () => {
   const [currentView, setCurrentView] = useState(0);
   const [type, setType] = useState("");
-  const { data, isLoading } = useGetTermsManager({ type: type });
-  // const { data: settings, isLoading: loading } = useGetSettingsManager();
+  const { data, isLoading, error } = useGetTermsManager({
+    type: type,
+    enabled: Boolean(type), // Only fetch when type exists
+  });
+  const { createTerms, isLoading: creating } = CreateTermsManager();
 
+  // First set the type based on view
   useEffect(() => {
     if (currentView === 1) {
       setType("signup");
-    }
-    if (currentView === 2) {
+    } else if (currentView === 2) {
       setType("privacy");
-    }
-    if (currentView === 3) {
-      setType("consultant");
+    } else {
+      setType(""); // Reset type when on configuration view
     }
   }, [currentView]);
 
+  // Handle 404 and create
+  useEffect(() => {
+    if (error?.message === "Sorry: Terms and Agreement not found" && type) {
+      createTerms({
+        content: `Content for ${type}`,
+        type: type,
+      });
+    }
+  }, [error, createTerms, type]);
+
   return (
     <BaseDashboardNavigation title={`Settings`}>
-      <div className="flex items-center w-full justify-start relative gap-0 mt-5">
-        {[
-          "Configuration",
-          "Terms & Conditions",
-          "Privacy Policy",
-          "Consultant T&C",
-          "General Categories",
-        ].map((el, i) => (
-          <p
-            key={i}
-            role="button"
-            onClick={() => setCurrentView(i)}
-            className={`text-13px whitespace-nowrap pb-2 px-6 ${
-              currentView === i
-                ? "font-medium text-brandBlack border border-transparent border-b-2 border-b-brandBlack"
-                : "text-textGrey2"
-            }`}
-          >
-            {el}
-          </p>
-        ))}
-        <div className="divider divider-[#E4E7EC] inset-y-0 absolute top-1.5 w-full"></div>
-      </div>
+      <TabManager
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+        list={["Configuration", "Terms & Conditions", "Privacy Policy"]}
+      />
       <div className="w-full mt-5">
         {currentView === 0 && <ConfigurationSection />}
-        {currentView !== 0 && currentView !== 4 && currentView !== 5 && (
-          <MyEditor isLoading={isLoading} content={data?.data} />
+        {currentView !== 0 && (
+          <MyEditor isLoading={isLoading || creating} content={data?.data} />
         )}
-        {currentView === 4 && <GeneralCategoriesSection />}
       </div>
     </BaseDashboardNavigation>
   );

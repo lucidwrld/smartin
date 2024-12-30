@@ -2,26 +2,24 @@ import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 import { useQuery } from "react-query";
 
-const useGetAllEventsManager = ({
+const useGetAllTablesManager = ({
   page = 1,
-  pageSize = 20,
+  pageSize = 10,
   search = "",
-  user,
-  status,
+  eventId,
+
   enabled = true,
 }) => {
   return useQuery(
-    ["events", enabled, search, page, pageSize, user, status],
+    ["tables", enabled, search, page, pageSize, eventId],
     async () => {
       try {
         const [response] = [
-          await AxiosWithToken.get(`/event/list`, {
+          await AxiosWithToken.get(`/event/${eventId}/tables`, {
             params: {
               page,
               pageSize,
               ...(search && { search }),
-              ...(user && { user }),
-              ...(status && { status }),
             },
           }),
         ];
@@ -38,4 +36,4 @@ const useGetAllEventsManager = ({
   );
 };
 
-export default useGetAllEventsManager;
+export default useGetAllTablesManager;

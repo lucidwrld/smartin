@@ -1,14 +1,15 @@
 import useUpdateManager from "@/constants/controller_templates/put_controller_template";
 import { useRouter } from "next/navigation";
 
-export const UpdateProfileManager = () => {
+export const UpdateDiscountManager = ({ discountId }) => {
+  const router = useRouter();
   const { updateCaller, isLoading, isSuccess, error, data } = useUpdateManager(
-    `/user/update`,
-    ["userDetails"],
+    `/pricing/discount/${discountId}`,
+    ["discounts"],
     false,
     true
   );
-  const updateProfile = async (details) => {
+  const updateDiscounts = async (details) => {
     try {
       await updateCaller(details);
     } catch (error) {
@@ -16,7 +17,7 @@ export const UpdateProfileManager = () => {
     }
   };
   return {
-    updateProfile,
+    updateDiscounts,
     data,
     isLoading,
     isSuccess,

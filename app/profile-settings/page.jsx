@@ -8,6 +8,7 @@ import useGetUserDetailsManager from "./controllers/get_UserDetails_controller";
 import { useSearchParams } from "next/navigation";
 import BaseDashboardNavigation from "@/components/BaseDashboardNavigation";
 import { transactions } from "@/public/icons";
+import { Divider } from "@mui/material";
 
 const ProfileSettingsPage = () => {
   const search = useSearchParams();
@@ -24,45 +25,17 @@ const ProfileSettingsPage = () => {
       setCurrentView(Number(view));
     }
   }, [search]);
-  const menu = [
-    {
-      name: "Personal Profile",
-      active: transactions,
-      inactive: transactions,
-    },
-    {
-      name: "Change Password",
-      active: transactions,
-      inactive: transactions,
-    },
-  ];
+
   return (
     <BaseDashboardNavigation title={"Profile Settings"}>
       <div className="flex flex-col md:flex-row relative w-[90%] mx-auto md:w-full gap-10 mt-10 md:mt-0">
-        <div className="md:max-w-[17%] w-full flex flex-col relative gap-5">
-          {menu.map((el, i) => (
-            <ProfileSection
-              onClick={() => setCurrentView(i)}
-              key={i}
-              settings={true}
-              refetch={() => refetch()}
-              selected={currentView === i}
-              icon={currentView === i ? el.active.src : el.inactive.src}
-              title={el.name}
-            />
-          ))}
-        </div>
-        <div className=" md:max-w-[70%] w-full border border-transparent md:border-l-lightGrey md:pl-10 flex flex-col">
-          {currentView === 0 && (
-            <PersonalProfileSection
-              refetch={() => refetch()}
-              userDetails={userDetail?.data?.user}
-            />
-          )}
-
-          {currentView === 1 && (
-            <ChangePasswordSection refetch={() => refetch()} />
-          )}
+        <div className=" w-full flex flex-col gap-10">
+          <PersonalProfileSection
+            refetch={() => refetch()}
+            userDetails={userDetail?.data?.user}
+          />
+          <Divider />
+          <ChangePasswordSection refetch={() => refetch()} />
         </div>
       </div>
     </BaseDashboardNavigation>

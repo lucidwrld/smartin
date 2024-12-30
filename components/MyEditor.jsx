@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 // import ReactQuill from "react-quill";
 import dynamic from "next/dynamic";
-import "react-quill/dist/quill.snow.css";
+import "react-quill-new/dist/quill.snow.css";
 import Loader from "./Loader";
 import Button from "./Button";
 import { UpdateTermsManager } from "@/app/admin/settings/controllers/updateTermsController";
 import CustomButton from "./Button";
+import { CreateTermsManager } from "@/app/admin/settings/controllers/createTermsController";
 
-const ReactQuill = dynamic(() => import("react-quill"), {
+const ReactQuill = dynamic(() => import("react-quill-new"), {
   ssr: false,
 });
 

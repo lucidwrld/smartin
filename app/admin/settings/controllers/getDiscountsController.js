@@ -2,20 +2,20 @@ import { useQuery } from "react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { toast } from "react-toastify";
 
-const useGetTermsManager = ({ type }) => {
+const useGetDiscountsManager = () => {
   return useQuery({
-    queryKey: ["terms", type],
+    queryKey: ["discounts"],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`/terms/${type}`);
+        const response = await AxiosWithToken.get(`/pricing/discount`);
         return response.data;
       } catch (error) {
         throw new Error("Sorry: " + error.response?.data?.message);
       }
     },
-    enabled: Boolean(type),
+    // enabled: Boolean(movieId),
     refetchOnWindowFocus: false,
   });
 };
 
-export default useGetTermsManager;
+export default useGetDiscountsManager;

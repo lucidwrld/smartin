@@ -1,10 +1,10 @@
 import useUpdateManager from "@/constants/controller_templates/put_controller_template";
 import { useRouter } from "next/navigation";
 
-export const ChangePasswordManager = ({ password }) => {
+export const ChangePasswordManager = () => {
   const router = useRouter();
   const { updateCaller, isLoading, isSuccess, error, data } = useUpdateManager(
-    `/users/profile/reset-password`,
+    `/user/reset-password`,
     [""],
     false,
     true

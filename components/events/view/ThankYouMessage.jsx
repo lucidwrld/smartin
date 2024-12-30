@@ -1,21 +1,47 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ImageUploader from "@/components/ImageUploader";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import CustomButton from "@/components/Button";
+import { EditEventManager } from "@/app/events/controllers/editEventController";
+import useFileUpload from "@/utils/fileUploadController";
 
-const ThankYouMessage = () => {
+const ThankYouMessage = ({ event }) => {
   const [formData, setFormData] = useState({
     thankYouImage: null,
     thankYouMessage: "",
   });
+
+  const [isNewImage, setIsNewImage] = useState(false);
+
+  const {
+    progress,
+    handleFileUpload,
+    isLoading: uploadingFile,
+  } = useFileUpload();
+
+  const { isLoading: updating, updateEvent } = EditEventManager({
+    eventId: event?.id,
+  });
+
+  useEffect(() => {
+    if (event) {
+      setFormData({
+        ...formData,
+        thankYouImage: event?.thank_you_message?.image,
+        thankYouMessage: event?.thank_you_message?.message,
+      });
+      setIsNewImage(false); // Reset when event data changes
+    }
+  }, [event]);
 
   const handleImageChange = (file) => {
     setFormData((prev) => ({
       ...prev,
       thankYouImage: file,
     }));
+    setIsNewImage(true); // Set to true when new file is selected
   };
 
   const handleMessageChange = (e) => {
@@ -28,7 +54,23 @@ const ThankYouMessage = () => {
     }
   };
 
-  const wordCount = formData.thankYouMessage?.split(/\s+/).length || 0;
+  const handleSaveMessage = async () => {
+    const updatedFormData = { ...formData };
+
+    // Only upload if it's a new image (File object)
+    if (formData.thankYouImage && isNewImage) {
+      const imageUrl = await handleFileUpload(formData.thankYouImage);
+      updatedFormData.thankYouImage = imageUrl;
+    }
+
+    const details = {
+      thank_you_message: {
+        image: updatedFormData.thankYouImage,
+        message: updatedFormData.thankYouMessage,
+      },
+    };
+    updateEvent(details);
+  };
 
   return (
     <div className="flex flex-col w-full text-brandBlack">
@@ -61,7 +103,6 @@ const ThankYouMessage = () => {
               onChange={handleMessageChange}
             />
           </div>
-          {/* <p className="text-sm text-gray-500 mt-2">{wordCount}/200 words</p> */}
           <div className="w-full flex items-center justify-center gap-5">
             <CustomButton
               radius={"rounded-full w-full"}
@@ -69,7 +110,9 @@ const ThankYouMessage = () => {
               buttonColor={
                 "bg-whiteColor hover:bg-purple-50 border border-purple-600"
               }
+              isLoading={uploadingFile || updating}
               textColor={"text-purple-600"}
+              onClick={handleSaveMessage}
             />
             <CustomButton
               radius={"rounded-full w-full"}

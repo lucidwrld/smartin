@@ -1,23 +1,24 @@
 import useUpdateManager from "@/constants/controller_templates/put_controller_template";
 import { useRouter } from "next/navigation";
 
-export const UpdateSettingsManager = () => {
+export const MakeUserPartnerManager = ({ userId }) => {
   const router = useRouter();
+
   const { updateCaller, isLoading, isSuccess, error, data } = useUpdateManager(
-    `/setting/update`,
-    ["settings"],
-    false,
+    `/user/${userId}/partner`,
+    ["user", "users"],
+    true,
     true
   );
-  const updateSettings = async (details) => {
+  const makePartner = async () => {
     try {
-      await updateCaller(details);
+      await updateCaller();
     } catch (error) {
       console.error("error:", error);
     }
   };
   return {
-    updateSettings,
+    makePartner,
     data,
     isLoading,
     isSuccess,

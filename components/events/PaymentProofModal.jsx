@@ -99,7 +99,8 @@ export const PaymentProofModal = ({
                 }
                 const details = {
                   eventId: eventId,
-                  "image:": imageUrl,
+                  image: imageUrl,
+                  currency: "NGN",
                 };
                 await submitPayment(details);
               }}

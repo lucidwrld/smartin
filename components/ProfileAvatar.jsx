@@ -1,4 +1,5 @@
 import { LogOutIcon } from "lucide-react";
+import Link from "next/link";
 
 const ProfileAvatar = ({ name, image, email, size = "md", onClick }) => {
   const initial = name?.charAt(0);
@@ -10,7 +11,7 @@ const ProfileAvatar = ({ name, image, email, size = "md", onClick }) => {
 
   return (
     <div className="flex items-center gap-2 w-full">
-      <div className={`${sizes[size]} shrink-0`}>
+      <Link href={"/profile-settings"} className={`${sizes[size]} shrink-0`}>
         {image ? (
           <img
             src={image}
@@ -22,11 +23,14 @@ const ProfileAvatar = ({ name, image, email, size = "md", onClick }) => {
             {initial}
           </div>
         )}
-      </div>
-      <div className="min-w-0 flex-1 text-14px mr-4 ">
+      </Link>
+      <Link
+        href={"/profile-settings"}
+        className="min-w-0 flex-1 text-14px mr-4 "
+      >
         <h3 className="font-medium text-whiteColor ">{name}</h3>
         <p className="text-gray-200 truncate">{email}</p>
-      </div>
+      </Link>
       <LogOutIcon className="text-white shrink-0" size={20} onClick={onClick} />
     </div>
   );

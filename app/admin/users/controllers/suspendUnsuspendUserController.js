@@ -3,16 +3,16 @@ import { useRouter } from "next/navigation";
 
 export const SuspendUnsuspendUserManager = ({ userId }) => {
   const router = useRouter();
-  
+
   const { updateCaller, isLoading, isSuccess, error, data } = useUpdateManager(
-    `/users/${userId}/suspend`,
+    `/user/${userId}/suspend`,
     ["user", "users"],
-    false,
+    true,
     true
   );
-  const manageSuspend = async (details) => {
+  const manageSuspend = async () => {
     try {
-      await updateCaller(details);
+      await updateCaller();
     } catch (error) {
       console.error("error:", error);
     }

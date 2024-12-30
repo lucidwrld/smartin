@@ -66,7 +66,7 @@ const EventDetailsPage = () => {
         />
       )}
       {currentView === 3 && <TableArrangement eventId={id} />}
-      {currentView === 4 && <ThankYouMessage eventId={id} />}
+      {currentView === 4 && <ThankYouMessage event={event?.data} />}
     </BaseDashboardNavigation>
   );
 };

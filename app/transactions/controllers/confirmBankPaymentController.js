@@ -1,7 +1,7 @@
 import useUpdateManager from "@/constants/controller_templates/put_controller_template";
 import { useRouter } from "next/navigation";
 
-export const ConfirmBankPaymentManager = ({ eventId }) => {
+export const ConfirmBankPaymentManager = () => {
   const router = useRouter();
   const { updateCaller, isLoading, isSuccess, error, data } = useUpdateManager(
     `/event/payment/approve`,

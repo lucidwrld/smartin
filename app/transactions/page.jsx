@@ -12,11 +12,14 @@ import useGetAllTransactionsManager from "./controllers/getAllTransactionsContro
 import { formatAmount } from "@/utils/formatAmount";
 import { formatDateTime } from "@/utils/formatDateTime";
 import useGetUserDetailsManager from "../profile-settings/controllers/get_UserDetails_controller";
+import TransactionDetailModal from "@/components/transactions/TransactionDetailModal";
 
 const TransactionsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const { data: userDetail } = useGetUserDetailsManager();
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
   const { data, isLoading } = useGetAllTransactionsManager({
+    page: currentPage,
     user: userDetail?.data?.user?.id,
     enabled: Boolean(userDetail?.data?.user?.id),
   });
@@ -41,7 +44,7 @@ const TransactionsPage = () => {
         email={el?.user?.email}
         name={el?.user?.fullname}
       />,
-      `\$${formatAmount(el?.amount)}`,
+      `${el?.currency} ${formatAmount(el?.amount)}`,
       <StatusButton status={el?.payment_type} />,
       <StatusButton status={el?.currency} />,
       formatDateTime(el?.createdAt),
@@ -63,13 +66,7 @@ const TransactionsPage = () => {
               data={data?.data}
               getFormattedValue={getFormattedValue}
               headers={headers}
-              buttonFunction={() => {}}
-              options={[
-                "View Transaction",
-                "Confirm Payment",
-                "Suspend Transaction",
-              ]}
-              // Close popup function
+              buttonFunction={(val) => setSelectedTransaction(val)}
             />
           }
         </div>
@@ -81,6 +78,11 @@ const TransactionsPage = () => {
           />
         )}
       </div>
+      <TransactionDetailModal
+        isOpen={Boolean(selectedTransaction)}
+        onClose={() => setSelectedTransaction(null)}
+        transaction={selectedTransaction}
+      />
     </BaseDashboardNavigation>
   );
 };

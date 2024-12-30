@@ -65,7 +65,7 @@ const useTopUpInvitesManager = () => {
         type: "success",
         message: data.message,
       });
-      const updateQueryKeys = ["transactions", "events"];
+      const updateQueryKeys = ["transactions", "events", "event"];
       if (updateQueryKeys.length) {
         updateQueryKeys.forEach((key) => queryClient.invalidateQueries(key));
       }

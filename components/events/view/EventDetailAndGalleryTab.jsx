@@ -8,10 +8,21 @@ import { convertToAmPm } from "@/utils/timeStringToAMPM";
 import { formatDateToLongString } from "@/utils/formatDateToLongString";
 import Loader from "@/components/Loader";
 import { QRCodeSVG } from "qrcode.react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import CustomButton from "@/components/Button";
+import { SuspendEventManager } from "@/app/events/controllers/suspendEventController";
+import { ActivateDeactivateEvent } from "@/app/events/controllers/activeDeactivateEventController";
 
 const EventDetailAndGalleryTab = ({ event, isLoading }) => {
+  const pathname = usePathname();
+  const isAdminPath = pathname?.startsWith("/admin");
+  const { suspendEvent, isLoading: suspending } = SuspendEventManager({
+    eventId: event?.id,
+  });
+
+  const { manageEvent, isLoading: activating } = ActivateDeactivateEvent({
+    eventId: event?.id,
+  });
   const route = useRouter();
   return isLoading ? (
     <Loader />
@@ -67,6 +78,36 @@ const EventDetailAndGalleryTab = ({ event, isLoading }) => {
                   `/events/create-event?id=${event.id}&section=Payment`
                 )
               }
+            />
+          )}
+          {event?.isPaid && (
+            <CustomButton
+              buttonText={
+                isAdminPath
+                  ? event?.isSuspended
+                    ? "Unsuspend Event"
+                    : "Suspend Event"
+                  : event?.isActive
+                  ? "Deactivate Event"
+                  : "Activate Event"
+              }
+              onClick={() => {
+                if (isAdminPath) {
+                  suspendEvent();
+                } else {
+                  //activate or deactivate event
+                  manageEvent();
+                }
+              }}
+              isLoading={suspending || activating}
+              buttonColor={
+                event?.isSuspended
+                  ? "bg-brandPurple" // if suspended
+                  : event?.isActive
+                  ? "bg-redColor" // if active but not suspended
+                  : "bg-brandPurple" // if neither suspended nor active
+              }
+              radius={"rounded-full w-full"}
             />
           )}
         </div>

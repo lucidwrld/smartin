@@ -5,7 +5,7 @@ export const UpdateTermsManager = () => {
   const router = useRouter();
   const { updateCaller, isLoading, isSuccess, error, data } = useUpdateManager(
     `/terms/update`,
-    ["settings"],
+    ["terms"],
     false,
     true
   );

@@ -12,6 +12,7 @@ import useGetAllTicketsManager from "./controllers/getAllTicketsController";
 import useDebounce from "@/utils/UseDebounce";
 import { calculatePaginationRange } from "@/utils/calculatePaginationRange";
 import PaginationRounded from "@/components/Pagination";
+import TabManager from "@/components/TabManager";
 
 const AdminTicketsPage = () => {
   const [currentView, setCurrentView] = useState(0);
@@ -33,22 +34,12 @@ const AdminTicketsPage = () => {
       </p>
       <div className="w-full relative">
         <div className="items-center justify-between w-full flex">
-          <div className="flex items-center w-fit justify-start relative gap-0 mt-5">
-            {["Open Tickets", "Closed Tickets"].map((el, i) => (
-              <p
-                key={i}
-                role="button"
-                onClick={() => setCurrentView(i)}
-                className={`text-13px pb-2 px-10 ${
-                  currentView === i
-                    ? "font-medium text-brandBlack border border-transparent border-b-2 border-b-brandBlack"
-                    : "text-textGrey2"
-                }`}
-              >
-                {el}
-              </p>
-            ))}
-            <div className="divider divider-[#E4E7EC] inset-y-0 absolute top-1.5 w-[350px]"></div>
+          <div className="w-fit">
+            <TabManager
+              currentView={currentView}
+              setCurrentView={setCurrentView}
+              list={["Open Tickets", "Closed Tickets"]}
+            />
           </div>
           <div className="flex items-center justify-end gap-4 my-3">
             <div className="flex items-center gap-3">

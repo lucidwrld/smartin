@@ -1,27 +1,62 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import InputWithFullBoarder from "../InputWithFullBoarder";
-
 import CustomButton from "../Button";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { ChangePasswordManager } from "@/app/profile-settings/controllers/changePasswordController";
 import { toast } from "react-toastify";
-import validatePassword from "../ValidatePassword";
+import { validateFormSubmission } from "@/utils/validateForm";
 
-const ChangePasswordSection = ({refetch}) => {
-  const [viewOldPassword, setViewOldPassword] = useState(false);
-  const [viewNewPassword, setViewNewPassword] = useState(false);
-  const [viewConfirmPassword, setViewConfirmPassword] = useState(false);
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [newConfirmPassword, setNewConfirmPassword] = useState("");
-  const { changePassword, isLoading, isSuccess } = ChangePasswordManager({viewNewPassword});
+const ChangePasswordSection = ({ refetch }) => {
+  const initialData = {
+    oldPassword: "",
+    newPassword: "",
+    newConfirmPassword: "",
+    showOldPassword: false,
+    showNewPassword: false,
+    showConfirmPassword: false,
+  };
+
+  const [formData, setFormData] = useState(initialData);
+  const formRef = useRef(null);
+
+  const { changePassword, isLoading, isSuccess } = ChangePasswordManager();
 
   useEffect(() => {
-      if(isSuccess){
-        refetch()
-      }
-  }, [isSuccess])
-   
+    if (isSuccess) {
+      refetch();
+      setFormData(initialData);
+    }
+  }, [isSuccess]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateFormSubmission(formRef, formData)) {
+      return;
+    }
+
+    if (formData.newPassword !== formData.newConfirmPassword) {
+      toast.error("Your new password and confirm password do not match");
+      return;
+    }
+
+    await changePassword({
+      old_password: formData.oldPassword,
+      new_password: formData.newPassword,
+    });
+  };
+
+  const handleCancel = () => {
+    setFormData(initialData);
+  };
+
+  const togglePasswordVisibility = (field) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
+  };
+
   return (
     <div className="w-[509px] mr-auto flex flex-col text-brandBlack">
       <p className="text-40px font-semibold">Change Password</p>
@@ -29,103 +64,100 @@ const ChangePasswordSection = ({refetch}) => {
       <div className="divider mb-3"></div>
 
       <div className="w-[506px] flex flex-col relative">
-        <div className="w-full">
-          <InputWithFullBoarder
-            hasSuffix={true}
-            label={`Your Password`}
-            
-            isRequired={true}
-            type={viewOldPassword ? `text` : `password`}
-            onChange={(e) => setOldPassword(e.target.value)}
-            value={oldPassword}
-            icon={
-              viewOldPassword ? (
-                <AiOutlineEyeInvisible
-                  onClick={() => setViewOldPassword(!viewOldPassword)}
-                />
-              ) : (
-                <AiOutlineEye
-                  onClick={() => setViewOldPassword(!viewOldPassword)}
-                />
-              )
-            }
-          />
-          <InputWithFullBoarder
-            hasSuffix={true}
-            label={`New password`}
-            
-            isRequired={true}
-            id={"password"}
-            value={newPassword}
-            type={viewNewPassword ? `text` : `password`}
-            onChange={(e) => setNewPassword(e.target.value)}
-            icon={
-              viewNewPassword ? (
-                <AiOutlineEyeInvisible
-                  onClick={() => setViewNewPassword(!viewNewPassword)}
-                />
-              ) : (
-                <AiOutlineEye
-                  onClick={() => setViewNewPassword(!viewNewPassword)}
-                />
-              )
-            }
-          />
-          <InputWithFullBoarder
-            hasSuffix={true}
-            isRequired={true}
-            label={`Confirm password`}
-            type={viewConfirmPassword ? `text` : `password`}
-            value={newConfirmPassword}
-            onChange={(e) => setNewConfirmPassword(e.target.value)}
-            icon={
-              viewConfirmPassword ? (
-                <AiOutlineEyeInvisible
-                  onClick={() => setViewConfirmPassword(!viewConfirmPassword)}
-                />
-              ) : (
-                <AiOutlineEye
-                  onClick={() => setViewConfirmPassword(!viewConfirmPassword)}
-                />
-              )
-            }
-          />
-          <div className="w-full flex items-center gap-3">
-            <CustomButton
-              buttonText={`Cancel`}
-              buttonColor={"transparent"}
-              textColor={`text-brandBlack`}
-              onClick={() => {
-                setNewConfirmPassword("");
-                setNewPassword("");
-                setOldPassword("");
-              }}
-              className={`w-full mx-auto mt-10 border border-lightGrey`}
+        <form ref={formRef} onSubmit={handleSubmit}>
+          <div className="w-full">
+            <InputWithFullBoarder
+              hasSuffix={true}
+              label="Your Password"
+              id="oldPassword"
+              isRequired={true}
+              type={formData.showOldPassword ? "text" : "password"}
+              onChange={(e) =>
+                setFormData({ ...formData, oldPassword: e.target.value })
+              }
+              value={formData.oldPassword}
+              customValidator={(value) => ({
+                isValid: value.length > 0,
+                message: value ? "" : "Current password is required",
+              })}
+              icon={
+                formData.showOldPassword ? (
+                  <AiOutlineEyeInvisible
+                    onClick={() => togglePasswordVisibility("showOldPassword")}
+                  />
+                ) : (
+                  <AiOutlineEye
+                    onClick={() => togglePasswordVisibility("showOldPassword")}
+                  />
+                )
+              }
             />
-            <CustomButton
-              buttonText={`Update password`}
-              className={`w-full mx-auto mt-10`}
-              isLoading={isLoading}
-              
-              onClick={() => {
-                if(validatePassword(newPassword)){if (newConfirmPassword === newPassword) {
-                  changePassword({
-                    old_password: oldPassword,
-                    new_password: newPassword,
-                  });
-                } else {
-                  toast.error(
-                    "Your new password and your confirm password do not match"
-                  );
-                }}else{
-                  toast.error(
-                    "Ensure your new password has atleast One uppercase, lowercase, special character and number"
-                  )
-                }
-              }}
+            <InputWithFullBoarder
+              hasSuffix={true}
+              label="New Password"
+              id="newPassword"
+              isRequired={true}
+              type={formData.showNewPassword ? "text" : "password"}
+              value={formData.newPassword}
+              onChange={(e) =>
+                setFormData({ ...formData, newPassword: e.target.value })
+              }
+              icon={
+                formData.showNewPassword ? (
+                  <AiOutlineEyeInvisible
+                    onClick={() => togglePasswordVisibility("showNewPassword")}
+                  />
+                ) : (
+                  <AiOutlineEye
+                    onClick={() => togglePasswordVisibility("showNewPassword")}
+                  />
+                )
+              }
             />
+            <InputWithFullBoarder
+              hasSuffix={true}
+              label="Confirm Password"
+              id="newConfirmPassword"
+              isRequired={true}
+              type={formData.showConfirmPassword ? "text" : "password"}
+              value={formData.newConfirmPassword}
+              onChange={(e) =>
+                setFormData({ ...formData, newConfirmPassword: e.target.value })
+              }
+              icon={
+                formData.showConfirmPassword ? (
+                  <AiOutlineEyeInvisible
+                    onClick={() =>
+                      togglePasswordVisibility("showConfirmPassword")
+                    }
+                  />
+                ) : (
+                  <AiOutlineEye
+                    onClick={() =>
+                      togglePasswordVisibility("showConfirmPassword")
+                    }
+                  />
+                )
+              }
+            />
+            <div className="w-full flex items-center gap-3">
+              <CustomButton
+                buttonText="Cancel"
+                buttonColor="transparent"
+                textColor="text-brandBlack"
+                onClick={handleCancel}
+                type="button"
+                className="w-full mx-auto mt-10 border border-lightGrey"
+              />
+              <CustomButton
+                buttonText="Update Password"
+                type="submit"
+                className="w-full mx-auto mt-10"
+                isLoading={isLoading}
+              />
+            </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

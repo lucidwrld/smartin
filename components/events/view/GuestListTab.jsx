@@ -34,7 +34,11 @@ const GuestListTab = ({ eventId, analytics, event }) => {
   const route = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [inviteCount, setInviteCount] = useState(50);
-  const { data, isLoading } = useGetEventInviteesManager({ eventId });
+  const [selectedRows, setSelectedRows] = useState();
+  const { data, isLoading } = useGetEventInviteesManager({
+    eventId,
+    page: currentPage,
+  });
   const {
     postCaller,
     isLoading: toppingUp,
@@ -153,6 +157,9 @@ const GuestListTab = ({ eventId, analytics, event }) => {
           isLoading={isLoading}
           data={data?.data}
           getFormattedValue={getFormattedValue}
+          toggleSelectAllFunction={() => {}}
+          setSelectedRows={setSelectedRows}
+          selectedRows={selectedRows}
           headers={headers}
           popUpFunction={(option, inx, selected) => {}}
           options={["View Guest", "Edit Guest Info", "Remove Guest"]}
