@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Trash2, Copy, Plus, Edit2, Search, Users } from "lucide-react";
+import { Trash2, Copy, Edit2 } from "lucide-react";
 
 const TableList = ({
   tables,
