@@ -21,6 +21,7 @@ import StatusButtonWithBool from "@/components/StatusWithBool";
 import { shouldChargeInNaira } from "@/utils/shouldChargeInNaira";
 import { RemoveInvitedGuests } from "@/app/events/controllers/removeInvitedGuest";
 import { GuestEditModal, GuestViewModal } from "../GuestViewAndEditComponent";
+import useGetUserDetailsManager from "@/app/profile-settings/controllers/get_UserDetails_controller";
 
 const StatCard = ({ icon: Icon, label, value }) => (
   <div className="bg-white rounded-lg shadow p-4">
@@ -41,7 +42,8 @@ const GuestListTab = ({ eventId, analytics, event }) => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectedGuestIds, setSelectedGuestIds] = useState([]);
   const [modalToOpen, setModalToOpen] = useState(null);
-
+  const { data: userDetails } = useGetUserDetailsManager();
+  const currency = userDetails?.data?.user?.currency || "USD";
   const { data, isLoading } = useGetEventInviteesManager({
     eventId,
     page: currentPage,
@@ -81,8 +83,6 @@ const GuestListTab = ({ eventId, analytics, event }) => {
   }, [selectedGuestIds]);
 
   const handleTopUp = async () => {
-    const isNairaCharge = await shouldChargeInNaira();
-    const currency = isNairaCharge ? "NGN" : "USD";
     postCaller({
       eventId,
       no_of_invitees: inviteCount,

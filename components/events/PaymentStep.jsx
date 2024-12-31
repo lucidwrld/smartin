@@ -94,6 +94,7 @@ const PaymentStep = ({
   onFormDataChange,
   isEditMode = false,
   event,
+  currency,
 }) => {
   const handleCopyClick = (text) => navigator.clipboard.writeText(text);
   const { data: discounts, isLoading: loadingDiscounts } =
@@ -103,7 +104,7 @@ const PaymentStep = ({
 
   const isPartner = userDetails?.data?.user?.isPartner;
   const noOfGuests = parseInt(formData.no_of_invitees) || 0;
-  const currency = "NGN"; // Replace with your currency determination logic
+  // Replace with your currency determination logic
 
   const priceCalculation =
     pricing?.data && discounts?.data
@@ -191,19 +192,26 @@ const PaymentStep = ({
       <div className="space-y-4">
         <h3 className="text-gray-900">Select payment method</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {PAYMENT_METHODS.map((method) => (
-            <PaymentOption
-              key={method.id}
-              method={method}
-              selected={formData.payment_type === method.id}
-              onClick={(id) => onFormDataChange("payment_type", id)}
-            />
-          ))}
+          {PAYMENT_METHODS.map((method) =>
+            method.id === "bank" ? (
+              currency === "NGN" && (
+                <PaymentOption
+                  key={method.id}
+                  method={method}
+                  selected={formData.payment_type === method.id}
+                  onClick={(id) => onFormDataChange("payment_type", id)}
+                />
+              )
+            ) : (
+              <PaymentOption
+                key={method.id}
+                method={method}
+                selected={formData.payment_type === method.id}
+                onClick={(id) => onFormDataChange("payment_type", id)}
+              />
+            )
+          )}
         </div>
-
-        {formData.payment_type === "bank" && (
-          <BankDetails onCopy={handleCopyClick} />
-        )}
       </div>
     </div>
   );

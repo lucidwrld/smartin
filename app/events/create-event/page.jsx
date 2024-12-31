@@ -19,6 +19,7 @@ import { getQueryParams } from "@/utils/getQueryParams";
 import useFileUpload from "@/utils/fileUploadController";
 import GoBackButton from "@/components/GoBackButton";
 import { shouldChargeInNaira } from "@/utils/shouldChargeInNaira";
+import useGetUserDetailsManager from "@/app/profile-settings/controllers/get_UserDetails_controller";
 
 const EventPage = () => {
   const { id, section } = getQueryParams(["id", "section"]);
@@ -32,16 +33,9 @@ const EventPage = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [coverFile, setCoverFile] = useState(null);
   const [mediaFiles, setMediaFiles] = useState([]);
-  const [currency, setCurrency] = useState("NGN");
 
-  useEffect(() => {
-    const checkCurrency = async () => {
-      const isNairaCharge = await shouldChargeInNaira();
-      setCurrency(isNairaCharge ? "NGN" : "USD");
-    };
-    checkCurrency();
-  }, []);
-
+  const { data: userDetails } = useGetUserDetailsManager();
+  const currency = userDetails?.data?.user?.currency || "USD";
   // Custom hooks
   const {
     progress,

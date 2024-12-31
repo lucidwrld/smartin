@@ -4,7 +4,7 @@ import { Upload } from "lucide-react";
 import { SubmitBankPaymentManager } from "@/app/events/controllers/submitBankPaymentController";
 import useFileUpload from "@/utils/fileUploadController";
 import CustomButton from "../Button";
-import { shouldChargeInNaira } from "@/utils/shouldChargeInNaira";
+import useGetUserDetailsManager from "@/app/profile-settings/controllers/get_UserDetails_controller";
 
 export const PaymentProofModal = ({
   isOpen,
@@ -12,6 +12,8 @@ export const PaymentProofModal = ({
   eventId,
   setIsCancel,
 }) => {
+  const { data: userDetails } = useGetUserDetailsManager();
+  const currency = userDetails?.data?.user?.currency || "USD";
   const [image, setImage] = useState(null);
   const {
     submitPayment,
@@ -93,8 +95,6 @@ export const PaymentProofModal = ({
               isLoading={submittingProof || uploadingFile}
               className={"w-2/3"}
               onClick={async () => {
-                const isNairaCharge = await shouldChargeInNaira();
-                const currency = isNairaCharge ? "NGN" : "USD";
                 let imageUrl = "";
                 if (image) {
                   imageUrl = await handleFileUpload(image);
