@@ -1,18 +1,36 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
-import { Calendar, Camera, Clock, MapPin } from "lucide-react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
+import { Camera } from "lucide-react";
 import Webcam from "react-webcam";
+import Loader from "@/components/Loader";
 import Image from "next/image";
 import { logo } from "@/public/images";
 import { Divider } from "@mui/material";
 import CustomButton from "@/components/Button";
 import { EventSchedule } from "@/components/EventSchedule";
+import { getQueryParams } from "@/utils/getQueryParams";
+import useGetInviteByCodeManager from "@/app/events/controllers/getInviteByCodeController";
+import { RespondToInviteManager } from "@/app/events/controllers/respondToInviteController";
+import { formatDateToLongString } from "@/utils/formatDateToLongString";
+import { convertToAmPm } from "@/utils/timeStringToAMPM";
+import useFileUpload from "@/utils/fileUploadController";
+import { useRouter } from "next/navigation";
 
 const AcceptInvitePage = ({ verificationType = "facial" }) => {
   const [photo, setPhoto] = useState(null);
   const [isCameraOn, setIsCameraOn] = useState(false);
   const webcamRef = useRef(null);
+  const router = useRouter();
+  const { code } = getQueryParams(["code"]);
+  const { data, isLoading } = useGetInviteByCodeManager({
+    code: code,
+  });
+  const {
+    sendResponse,
+    isLoading: sending,
+    isSuccess,
+  } = RespondToInviteManager();
 
   const startCamera = () => {
     setIsCameraOn(true);
@@ -28,7 +46,7 @@ const AcceptInvitePage = ({ verificationType = "facial" }) => {
     stopCamera();
   }, [webcamRef]);
 
-  const handleFileUpload = (event) => {
+  const handleFileSelection = (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
@@ -39,8 +57,31 @@ const AcceptInvitePage = ({ verificationType = "facial" }) => {
     }
   };
 
-  const handleConfirmAndAccept = () => {
+  const {
+    progress,
+    handleFileUpload,
+    isLoading: uploadingFile,
+  } = useFileUpload();
+
+  useEffect(() => {
+    if (isSuccess && data?.response === "accepted") {
+      router.back();
+    }
+  }, [isSuccess]);
+
+  const handleConfirmAndAccept = async () => {
     console.log("Confirming and accepting invitation with photo:", photo);
+    let imageUrl;
+    // Only upload if it's a new image (File object)
+    if (photo) {
+      imageUrl = await handleFileUpload(photo);
+    }
+    const detail = {
+      code: code,
+      image_url: imageUrl,
+      response: "accepted",
+    };
+    sendResponse(detail);
   };
 
   const videoConstraints = {
@@ -53,14 +94,17 @@ const AcceptInvitePage = ({ verificationType = "facial" }) => {
     return null;
   }
 
-  return (
+  const event = data?.event;
+  return isLoading ? (
+    <Loader />
+  ) : (
     <div className="min-h-screen flex flex-col text-brandBlack">
       {/* Header */}
       <header className="w-full bg-white shadow-sm py-4 px-4 md:px-6">
         <div className="container mx-auto flex justify-between items-center">
           <Image src={logo} alt="Logo" className="h-8 md:h-10 w-auto" />
           <h1 className="text-lg md:text-xl font-medium text-brandBlack">
-            Accept Invitation
+            {event?.name}
           </h1>
         </div>
       </header>
@@ -98,19 +142,17 @@ const AcceptInvitePage = ({ verificationType = "facial" }) => {
 
                     <div className="pt-4 gap-4">
                       <h3 className="font-medium text-base md:text-lg">
-                        Cholma & Damilare's Wedding Ceremony
+                        {event?.name}
                       </h3>
                       <p className="text-sm text-gray-600 mt-2">
-                        The families of Prof & Dr (Mrs) Sayekemi & Chief & Mrs
-                        Ope request the honour of your presence at the wedding
-                        ceremony of their children, Cholma & Damilare.
+                        {event?.description}
                       </p>
                       <EventSchedule
-                        date="Tuesday, December 10, 2024"
-                        time="10:00 AM"
-                        location="Eko Hotels & Suite, VI Lagos"
-                        eventName="Cholma & Damilare's Wedding Ceremony"
-                        description="Wedding ceremony of Cholma & Damilare"
+                        date={formatDateToLongString(event?.date)}
+                        time={convertToAmPm(event?.time)}
+                        location={event?.venue}
+                        eventName={event?.name}
+                        responseStatus={data?.response}
                       />
                     </div>
                   </div>
@@ -119,90 +161,97 @@ const AcceptInvitePage = ({ verificationType = "facial" }) => {
             </div>
 
             {/* Right side - Photo upload/preview */}
-            <div className="w-full md:w-1/2 p-4 md:p-8 flex flex-col items-center justify-center bg-whiteColor rounded-[12px] min-h-0 md:min-h-[663px] gap-3">
-              <div className="w-full max-w-[500px] aspect-square rounded-lg flex items-center justify-center bg-[#FAFAFA] mb-4 md:mb-6 overflow-hidden">
-                {isCameraOn ? (
-                  <Webcam
-                    ref={webcamRef}
-                    audio={false}
-                    screenshotFormat="image/jpeg"
-                    videoConstraints={videoConstraints}
-                    className="w-full h-full object-cover"
-                  />
-                ) : photo ? (
-                  <img
-                    src={photo}
-                    alt="Uploaded preview"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="p-4 rounded-full bg-grey3">
-                    <Camera className="w-6 h-6 md:w-8 md:h-8 text-brandBlack" />
-                  </div>
-                )}
-              </div>
+            {data?.response === "accepted" && (
+              <div className="w-full md:w-1/2 p-4 md:p-8 flex flex-col items-center justify-center bg-whiteColor rounded-[12px] min-h-0 md:min-h-[663px] gap-3">
+                <div className="w-full max-w-[500px] aspect-square rounded-lg flex items-center justify-center bg-[#FAFAFA] mb-4 md:mb-6 overflow-hidden">
+                  {isCameraOn ? (
+                    <Webcam
+                      ref={webcamRef}
+                      audio={false}
+                      screenshotFormat="image/jpeg"
+                      videoConstraints={videoConstraints}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : photo ? (
+                    <img
+                      src={photo}
+                      alt="Uploaded preview"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="p-4 rounded-full bg-grey3">
+                      <Camera className="w-6 h-6 md:w-8 md:h-8 text-brandBlack" />
+                    </div>
+                  )}
+                </div>
 
-              <div className="space-y-3 md:space-y-4 w-full max-w-[500px]">
-                {photo ? (
-                  <>
-                    <CustomButton
-                      buttonText={"Confirm and Accept"}
-                      buttonColor={"bg-purple-600"}
-                      radius={"rounded-full w-full"}
-                      onClick={handleConfirmAndAccept}
-                    />
-                    <CustomButton
-                      buttonText={"Retake Photo"}
-                      buttonColor={
-                        "bg-transparent border border-purple-600 border-1 hover:bg-purple-50"
-                      }
-                      radius={"rounded-full w-full"}
-                      textColor={"text-purple-600"}
-                      onClick={() => setPhoto(null)}
-                    />
-                  </>
-                ) : (
-                  <>
-                    {isCameraOn ? (
+                <div className="space-y-3 md:space-y-4 w-full max-w-[500px]">
+                  {photo ? (
+                    <>
                       <CustomButton
-                        buttonText={"Take Photo"}
+                        buttonText={
+                          uploadingFile
+                            ? `Uploading ${progress}%`
+                            : "Confirm and Accept"
+                        }
                         buttonColor={"bg-purple-600"}
                         radius={"rounded-full w-full"}
-                        onClick={capturePhoto}
+                        isLoading={uploadingFile || sending}
+                        onClick={handleConfirmAndAccept}
                       />
-                    ) : (
                       <CustomButton
-                        buttonText={"Capture Photo"}
-                        buttonColor={"bg-purple-600"}
-                        radius={"rounded-full w-full"}
-                        onClick={startCamera}
-                      />
-                    )}
-
-                    <div className="relative">
-                      <CustomButton
-                        buttonText={"Upload Photo"}
+                        buttonText={"Retake Photo"}
                         buttonColor={
                           "bg-transparent border border-purple-600 border-1 hover:bg-purple-50"
                         }
                         radius={"rounded-full w-full"}
                         textColor={"text-purple-600"}
-                        onClick={() =>
-                          document.getElementById("photo-input").click()
-                        }
+                        onClick={() => setPhoto(null)}
                       />
-                      <input
-                        id="photo-input"
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleFileUpload}
-                      />
-                    </div>
-                  </>
-                )}
+                    </>
+                  ) : (
+                    <>
+                      {isCameraOn ? (
+                        <CustomButton
+                          buttonText={"Take Photo"}
+                          buttonColor={"bg-purple-600"}
+                          radius={"rounded-full w-full"}
+                          onClick={capturePhoto}
+                        />
+                      ) : (
+                        <CustomButton
+                          buttonText={"Capture Photo"}
+                          buttonColor={"bg-purple-600"}
+                          radius={"rounded-full w-full"}
+                          onClick={startCamera}
+                        />
+                      )}
+
+                      <div className="relative">
+                        <CustomButton
+                          buttonText={"Upload Photo"}
+                          buttonColor={
+                            "bg-transparent border border-purple-600 border-1 hover:bg-purple-50"
+                          }
+                          radius={"rounded-full w-full"}
+                          textColor={"text-purple-600"}
+                          onClick={() =>
+                            document.getElementById("photo-input").click()
+                          }
+                        />
+                        <input
+                          id="photo-input"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleFileSelection}
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </main>

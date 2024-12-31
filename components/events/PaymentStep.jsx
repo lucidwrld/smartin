@@ -6,6 +6,10 @@ import {
   AlertCircle,
   Copy,
 } from "lucide-react";
+import useGetDiscountsManager from "@/app/admin/settings/controllers/getDiscountsController";
+import useGetPricingsManager from "@/app/admin/settings/controllers/getPricingController";
+import useGetUserDetailsManager from "@/app/profile-settings/controllers/get_UserDetails_controller";
+import { calculateTotal } from "@/utils/calculateTotal";
 
 const PAYMENT_METHODS = [
   {
@@ -34,7 +38,7 @@ const PaymentOption = ({ method, selected, onClick }) => (
     className={`flex items-start p-6 rounded-xl border transition-all
       ${
         selected
-          ? "border-blue-500 bg-blue-50"
+          ? "border-brandPurple bg-blue-50"
           : "border-gray-200 hover:border-gray-300"
       }`}
   >
@@ -49,17 +53,17 @@ const PaymentOption = ({ method, selected, onClick }) => (
     </div>
     <div
       className={`w-5 h-5 rounded-full border-2 flex items-center justify-center
-      ${selected ? "border-blue-500 bg-blue-500" : "border-gray-300"}`}
+      ${selected ? "border-brandPurple bg-brandPurple" : "border-gray-300"}`}
     >
       {selected && <div className="w-2 h-2 rounded-full bg-white" />}
     </div>
   </button>
 );
 
-const SummaryItem = ({ label, value }) => (
-  <div className="flex justify-between items-center py-2">
+const SummaryItem = ({ label, value, className = "" }) => (
+  <div className={`flex justify-between items-center py-2 ${className}`}>
     <span className="text-gray-900">{label}</span>
-    <span className="text-gray-900">{value}</span>
+    <span className="text-gray-900 font-medium">{value}</span>
   </div>
 );
 
@@ -92,15 +96,84 @@ const PaymentStep = ({
   event,
 }) => {
   const handleCopyClick = (text) => navigator.clipboard.writeText(text);
+  const { data: discounts, isLoading: loadingDiscounts } =
+    useGetDiscountsManager();
+  const { data: pricing, isLoading } = useGetPricingsManager();
+  const { data: userDetails } = useGetUserDetailsManager();
+
+  const isPartner = userDetails?.data?.user?.isPartner;
+  const noOfGuests = parseInt(formData.no_of_invitees) || 0;
+  const currency = "NGN"; // Replace with your currency determination logic
+
+  const priceCalculation =
+    pricing?.data && discounts?.data
+      ? calculateTotal(
+          noOfGuests,
+          pricing.data,
+          discounts.data,
+          isPartner,
+          currency
+        )
+      : null;
+
+  const formatCurrency = (amount) => {
+    return `${amount.toLocaleString()} ${currency}`;
+  };
+
+  if (isLoading || loadingDiscounts) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="w-full max-w-[70%]">
       <h2 className="text-xl font-semibold mb-6">Payment Summary</h2>
 
-      <div className="space-y-4 mb-8 bg-whiteColor p-4 rounded-lg">
-        <SummaryItem label="Guests" value="50" />
-        <SummaryItem label="Amount per guest" value="50 NGN" />
-        <SummaryItem label="Total" value="6000" />
+      <div className="space-y-4 mb-8 bg-whiteColor p-6 rounded-lg">
+        <SummaryItem
+          label="Event Base Price"
+          value={formatCurrency(priceCalculation?.eventPrice || 0)}
+        />
+        <SummaryItem
+          label="Price per Guest"
+          value={formatCurrency(priceCalculation?.pricePerInvite || 0)}
+        />
+        <SummaryItem
+          label={`Guest Total (${noOfGuests} guests)`}
+          value={formatCurrency(
+            priceCalculation?.pricePerInvite * noOfGuests || 0
+          )}
+        />
+        <SummaryItem
+          label="Subtotal"
+          value={formatCurrency(priceCalculation?.subtotal || 0)}
+          className="border-t pt-3"
+        />
+
+        {priceCalculation?.discountPercent > 0 && (
+          <>
+            <div className="bg-green-50 p-3 rounded-lg">
+              <p className="text-green-700 text-sm font-medium">
+                {isPartner
+                  ? "Partner Discount Applied!"
+                  : "Volume Discount Applied!"}
+              </p>
+              <p className="text-green-600 text-sm mt-1">
+                {priceCalculation.discountPercent}% off for {noOfGuests} guests
+              </p>
+            </div>
+            <SummaryItem
+              label="Discount"
+              value={`-${formatCurrency(priceCalculation.discountAmount)}`}
+              className="text-green-600"
+            />
+          </>
+        )}
+
+        <SummaryItem
+          label="Total"
+          value={formatCurrency(priceCalculation?.total || 0)}
+          className="border-t pt-3 text-lg font-semibold"
+        />
       </div>
 
       {(!isEditMode || !event?.isPaid) && (

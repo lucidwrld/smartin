@@ -1,109 +1,153 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Trash2, Copy, Edit2 } from "lucide-react";
+import useGetAllTablesManager from "@/app/events/controllers/tables/getAllTablesController";
+import { getQueryParams } from "@/utils/getQueryParams";
+import Loader from "@/components/Loader";
+import CompletePagination from "@/components/CompletePagination";
+import { AddTableManager } from "@/app/events/controllers/tables/addTableController";
+import { EditTableManager } from "@/app/events/controllers/tables/editTableController";
+import InputWithFullBoarder from "@/components/InputWithFullBoarder";
+import CustomButton from "@/components/Button";
+import { AssignUnassignGuestsManager } from "@/app/events/controllers/tables/assignUnassignGuestToTableController";
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
+import { DeleteTableManager } from "@/app/events/controllers/tables/deleteTableController";
 
-const TableList = ({
-  tables,
-  setTables,
-  setUnassignedParticipants,
-  unassignedParticipants,
-}) => {
+const TableList = ({ isLoading, data, setCurrentPage, eventId }) => {
+  const { id } = getQueryParams(["id"]);
+  const { manageAssignment, isLoading: unassigning } =
+    AssignUnassignGuestsManager({ isAdd: false });
+
+  // Add these state declarations after other useState declarations
+  const [newTableName, setNewTableName] = useState("");
+  const [newSeatNumber, setNewSeatNumber] = useState("");
+  const [tableId, setTableId] = useState(null);
+  // Move the editingTableId state declaration before the hooks
   const [editingTableId, setEditingTableId] = useState(null);
+  const {
+    deleteTable,
+    isLoading: deleting,
+    isSuccess: deleted,
+  } = DeleteTableManager({ tableId: tableId });
+
+  useEffect(() => {
+    if (deleted) {
+      document.getElementById("delete").closest();
+    }
+  }, [deleted]);
+
+  const { addTable: addTableAPI, isLoading: duplicating } = AddTableManager();
+  const { editTable, isLoading: editing } = EditTableManager({
+    tableId: editingTableId,
+  });
 
   const getFilteredData = () => {
-    return tables;
+    return data?.data || [];
   };
 
   const removeParticipant = (participant, tableId) => {
-    setTables(
-      tables.map((table) => {
-        if (table.id === tableId) {
-          return {
-            ...table,
-            assignedParticipants: table.assignedParticipants.filter(
-              (p) => p.id !== participant.id
-            ),
-            remainingSeats: table.remainingSeats + 1,
-          };
-        }
-        return table;
-      })
-    );
-    setUnassignedParticipants([...unassignedParticipants, participant]);
+    const details = {
+      eventId: eventId,
+      tableId: tableId,
+      guestIds: [participant],
+    };
+    manageAssignment(details);
   };
 
-  const duplicateTable = (table) => {
+  const duplicateTable = async (table) => {
     const duplicateNum =
-      tables.filter((t) => t.baseIdentifier === table.baseIdentifier).length +
-      1;
+      data?.data.filter((t) => t.baseIdentifier === table.baseIdentifier)
+        .length + 1;
     const duplicatedTable = {
       ...table,
-      id: Date.now(),
-      name: `${table.baseIdentifier}${duplicateNum}`,
-      assignedParticipants: [],
-      remainingSeats: table.seats,
+      event: id,
+      name: `${table?.name}${duplicateNum}`,
+      no_of_seats: table?.no_of_seats,
     };
-    setTables([...tables, duplicatedTable]);
+
+    await addTableAPI(duplicatedTable);
   };
 
-  const deleteTable = (id) => {
-    const table = tables.find((t) => t.id === id);
-    setUnassignedParticipants([
-      ...unassignedParticipants,
-      ...(table.assignedParticipants || []),
-    ]);
-    setTables(tables.filter((table) => table.id !== id));
+  const deleteTableFn = (id) => {
+    setTableId(id);
+    document.getElementById("delete").showModal();
   };
-
   const startEditing = (table) => {
-    setEditingTableId(table.id);
-    setNewTableName(table.name);
+    setEditingTableId(table?.id);
+    setNewTableName(table?.name);
+    setNewSeatNumber(table?.no_of_seats.toString());
   };
 
-  const saveTableEdit = (tableId) => {
-    setTables(
-      tables.map((table) =>
-        table.id === tableId
-          ? { ...table, name: newTableName.trim() || table.baseIdentifier }
-          : table
-      )
-    );
-    setEditingTableId(null);
-    setNewTableName("");
+  const saveTableEdit = async (tableId) => {
+    try {
+      if (
+        !newSeatNumber ||
+        isNaN(newSeatNumber) ||
+        parseInt(newSeatNumber) <= 0
+      ) {
+        alert("Please enter a valid number of seats");
+        return;
+      }
+
+      const updatedData = {
+        name: newTableName.trim(),
+        no_of_seats: parseInt(newSeatNumber),
+      };
+
+      await editTable(updatedData);
+
+      setEditingTableId(null);
+      setNewTableName("");
+      setNewSeatNumber("");
+    } catch (error) {
+      console.error("Error updating table:", error);
+      alert("Failed to update table. Please try again.");
+    }
   };
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
       <h2 className="text-xl font-semibold mb-4">Tables</h2>
-      {tables.length === 0 ? (
+      {isLoading ? (
+        <Loader />
+      ) : data?.data.length === 0 ? (
         <p className="text-gray-500 text-center py-4">No tables added yet</p>
       ) : (
         <div className="space-y-4">
           {getFilteredData().map((table) => (
             <div
-              key={table.id}
+              key={table?.id}
               className="border rounded-lg p-4 hover:bg-gray-50"
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-4">
-                  {editingTableId === table.id ? (
+                  {editingTableId === table?.id ? (
                     <div className="flex gap-2">
-                      <input
+                      <InputWithFullBoarder
+                        label="Table Name"
                         type="text"
                         value={newTableName}
                         onChange={(e) => setNewTableName(e.target.value)}
-                        className="border rounded-md px-2 py-1"
+                      />
+                      <InputWithFullBoarder
+                        label="Number of Seats"
+                        type="number"
+                        value={newSeatNumber}
+                        onChange={(e) => setNewSeatNumber(e.target.value)}
+                        min="1"
                       />
                       <CustomButton
                         buttonText="Save"
                         buttonColor="bg-purple-600"
                         radius="rounded-full"
+                        isLoading={editing}
                         onClick={() => saveTableEdit(table.id)}
                       />
                     </div>
                   ) : (
                     <>
-                      <span className="font-medium">Table {table.name}</span>
+                      <span className="font-medium">Table {table?.name}</span>
                       <span className="text-gray-600">
-                        {table.remainingSeats}/{table.seats} seats available
+                        {table.no_of_seats - table?.seats_occupied}/
+                        {table.no_of_seats} seats available
                       </span>
                     </>
                   )}
@@ -122,7 +166,7 @@ const TableList = ({
                     <Copy size={18} />
                   </button>
                   <button
-                    onClick={() => deleteTable(table.id)}
+                    onClick={() => deleteTableFn(table.id)}
                     className="p-2 text-gray-600 hover:text-red-600 rounded-full hover:bg-red-50"
                   >
                     <Trash2 size={18} />
@@ -134,26 +178,43 @@ const TableList = ({
               <div className="mt-2">
                 <h4 className="font-medium mb-2">Assigned Participants:</h4>
                 <div className="flex flex-wrap gap-2">
-                  {table.assignedParticipants.map((participant) => (
-                    <div
-                      key={participant.id}
-                      className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
-                    >
-                      {participant.name}
-                      <button
-                        onClick={() => removeParticipant(participant, table.id)}
-                        className="text-purple-400 hover:text-purple-600"
+                  {table?.guests &&
+                    table?.guests.map((participant) => (
+                      <div
+                        key={participant.id}
+                        className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
                       >
-                        ×
-                      </button>
-                    </div>
-                  ))}
+                        {participant.name}
+                        <button
+                          onClick={() =>
+                            removeParticipant(participant?.id, table.id)
+                          }
+                          className="text-purple-400 hover:text-purple-600"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>
           ))}
+          {data?.data.length > 0 && (
+            <CompletePagination
+              setCurrentPage={setCurrentPage}
+              pagination={data?.pagination}
+              suffix={"Tables"}
+            />
+          )}
         </div>
       )}
+      <DeleteConfirmationModal
+        title={"Delete Table"}
+        body={`Are you sure you want to delete this table?`}
+        buttonText={"Delete Table"}
+        isLoading={deleting}
+        onClick={() => deleteTable()}
+      />
     </div>
   );
 };

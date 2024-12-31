@@ -12,13 +12,7 @@ const StatusButton = ({ status }) => {
         text: "Pending",
       };
       break;
-    case "declared":
-      styles = {
-        backgroundColor: "#ECFDF3",
-        color: "#358619",
-        text: "Declared",
-      };
-      break;
+
     case "approved":
       styles = {
         backgroundColor: "#ECFDF3",
@@ -33,20 +27,7 @@ const StatusButton = ({ status }) => {
         text: "Completed",
       };
       break;
-    case "purchased":
-      styles = {
-        backgroundColor: "#358619",
-        color: "#ffffff",
-        text: "Purchased",
-      };
-      break;
-    case "sold":
-      styles = {
-        backgroundColor: "#358619",
-        color: "#ffffff",
-        text: "Sold",
-      };
-      break;
+
     case "in progress":
       styles = {
         backgroundColor: "#FFF3CD",
@@ -75,13 +56,7 @@ const StatusButton = ({ status }) => {
         text: "Cancelled",
       };
       break;
-    case "closed":
-      styles = {
-        backgroundColor: "#F8D7DA",
-        color: "#721C24",
-        text: "Closed",
-      };
-      break;
+
     case "accepted":
       styles = {
         backgroundColor: "#E7F6EC",
@@ -89,11 +64,11 @@ const StatusButton = ({ status }) => {
         text: "Accepted",
       };
       break;
-    case "rejected":
+    case "declined":
       styles = {
         backgroundColor: "#F8D7DA",
         color: "#721C24",
-        text: "Rejected",
+        text: "Declined",
       };
       break;
     case "inactive":

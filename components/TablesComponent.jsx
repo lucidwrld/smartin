@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-
 import Loader from "./Loader";
 import OptionsPopup from "./PopupOptions";
 import { renderData } from "../utils/renderData";
-
 import CustomCheckBox from "./CustomCheckBox";
 import CustomButton from "./Button";
 import { emptyState, moreMore } from "@/public/icons";
@@ -26,24 +24,51 @@ const TablesComponent = ({
   const [selected, setSelected] = useState(null);
   const [showOptions, setShowOptions] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(null);
-  // const [selectedRows, setSelectedRows] = useState([]);
 
   const toggleSelectAll = () => {
-    if (selectedRows.length === data.length) {
-      setSelectedRows([]);
-    } else {
-      setSelectedRows(data.map((_, i) => i));
+    const isAllSelected = selectedRows.length === data.length;
+
+    // Handle both legacy and new behavior
+    if (typeof toggleSelectAllFunction === "function") {
+      // For legacy support - just call without args
+      if (toggleSelectAllFunction.length === 0) {
+        toggleSelectAllFunction();
+      } else {
+        // New behavior - pass selection state
+        toggleSelectAllFunction(!isAllSelected);
+      }
     }
-    toggleSelectAllFunction();
+
+    // Handle direct row selection if setSelectedRows is provided
+    if (typeof setSelectedRows === "function") {
+      if (isAllSelected) {
+        setSelectedRows([]);
+      } else {
+        setSelectedRows(data.map((_, index) => index));
+      }
+    }
   };
 
   const toggleRow = (index, val) => {
-    if (selectedRows.includes(index)) {
-      setSelectedRows(selectedRows.filter((i) => i !== index));
-    } else {
-      setSelectedRows([...selectedRows, index]);
+    // Handle both legacy and new behavior
+    if (typeof toggleRowFunction === "function") {
+      // For legacy support - just pass index
+      if (toggleRowFunction.length === 1) {
+        toggleRowFunction(index);
+      } else {
+        // New behavior - pass both index and value
+        toggleRowFunction(index, val);
+      }
     }
-    toggleRowFunction(index, val);
+
+    // Handle direct row selection if setSelectedRows is provided
+    if (typeof setSelectedRows === "function") {
+      if (selectedRows.includes(index)) {
+        setSelectedRows(selectedRows.filter((i) => i !== index));
+      } else {
+        setSelectedRows([...selectedRows, index]);
+      }
+    }
   };
 
   if (isLoading) {
@@ -51,10 +76,10 @@ const TablesComponent = ({
   }
 
   return (
-    <div className=" bg-white  w-full relative h-full overflow-y-auto scrollbar-hide">
+    <div className="bg-white w-full relative h-full overflow-y-auto scrollbar-hide">
       <div className="w-full relative h-full">
         <table className="w-full">
-          <thead className=" lg:table-header-group sticky top-0 bg-[#F0F2F5]  z-10">
+          <thead className="lg:table-header-group sticky top-0 bg-[#F0F2F5] z-10">
             <tr>
               {headers.map((header, i) => (
                 <th
@@ -64,8 +89,15 @@ const TablesComponent = ({
                   <div className="flex gap-3 items-center">
                     {i === 0 && showCheckBox && (
                       <CustomCheckBox
-                        // checked={selectedRows.length === data.length}
+                        checked={
+                          data?.length > 0 &&
+                          selectedRows.length === data.length
+                        }
                         onChange={toggleSelectAll}
+                        indeterminate={
+                          selectedRows.length > 0 &&
+                          selectedRows.length < data.length
+                        }
                       />
                     )}
                     {header}
@@ -79,12 +111,10 @@ const TablesComponent = ({
               data.map((eachRow, index) => {
                 const formatedValue = getFormattedValue(eachRow, index);
                 return (
-                  // In your table row, rearrange the cells like this:
                   <tr
                     key={index}
-                    className={`${index % 2 ? "bg-white" : "bg-[#fafafa]"} `}
+                    className={`${index % 2 ? "bg-white" : "bg-[#fafafa]"}`}
                   >
-                    {/* First render all data columns */}
                     {formatedValue.map((item, i) => (
                       <td
                         key={i}
@@ -102,7 +132,6 @@ const TablesComponent = ({
                       </td>
                     ))}
 
-                    {/* Then render the action button column at the end */}
                     {!hideActionButton && (
                       <td className="lg:table-cell whitespace-nowrap">
                         <div className="flex items-center space-x-4">
@@ -115,7 +144,7 @@ const TablesComponent = ({
                                   index === currentIndex ? !showOptions : true
                                 );
                               } else {
-                                buttonFunction(eachRow);
+                                buttonFunction?.(eachRow);
                               }
                               setCurrentIndex(index);
                             }}
@@ -151,7 +180,7 @@ const TablesComponent = ({
               <tr>
                 <td colSpan={headers.length} className="py-6">
                   <div className="flex flex-col items-center justify-center h-full mt-6">
-                    <img src={emptyState.src} width={"120px"} />
+                    <img src={emptyState.src} width={"120px"} alt="No data" />
                     <span className="text-20px font-medium text-brandGreen">
                       No Data
                     </span>

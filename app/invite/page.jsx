@@ -8,25 +8,65 @@ import { getQueryParams } from "@/utils/getQueryParams";
 import Loader from "@/components/Loader";
 import StatusButton from "@/components/StatusButton";
 import { Calendar, Clock, Mail, MapPin, Phone } from "lucide-react";
-import { QRCodeSVG } from "qrcode.react";
-import useGetSingleEventManager from "../events/controllers/getSingleEventController";
 import { formatDateToLongString } from "@/utils/formatDateToLongString";
 import { convertToAmPm } from "@/utils/timeStringToAMPM";
 import { logo, logoMain } from "@/public/images";
-import { Footer } from "@/components/Footer";
 import Image from "next/image";
 import { EventAccessCard } from "@/components/AccessCard";
 import { googleCalendar } from "@/public/icons";
+import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
+import CustomButton from "@/components/Button";
+import { RespondToInviteManager } from "../events/controllers/respondToInviteController";
+import { useRouter } from "next/navigation";
+import { addToGoogleCalendar } from "@/utils/addtoGoogleCalendar";
+import { openInMaps } from "@/utils/openInMaps";
 
 const InvitePage = ({}) => {
+  const router = useRouter();
   const [currentView, setCurrentView] = useState(0);
-  const list = ["Gallery", "Gift Registry"];
   const { code } = getQueryParams(["code"]);
-  const { data: eventDetails, isLoading } = useGetSingleEventManager({
-    eventId: "6769207ee7d2433e9716216c",
+  const { data, isLoading } = useGetInviteByCodeManager({
+    code: code,
   });
-  //   const { data: event, isLoading } = useGetInviteByCodeManager({ code: code });
-  const event = eventDetails?.data[0];
+  const { sendResponse, isLoading: sending } = RespondToInviteManager();
+  const [isaccepting, setIsAccepting] = useState();
+
+  const event = data?.event;
+
+  const hasGallery = (event) => {
+    return event?.gallery && event.gallery.length > 0;
+  };
+
+  const hasGiftRegistry = (event) => {
+    const hasDonationDetails =
+      event?.donation &&
+      (event.donation.account_name ||
+        event.donation.bank_name ||
+        event.donation.account_number);
+
+    const hasItems = event?.items && event.items.length > 0;
+
+    return hasDonationDetails || hasItems;
+  };
+
+  // In your component, modify the tabs section
+  // First, create dynamic list of available tabs
+  const getAvailableTabs = () => {
+    const tabs = [];
+
+    if (hasGallery(event)) {
+      tabs.push("Gallery");
+    }
+
+    if (hasGiftRegistry(event)) {
+      tabs.push("Gift Registry");
+    }
+
+    return tabs;
+  };
+
+  // Update your JSX
+  const availableTabs = getAvailableTabs();
   return isLoading ? (
     <Loader />
   ) : (
@@ -56,17 +96,19 @@ const InvitePage = ({}) => {
               {/* Profile Card */}
               <div className="bg-white rounded-lg p-6 shadow-sm">
                 <h2 className="text-xl font-medium flex items-center gap-2">
-                  Abike Akintola
-                  <StatusButton status={"accepted"} />
+                  {capitalizeFirstLetter(data?.name)}
+                  <StatusButton status={data?.response} />
                 </h2>
                 <div className="mt-4 space-y-3">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Mail className="w-5 h-5 text-brandPurple" />
-                    <span>AbikeAkintola@gmail.com</span>
-                  </div>
+                  {data?.email && (
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Mail className="w-5 h-5 text-brandPurple" />
+                      <span>{data?.email}</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 text-gray-600">
                     <Phone className="w-5 h-5 text-brandPurple" />
-                    <span>+234 802 123 4567</span>
+                    <span>{data?.phone}</span>
                   </div>
                 </div>
               </div>
@@ -83,32 +125,106 @@ const InvitePage = ({}) => {
                     <Clock size={16} className="ml-2 text-brandPurple" />
                     <span>{convertToAmPm(event?.time)}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-gray-600">
+                  <div
+                    onClick={() => openInMaps({ address: event?.venue })}
+                    className="flex items-center gap-2 text-gray-600"
+                  >
                     <MapPin size={16} className="text-brandPurple" />
-                    <span>{event?.venue}</span>
+                    <span className="underline cursor-pointer">
+                      {event?.venue}
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Invite Card */}
-              <EventAccessCard />
+              <EventAccessCard inviteDetail={data} />
 
               {/* Calendar Button */}
-              <button className="font-semibold  w-full max-w-max px-5 flex items-center justify-center gap-2 border rounded-[12px] py-4 hover:bg-gray-50 bg-white">
-                <img src={googleCalendar.src} />
-                Add Event to Calendar
-              </button>
+              {data?.response !== "accepted" ? (
+                <div className="flex items-center justify-center gap-5 w-full">
+                  <CustomButton
+                    buttonText={"Accept Invite"}
+                    radius={"rounded-full w-full"}
+                    buttonColor={"bg-success"}
+                    isLoading={sending && isaccepting}
+                    onClick={() => {
+                      if (event?.verification_type === "accessCode") {
+                        setIsAccepting(true);
+                        //accept invitation
+                        const detail = {
+                          code: code,
+                          response: "accepted",
+                        };
+                        sendResponse(detail);
+                      } else {
+                        router.push(`/invite/accept-invite?code=${code}`);
+                      }
+                    }}
+                  />{" "}
+                  <CustomButton
+                    buttonText={"Decline Invite"}
+                    radius={"rounded-full w-full"}
+                    buttonColor={"bg-redColor"}
+                    isLoading={sending && !isaccepting}
+                    onClick={() => {
+                      setIsAccepting(false);
+                      //accept invitation
+                      const detail = {
+                        code: code,
+                        response: "declined",
+                      };
+                      sendResponse(detail);
+                    }}
+                  />
+                </div>
+              ) : (
+                <button
+                  onClick={() =>
+                    addToGoogleCalendar({
+                      date: date,
+                      time: time,
+                      eventName: eventName,
+                      location: venue,
+                      durationHours: 2,
+                    })
+                  }
+                  className="font-semibold  w-full max-w-max px-5 flex items-center justify-center gap-2 border rounded-[12px] py-4 hover:bg-gray-50 bg-white"
+                >
+                  <img src={googleCalendar.src} />
+                  Add Event to Calendar
+                </button>
+              )}
             </div>
           </div>
 
           {/* Tabs Section */}
-          <div className="sticky top-0 py-2 bg-[#F9FAFB] z-50">
-            <TabManager
-              currentView={currentView}
-              setCurrentView={setCurrentView}
-              list={list}
-            />
-          </div>
+          {availableTabs.length > 0 && (
+            <>
+              {/* Tabs Section */}
+              <div className="sticky top-0 py-2 bg-[#F9FAFB] z-50">
+                <TabManager
+                  currentView={currentView}
+                  setCurrentView={setCurrentView}
+                  list={availableTabs}
+                />
+              </div>
+
+              {/* Tab Content */}
+              <div className="w-full">
+                {currentView === 0 && hasGallery(event) && (
+                  <Gallery files={event?.gallery} />
+                )}
+                {currentView === 1 && hasGiftRegistry(event) && (
+                  <GiftRegistryTab
+                    isViewOnly={true}
+                    event={event}
+                    isLoading={isLoading}
+                  />
+                )}
+              </div>
+            </>
+          )}
 
           {/* Tab Content */}
           <div className="w-full">

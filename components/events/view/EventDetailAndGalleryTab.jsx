@@ -70,14 +70,17 @@ const EventDetailAndGalleryTab = ({ event, isLoading }) => {
           </div>
           {!event?.isPaid && (
             <CustomButton
-              buttonText={"Pay Now"}
+              buttonText={
+                event?.payment_type === "bank" && event?.isPending
+                  ? "Awaiting Payment Confirmation"
+                  : "Pay Now"
+              }
               suffixIcon={<Wallet />}
-              className={"w-full "}
-              onClick={() =>
+              onClick={() => {
                 route.push(
                   `/events/create-event?id=${event.id}&section=Payment`
-                )
-              }
+                );
+              }}
             />
           )}
           {event?.isPaid && (

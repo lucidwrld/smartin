@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import TermsModal from "@/components/TermsModal";
 import PrivacyModal from "@/components/privacyModal";
 import { validateFormSubmission } from "@/utils/validateForm";
+import { shouldChargeInNaira } from "@/utils/shouldChargeInNaira";
 
 const CreateAccountPage = () => {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -21,6 +22,7 @@ const CreateAccountPage = () => {
     email: "",
     password: "",
     phone: "",
+    currency: "USD",
   };
   const [formData, setFormData] = useState(initialData);
 
@@ -51,8 +53,13 @@ const CreateAccountPage = () => {
     if (!validateFormSubmission(formRef, formData)) {
       return;
     }
-
-    await registerUser(formData);
+    const isNairaCharge = await shouldChargeInNaira();
+    const currencyValue = isNairaCharge ? "NGN" : "USD";
+    const updatedFormData = {
+      ...formData,
+      currency: currencyValue,
+    };
+    await registerUser(updatedFormData);
   };
 
   return (

@@ -1,25 +1,24 @@
-import { Poppins } from "next/font/google";
+import { Outfit } from "next/font/google";
 import "./globals.css";
 import Provider from "./provider";
 import { Suspense } from "react";
 import { ToastContainer } from "react-toastify";
 
-const poppins = Poppins({
+const outfit = Outfit({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata = {
-  title: "Invitee",
-  description: "Send and manage invitations for all your weddings and events. ",
+  title: "Smart Invites",
+  description: "Modern Digital Invitations Made Simple",
   viewport: "width=device-width, initial-scale=1",
   robots: "index, follow",
   openGraph: {
-    title: "Invitee",
-    description:
-      "Send and manage invitations for all your weddings and events. ",
+    title: "Smart Invites",
+    description: "Modern Digital Invitations Made Simple",
     type: "website",
-    url: "https://invitee.co",
+    url: "https://smartinvites.xyz",
     images: [
       {
         url: "", //put image path here
@@ -36,7 +35,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={poppins.className}>
+      <body className={outfit.className}>
         <Provider>
           <Suspense>{children}</Suspense>
           <ToastContainer theme="colored" />

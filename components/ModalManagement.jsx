@@ -1,14 +1,6 @@
 import React, { useState } from "react";
 
-const ModalManagement = ({
-  children,
-  id,
-  type,
-  title,
-  className,
-  askSpecial,
-  askAiSpecial,
-}) => {
+const ModalManagement = ({ children, id, type, title, className }) => {
   return (
     <dialog
       id={id}
@@ -35,7 +27,6 @@ const ModalManagement = ({
           </h3>
           <button
             onClick={() => {
-              askAiSpecial && askSpecial();
               document.getElementById(id).close();
             }}
             className="w-[24px] bg-white h-[24px] outline-none border-none flex justify-center items-center"

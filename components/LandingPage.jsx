@@ -1,9 +1,19 @@
 import React, { useState } from "react";
-import { Gift, Send, Calendar, CheckCircle, Play, Menu, X } from "lucide-react";
+import {
+  Gift,
+  Send,
+  Calendar,
+  CheckCircle,
+  Play,
+  Menu,
+  X,
+  TableProperties,
+} from "lucide-react";
 import Link from "next/link";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { useRouter } from "next/navigation";
+import { appscreenshots } from "@/public/images";
 
 const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,16 +43,17 @@ const LandingPage = () => {
                 </h1>
                 <p className="text-xl text-gray-600 mb-8">
                   Create stunning digital invites, track RSVPs instantly, and
-                  manage your guest list effortlessly. The smarter way to send
-                  invitations.
+                  manage your guest list effortlessly. With integrated gift
+                  registry and table management, planning your event has never
+                  been easier.
                 </p>
                 <div className="flex flex-wrap gap-4">
-                  <button
-                    onClick={() => route.push("/auth/create-account")}
+                  <Link
+                    href="/auth/create-account"
                     className="bg-brandPurple text-white px-8 py-4 rounded-lg text-lg hover:bg-backgroundPurple"
                   >
-                    Start Sending Invites
-                  </button>
+                    Start Now - It's Free
+                  </Link>
                   <Link
                     href="#demo"
                     className="border border-brandPurple text-brandPurple px-8 py-4 rounded-lg text-lg hover:bg-brandPurple hover:text-white"
@@ -53,9 +64,9 @@ const LandingPage = () => {
               </div>
               <div className="rounded-xl overflow-hidden shadow-2xl">
                 <img
-                  src="/api/placeholder/600/400"
+                  src={appscreenshots.src}
                   alt="Smart Invites Dashboard"
-                  className="w-full"
+                  className="w-full object-cover"
                 />
               </div>
             </div>
@@ -108,7 +119,7 @@ const LandingPage = () => {
           </div>
         </section>
 
-        <section id="social-proof" className="py-8 bg-gray-50">
+        {/* <section id="social-proof" className="py-8 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex flex-wrap justify-center items-center gap-8 text-gray-400">
               <p>Trusted by event planners from:</p>
@@ -117,7 +128,7 @@ const LandingPage = () => {
               <img src="/api/placeholder/100/40" alt="Company 3" />
             </div>
           </div>
-        </section>
+        </section> */}
 
         <section id="features" className="py-16 md:py-24">
           <div className="max-w-7xl mx-auto px-4">
@@ -130,7 +141,7 @@ const LandingPage = () => {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-4 gap-8">
               {[
                 {
                   icon: Send,
@@ -141,13 +152,20 @@ const LandingPage = () => {
                 {
                   icon: Gift,
                   title: "Gift Registry",
-                  description: "Organize gifts and let guests choose with ease",
+                  description:
+                    "Create and manage your gift registry, allowing guests to easily choose and purchase gifts",
                 },
                 {
                   icon: Calendar,
                   title: "RSVP Management",
                   description:
                     "Track responses and manage guest lists automatically",
+                },
+                {
+                  icon: TableProperties,
+                  title: "Table Management",
+                  description:
+                    "Effortlessly organize seating arrangements and manage table assignments",
                 },
               ].map((feature, index) => (
                 <div
@@ -208,23 +226,47 @@ const LandingPage = () => {
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
-              {[1, 2, 3].map((_, index) => (
+              {[
+                {
+                  name: "Emily Rodriguez",
+                  role: "Wedding Planner",
+                  image:
+                    "https://res.cloudinary.com/skillseeds-limited/image/upload/v1703723458/avatars/bm6iuhnsv3qzol3elvkc.png",
+                  quote:
+                    "The gift registry and table management features are game-changers! My clients love how easy it is to manage everything in one place. Saved me countless hours of coordination.",
+                },
+                {
+                  name: "Michael Chen",
+                  role: "Corporate Event Manager",
+                  image:
+                    "https://res.cloudinary.com/skillseeds-limited/image/upload/v1703723457/avatars/cwe1awh4bggfekuxfiex.png",
+                  quote:
+                    "Finally, a platform that handles everything from invites to seating arrangements! The RSVP tracking is incredibly accurate, and the interface is intuitive. Highly recommended!",
+                },
+                {
+                  name: "Jessica Thompson",
+                  role: "Birthday Party Host",
+                  image:
+                    "https://res.cloudinary.com/skillseeds-limited/image/upload/v1703723455/avatars/y6rjqpdm74wygnzsd7lz.png",
+                  quote:
+                    "I was blown away by how simple it was to set up my event. The digital invitations looked stunning, and my guests loved being able to RSVP with just one click!",
+                },
+              ].map((testimonial, index) => (
                 <div key={index} className="bg-white p-8 rounded-xl shadow-lg">
                   <div className="flex items-center gap-4 mb-4">
                     <img
-                      src="/api/placeholder/48/48"
-                      alt="User"
-                      className="rounded-full"
+                      src={testimonial.image}
+                      alt={testimonial.name}
+                      className="rounded-full h-12 w-12"
                     />
                     <div>
-                      <h4 className="font-semibold">Sarah Johnson</h4>
-                      <p className="text-gray-500 text-sm">Wedding Planner</p>
+                      <h4 className="font-semibold">{testimonial.name}</h4>
+                      <p className="text-gray-500 text-sm">
+                        {testimonial.role}
+                      </p>
                     </div>
                   </div>
-                  <p className="text-gray-600">
-                    "Smart Invites made organizing my client's wedding so much
-                    easier. The RSVP tracking alone saved hours of work!"
-                  </p>
+                  <p className="text-gray-600">"{testimonial.quote}"</p>
                 </div>
               ))}
             </div>
@@ -242,9 +284,12 @@ const LandingPage = () => {
             <p className="text-xl mb-8 opacity-90">
               Start your free trial today - no credit card required
             </p>
-            <button className="bg-white text-brandPurple px-8 py-4 rounded-lg text-lg hover:bg-gray-100">
+            <Link
+              href="/auth/create-account"
+              className="bg-white text-brandPurple px-8 py-4 rounded-lg text-lg hover:bg-gray-100 inline-block"
+            >
               Get Started Free
-            </button>
+            </Link>
           </div>
         </section>
 

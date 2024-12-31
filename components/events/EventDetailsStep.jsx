@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import InputWithFullBoarder from "../InputWithFullBoarder";
 import Dropdown from "../Dropdown";
 
-export const EventDetailsStep = ({ formData, onFormDataChange }) => {
+export const EventDetailsStep = ({
+  formData,
+  onFormDataChange,
+  isEditMode,
+}) => {
   const [imagePreview, setImagePreview] = useState(null);
   const today = new Date().toISOString().split("T")[0];
 
@@ -172,19 +176,21 @@ export const EventDetailsStep = ({ formData, onFormDataChange }) => {
                 placeholder="Select an option..."
               />
             </div>
-            <div className="w-1/2">
-              <InputWithFullBoarder
-                label="Expected Guests"
-                placeholder={"eg. 200"}
-                id="no_of_invitees"
-                type="number"
-                isRequired={true}
-                value={Number(formData.no_of_invitees)}
-                onChange={(e) =>
-                  handleInputChange("no_of_invitees", e.target.value)
-                }
-              />
-            </div>
+            {!isEditMode && (
+              <div className="w-1/2">
+                <InputWithFullBoarder
+                  label="Expected Guests"
+                  placeholder={"eg. 200"}
+                  id="no_of_invitees"
+                  type="number"
+                  isRequired={true}
+                  value={Number(formData.no_of_invitees)}
+                  onChange={(e) =>
+                    handleInputChange("no_of_invitees", e.target.value)
+                  }
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

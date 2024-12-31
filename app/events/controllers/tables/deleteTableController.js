@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 export const DeleteTableManager = ({ tableId }) => {
   const router = useRouter();
   const { deleteCaller, isLoading, isSuccess, error, data } = useDeleteManager(
-    `/event/table/${tableId}`,
+    `/event/tables/${tableId}`,
     ["tables"]
   );
   const deleteTable = async (details) => {

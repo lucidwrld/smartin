@@ -3,8 +3,11 @@ import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import React, { useState } from "react";
 import { Plus } from "lucide-react";
 import { AddTableManager } from "@/app/events/controllers/tables/addTableController";
+import { getParamKeys } from "next/dist/server/request/fallback-params";
+import { getQueryParams } from "@/utils/getQueryParams";
 
 const AddNewTable = ({ tables, setTables }) => {
+  const { id } = getQueryParams(["id"]);
   const { addTable: addTableAPI, isLoading } = AddTableManager();
 
   const [newTableName, setNewTableName] = useState("");
@@ -30,7 +33,7 @@ const AddNewTable = ({ tables, setTables }) => {
     return String.fromCharCode(lastBase.charCodeAt(0) + 1);
   };
 
-  const addTable = () => {
+  const addTableHandle = async () => {
     if (
       !newTableSeats ||
       isNaN(newTableSeats) ||
@@ -41,16 +44,22 @@ const AddNewTable = ({ tables, setTables }) => {
     }
 
     const baseIdentifier = getNextIdentifier();
-    const newTable = {
-      id: Date.now(),
-      baseIdentifier,
-      name: newTableName.trim() || baseIdentifier,
-      seats: parseInt(newTableSeats),
-      assignedParticipants: [],
-      remainingSeats: parseInt(newTableSeats),
-    };
+    // const newTable = {
+    //   id: Date.now(),
+    //   baseIdentifier,
+    //   name: newTableName.trim() || baseIdentifier,
+    //   seats: parseInt(newTableSeats),
+    //   assignedParticipants: [],
+    //   remainingSeats: parseInt(newTableSeats),
+    // };
 
-    setTables([...tables, newTable]);
+    const details = {
+      event: id,
+      name: newTableName.trim() || baseIdentifier,
+      no_of_seats: parseInt(newTableSeats),
+    };
+    await addTableAPI(details);
+    // setTables([...tables, newTable]);
     setNewTableName("");
     setNewTableSeats("");
   };
@@ -80,7 +89,8 @@ const AddNewTable = ({ tables, setTables }) => {
           buttonColor="bg-purple-600"
           radius="rounded-full"
           icon={<Plus size={16} />}
-          onClick={addTable}
+          onClick={addTableHandle}
+          isLoading={isLoading}
         />
       </div>
     </div>

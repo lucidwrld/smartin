@@ -50,6 +50,7 @@ const EventDetailsPage = () => {
           currentView={currentView}
           setCurrentView={setCurrentView}
           list={list}
+          disabledTabs={!event?.data?.isPaid ? [1, 2, 3, 4] : []}
         />
       </div>
       {currentView === 0 && (

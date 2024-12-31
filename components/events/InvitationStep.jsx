@@ -1,7 +1,62 @@
 import InputWithFullBoarder from "../InputWithFullBoarder";
 import { KeySquare, Scan } from "lucide-react";
 
-// InvitationSettingsStep.js
+const VerificationOption = ({
+  icon: Icon,
+  title,
+  description,
+  selected,
+  onClick,
+}) => (
+  <button
+    onClick={onClick}
+    className={`flex items-start p-6 rounded-xl border transition-all
+      ${
+        selected
+          ? "border-brandPurple bg-purple-50"
+          : "border-gray-200 hover:border-gray-300"
+      }`}
+  >
+    <div className="flex gap-4">
+      <div className="mt-1">
+        <Icon
+          size={24}
+          className={selected ? "text-brandPurple" : "text-gray-700"}
+        />
+      </div>
+      <div className="text-left">
+        <h3 className="font-medium text-gray-900 mb-1">{title}</h3>
+        <p className="text-gray-600 text-sm">{description}</p>
+      </div>
+    </div>
+    <div className="ml-auto">
+      <div
+        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center
+          ${
+            selected ? "border-brandPurple bg-brandPurple" : "border-gray-300"
+          }`}
+      >
+        {selected && <div className="w-2 h-2 rounded-full bg-white" />}
+      </div>
+    </div>
+  </button>
+);
+
+const verificationOptions = [
+  {
+    id: "accessCode",
+    icon: KeySquare,
+    title: "Access Code",
+    description: "Guests will receive a unique code to enter at the event.",
+  },
+  {
+    id: "facial",
+    icon: Scan,
+    title: "Facial Recognition",
+    description: "Guests will verify their identity using facial recognition.",
+  },
+];
+
 export const InvitationSettingsStep = ({ formData, onFormDataChange }) => {
   const handleInputChange = (field, value) => {
     onFormDataChange(field, value);
@@ -24,97 +79,16 @@ export const InvitationSettingsStep = ({ formData, onFormDataChange }) => {
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Access Code Option */}
-          <button
-            onClick={() => handleInputChange("verification_type", "accessCode")}
-            className={`flex items-start p-6 rounded-xl border transition-all
-            ${
-              formData.verification_type === "accessCode"
-                ? "border-blue-500 bg-blue-50"
-                : "border-gray-200 hover:border-gray-300"
-            }
-          `}
-          >
-            <div className="flex gap-4">
-              <div className="mt-1">
-                <KeySquare
-                  size={24}
-                  className={
-                    formData.verification_type === "accessCode"
-                      ? "text-blue-500"
-                      : "text-gray-700"
-                  }
-                />
-              </div>
-              <div className="text-left">
-                <h3 className="font-medium text-gray-900 mb-1">Access Code</h3>
-                <p className="text-gray-600 text-sm">
-                  Guests will receive a unique code to enter at the event.
-                </p>
-              </div>
-            </div>
-            <div className="ml-auto">
-              <div
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center
-              ${
-                formData.verification_type === "accessCode"
-                  ? "border-blue-500 bg-blue-500"
-                  : "border-gray-300"
-              }`}
-              >
-                {formData.verification_type === "accessCode" && (
-                  <div className="w-2 h-2 rounded-full bg-white" />
-                )}
-              </div>
-            </div>
-          </button>
-
-          {/* Facial Recognition Option */}
-          <button
-            onClick={() => handleInputChange("verification_type", "facial")}
-            className={`flex items-start p-6 rounded-xl border transition-all
-            ${
-              formData.verification_type === "facial"
-                ? "border-blue-500 bg-blue-50"
-                : "border-gray-200 hover:border-gray-300"
-            }
-          `}
-          >
-            <div className="flex gap-4">
-              <div className="mt-1">
-                <Scan
-                  size={24}
-                  className={
-                    formData.verification_type === "facial"
-                      ? "text-blue-500"
-                      : "text-gray-700"
-                  }
-                />
-              </div>
-              <div className="text-left">
-                <h3 className="font-medium text-gray-900 mb-1">
-                  Facial Recognition
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  Guests will verify their identity using facial recognition.
-                </p>
-              </div>
-            </div>
-            <div className="ml-auto">
-              <div
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center
-              ${
-                formData.verification_type === "facial"
-                  ? "border-blue-500 bg-blue-500"
-                  : "border-gray-300"
-              }`}
-              >
-                {formData.verification_type === "facial" && (
-                  <div className="w-2 h-2 rounded-full bg-white" />
-                )}
-              </div>
-            </div>
-          </button>
+          {verificationOptions.map((option) => (
+            <VerificationOption
+              key={option.id}
+              icon={option.icon}
+              title={option.title}
+              description={option.description}
+              selected={formData.verification_type === option.id}
+              onClick={() => handleInputChange("verification_type", option.id)}
+            />
+          ))}
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import BaseDashboardNavigation from "@/components/BaseDashboardNavigation";
 import StepProgress from "@/components/StepProgress";
 import { EventDetailsStep } from "@/components/events/EventDetailsStep";
@@ -18,11 +18,7 @@ import useGetSingleEventManager from "../controllers/getSingleEventController";
 import { getQueryParams } from "@/utils/getQueryParams";
 import useFileUpload from "@/utils/fileUploadController";
 import GoBackButton from "@/components/GoBackButton";
-import { AddInviteesManager } from "../controllers/addInviteesController";
-import { UploadInviteeManager } from "../controllers/uploadInviteeController";
-import usePayForEventManager from "../controllers/payForEventController";
-import { handleSubmission } from "@/utils/formSubmissionValidation";
-import { SubmitBankPaymentManager } from "../controllers/submitBankPaymentController";
+import { shouldChargeInNaira } from "@/utils/shouldChargeInNaira";
 
 const EventPage = () => {
   const { id, section } = getQueryParams(["id", "section"]);
@@ -36,7 +32,15 @@ const EventPage = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [coverFile, setCoverFile] = useState(null);
   const [mediaFiles, setMediaFiles] = useState([]);
-  const [isCancel, setIsCancel] = useState(false);
+  const [currency, setCurrency] = useState("NGN");
+
+  useEffect(() => {
+    const checkCurrency = async () => {
+      const isNairaCharge = await shouldChargeInNaira();
+      setCurrency(isNairaCharge ? "NGN" : "USD");
+    };
+    checkCurrency();
+  }, []);
 
   // Custom hooks
   const {
@@ -44,39 +48,29 @@ const EventPage = () => {
     handleFileUpload,
     isLoading: uploadingFile,
   } = useFileUpload();
-
   const { data: event, isLoading: fetching } = useGetSingleEventManager({
     eventId: id,
     enabled: Boolean(id),
   });
-
   const {
     isLoading: creating,
     createEvent,
-    data,
+    data: createdEvent,
     isSuccess,
   } = CreateEventManager();
   const { isLoading: updating, updateEvent } = EditEventManager({
     eventId: id,
   });
-  const {
-    addInvitees,
-    isLoading: addingInvitees,
-    isSuccess: addedInvitee,
-  } = AddInviteesManager();
 
   useEffect(() => {
-    if (addedInvitee) {
-      router.back();
+    if (isSuccess) {
+      router.push(
+        `${window.location.pathname}?id=${createdEvent.data.id}`,
+        undefined,
+        { shallow: true }
+      );
     }
-  }, [addedInvitee]);
-  const { uploadInvitees, isLoading: uploadingInvitees } = UploadInviteeManager(
-    { eventId: id }
-  );
-
-  const { postCaller: payforevent, isLoading: paying } = usePayForEventManager({
-    eventId: id,
-  });
+  }, [isSuccess]);
 
   // Form data state
   const [formData, setFormData] = useState({
@@ -99,36 +93,23 @@ const EventPage = () => {
     },
     gallery: [],
     pay_later: false,
-    currency: "NGN",
+    currency: currency,
     thank_you_message: {
       image: "",
       message: "",
     },
   });
 
-  useEffect(() => {
-    if (!formData.pay_later && isSuccess) {
-      window.location.href = data?.data?.checkoutUrl;
-    }
-  }, [isSuccess]);
-
   // Initialize form data with event data in edit mode
   useEffect(() => {
     if (isEditMode && event) {
       setFormData(event?.data);
-
-      // Set initial step based on editSection parameter
       if (section) {
-        if (section && section.toLowerCase() !== "event details") {
-          setCurrentStep(0);
-          return;
-        }
         const stepIndex = steps.findIndex(
           (step) => step.title.toLowerCase() === section.toLowerCase()
         );
-
         if (stepIndex !== -1) {
-          setCurrentStep(stepIndex);
+          setCurrentStep(0); // Always set to 0 since we're showing only the relevant section
         }
       }
     }
@@ -138,20 +119,13 @@ const EventPage = () => {
     if (field === "image") {
       setCoverFile(value);
     } else if (field === "gallery") {
-      // Update both states
       setMediaFiles(value);
-      setFormData((prev) => ({
-        ...prev,
-        gallery: value,
-      }));
+      setFormData((prev) => ({ ...prev, gallery: value }));
     } else if (field.startsWith("donation.")) {
       const donationField = field.split(".")[1];
       setFormData((prev) => ({
         ...prev,
-        donation: {
-          ...prev.donation,
-          [donationField]: value,
-        },
+        donation: { ...prev.donation, [donationField]: value },
       }));
     } else if (field === "payment_type") {
       setFormData((prev) => ({
@@ -160,10 +134,7 @@ const EventPage = () => {
         pay_later: value === "later" || value === "bank",
       }));
     } else {
-      setFormData((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
+      setFormData((prev) => ({ ...prev, [field]: value }));
     }
   };
 
@@ -172,6 +143,7 @@ const EventPage = () => {
       title: "Event Details",
       component: (
         <EventDetailsStep
+          isEditMode={isEditMode}
           formData={formData}
           onFormDataChange={handleFormDataChange}
         />
@@ -194,6 +166,7 @@ const EventPage = () => {
           isEditMode={isEditMode}
           formData={formData}
           onFormDataChange={handleFormDataChange}
+          currency={currency}
         />
       ),
     },
@@ -228,12 +201,17 @@ const EventPage = () => {
 
   // Filter steps if editing specific section
   const visibleSteps = section
-    ? steps.filter(
-        (step) =>
-          step.title.toLowerCase() === section.toLowerCase() ||
-          (step.title === "Invitation Settings" &&
-            section.toLowerCase() === "event details")
-      )
+    ? steps.filter((step) => {
+        const sectionLower = section.toLowerCase();
+        // Show Invitation Settings along with Event Details in both create and edit modes
+        if (sectionLower === "event details") {
+          return (
+            step.title === "Event Details" ||
+            step.title === "Invitation Settings"
+          );
+        }
+        return step.title.toLowerCase() === sectionLower;
+      })
     : steps;
 
   const handleNext = () => {
@@ -252,63 +230,104 @@ const EventPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (section && section.toLowerCase() === "guest list") {
-      if (!handleSubmission(section, formData, id)) {
-        return; // Stop here if validation failed
-      }
-      //creating guestList on the go and only use it here.
-      if (formData.guestList.length > 0) {
-        const details = {
-          eventId: id,
-          invitees: formData.guestList,
-        };
-        addInvitees(details);
-      }
-    } else if (section && section.toLowerCase() === "payment") {
-      setShowProofModal(true);
-    } else {
-      try {
-        const updatedFormData = { ...formData };
-        updatedFormData.no_of_invitees = Number(formData.no_of_invitees);
+    try {
+      const updatedFormData = {
+        ...formData,
+        no_of_invitees: Number(formData.no_of_invitees),
+        currency,
+      };
 
-        // Handle cover image upload
-        if (coverFile) {
-          const imageUrl = await handleFileUpload(coverFile);
-          updatedFormData.image = imageUrl;
+      // Remove user if it exists in edit mode
+      if (isEditMode && "user" in updatedFormData) {
+        delete updatedFormData.user;
+      }
+
+      // Handle file uploads
+      if (coverFile) {
+        const imageUrl = await handleFileUpload(coverFile);
+        updatedFormData.image = imageUrl;
+      }
+
+      if (formData.gallery?.length > 0) {
+        const existingUrls = formData.gallery.filter(
+          (item) => !(item instanceof File)
+        );
+        const filesToUpload = formData.gallery.filter(
+          (item) => item instanceof File
+        );
+
+        if (filesToUpload.length > 0) {
+          const uploadPromises = filesToUpload.map((file) =>
+            handleFileUpload(file)
+          );
+          const newUrls = await Promise.all(uploadPromises);
+          updatedFormData.gallery = [...existingUrls, ...newUrls];
+        } else {
+          updatedFormData.gallery = existingUrls;
         }
+      }
 
-        // Handle gallery images upload
-        if (formData.gallery?.length > 0) {
-          // Separate files and URLs
-          const existingUrls = formData.gallery.filter(
-            (item) => !(item instanceof File)
-          );
-          const filesToUpload = formData.gallery.filter(
-            (item) => item instanceof File
-          );
+      if (isEditMode) {
+        await updateEvent(updatedFormData);
+        router.push(`/events/event?id=${id}`);
+      } else {
+        await createEvent(updatedFormData);
 
-          // Only upload new files
-          if (filesToUpload.length > 0) {
-            const uploadPromises = filesToUpload.map((file) =>
-              handleFileUpload(file)
-            );
-            const newUrls = await Promise.all(uploadPromises);
-            updatedFormData.gallery = [...existingUrls, ...newUrls];
+        if (formData.payment_type === "later") {
+          router.push("/events");
+        } else if (formData.payment_type === "bank" && currency === "NGN") {
+          setShowProofModal(true);
+        } else if (formData.payment_type === "online") {
+          const checkoutUrl = result?.data?.checkoutUrl;
+          if (checkoutUrl) {
+            window.location.href = checkoutUrl;
           } else {
-            updatedFormData.gallery = existingUrls;
+            router.push(`/events/event?id=${id}`);
           }
         }
-
-        // Submit form data
-        if (isEditMode) {
-          await updateEvent(updatedFormData);
-        } else {
-          await createEvent(updatedFormData);
-        }
-      } catch (error) {
-        console.error("Error submitting form:", error);
-        // Handle error (show toast notification, etc.)
       }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
+  };
+
+  const getButtonText = () => {
+    if (isSubmitting) return "Processing...";
+
+    // For both edit and create modes when on Event Details section
+    if (section?.toLowerCase() === "event details") {
+      if (currentStep === 0) return "Next";
+      return "Save Changes";
+    }
+
+    if (isEditMode) {
+      if (section?.toLowerCase() === "payment") {
+        // Add this check for online payment
+        if (formData.payment_type === "online") return "Proceed to Payment";
+        if (formData.payment_type === "later") return "Save and Pay Later";
+        if (formData.payment_type === "bank") return "Submit Payment Proof";
+      }
+      return "Save Changes";
+    }
+
+    // In create mode
+    if (!section) {
+      // Normal flow with all steps
+      if (currentStep === 0 || currentStep === 1) return "Next";
+      if (currentStep === 2) {
+        if (formData.payment_type === "later") return "Save and Pay Later";
+        if (formData.payment_type === "bank") return "Submit Payment Proof";
+        if (formData.payment_type === "online") return "Proceed to Payment";
+      }
+      return "Save";
+    } else {
+      // Single section flow
+      if (section.toLowerCase() === "payment") {
+        if (formData.payment_type === "later") return "Save and Pay Later";
+        if (formData.payment_type === "bank") return "Submit Payment Proof";
+        if (formData.payment_type === "online") return "Proceed to Payment";
+      }
+      return "Save";
     }
   };
 
@@ -320,12 +339,18 @@ const EventPage = () => {
     );
   }
 
-  const isSubmitting =
-    creating || updating || uploadingFile || addingInvitees || paying;
+  const isSubmitting = creating || updating || uploadingFile;
 
   return (
     <BaseDashboardNavigation title={isEditMode ? "Edit Event" : "Create Event"}>
-      <div className="mb-3 w-full">{isEditMode && <GoBackButton />}</div>
+      {isEditMode &&
+        section &&
+        !["payment"].includes(section.toLowerCase()) && (
+          <div className="mb-3 w-full">
+            <GoBackButton />
+          </div>
+        )}
+
       <div className="w-full max-w-7xl mx-auto px-4">
         <div className="w-full space-y-6 text-brandBlack">
           {!section && (
@@ -345,11 +370,11 @@ const EventPage = () => {
             {visibleSteps[currentStep].component}
 
             <div className="flex justify-between mt-8">
-              {visibleSteps.length > 1 && (
+              {currentStep > 0 && (
                 <button
                   type="button"
                   onClick={handlePrevious}
-                  disabled={currentStep === 0 || isSubmitting}
+                  disabled={isSubmitting}
                   className="px-4 py-2 bg-gray-100 rounded-lg disabled:opacity-50"
                 >
                   Previous
@@ -360,18 +385,21 @@ const EventPage = () => {
                 type="button"
                 disabled={isSubmitting}
                 onClick={() => {
-                  if (currentStep === 2 && !section) {
-                    if (formData.payment_type === "online") {
-                      // Handle online payment redirect
-                      handleSubmit();
-                    } else if (formData.payment_type === "bank") {
-                      handleSubmit();
-                      setShowProofModal(true);
-                      setIsCancel(false);
-                    } else if (formData.payment_type === "later") {
+                  // For Event Details section in both modes
+                  if (section?.toLowerCase() === "event details") {
+                    if (currentStep < visibleSteps.length - 1) {
+                      handleNext();
+                    } else {
                       handleSubmit();
                     }
-                  } else if (currentStep === visibleSteps.length - 1) {
+                    return;
+                  }
+
+                  // For other cases
+                  if (
+                    currentStep === visibleSteps.length - 1 ||
+                    (currentStep === 2 && !section)
+                  ) {
                     handleSubmit();
                   } else {
                     handleNext();
@@ -379,19 +407,7 @@ const EventPage = () => {
                 }}
                 className="px-4 py-2 bg-brandPurple text-white rounded-full disabled:opacity-50"
               >
-                {isSubmitting
-                  ? "Processing..."
-                  : isEditMode
-                  ? section && section.toLowerCase() === "payment"
-                    ? "Submit proof of payment"
-                    : "Save Changes"
-                  : currentStep === 2 && !section
-                  ? formData.payment_type === "online"
-                    ? "Proceed to payment"
-                    : formData.payment_type === "bank"
-                    ? "I have paid"
-                    : "Save and Continue Later"
-                  : "Save"}
+                {getButtonText()}
               </button>
             </div>
           </form>
@@ -401,20 +417,17 @@ const EventPage = () => {
       <PaymentProofModal
         eventId={id}
         isOpen={showProofModal}
-        isCancel={isCancel}
-        setIsCancel={setIsCancel}
         onClose={() => {
           setShowProofModal(false);
-          if (!isCancel) {
-            setShowVerificationModal(true);
-          }
+          setShowVerificationModal(true);
         }}
       />
+
       <VerificationModal
         isOpen={showVerificationModal}
         onClose={() => {
           setShowVerificationModal(false);
-          // Handle redirect to events page
+          router.push(`/events/event?id=${id}`);
         }}
       />
     </BaseDashboardNavigation>

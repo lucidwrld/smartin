@@ -1,15 +1,15 @@
 import useUpdateManager from "@/constants/controller_templates/put_controller_template";
 import { useRouter } from "next/navigation";
 
-export const RespondToInviteManager = () => {
+export const RemoveInvitedGuests = ({ eventId }) => {
   const router = useRouter();
   const { updateCaller, isLoading, isSuccess, error, data } = useUpdateManager(
-    `/event/respond`,
-    ["invite"],
+    `/event/${eventId}/remove`,
+    ["events_invitees"],
     false,
-    false
+    true
   );
-  const sendResponse = async (details) => {
+  const removeGuests = async (details) => {
     try {
       await updateCaller(details);
     } catch (error) {
@@ -17,7 +17,7 @@ export const RespondToInviteManager = () => {
     }
   };
   return {
-    sendResponse,
+    removeGuests,
     data,
     isLoading,
     isSuccess,

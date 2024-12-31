@@ -8,9 +8,10 @@ const useGetEventInviteesManager = ({
   search = "",
   enabled = true,
   eventId,
+  assigned,
 }) => {
   return useQuery(
-    ["events_invitees", enabled, search, page, pageSize, eventId],
+    ["events_invitees", enabled, search, page, pageSize, eventId, assigned],
     async () => {
       try {
         const [response] = [
@@ -19,6 +20,7 @@ const useGetEventInviteesManager = ({
               page,
               pageSize,
               ...(search && { search }),
+              ...(assigned !== undefined && { assigned }),
             },
           }),
         ];

@@ -1,6 +1,7 @@
 "use client";
 
 import CustomButton from "@/components/Button";
+import { wedding } from "@/public/images";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -25,12 +26,7 @@ const AuthShell = ({
   return (
     <div className="w-full h-screen py-0 flex relative items-center justify-center text-brandBlack ">
       <div className={`h-full max-w-[50%] w-full relative hidden md:flex`}>
-        <img
-          src={
-            "https://img.freepik.com/free-photo/pyramid-cocktails-decorated-with-cherries-stands-table_8353-556.jpg"
-          }
-          className={`w-full h-full object-cover`}
-        />
+        <img src={wedding.src} className={`w-full h-full object-cover`} />
       </div>
       <div className={`h-full md:max-w-[50%] w-full relative`}>
         <div className=" max-w-[80%] md:max-w-[452px] w-full mx-auto h-full flex flex-col items-center justify-center gap-10 relative">
