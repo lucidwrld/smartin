@@ -20,6 +20,7 @@ import useFileUpload from "@/utils/fileUploadController";
 import GoBackButton from "@/components/GoBackButton";
 import { shouldChargeInNaira } from "@/utils/shouldChargeInNaira";
 import useGetUserDetailsManager from "@/app/profile-settings/controllers/get_UserDetails_controller";
+import { AddInviteesManager } from "../controllers/addInviteesController";
 
 const EventPage = () => {
   const { id, section } = getQueryParams(["id", "section"]);
@@ -35,6 +36,11 @@ const EventPage = () => {
   const [mediaFiles, setMediaFiles] = useState([]);
 
   const { data: userDetails } = useGetUserDetailsManager();
+  const {
+    addInvitees,
+    isLoading: adding,
+    isSuccess: added,
+  } = AddInviteesManager();
   const currency = userDetails?.data?.user?.currency || "USD";
   // Custom hooks
   const {
@@ -52,7 +58,11 @@ const EventPage = () => {
     data: createdEvent,
     isSuccess,
   } = CreateEventManager();
-  const { isLoading: updating, updateEvent } = EditEventManager({
+  const {
+    isLoading: updating,
+    updateEvent,
+    isSuccess: updated,
+  } = EditEventManager({
     eventId: id,
   });
 
@@ -262,8 +272,12 @@ const EventPage = () => {
       }
 
       if (isEditMode) {
-        await updateEvent(updatedFormData);
-        router.push(`/events/event?id=${id}`);
+        if (section.toLowerCase() === "guest list") {
+          const details = { eventId: id, invitees: formData.guestList };
+          await addInvitees(details);
+        } else {
+          await updateEvent(updatedFormData);
+        }
       } else {
         await createEvent(updatedFormData);
 
@@ -333,7 +347,14 @@ const EventPage = () => {
     );
   }
 
-  const isSubmitting = creating || updating || uploadingFile;
+  const isSubmitting = creating || updating || uploadingFile || adding;
+  const isSuccessful = updated || added;
+
+  useEffect(() => {
+    if (isSuccessful) {
+      router.push(`/events/event?id=${id}`);
+    }
+  }, [isSuccessful]);
 
   return (
     <BaseDashboardNavigation title={isEditMode ? "Edit Event" : "Create Event"}>

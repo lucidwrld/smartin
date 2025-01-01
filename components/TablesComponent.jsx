@@ -135,9 +135,8 @@ const TablesComponent = ({
                     {!hideActionButton && (
                       <td className="lg:table-cell whitespace-nowrap">
                         <div className="flex items-center space-x-4">
-                          <button
+                          <div
                             type="button"
-                            className={`bg-brandPurple py-[6px] md:py-[10px] px-[14px] h-[50px] md:px-[25px] flex items-center justify-center text-[14px] font-medium hover:bg-blackColor/90 hover:shadow-xl hover:scale-y-105 duration-300  rounded-full text-whiteColor`}
                             onClick={() => {
                               setSelected(eachRow);
                               if (options.length > 0) {
@@ -153,9 +152,13 @@ const TablesComponent = ({
                             {options.length > 0 ? (
                               <img src={moreMore.src} alt="" />
                             ) : (
-                              "view"
+                              <CustomButton
+                                buttonText={"View"}
+                                radius={"rounded-full"}
+                                className={"p-1"}
+                              />
                             )}
-                          </button>
+                          </div>
                           <div className="relative">
                             {currentIndex === index && showOptions && (
                               <OptionsPopup

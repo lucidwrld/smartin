@@ -5,7 +5,7 @@ import { Camera } from "lucide-react";
 import Webcam from "react-webcam";
 import Loader from "@/components/Loader";
 import Image from "next/image";
-import { logo } from "@/public/images";
+import { logo, logoMain, logoMain1 } from "@/public/images";
 import { Divider } from "@mui/material";
 import CustomButton from "@/components/Button";
 import { EventSchedule } from "@/components/EventSchedule";
@@ -64,8 +64,8 @@ const AcceptInvitePage = ({ verificationType = "facial" }) => {
   } = useFileUpload();
 
   useEffect(() => {
-    if (isSuccess && data?.response === "accepted") {
-      router.back();
+    if (isSuccess) {
+      router.push(`/invite?code=${code}`);
     }
   }, [isSuccess]);
 
@@ -102,7 +102,7 @@ const AcceptInvitePage = ({ verificationType = "facial" }) => {
       {/* Header */}
       <header className="w-full bg-white shadow-sm py-4 px-4 md:px-6">
         <div className="container mx-auto flex justify-between items-center">
-          <Image src={logo} alt="Logo" className="h-8 md:h-10 w-auto" />
+          <Image src={logoMain1} alt="Logo" className="h-8 md:h-10 w-auto" />
           <h1 className="text-lg md:text-xl font-medium text-brandBlack">
             {event?.name}
           </h1>
@@ -161,7 +161,7 @@ const AcceptInvitePage = ({ verificationType = "facial" }) => {
             </div>
 
             {/* Right side - Photo upload/preview */}
-            {data?.response === "accepted" && (
+            {data?.response !== "accepted" && (
               <div className="w-full md:w-1/2 p-4 md:p-8 flex flex-col items-center justify-center bg-whiteColor rounded-[12px] min-h-0 md:min-h-[663px] gap-3">
                 <div className="w-full max-w-[500px] aspect-square rounded-lg flex items-center justify-center bg-[#FAFAFA] mb-4 md:mb-6 overflow-hidden">
                   {isCameraOn ? (

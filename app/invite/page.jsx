@@ -10,7 +10,7 @@ import StatusButton from "@/components/StatusButton";
 import { Calendar, Clock, Mail, MapPin, Phone } from "lucide-react";
 import { formatDateToLongString } from "@/utils/formatDateToLongString";
 import { convertToAmPm } from "@/utils/timeStringToAMPM";
-import { logo, logoMain } from "@/public/images";
+import { logo, logoMain, logoMain1 } from "@/public/images";
 import Image from "next/image";
 import { EventAccessCard } from "@/components/AccessCard";
 import { googleCalendar } from "@/public/icons";
@@ -74,7 +74,7 @@ const InvitePage = ({}) => {
       {/* Header */}
       <header className="w-full bg-white shadow-sm py-4 px-6">
         <div className="container mx-auto flex justify-between items-center">
-          <Image src={logo} alt="Logo" className="h-10 w-auto" />
+          <Image src={logoMain1} alt="Logo" className="h-10 w-auto" />
           <h1 className="text-xl font-medium text-brandBlack">{event?.name}</h1>
         </div>
       </header>
@@ -182,10 +182,10 @@ const InvitePage = ({}) => {
                 <button
                   onClick={() =>
                     addToGoogleCalendar({
-                      date: date,
-                      time: time,
-                      eventName: eventName,
-                      location: venue,
+                      date: event?.date,
+                      time: event?.time,
+                      eventName: event?.name,
+                      location: event?.location,
                       durationHours: 2,
                     })
                   }

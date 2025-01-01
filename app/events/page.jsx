@@ -93,11 +93,6 @@ const AllEventsPage = () => {
                 No events found
               </div>
             ) : (
-              // <div>
-              //   {displayedEvents.map((event, index) => (
-              //     <EventTile key={event.id || index} event={event} />
-              //   ))}
-              // </div>
               <InfiniteScroll
                 data={data?.data}
                 pagination={data?.pagination}

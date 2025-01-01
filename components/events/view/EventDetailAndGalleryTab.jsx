@@ -116,11 +116,13 @@ const EventDetailAndGalleryTab = ({ event, isLoading }) => {
         </div>
       </div>
 
-      <HeaderWithEdit
-        title={"Gallery"}
-        href={`/events/create-event?id=${event?.id}&section=gallery`}
-      />
-      <Gallery files={event?.gallery} />
+      {event?.isPaid && (
+        <HeaderWithEdit
+          title={"Gallery"}
+          href={`/events/create-event?id=${event?.id}&section=gallery`}
+        />
+      )}
+      {event?.isPaid && <Gallery files={event?.gallery} />}
     </div>
   );
 };

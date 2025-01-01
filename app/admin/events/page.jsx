@@ -22,7 +22,7 @@ const EventsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [event, setEvent] = useState(null);
   const router = useRouter();
-  const { data, isLoading } = useGetAllEventsManager({});
+  const { data, isLoading } = useGetAllEventsManager({ page: currentPage });
   const { suspendEvent, isLoading: suspending } = SuspendEventManager({
     eventId: event,
   });

@@ -21,24 +21,17 @@ const formatGoogleCalendarDate = (date) => {
  * @returns {Date} Parsed Date object
  */
 const parseDateAndTime = (dateStr, timeStr) => {
-  // Extract just the month, day, year portion
-  const dateParts = dateStr.split(", ").slice(1).join(", ");
-  const dateObj = new Date(dateParts);
+  // Get the local date components
+  const utcDate = new Date(dateStr);
+  const localDate = new Date(
+    utcDate.getTime() - utcDate.getTimezoneOffset() * 60000
+  );
 
-  // Parse time
-  const [hourStr, minuteStr] = timeStr.split(":");
-  const minutes = parseInt(minuteStr);
-  let hours = parseInt(hourStr);
+  // Set the specified time
+  const [hours, minutes] = timeStr.split(":").map(Number);
+  localDate.setHours(hours, minutes);
 
-  // Handle AM/PM
-  if (timeStr.toLowerCase().includes("pm") && hours !== 12) {
-    hours += 12;
-  } else if (timeStr.toLowerCase().includes("am") && hours === 12) {
-    hours = 0;
-  }
-
-  dateObj.setHours(hours, minutes);
-  return dateObj;
+  return localDate;
 };
 
 /**

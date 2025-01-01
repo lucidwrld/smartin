@@ -4,8 +4,9 @@ import HeaderWithEdit from "@/components/HeaderWithEdit";
 import Link from "next/link";
 import { copyToClipboard } from "@/utils/copyToClipboard";
 import Loader from "@/components/Loader";
+import { formatAmount } from "@/utils/formatAmount";
 
-const GiftItem = ({ name, type, link }) => (
+const GiftItem = ({ name, price, link }) => (
   <Link
     href={link}
     target="_blank"
@@ -18,7 +19,7 @@ const GiftItem = ({ name, type, link }) => (
       </div>
       <div>
         <h3 className="font-medium text-gray-900 capitalize">{name}</h3>
-        <span className="text-sm text-gray-500">{type}</span>
+        <span className="text-sm text-gray-500">{formatAmount(price)}</span>
       </div>
     </div>
     <button className="p-2 hover:bg-gray-100 rounded-full">
