@@ -1,3 +1,6 @@
+import { logoMain1 } from "@/public/images";
+import Link from "next/link";
+
 const Footer = () => {
   const menuItems = [
     {
@@ -37,8 +40,17 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid md:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-bold text-lg mb-4">Smart Invites</h3>
-            <p className="text-gray-600">
+            <Link
+              href="/"
+              className="text-2xl font-bold text-brandPurple mb-10"
+            >
+              <img
+                src={logoMain1.src}
+                alt=""
+                className="h-auto w-[200px] object-contain"
+              />
+            </Link>
+            <p className="text-gray-600 mt-3">
               Making digital invitations simple and delightful
             </p>
           </div>

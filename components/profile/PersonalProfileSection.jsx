@@ -30,7 +30,7 @@ const PersonalProfileSection = ({ userDetails, refetch }) => {
   return (
     <div className="max-w-[509px] w-full md:mr-auto flex flex-col text-brandBlack">
       <p className="text-40px font-semibold">Personal Profile</p>
-      <p className="text-12px text-textGrey2">Manage your Confidant profile</p>
+      <p className="text-12px text-textGrey2">Manage your profile</p>
       <div className="divider mb-3"></div>
 
       <div className="max-w-[506px] w-full flex flex-col relative">

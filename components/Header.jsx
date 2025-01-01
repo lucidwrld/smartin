@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
+import { logoMain, logoMain1, logoMain2 } from "@/public/images";
 
 const Header = ({ isLandingPage = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -45,8 +46,15 @@ const Header = ({ isLandingPage = false }) => {
     <nav className="fixed w-full bg-white/80 backdrop-blur-md z-50 border-b">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          <Link href="/" className="text-2xl font-bold text-brandPurple">
-            Smart Invites
+          <Link
+            href="/"
+            className="text-2xl font-bold text-brandPurple h-[35px]"
+          >
+            <img
+              src={logoMain1.src}
+              alt=""
+              className="h-full w-auto object-contain"
+            />
           </Link>
           <button
             className="md:hidden"
