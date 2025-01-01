@@ -1,5 +1,5 @@
 import logo from "./logo.png";
-import logoMain from "./logoMain.png";
+import logoMain from "./logoMainFull.png";
 import logoMain1 from "./logoMain1.png";
 import logoMain2 from "./logoMain2.png";
 import supportEmpty from "./supportEmpty.png";
