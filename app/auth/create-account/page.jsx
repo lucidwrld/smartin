@@ -12,6 +12,7 @@ import TermsModal from "@/components/TermsModal";
 import PrivacyModal from "@/components/privacyModal";
 import { validateFormSubmission } from "@/utils/validateForm";
 import { shouldChargeInNaira } from "@/utils/shouldChargeInNaira";
+import { validateCompletePhoneNumber } from "@/utils/validateCompletePhoneNumber";
 
 const CreateAccountPage = () => {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -87,17 +88,7 @@ const CreateAccountPage = () => {
                   placeholder="e.g. +1 for US, +44 for UK"
                   value={formData.phone}
                   type="tel"
-                  customValidator={(value) => {
-                    // Check if it starts with + and has at least one number after
-                    const hasCountryCode = /^\+\d/.test(value);
-
-                    return {
-                      isValid: hasCountryCode,
-                      message: value
-                        ? "Phone number must start with country code (e.g., +1)"
-                        : "Your phone number is required",
-                    };
-                  }}
+                  customValidator={validateCompletePhoneNumber}
                   onChange={(e) => {
                     let value = e.target.value;
                     // Ensure the + is always there
