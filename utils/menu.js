@@ -1,4 +1,12 @@
 import { dashboard, events, transactions, logout } from "@/public/icons";
+import {
+  AlertCircle,
+  BellRing,
+  Clock,
+  HelpCircleIcon,
+  Settings,
+  Users2,
+} from "lucide-react";
 
 export const mainMenu = [
   {
@@ -20,14 +28,14 @@ export const mainMenu = [
     url: "/transactions",
   },
   {
-    active: transactions,
-    inactive: transactions,
+    active: <BellRing />,
+    inactive: <BellRing />,
     title: "Notifications",
     url: "/notifications",
   },
   {
-    active: transactions,
-    inactive: transactions,
+    active: <HelpCircleIcon />,
+    inactive: <HelpCircleIcon />,
     title: "Support",
     url: "/support",
   },
@@ -43,14 +51,14 @@ export const adminMenu = [
   {
     title: "Events",
     url: "/admin/events",
-    active: transactions,
-    inactive: transactions,
+    active: events,
+    inactive: events,
   },
   {
     title: "Users",
     url: "/admin/users",
-    active: transactions,
-    inactive: transactions,
+    active: <Users2 />,
+    inactive: <Users2 />,
   },
   {
     title: "Transactions",
@@ -61,8 +69,8 @@ export const adminMenu = [
   {
     title: "Tickets",
     url: "/admin/tickets",
-    active: transactions,
-    inactive: transactions,
+    active: <Clock />,
+    inactive: <Clock />,
   },
   // {
   //   title: "Blogs",
@@ -73,14 +81,14 @@ export const adminMenu = [
   {
     title: "Notifications",
     url: "/admin/notifications",
-    active: transactions,
-    inactive: transactions,
+    active: <BellRing />,
+    inactive: <BellRing />,
   },
   {
     title: "Settings",
     url: "/admin/settings",
-    active: transactions,
-    inactive: transactions,
+    active: <Settings />,
+    inactive: <Settings />,
   },
   {
     title: "Log Out",

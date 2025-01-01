@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import BaseDashboardNavigation from "@/components/BaseDashboardNavigation";
 import useGetUserDetailsManager from "../profile-settings/controllers/get_UserDetails_controller";
+import DiscountModal from "@/components/DiscountModal";
 
 const StatCard = ({ icon: Icon, label, value, trend }) => (
   <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-brandBlack">
@@ -77,13 +78,14 @@ const PromoCard = () => (
     <div className="p-2 bg-white/10 rounded-lg w-fit">
       <Percent className="text-white" size={24} />
     </div>
-    <h3 className="text-lg font-semibold mt-4">Special Offer</h3>
+    <h3 className="text-lg font-semibold mt-4">Discount Opportunities</h3>
     <p className="text-sm opacity-90 mt-2">
-      Send more than 100 invites and get 20% off on your next event
+      Send more invites to unlock amazing discounts on your total spend
     </p>
-    <button className="mt-4 bg-white text-brandPurple px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+    {/* <button className="mt-4 bg-white text-brandPurple px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
       Learn More
-    </button>
+    </button> */}
+    <DiscountModal />
   </div>
 );
 
@@ -189,13 +191,24 @@ const Dashboard = () => {
               <h3 className="font-semibold mb-4">Quick Tips</h3>
               <div className="space-y-3">
                 <p className="text-sm text-gray-600">
-                  • Add a gift registry to increase guest engagement
+                  • Always check your analytics to track invite deliveries and
+                  guest responses
                 </p>
                 <p className="text-sm text-gray-600">
-                  • Send reminders to guests who haven't responded
+                  • Set up your access management section for organized event
+                  entry
                 </p>
                 <p className="text-sm text-gray-600">
-                  • Complete your event details for better organization
+                  • Enable table management to provide guests with clear seating
+                  locations
+                </p>
+                <p className="text-sm text-gray-600">
+                  • Use the automated reminder system for guests who haven't
+                  responded
+                </p>
+                <p className="text-sm text-gray-600">
+                  • Keep your guest information updated for seamless
+                  communication
                 </p>
               </div>
             </div>

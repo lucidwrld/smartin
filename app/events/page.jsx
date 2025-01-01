@@ -7,9 +7,10 @@ import TabManager from "@/components/TabManager";
 import { useRouter } from "next/navigation";
 import { useState, useMemo } from "react";
 import useGetAllEventsManager from "./controllers/getAllEventsController";
-import { InfiniteScroll } from "@/components/InfiniteScroll";
+
 import useGetUserDetailsManager from "../profile-settings/controllers/get_UserDetails_controller";
 import useGetAllUserInvitedEventsManager from "./controllers/getAllUserInvitedEventsController";
+import InfiniteScroll from "@/components/InfiniteScroll";
 
 const AllEventsPage = () => {
   const [currentView, setCurrentView] = useState(0);
@@ -30,7 +31,7 @@ const AllEventsPage = () => {
     []
   );
 
-  const { data, isLoading } = useGetAllEventsManager({
+  const { data, isLoading, refetch } = useGetAllEventsManager({
     user: userId,
     enabled: currentView === 0 && Boolean(userId),
     page: page,
@@ -62,7 +63,7 @@ const AllEventsPage = () => {
 
   return (
     <BaseDashboardNavigation title="All Events">
-      <div className="w-full relative gap-10">
+      <div className="w-full relative gap-10 mx-auto">
         {/* top banner */}
         <div className="w-full mx-auto flex flex-col items-start bg-backgroundPurple rounded-[20px] h-[209px] text-whiteColor p-[40px]">
           <p className="text-24px font-semibold">Create an Event</p>
@@ -77,7 +78,7 @@ const AllEventsPage = () => {
         </div>
 
         {/* event tabs */}
-        <div className="sticky top-0 py-5 bg-[#F9FAFB] z-50">
+        <div className="sticky top-0 py-5 bg-[#F9FAFB] z-10">
           <TabManager
             currentView={currentView}
             setCurrentView={handleViewChange}
@@ -86,30 +87,31 @@ const AllEventsPage = () => {
         </div>
 
         <div className="flex items-start gap-10 w-full mt-3">
-          <div className="max-w-[65%] w-full flex flex-col gap-4">
+          <div className="md:max-w-[65%] w-full flex flex-col gap-4">
             {!isLoading && !loadingInvites && displayedEvents.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 No events found
               </div>
             ) : (
-              <div>
-                {displayedEvents.map((event, index) => (
-                  <EventTile key={event.id || index} event={event} />
-                ))}
-              </div>
-              // <InfiniteScroll
-              //   currentPage={paginationData?.currentPage}
-              //   nextPage={paginationData?.nextPage}
-              //   isLoading={isLoading || loadingInvites}
-              //   onLoadMore={() => setPage((prev) => prev + 1)}
-              // >
+              // <div>
               //   {displayedEvents.map((event, index) => (
               //     <EventTile key={event.id || index} event={event} />
               //   ))}
-              // </InfiniteScroll>
+              // </div>
+              <InfiniteScroll
+                data={data?.data}
+                pagination={data?.pagination}
+                isLoading={isLoading}
+                fetchNextPage={refetch}
+                currentPage={page}
+                setCurrentPage={setPage}
+                renderItem={(event, index) => (
+                  <EventTile key={event.id || index} event={event} />
+                )}
+              />
             )}
           </div>
-          <div className="max-w-[30%] w-full">
+          <div className="max-w-[30%] w-full hidden md:block">
             <CustomCalendar events={events} onDateSelect={handleDateSelect} />
           </div>
         </div>

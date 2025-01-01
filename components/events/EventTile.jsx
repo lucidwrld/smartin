@@ -15,7 +15,7 @@ import { Wallet } from "lucide-react";
 const EventTile = ({ event }) => {
   const route = useRouter();
   return (
-    <div className="rounded-[16px] bg-whiteColor flex flex-col relative border border-grey3 h-[426px]">
+    <div className="rounded-[16px] bg-whiteColor flex flex-col relative border border-grey3 md:h-[426px] mb-5">
       <div className="h-[60%] relative rounded-t-[16px] w-full">
         <img
           src={event?.image}
@@ -28,33 +28,33 @@ const EventTile = ({ event }) => {
           <p className="text-16px leading-[24px] font-medium">{event?.name}</p>
           <StatusButton status={event?.isActive ? "Active" : "Inactive"} />
         </div>
-        <div className="flex items-center justify-center gap-2">
-          <div className="flex items-center gap-1.5">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-center gap-2 mt-5 md:mt-0">
+          <div className="flex items-center gap-1.5 order-2 md:order-none">
             <img src={purpleCalendar.src} alt="" />
             <p className="text-16px leading-[24px] font-medium mr-2">
               {formatDateToLongString(event?.date)}
             </p>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 order-1 md:order-none">
             <img src={purpleTime.src} alt="" />
 
-            <p className="text-16px leading-[24px] font-medium uppercase">
+            <p className="text-16px leading-[24px] font-medium uppercase ">
               {convertToAmPm(event?.time)}
             </p>
           </div>
         </div>
-        <div className="flex items-center justify-between gap-2 w-full">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 w-full">
           <div className="flex items-center gap-1.5 justify-between">
             <img src={greyPeople.src} alt="" />
             <p className="text-14px leading-[22px] font-medium ">
               {event?.no_of_invitees} invitees
             </p>
           </div>
-          <div className="w-full max-w-max flex items-center gap-3 ">
+          <div className="w-full md:max-w-max flex flex-col md:flex-row  md:items-center gap-3 mt-5 md:mt-0">
             <CustomButton
               buttonText={"View Details"}
               buttonColor={"bg-white"}
-              className={"border border-grey3"}
+              className={"border border-grey3 w-full md:w-fit"}
               textColor={"blackColor"}
               suffixIcon={arrowRight.src}
               onClick={() => route.push(`/events/event?id=${event.id}`)}
@@ -66,6 +66,7 @@ const EventTile = ({ event }) => {
                     ? "Awaiting Payment Confirmation"
                     : "Pay Now"
                 }
+                className={"w-full md:w-fit"}
                 suffixIcon={<Wallet />}
                 onClick={() => {
                   route.push(

@@ -218,7 +218,7 @@ const GuestListTab = ({ eventId, analytics, event }) => {
     return (
       <div className="flex gap-3 ml-auto">
         <CustomButton
-          buttonText="Send All Guests"
+          buttonText="Invite All Guests"
           prefixIcon={<Send className="w-4 h-4" />}
           radius={"rounded-full"}
         />

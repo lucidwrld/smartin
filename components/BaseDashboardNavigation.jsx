@@ -68,8 +68,8 @@ const BaseDashboardNavigation = ({ children, title }) => {
                 className="w-full mx-auto cursor-pointer"
               >
                 <IconsWithText
-                  icon={el?.inactive.src}
-                  activeIcon={el?.active.src}
+                  icon={el?.inactive}
+                  activeIcon={el?.active}
                   path={el?.url}
                   iconSize="28px"
                   text={el?.title}
@@ -82,8 +82,8 @@ const BaseDashboardNavigation = ({ children, title }) => {
                 href={el?.url}
               >
                 <IconsWithText
-                  icon={el?.inactive.src}
-                  activeIcon={el?.active.src}
+                  icon={el?.inactive}
+                  activeIcon={el?.active}
                   path={el?.url}
                   iconSize="28px"
                   text={el?.title}
@@ -120,8 +120,8 @@ const BaseDashboardNavigation = ({ children, title }) => {
             href={el?.url}
           >
             <IconsWithText
-              icon={el?.inactive.src}
-              activeIcon={el?.active.src}
+              icon={el?.inactive}
+              activeIcon={el?.active}
               path={el?.url}
               iconSize="28px"
               text={el?.title}

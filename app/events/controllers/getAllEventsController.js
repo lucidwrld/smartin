@@ -4,7 +4,7 @@ import { useQuery } from "react-query";
 
 const useGetAllEventsManager = ({
   page = 1,
-  pageSize = 20,
+  pageSize = 10,
   search = "",
   user,
   status,

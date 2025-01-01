@@ -22,7 +22,7 @@ const ReplyTile = ({ details }) => {
           <p className="text-[12.5px] font-medium">
             {details?.sender?.full_name}
           </p>
-          <p className="text-10px text-grey3">
+          <p className="text-10px text-textGrey3">
             {formatDate(details?.createdAt)}{" "}
           </p>
         </div>

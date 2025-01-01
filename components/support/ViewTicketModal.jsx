@@ -67,21 +67,21 @@ const ViewTicketModal = ({ ticketId }) => {
               key={i}
               className="flex items-center justify-between text-12px"
             >
-              <p className="text-grey3">{el.name}</p>
+              <p className="text-textGrey3">{el.name}</p>
               <p className="text-brandBlack font-medium">{el.value}</p>
             </div>
           ))}
           <div className="flex items-center justify-between text-12px">
-            <p className="text-grey3">{"Status"}</p>
+            <p className="text-textGrey3">{"Status"}</p>
             <button className="px-8 py-1 bg-backgroundOrange text-brandOrange rounded-full text-[8px]">
               {ticket?.status}
             </button>
           </div>
-          <p className="text-grey3">{"Message"}</p>
+          <p className="text-textGrey3">{"Message"}</p>
           <p className="text-10px text-brandBlack">{ticket?.description}</p>
           {ticket?.attachments && (
             <div className="flex flex-col items-start gap-3 w-full">
-              <p className="text-grey3">{"Attachments"}</p>
+              <p className="text-textGrey3">{"Attachments"}</p>
               {ticket?.attachments.map((el, i) => (
                 <ViewAttachments key={i} attachment={el} />
               ))}
@@ -137,7 +137,7 @@ const ViewTicketModal = ({ ticketId }) => {
                 if (attachmentFile) {
                   const url = await handleFileUpload(attachmentFile);
                   updatedFormData.attachments = [url];
-                } 
+                }
                 replyTicket(updatedFormData);
               }}
             />

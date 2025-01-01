@@ -29,7 +29,7 @@ const TabManager = ({
           {el}
         </p>
       ))}
-      <div className="divider divider-[#E8E8E8] inset-x absolute top-1.5 w-full min-w-max"></div>
+      <div className="divider divider-[#E8E8E8] inset-x absolute top-6 md:top-1.5 w-full min-w-max"></div>
     </div>
   );
 };

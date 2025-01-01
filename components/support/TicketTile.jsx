@@ -5,7 +5,7 @@ import { formatDate } from "@/utils/formatDate";
 const TicketTile = ({ details, onClick }) => {
   const content = [
     { name: "Subject", value: details?.title },
-    { name: "Name", value: details?.user?.full_name },
+    { name: "Name", value: details?.user?.fullname },
     { name: "Email", value: details?.user?.email },
     { name: "Created", value: formatDate(details?.createdAt) },
   ];
@@ -16,7 +16,7 @@ const TicketTile = ({ details, onClick }) => {
     >
       {content.map((el, i) => (
         <div key={i} className="flex flex-col items-start">
-          <p className="text-10px text-grey3">{el.name}</p>
+          <p className="text-10px text-textGrey3">{el.name}</p>
           <p className="text-12px text-brandBlack font-medium">{el.value}</p>
         </div>
       ))}
