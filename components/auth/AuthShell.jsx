@@ -1,8 +1,9 @@
 "use client";
 
 import CustomButton from "@/components/Button";
-import { wedding } from "@/public/images";
+import { logoMain, logoMain1, wedding } from "@/public/images";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 const AuthShell = ({
@@ -28,7 +29,14 @@ const AuthShell = ({
       <div className={`h-full max-w-[50%] w-full relative hidden md:flex`}>
         <img src={wedding.src} className={`w-full h-full object-cover`} />
       </div>
-      <div className={`h-full md:max-w-[50%] w-full relative`}>
+      <div className={`h-full md:max-w-[50%] w-full relative p-10`}>
+        <Link href={"/"} className="w-full flex items-start justify-start">
+          <img
+            src={logoMain1.src}
+            alt=""
+            className="max-w-[80%] md:max-w-[30%]"
+          />
+        </Link>
         <div className=" max-w-[80%] md:max-w-[452px] w-full mx-auto h-full flex flex-col items-center justify-center gap-10 relative">
           <div className="flex flex-col items-start w-full">
             <p className="font-semibold text-[36px]">{title}</p>
