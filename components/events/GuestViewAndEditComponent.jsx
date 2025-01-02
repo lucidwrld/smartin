@@ -10,8 +10,6 @@ import { EditInviteeManager } from "@/app/events/controllers/editInviteeControll
 import InputWithFullBoarder from "../InputWithFullBoarder";
 
 export const GuestViewModal = ({ guest, onEdit, onDelete }) => {
-  if (!guest) return null;
-
   const handleClose = () => {
     document.getElementById("view_guest_modal").close();
   };
@@ -23,7 +21,7 @@ export const GuestViewModal = ({ guest, onEdit, onDelete }) => {
       return "N/A";
     }
   };
-
+  if (!guest) return null;
   return (
     <ModalManagement id="view_guest_modal" title="Guest Details">
       <div className="bg-white p-6 rounded-lg w-[500px]">
@@ -147,16 +145,10 @@ export const GuestViewModal = ({ guest, onEdit, onDelete }) => {
 };
 
 // GuestEditModal.jsx
-export const GuestEditModal = ({ guest, onSave, isLoading }) => {
-  if (!guest) return null;
-
+export const GuestEditModal = ({ guest }) => {
   const { editInvitee, isLoading: editing } = EditInviteeManager({
     inviteeId: guest?.id,
   });
-
-  const handleClose = () => {
-    document.getElementById("edit_guest_modal").close();
-  };
 
   const [formData, setFormData] = React.useState({
     name: guest?.name || "",
@@ -164,6 +156,11 @@ export const GuestEditModal = ({ guest, onSave, isLoading }) => {
     email: guest?.email || "",
   });
 
+  if (!guest) return null;
+
+  const handleClose = () => {
+    document.getElementById("edit_guest_modal").close();
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({

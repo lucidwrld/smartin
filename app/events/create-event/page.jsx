@@ -75,6 +75,13 @@ const EventPage = () => {
       );
     }
   }, [isSuccess]);
+  const isSuccessful = updated || added;
+
+  useEffect(() => {
+    if (isSuccessful) {
+      router.push(`/events/event?id=${id}`);
+    }
+  }, [isSuccessful]);
 
   // Form data state
   const [formData, setFormData] = useState({
@@ -348,13 +355,6 @@ const EventPage = () => {
   }
 
   const isSubmitting = creating || updating || uploadingFile || adding;
-  const isSuccessful = updated || added;
-
-  useEffect(() => {
-    if (isSuccessful) {
-      router.push(`/events/event?id=${id}`);
-    }
-  }, [isSuccessful]);
 
   return (
     <BaseDashboardNavigation title={isEditMode ? "Edit Event" : "Create Event"}>

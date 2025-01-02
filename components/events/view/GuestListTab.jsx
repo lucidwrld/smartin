@@ -69,7 +69,8 @@ const GuestListTab = ({ eventId, analytics, event }) => {
       if (modal) {
         modal.showModal();
       }
-      setModalToOpen(null); // Reset modal flag after opening
+      setModalToOpen(null);
+      // Reset modal flag after opening
     }
   }, [selectedGuest, modalToOpen]);
   useEffect(() => {
@@ -197,7 +198,7 @@ const GuestListTab = ({ eventId, analytics, event }) => {
     } else if (option === "Confirm Attendance") {
       markAttendance({ inviteeId: guest?.id });
     } else if (option === "Remove Guest") {
-      removeGuests({ guestIds: [guest.id] });
+      removeGuests({ inviteIds: [guest.id] });
     }
   };
   const renderActionButtons = () => {
@@ -369,22 +370,11 @@ const GuestListTab = ({ eventId, analytics, event }) => {
         onDelete={() => {
           document.getElementById("view_guest_modal").close();
           if (selectedGuest?.id) {
-            removeGuests({ guestIds: [selectedGuest.id] });
+            removeGuests({ inviteIds: [selectedGuest.id] });
           }
         }}
       />
-      <GuestEditModal
-        guest={selectedGuest}
-        onSave={async (formData) => {
-          try {
-            // await updateGuest(selectedGuest.id, formData);
-            document.getElementById("edit_guest_modal").close();
-          } catch (error) {
-            console.error("Failed to update guest:", error);
-          }
-        }}
-        isLoading={false}
-      />
+      <GuestEditModal guest={selectedGuest} />
     </div>
   );
 };

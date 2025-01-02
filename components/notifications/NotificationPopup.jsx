@@ -25,6 +25,7 @@ const NotificationPopup = ({ isOpen }) => {
         <div className="divide-y">
           {notifications.data.map((activity, index) => (
             <NotificationItem
+              key={index}
               title={activity?.title}
               message={activity?.message}
               createdAt={formatDateAgo(activity?.createdAt)}
