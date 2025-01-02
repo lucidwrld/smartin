@@ -5,6 +5,7 @@ import BaseDashboardNavigation from "@/components/BaseDashboardNavigation";
 import useGetAllNotificationsManager from "@/app/notifications/controllers/getAllNotificationsController";
 import { OpenSingleNotificationManager } from "@/app/notifications/controllers/openSingleNotificationController";
 import { OpenAllNotificationsManager } from "@/app/notifications/controllers/openAllNotificationsController";
+import Loader from "@/components/Loader";
 
 const NotificationItem = ({
   // icon: Icon,
