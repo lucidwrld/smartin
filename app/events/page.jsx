@@ -94,8 +94,8 @@ const AllEventsPage = () => {
               </div>
             ) : (
               <InfiniteScroll
-                data={data?.data}
-                pagination={data?.pagination}
+                data={displayedEvents}
+                pagination={paginationData}
                 isLoading={isLoading}
                 fetchNextPage={refetch}
                 currentPage={page}

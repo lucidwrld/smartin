@@ -6,6 +6,7 @@ import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import CustomButton from "@/components/Button";
 import { EditEventManager } from "@/app/events/controllers/editEventController";
 import useFileUpload from "@/utils/fileUploadController";
+import { SendNotificationManager } from "@/app/notifications/controllers/sendNotificationController";
 
 const ThankYouMessage = ({ event }) => {
   const [formData, setFormData] = useState({
@@ -22,6 +23,9 @@ const ThankYouMessage = ({ event }) => {
   } = useFileUpload();
 
   const { isLoading: updating, updateEvent } = EditEventManager({
+    eventId: event?.id,
+  });
+  const { sendNotification, isLoading: sending } = SendNotificationManager({
     eventId: event?.id,
   });
 
@@ -117,6 +121,15 @@ const ThankYouMessage = ({ event }) => {
             <CustomButton
               radius={"rounded-full w-full"}
               buttonText={"Send Message"}
+              onClick={() => {
+                if (event?.thank_you_message?.message) {
+                  sendNotification({
+                    inviteeIds: [],
+                    type: "thankyou",
+                  });
+                }
+              }}
+              isLoading={sending}
             />
           </div>
         </div>

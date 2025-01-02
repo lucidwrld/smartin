@@ -16,6 +16,11 @@ import Link from "next/link";
 import BaseDashboardNavigation from "@/components/BaseDashboardNavigation";
 import useGetUserDetailsManager from "../profile-settings/controllers/get_UserDetails_controller";
 import DiscountModal from "@/components/DiscountModal";
+import useGetAllUserInvitedEventsManager from "../events/controllers/getAllUserInvitedEventsController";
+import useGetAllNotificationsManager from "../notifications/controllers/getAllNotificationsController";
+import { formatDateAgo } from "@/utils/timeAgo";
+import { formatDateToLongString } from "@/utils/formatDateToLongString";
+import { OpenSingleNotificationManager } from "../notifications/controllers/openSingleNotificationController";
 
 const StatCard = ({ icon: Icon, label, value, trend }) => (
   <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-brandBlack">
@@ -40,33 +45,42 @@ const StatCard = ({ icon: Icon, label, value, trend }) => (
   </div>
 );
 
-const ActivityItem = ({ icon: Icon, title, description, time }) => (
-  <div className="p-4 border-b hover:bg-gray-50 transition-colors text-brandBlack">
+const ActivityItem = ({ title, message, createdAt, isRead, onClick }) => (
+  <div
+    onClick={onClick}
+    className={`p-4 border-b hover:bg-gray-50 transition-colors text-brandBlack ${
+      !isRead ? "bg-blue-50" : ""
+    }`}
+  >
     <div className="flex items-start gap-3">
-      <div className="p-2 bg-backgroundPurple/10 rounded-lg">
+      {/* <div className="p-2 bg-backgroundPurple/10 rounded-lg">
         <Icon size={16} className="text-brandPurple" />
-      </div>
+      </div> */}
       <div className="flex-1">
         <div className="flex justify-between items-start">
           <p className="font-medium text-sm">{title}</p>
-          <span className="text-xs text-gray-500">{time}</span>
+          <span className="text-xs text-gray-500">
+            {formatDateAgo(createdAt)}
+          </span>
         </div>
-        <p className="text-sm text-gray-600 mt-1">{description}</p>
+        <p className="text-sm text-gray-600 mt-1">{message}</p>
       </div>
     </div>
   </div>
 );
 
-const UpcomingEvent = ({ title, date, guestCount }) => (
+const UpcomingEvent = ({ name, date, no_of_invitees }) => (
   <div className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors text-brandBlack">
     <div>
-      <p className="font-medium text-sm">{title}</p>
+      <p className="font-medium text-sm">{name}</p>
       <div className="flex items-center gap-2 mt-1">
         <Clock size={14} className="text-gray-400" />
-        <span className="text-sm text-gray-600">{date}</span>
+        <span className="text-sm text-gray-600">
+          {formatDateToLongString(date)}
+        </span>
         <span className="text-gray-400">•</span>
         <Users size={14} className="text-gray-400" />
-        <span className="text-sm text-gray-600">{guestCount} guests</span>
+        <span className="text-sm text-gray-600">{no_of_invitees} guests</span>
       </div>
     </div>
     <ChevronRight size={16} className="text-gray-400" />
@@ -97,29 +111,6 @@ const Dashboard = () => {
     { icon: Gift, label: "Gift Registry Items", value: "24", trend: 15.3 },
   ];
 
-  const activities = [
-    {
-      icon: UserCheck,
-      title: "New RSVP",
-      description:
-        "John & Sarah confirmed their attendance to Wedding Ceremony",
-      time: "2h ago",
-    },
-    {
-      icon: Gift,
-      title: "Gift Registry Update",
-      description:
-        'Someone purchased "Cuisinart Stand Mixer" from your registry',
-      time: "5h ago",
-    },
-    {
-      icon: Send,
-      title: "Invitations Sent",
-      description: "Successfully sent 50 new invitations for Birthday Party",
-      time: "1d ago",
-    },
-  ];
-
   const upcomingEvents = [
     { title: "Wedding Ceremony", date: "Dec 15, 2024", guestCount: 150 },
     { title: "Birthday Party", date: "Dec 20, 2024", guestCount: 45 },
@@ -127,6 +118,15 @@ const Dashboard = () => {
   ];
 
   const { data: userDetails } = useGetUserDetailsManager();
+  const { data: userInvites, isLoading: loadingInvites } =
+    useGetAllUserInvitedEventsManager({
+      status: "upcoming",
+      enabled: true,
+      page: 1,
+    });
+  const { data: notifications, isLoading: loadingNotifications } =
+    useGetAllNotificationsManager({});
+  const { openNotification } = OpenSingleNotificationManager();
 
   return (
     <BaseDashboardNavigation title="Dashboard">
@@ -160,11 +160,29 @@ const Dashboard = () => {
               <div className="p-4 border-b">
                 <h2 className="font-semibold">Recent Activity</h2>
               </div>
-              <div className="divide-y">
-                {activities.map((activity, index) => (
-                  <ActivityItem key={index} {...activity} />
-                ))}
-              </div>
+              {notifications?.data && notifications.data.length > 0 ? (
+                <div className="divide-y">
+                  {notifications.data.map((activity, index) => (
+                    <ActivityItem
+                      key={index}
+                      {...activity}
+                      onClick={() => {
+                        if (!activity?.isRead) {
+                          const details = {
+                            notificationId: activity?.id,
+                            status: "read",
+                          };
+                          openNotification(details);
+                        }
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">You have no notifications</p>
+                </div>
+              )}
             </div>
 
             <div className="bg-white rounded-xl shadow-sm">
@@ -177,11 +195,17 @@ const Dashboard = () => {
                   View all
                 </Link>
               </div>
-              <div className="divide-y">
-                {upcomingEvents.map((event, index) => (
-                  <UpcomingEvent key={index} {...event} />
-                ))}
-              </div>
+              {userInvites?.data && userInvites.data.length > 0 ? (
+                <div className="divide-y">
+                  {userInvites.data.map((event, index) => (
+                    <UpcomingEvent key={index} {...event} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">You have no upcoming events</p>
+                </div>
+              )}
             </div>
           </div>
 

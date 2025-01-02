@@ -14,15 +14,36 @@ import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { useRouter } from "next/navigation";
 import { appscreenshots } from "@/public/images";
+import InputWithFullBoarder from "./InputWithFullBoarder";
+import { validateCompletePhoneNumber } from "@/utils/validateCompletePhoneNumber";
+import CustomButton from "./Button";
+import { SendTestNotificationManager } from "@/app/notifications/controllers/sendTestNotificationController";
 
 const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [phone, setPhone] = useState("");
   const route = useRouter();
+  const { sendTestNotification, isLoading } = SendTestNotificationManager();
 
-  const handleSubmit = (e) => {
+  const handleInviteSend = (e) => {
     e.preventDefault();
-    // Handle invite sending logic
+    // Use the custom validator directly
+    const validationResult = validateCompletePhoneNumber(phone);
+
+    if (!validationResult.isValid) {
+      // Force the input to show its error state by triggering validation
+      const phoneInput = document.getElementById("phone_number");
+      if (phoneInput) {
+        phoneInput.focus();
+        // This will trigger the InputWithFullBoarder's error display
+        phoneInput.blur();
+      }
+      return;
+    }
+
+    sendTestNotification({
+      phone: phone,
+    });
   };
 
   return (
@@ -95,22 +116,34 @@ const LandingPage = () => {
             </p>
 
             <form
-              onSubmit={handleSubmit}
-              className="flex flex-col md:flex-row gap-4 justify-center"
+              onSubmit={handleInviteSend}
+              className="flex flex-col md:flex-row gap-4 items-center justify-center"
             >
-              <input
-                type="tel"
+              <InputWithFullBoarder
+                id="phone_number"
+                isRequired={true}
+                placeholder="e.g. +1 for US, +44 for UK"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Enter your phone number"
-                className="px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brandPurple"
+                type="tel"
+                none={true}
+                customValidator={validateCompletePhoneNumber}
+                onChange={(e) => {
+                  let value = e.target.value;
+                  // Ensure the + is always there
+                  if (!value.startsWith("+")) {
+                    value = "+" + value;
+                  }
+                  // Remove any non-digit characters except the +
+                  value = value.replace(/[^\d+]/g, "");
+
+                  setPhone(value);
+                }}
               />
-              <button
-                type="submit"
-                className="bg-brandPurple text-white px-6 py-3 rounded-lg hover:bg-backgroundPurple"
-              >
-                Get Test Invite
-              </button>
+              <CustomButton
+                type={"submit"}
+                buttonText={"Get Test Invite"}
+                isLoading={isLoading}
+              />
             </form>
             <p className="text-xs text-gray-500 mt-4">
               By clicking "Get Test Invite", you agree to receive a one-time

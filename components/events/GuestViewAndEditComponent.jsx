@@ -6,6 +6,8 @@ import StatusButton from "@/components/StatusButton";
 import StatusButtonWithBool from "@/components/StatusWithBool";
 import CustomButton from "@/components/Button";
 import { Trash2, Edit } from "lucide-react";
+import { EditInviteeManager } from "@/app/events/controllers/editInviteeController";
+import InputWithFullBoarder from "../InputWithFullBoarder";
 
 export const GuestViewModal = ({ guest, onEdit, onDelete }) => {
   if (!guest) return null;
@@ -148,6 +150,10 @@ export const GuestViewModal = ({ guest, onEdit, onDelete }) => {
 export const GuestEditModal = ({ guest, onSave, isLoading }) => {
   if (!guest) return null;
 
+  const { editInvitee, isLoading: editing } = EditInviteeManager({
+    inviteeId: guest?.id,
+  });
+
   const handleClose = () => {
     document.getElementById("edit_guest_modal").close();
   };
@@ -168,53 +174,39 @@ export const GuestEditModal = ({ guest, onSave, isLoading }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    editInvitee(formData);
+    // onSave(formData);
   };
 
   return (
     <ModalManagement id="edit_guest_modal" title="Edit Guest">
       <div className="bg-white p-6 rounded-lg w-96">
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md"
-              required
-            />
-          </div>
+          <InputWithFullBoarder
+            label={"Name"}
+            type="text"
+            id="name"
+            value={formData.name}
+            onChange={handleChange}
+            isRequired
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phone
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md"
-              required
-            />
-          </div>
+          <InputWithFullBoarder
+            label={"Phone"}
+            type="tel"
+            id="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            isRequired
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md"
-            />
-          </div>
+          <InputWithFullBoarder
+            label={"Email"}
+            type="email"
+            id="email"
+            value={formData.email}
+            onChange={handleChange}
+          />
 
           <div className="flex justify-end gap-2 pt-4">
             <button
@@ -222,15 +214,14 @@ export const GuestEditModal = ({ guest, onSave, isLoading }) => {
               className="px-4 py-2 border rounded-full"
               onClick={handleClose}
             >
-              Cancel
+              Close
             </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-brandPurple text-white rounded-full"
-              disabled={isLoading}
-            >
-              {isLoading ? "Saving..." : "Save Changes"}
-            </button>
+            <CustomButton
+              buttonText={"Save Changes"}
+              isLoading={editing}
+              type={"submit"}
+              radius={"rounded-full"}
+            />
           </div>
         </form>
       </div>

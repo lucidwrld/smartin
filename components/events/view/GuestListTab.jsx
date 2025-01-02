@@ -22,6 +22,8 @@ import { shouldChargeInNaira } from "@/utils/shouldChargeInNaira";
 import { RemoveInvitedGuests } from "@/app/events/controllers/removeInvitedGuest";
 import { GuestEditModal, GuestViewModal } from "../GuestViewAndEditComponent";
 import useGetUserDetailsManager from "@/app/profile-settings/controllers/get_UserDetails_controller";
+import { SendNotificationManager } from "@/app/notifications/controllers/sendNotificationController";
+import { MarkAttendanceManager } from "@/app/events/controllers/markAttendanceController";
 
 const StatCard = ({ icon: Icon, label, value }) => (
   <div className="bg-white rounded-lg shadow p-4">
@@ -118,22 +120,26 @@ const GuestListTab = ({ eventId, analytics, event }) => {
     },
   ];
 
+  const { sendNotification, isLoading: sending } = SendNotificationManager({
+    eventId: eventId,
+  });
+
   const headers = [
     "Guest name",
     "Phone",
     "Email",
-    "Attendance",
     "Acceptance",
+    "Attendance",
     "Invite Channels",
     "Action",
   ];
 
   const getFormattedValue = (el, index) => [
-    index + 1,
     el?.name,
     el?.phone,
     el?.email || "No email",
     <StatusButton status={el?.response} />,
+    <StatusButton status={el?.attended ? "Attended" : "Not Attended"} />,
     <div className="flex items-center gap-2">
       <StatusButtonWithBool
         isActive={el?.notification_sent?.whatsapp}
@@ -179,6 +185,8 @@ const GuestListTab = ({ eventId, analytics, event }) => {
       setSelectedGuestIds([]);
     }
   };
+
+  const { markAttendance } = MarkAttendanceManager();
   const handleGuestAction = (option, _, guest) => {
     setSelectedGuest(guest);
 
@@ -186,6 +194,8 @@ const GuestListTab = ({ eventId, analytics, event }) => {
       setModalToOpen("view_guest_modal");
     } else if (option === "Edit Guest Info") {
       setModalToOpen("edit_guest_modal");
+    } else if (option === "Confirm Attendance") {
+      markAttendance({ inviteeId: guest?.id });
     } else if (option === "Remove Guest") {
       removeGuests({ guestIds: [guest.id] });
     }
@@ -197,7 +207,7 @@ const GuestListTab = ({ eventId, analytics, event }) => {
           <CustomButton
             buttonText={`Remove Selected (${selectedGuestIds.length})`}
             onClick={() => {
-              removeGuests({ guestIds: selectedGuestIds });
+              removeGuests({ inviteIds: selectedGuestIds });
               setSelectedGuestIds([]);
               setSelectedRows([]);
             }}
@@ -208,9 +218,39 @@ const GuestListTab = ({ eventId, analytics, event }) => {
             buttonText="Invite Selected"
             prefixIcon={<Send className="w-4 h-4" />}
             radius={"rounded-full"}
+            isLoading={sending}
+            onClick={() => {
+              const details = {
+                inviteeIds: selectedGuestIds,
+                type: "event",
+              };
+              sendNotification(details);
+            }}
           />
-          <CustomButton buttonText="Send Reminders" radius={"rounded-full"} />
-          <CustomButton buttonText="Send Updates" radius={"rounded-full"} />
+          <CustomButton
+            buttonText="Send Reminders"
+            radius={"rounded-full"}
+            isLoading={sending}
+            onClick={() => {
+              const details = {
+                inviteeIds: selectedGuestIds,
+                type: "reminder",
+              };
+              sendNotification(details);
+            }}
+          />
+          <CustomButton
+            buttonText="Send Updates"
+            radius={"rounded-full"}
+            isLoading={sending}
+            onClick={() => {
+              const details = {
+                inviteeIds: selectedGuestIds,
+                type: "update",
+              };
+              sendNotification(details);
+            }}
+          />
         </div>
       );
     }
@@ -220,6 +260,13 @@ const GuestListTab = ({ eventId, analytics, event }) => {
         <CustomButton
           buttonText="Invite All Guests"
           prefixIcon={<Send className="w-4 h-4" />}
+          onClick={() => {
+            sendNotification({
+              inviteeIds: [],
+              type: "event",
+            });
+          }}
+          isLoading={sending}
           radius={"rounded-full"}
         />
         <CustomButton
@@ -266,7 +313,12 @@ const GuestListTab = ({ eventId, analytics, event }) => {
           popUpFunction={(option, inx, selected) =>
             handleGuestAction(option, inx, selected)
           }
-          options={["View Guest", "Edit Guest Info", "Remove Guest"]}
+          options={[
+            "View Guest",
+            "Edit Guest Info",
+            "Confirm Attendance",
+            "Remove Guest",
+          ]}
         />
       </div>
       {data?.data.length > 0 && (
@@ -307,7 +359,7 @@ const GuestListTab = ({ eventId, analytics, event }) => {
           </div>
         </div>
       </ModalManagement>
-      // Add after the payment modal
+
       <GuestViewModal
         guest={selectedGuest}
         onEdit={() => {

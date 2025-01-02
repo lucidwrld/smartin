@@ -17,9 +17,9 @@ AxiosWithToken.interceptors.request.use(
     const token = localStorage.getItem("token");
     const adminToken = localStorage.getItem("admin-token");
 
-    console.log(`Route type: ${isAdminRoute ? "Admin" : "User"}`);
-    console.log("User token:", token);
-    console.log("Admin token:", adminToken);
+    // console.log(`Route type: ${isAdminRoute ? "Admin" : "User"}`);
+    // console.log("User token:", token);
+    // console.log("Admin token:", adminToken);
 
     if (isAdminRoute && !adminToken && retryCount < 3) {
       console.log(`Admin token retry attempt ${retryCount + 1}`);
@@ -56,13 +56,8 @@ AxiosWithToken.interceptors.response.use(
   },
   async (error) => {
     if (error.response && error.response.status === 401) {
-      console.error("this is the error response", error.response.status);
-      const token = localStorage.getItem("token");
-      const adminToken = localStorage.getItem("admin-token");
-      console.log(`this is token when 401 shows`, token);
-      if (!token && !adminToken) {
-        window.location.href = "/auth/login";
-      }
+      window.location.href = "/auth/login";
+
       return Promise.reject(error);
     }
 

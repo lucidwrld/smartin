@@ -1,7 +1,9 @@
+import useGetUserDetailsManager from "@/app/profile-settings/controllers/get_UserDetails_controller";
 import InputWithFullBoarder from "../InputWithFullBoarder";
 
 // GiftRegistryStep.js
 export const GiftRegistryStep = ({ formData, onFormDataChange }) => {
+  const { data: userDetail } = useGetUserDetailsManager();
   const handleAddGift = () => {
     const newGifts = [
       ...(formData.items || []),
@@ -32,7 +34,7 @@ export const GiftRegistryStep = ({ formData, onFormDataChange }) => {
           <button
             type="button"
             onClick={handleAddGift}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+            className="px-4 py-2 bg-brandPurple text-white rounded-lg"
           >
             Add Gift
           </button>
@@ -75,7 +77,9 @@ export const GiftRegistryStep = ({ formData, onFormDataChange }) => {
                   }
                 />
                 <InputWithFullBoarder
-                  label="Price"
+                  label={`Price (${
+                    userDetail?.data?.user?.currency === "NGN" ? "NGN" : "USD"
+                  })`}
                   type="number"
                   value={gift.price}
                   onChange={(e) =>

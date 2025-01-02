@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import CustomButton from "@/components/Button";
 import useGetSearchForTablesAndGuestsManager from "@/app/events/controllers/tables/getSearchForTablesAndGuestsController";
+import { AssignUnassignGuestsManager } from "@/app/events/controllers/tables/assignUnassignGuestToTableController";
 
-const TableSearch = ({ eventId }) => {
+const TableSearch = ({ eventId, apiTables }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isAssigning, setIsAssigning] = useState(false);
@@ -63,9 +64,19 @@ const TableSearch = ({ eventId }) => {
   const filteredGuests = guests.filter(
     (guest) => guest.name.toLowerCase().includes(lowercaseQuery) && !guest.table
   );
+  const { manageAssignment, isLoading: assigning } =
+    AssignUnassignGuestsManager({ isAdd: true });
 
   const handleAssignGuest = async (guestId, tableId) => {
     if (!tableId) return;
+
+    const details = {
+      eventId: eventId,
+      tableId: tableId,
+      guestIds: [guestId],
+    };
+    await manageAssignment(details);
+    refetch();
   };
 
   return (
@@ -142,20 +153,22 @@ const TableSearch = ({ eventId }) => {
                         }
                         className="border rounded px-2 py-1"
                         defaultValue=""
-                        disabled={isAssigning}
+                        disabled={assigning}
                       >
                         <option value="">Assign to table...</option>
-                        {tables
-                          .filter(
-                            (table) =>
-                              table.no_of_seats - table.seats_occupied > 0
-                          )
-                          .map((table) => (
-                            <option key={table._id} value={table._id}>
-                              Table {table.name} (
-                              {table.no_of_seats - table.seats_occupied} seats)
-                            </option>
-                          ))}
+                        {apiTables &&
+                          apiTables
+                            .filter(
+                              (table) =>
+                                table.no_of_seats - table.seats_occupied > 0
+                            )
+                            .map((table) => (
+                              <option key={table._id} value={table._id}>
+                                Table {table.name} (
+                                {table.no_of_seats - table.seats_occupied}{" "}
+                                seats)
+                              </option>
+                            ))}
                       </select>
                     </div>
                   ))}

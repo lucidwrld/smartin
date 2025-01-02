@@ -1,8 +1,15 @@
 import React from "react";
 import { useRouter } from "next/navigation";
+import useGetAllNotificationsManager from "@/app/notifications/controllers/getAllNotificationsController";
+import { formatDateAgo } from "@/utils/timeAgo";
+import { OpenSingleNotificationManager } from "@/app/notifications/controllers/openSingleNotificationController";
+import Loader from "../Loader";
 
 const NotificationPopup = ({ isOpen }) => {
   const router = useRouter();
+  const { data: notifications, isLoading: loadingNotifications } =
+    useGetAllNotificationsManager({});
+  const { openNotification } = OpenSingleNotificationManager();
 
   if (!isOpen) return null;
 
@@ -12,26 +19,33 @@ const NotificationPopup = ({ isOpen }) => {
         <h3 className="font-medium">Notifications</h3>
       </div>
 
-      <div className="divide-y">
-        <NotificationItem
-          title="New Guest RSVP"
-          message="John Doe has confirmed attendance"
-          time="2h ago"
-          isUnread={true}
-        />
-        <NotificationItem
-          title="Event Reminder"
-          message="Wedding Ceremony tomorrow"
-          time="5h ago"
-          isUnread={true}
-        />
-        <NotificationItem
-          title="Gift Registry Update"
-          message="New gift purchased"
-          time="1d ago"
-          isUnread={false}
-        />
-      </div>
+      {loadingNotifications ? (
+        <Loader />
+      ) : notifications?.data && notifications.data.length > 0 ? (
+        <div className="divide-y">
+          {notifications.data.map((activity, index) => (
+            <NotificationItem
+              title={activity?.title}
+              message={activity?.message}
+              createdAt={formatDateAgo(activity?.createdAt)}
+              isRead={activity?.isRead}
+              onClick={() => {
+                if (!activity?.isRead) {
+                  const details = {
+                    notificationId: activity?.id,
+                    status: "read",
+                  };
+                  openNotification(details);
+                }
+              }}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-8">
+          <p className="text-gray-500">You have no notifications</p>
+        </div>
+      )}
 
       <button
         onClick={() => router.push("/notifications")}
@@ -43,15 +57,16 @@ const NotificationPopup = ({ isOpen }) => {
   );
 };
 
-const NotificationItem = ({ title, message, time, isUnread }) => (
+const NotificationItem = ({ title, message, createdAt, isRead, onClick }) => (
   <div
+    onClick={onClick}
     className={`p-3 hover:bg-gray-50 text-brandBlack ${
-      isUnread ? "bg-blue-50" : ""
+      !isRead ? "bg-blue-50" : ""
     }`}
   >
     <p className="font-medium text-sm">{title}</p>
     <p className="text-sm text-gray-600">{message}</p>
-    <span className="text-xs text-gray-500">{time}</span>
+    <span className="text-xs text-gray-500">{createdAt}</span>
   </div>
 );
 

@@ -6,7 +6,7 @@ import { copyToClipboard } from "@/utils/copyToClipboard";
 import Loader from "@/components/Loader";
 import { formatAmount } from "@/utils/formatAmount";
 
-const GiftItem = ({ name, price, link }) => (
+const GiftItem = ({ name, price, link, currency }) => (
   <Link
     href={link}
     target="_blank"
@@ -19,7 +19,9 @@ const GiftItem = ({ name, price, link }) => (
       </div>
       <div>
         <h3 className="font-medium text-gray-900 capitalize">{name}</h3>
-        <span className="text-sm text-gray-500">{formatAmount(price)}</span>
+        <span className="text-sm text-gray-500">{`${
+          currency === "USD" ? "$" : "₦"
+        }${formatAmount(parseInt(price))}`}</span>
       </div>
     </div>
     <button className="p-2 hover:bg-gray-100 rounded-full">
@@ -84,7 +86,7 @@ const GiftRegistryTab = ({ event, isViewOnly = false }) => {
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-4">
           {event?.items.map((gift, index) => (
-            <GiftItem key={index} {...gift} />
+            <GiftItem key={index} {...gift} currency={event?.currency} />
           ))}
         </div>
         <AccountDetails accountInfo={event?.donation} />

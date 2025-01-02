@@ -19,10 +19,7 @@ const useVerifyOtp = (enabled, otp, type) => {
           toast.success(response?.data?.message);
           router.push("/admin/dashboard");
         } else {
-          localStorage.setItem(
-            "token",
-            `Bearer ${response.data?.data?.authorization?.token}`
-          );
+          localStorage.setItem("token", `${response.data?.data?.token}`);
           router.push("/dashboard");
         }
         return response.data;
