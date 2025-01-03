@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import axios from "axios";
 import Axios from "@/constants/api_management/MyHttpHelper";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 const useFileUpload = () => {
   const [progress, setProgress] = useState(0);
@@ -14,7 +15,7 @@ const useFileUpload = () => {
     // Step 1: Get signed request and URL
     try {
       const [response] = [
-        await Axios.post(
+        await AxiosWithToken.post(
           `/services/file/presign-url?file_name=${fileName}&file_type=${fileType}`
         ),
       ];
