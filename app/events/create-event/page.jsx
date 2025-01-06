@@ -372,7 +372,7 @@ const EventPage = () => {
             <StepProgress
               steps={visibleSteps.map((step) => step.title)}
               currentStep={currentStep}
-              onStepClick={setCurrentStep}
+              // onStepClick={setCurrentStep}
             />
           )}
 

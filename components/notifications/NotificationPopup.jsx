@@ -33,9 +33,10 @@ const NotificationPopup = ({ isOpen }) => {
               onClick={() => {
                 if (!activity?.isRead) {
                   const details = {
-                    notificationId: activity?.id,
+                    notificationId: activity?._id,
                     status: "read",
                   };
+                  console.log(details);
                   openNotification(details);
                 }
               }}

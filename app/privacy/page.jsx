@@ -11,9 +11,9 @@ const ReactQuill = dynamic(() => import("react-quill-new"), {
   ssr: false,
 });
 
-const TermsAndConditionsPage = () => {
+const PrivacyPage = () => {
   const [value, setValue] = useState("");
-  const { data, isLoading } = useGetTermsManager({ type: "signup" });
+  const { data, isLoading } = useGetTermsManager({ type: "privacy" });
   const tokenExists =
     typeof window !== "undefined" && localStorage.getItem("token") !== null;
   useEffect(() => {
@@ -31,8 +31,8 @@ const TermsAndConditionsPage = () => {
       <div
         className={`w-full max-w-[95%] md:max-w-[70%] mx-auto flex flex-col items-start gap-5`}
       >
-        <h3 className="text-[24px] sm:text-[35px] lg:text-[45px] font-semibold my-10">
-          Terms and Conditions
+        <h3 className="text-[24px] sm:text-[35px] lg:text-[45px] font-semibold mb-10">
+          Privacy Policy
         </h3>
         <ReactQuill
           value={data?.data?.content}
@@ -46,4 +46,4 @@ const TermsAndConditionsPage = () => {
   );
 };
 
-export default TermsAndConditionsPage;
+export default PrivacyPage;

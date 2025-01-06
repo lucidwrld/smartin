@@ -169,7 +169,7 @@ const Dashboard = () => {
                       onClick={() => {
                         if (!activity?.isRead) {
                           const details = {
-                            notificationId: activity?.id,
+                            notificationId: activity?._id,
                             status: "read",
                           };
                           openNotification(details);

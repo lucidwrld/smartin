@@ -64,7 +64,11 @@ const NotificationsPage = () => {
                 {...notification}
                 onClick={() => {
                   if (!notification?.isRead) {
-                    openNotification();
+                    const details = {
+                      notificationId: notification?._id,
+                      status: "read",
+                    };
+                    openNotification(details);
                   }
                 }}
               />

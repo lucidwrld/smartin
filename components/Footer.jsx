@@ -15,10 +15,10 @@ const Footer = () => {
     {
       title: "Legal",
       links: [
-        { label: "Privacy Policy", href: "/legal/privacy" },
-        { label: "Terms of Service", href: "/legal/terms" },
-        { label: "Cookie Policy", href: "/legal/cookies" },
-        { label: "GDPR", href: "/legal/gdpr" },
+        { label: "Privacy Policy", href: "/privacy" },
+        { label: "Terms of Service", href: "/terms-and-condition" },
+        // { label: "Cookie Policy", href: "/legal/cookies" },
+        // { label: "GDPR", href: "/legal/gdpr" },
       ],
     },
     {
