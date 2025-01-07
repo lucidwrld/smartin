@@ -18,6 +18,7 @@ import InputWithFullBoarder from "./InputWithFullBoarder";
 import { validateCompletePhoneNumber } from "@/utils/validateCompletePhoneNumber";
 import CustomButton from "./Button";
 import { SendTestNotificationManager } from "@/app/notifications/controllers/sendTestNotificationController";
+import VideoPlayer from "./VideoPlayer";
 
 const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -232,18 +233,7 @@ const LandingPage = () => {
               </p>
             </div>
 
-            <div className="relative max-w-4xl mx-auto aspect-video rounded-xl overflow-hidden shadow-2xl">
-              <img
-                src="/api/placeholder/1200/675"
-                alt="Video thumbnail"
-                className="w-full"
-              />
-              <button className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40">
-                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center">
-                  <Play className="text-brandPurple w-8 h-8" />
-                </div>
-              </button>
-            </div>
+            <VideoPlayer />
           </div>
         </section>
 
