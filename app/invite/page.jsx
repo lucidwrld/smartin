@@ -249,7 +249,7 @@ const InvitePage = ({}) => {
               <a href="/privacy" className="hover:text-brandPurple">
                 Privacy Policy
               </a>
-              <a href="/terms" className="hover:text-brandPurple">
+              <a href="/terms-and-condition" className="hover:text-brandPurple">
                 Terms & Conditions
               </a>
             </div>
