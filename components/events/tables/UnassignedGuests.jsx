@@ -2,6 +2,7 @@ import { AssignUnassignGuestsManager } from "@/app/events/controllers/tables/ass
 import useGetEventInviteesManager from "@/app/events/controllers/getEventInviteesController";
 import Loader from "@/components/Loader";
 import React, { useState } from "react";
+import CompletePagination from "@/components/CompletePagination";
 
 const UnassignedGuests = ({ eventId, apiTables }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,7 +29,6 @@ const UnassignedGuests = ({ eventId, apiTables }) => {
       alert("No available seats at this table");
       return;
     }
-    // assign participant
 
     const details = {
       eventId: eventId,
@@ -41,28 +41,30 @@ const UnassignedGuests = ({ eventId, apiTables }) => {
   return isLoading ? (
     <Loader />
   ) : (
-    <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-      <h2 className="text-xl font-semibold mb-4">
+    <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-6">
+      <h2 className="text-lg md:text-xl font-semibold mb-4">
         Unassigned Participants ({data?.data.length})
       </h2>
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {data?.data.map((participant) => (
           <div
             key={participant.id}
-            className="bg-gray-100 px-3 py-2 rounded-lg text-sm flex items-center gap-2"
+            className="bg-gray-100 p-3 rounded-lg flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full"
           >
-            {participant.name}
+            <span className="text-sm font-medium min-w-[120px]">
+              {participant.name}
+            </span>
             <select
               onChange={(e) => {
                 if (e.target.value) {
                   assignParticipant(participant?.id, e.target.value);
                 }
               }}
-              className="ml-2 border rounded px-2 py-1"
+              className="w-full sm:w-auto border rounded px-2 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-500"
               defaultValue=""
+              disabled={assigning}
             >
               <option value="">Assign to table...</option>
-
               {apiTables &&
                 apiTables
                   .filter((table) => getAvailableSeats(table) > 0)
@@ -76,6 +78,13 @@ const UnassignedGuests = ({ eventId, apiTables }) => {
           </div>
         ))}
       </div>
+      {data?.data.length > 0 && (
+        <CompletePagination
+          setCurrentPage={setCurrentPage}
+          pagination={data?.pagination}
+          suffix={"Guests"}
+        />
+      )}
     </div>
   );
 };

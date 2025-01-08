@@ -35,7 +35,7 @@ export const EventDetailsStep = ({
       <p className="text-16px leading-[28px] mb-5 text-textGrey2">
         Kindly provide the details for your event
       </p>
-      <div className="w-full flex flex-col md:flex-row gap-8 bg-whiteColor p-10">
+      <div className="w-full flex flex-col md:flex-row gap-8 bg-whiteColor p-3 md:p-10">
         <div className="w-full md:w-1/2">
           <p className="text-14px leading-[22px] mb-1">Upload image</p>
           <div

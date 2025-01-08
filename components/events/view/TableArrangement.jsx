@@ -58,7 +58,7 @@ const TableArrangement = ({ eventId }) => {
   };
 
   return (
-    <div className="w-full mx-auto p-6 text-brandBlack">
+    <div className="w-full mx-auto p-2  md:p-6 text-brandBlack">
       {/* Search Section */}
       <TableSearch eventId={eventId} apiTables={apiTables?.data} />
 

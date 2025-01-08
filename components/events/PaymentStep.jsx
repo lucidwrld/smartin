@@ -126,10 +126,10 @@ const PaymentStep = ({
   }
 
   return (
-    <div className="w-full max-w-[70%]">
+    <div className="md:w-full mx-auto max-w-[95%] md:max-w-[70%]">
       <h2 className="text-xl font-semibold mb-6">Payment Summary</h2>
 
-      <div className="space-y-4 mb-8 bg-whiteColor p-6 rounded-lg">
+      <div className="space-y-4 mb-8 bg-whiteColor p-2 md:p-6 rounded-lg">
         <SummaryItem
           label="Event Base Price"
           value={formatCurrency(priceCalculation?.eventPrice || 0)}

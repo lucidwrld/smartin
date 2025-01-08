@@ -131,7 +131,7 @@ const Dashboard = () => {
   return (
     <BaseDashboardNavigation title="Dashboard">
       <div className="p-6 space-y-6 bg-gray-50 min-h-screen text-brandBlack">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col md:flex-row gap-5 md:gap-0 justify-between items-start md:items-center">
           <div>
             <h1 className="text-2xl font-bold">
               Welcome back, {userDetails?.data?.user?.fullname}!

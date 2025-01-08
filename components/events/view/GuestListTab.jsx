@@ -26,12 +26,12 @@ import { SendNotificationManager } from "@/app/notifications/controllers/sendNot
 import { MarkAttendanceManager } from "@/app/events/controllers/markAttendanceController";
 
 const StatCard = ({ icon: Icon, label, value }) => (
-  <div className="bg-white rounded-lg shadow p-4">
-    <div className="flex items-center gap-3">
-      <Icon className="w-5 h-5" />
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-gray-500">{label}:</span>
-        <span className="text-lg font-semibold">{value}</span>
+  <div className="bg-white rounded-lg shadow p-3 md:p-4 w-full md:w-auto">
+    <div className="flex items-center gap-2 md:gap-3">
+      <Icon className="w-4 h-4 md:w-5 md:h-5" />
+      <div className="flex flex-col md:flex-row md:items-center md:gap-2">
+        <span className="text-xs md:text-sm text-gray-500">{label}:</span>
+        <span className="text-sm md:text-lg font-semibold">{value}</span>
       </div>
     </div>
   </div>
@@ -204,21 +204,22 @@ const GuestListTab = ({ eventId, analytics, event }) => {
   const renderActionButtons = () => {
     if (selectedGuestIds.length > 0) {
       return (
-        <div className="flex gap-3 ml-auto">
+        <div className="flex flex-col md:flex-row gap-2 md:gap-3 w-full md:w-auto md:ml-auto">
           <CustomButton
-            buttonText={`Remove Selected (${selectedGuestIds.length})`}
+            buttonText={`Remove (${selectedGuestIds.length})`}
             onClick={() => {
               removeGuests({ inviteIds: selectedGuestIds });
               setSelectedGuestIds([]);
               setSelectedRows([]);
             }}
             isLoading={removing}
-            radius={"rounded-full"}
+            radius="rounded-full"
+            className="text-xs md:text-sm w-full md:w-auto"
           />
           <CustomButton
-            buttonText="Invite Selected"
-            prefixIcon={<Send className="w-4 h-4" />}
-            radius={"rounded-full"}
+            buttonText="Invite"
+            prefixIcon={<Send className="w-3 h-3 md:w-4 md:h-4" />}
+            radius="rounded-full"
             isLoading={sending}
             onClick={() => {
               const details = {
@@ -227,40 +228,45 @@ const GuestListTab = ({ eventId, analytics, event }) => {
               };
               sendNotification(details);
             }}
+            className="text-xs md:text-sm w-full md:w-auto"
           />
-          <CustomButton
-            buttonText="Send Reminders"
-            radius={"rounded-full"}
-            isLoading={sending}
-            onClick={() => {
-              const details = {
-                inviteeIds: selectedGuestIds,
-                type: "reminder",
-              };
-              sendNotification(details);
-            }}
-          />
-          <CustomButton
-            buttonText="Send Updates"
-            radius={"rounded-full"}
-            isLoading={sending}
-            onClick={() => {
-              const details = {
-                inviteeIds: selectedGuestIds,
-                type: "update",
-              };
-              sendNotification(details);
-            }}
-          />
+          <div className="flex gap-2 md:gap-3">
+            <CustomButton
+              buttonText="Send Reminders"
+              radius="rounded-full"
+              isLoading={sending}
+              onClick={() => {
+                const details = {
+                  inviteeIds: selectedGuestIds,
+                  type: "reminder",
+                };
+                sendNotification(details);
+              }}
+              className="text-xs md:text-sm w-full md:w-auto"
+            />
+            <CustomButton
+              buttonText="Send Updates"
+              radius="rounded-full"
+              isLoading={sending}
+              onClick={() => {
+                const details = {
+                  inviteeIds: selectedGuestIds,
+                  type: "update",
+                };
+                sendNotification(details);
+              }}
+              className="text-xs md:text-sm w-full md:w-auto"
+            />
+          </div>
         </div>
       );
     }
 
     return (
-      <div className="flex gap-3 ml-auto">
+      <div className="flex flex-col md:flex-row gap-2 md:gap-3 w-full md:w-auto md:ml-auto">
         <CustomButton
-          buttonText="Invite All Guests"
-          prefixIcon={<Send className="w-4 h-4" />}
+          buttonText="Invite All"
+          prefixIcon={<Send className="w-3 h-3 md:w-4 md:h-4" />}
           onClick={() => {
             sendNotification({
               inviteeIds: [],
@@ -268,18 +274,21 @@ const GuestListTab = ({ eventId, analytics, event }) => {
             });
           }}
           isLoading={sending}
-          radius={"rounded-full"}
+          radius="rounded-full"
+          className="text-xs md:text-sm w-full md:w-auto"
         />
         <CustomButton
-          buttonText="Top up Slots"
-          prefixIcon={<PlusCircle className="w-4 h-4" />}
+          buttonText="Top up"
+          prefixIcon={<PlusCircle className="w-3 h-3 md:w-4 md:h-4" />}
           onClick={() => document.getElementById("payment_modal").showModal()}
-          radius={"rounded-full"}
+          radius="rounded-full"
+          className="text-xs md:text-sm w-full md:w-auto"
         />
         <CustomButton
           buttonText="Add Guests"
-          prefixIcon={<PlusIcon className="w-4 h-4" />}
-          radius={"rounded-full"}
+          prefixIcon={<PlusIcon className="w-3 h-3 md:w-4 md:h-4" />}
+          radius="rounded-full"
+          className="text-xs md:text-sm w-full md:w-auto"
           onClick={() =>
             route.push(`/events/create-event/?id=${eventId}&section=Guest List`)
           }
@@ -289,19 +298,22 @@ const GuestListTab = ({ eventId, analytics, event }) => {
   };
 
   return (
-    <div className="mt-6 flex flex-col w-full gap-4 text-brandBlack">
-      <div className="flex items-center gap-4">
-        {stats.map((stat, index) => (
-          <StatCard
-            key={index}
-            icon={stat.icon}
-            label={stat.label}
-            value={stat.value}
-          />
-        ))}
+    <div className="mt-4 md:mt-6 flex flex-col w-full gap-3 md:gap-4 text-brandBlack p-2 md:p-0">
+      <div className="flex flex-col md:flex-row gap-3 md:gap-4">
+        <div className="grid grid-cols-2 md:flex md:flex-row gap-2 md:gap-4">
+          {stats.map((stat, index) => (
+            <StatCard
+              key={index}
+              icon={stat.icon}
+              label={stat.label}
+              value={stat.value}
+            />
+          ))}
+        </div>
         {renderActionButtons()}
       </div>
-      <div className="h-[67vh] w-full relative">
+
+      <div className="h-[50vh] md:h-[67vh] w-full relative overflow-x-auto">
         <TablesComponent
           isLoading={isLoading}
           data={data?.data}
@@ -320,22 +332,27 @@ const GuestListTab = ({ eventId, analytics, event }) => {
             "Confirm Attendance",
             "Remove Guest",
           ]}
+          className="min-w-[800px]"
         />
       </div>
+
       {data?.data.length > 0 && (
-        <CompletePagination
-          setCurrentPage={setCurrentPage}
-          pagination={data?.pagination}
-          suffix={"Guests"}
-        />
+        <div className="mt-2 md:mt-0">
+          <CompletePagination
+            setCurrentPage={setCurrentPage}
+            pagination={data?.pagination}
+            suffix="Guests"
+          />
+        </div>
       )}
-      <ModalManagement id="payment_modal" title={"Top Up Invite Slots"}>
-        <div className="bg-white p-6 rounded-lg w-96">
+
+      <ModalManagement id="payment_modal" title="Top Up Invite Slots">
+        <div className="bg-white p-4 md:p-6 rounded-lg w-full md:w-96 mx-4 md:mx-0">
           <div className="w-full">
             <InputWithFullBoarder
               type="number"
               value={inviteCount}
-              label={"Enter number of invites to add"}
+              label="Enter number of invites to add"
               isRequired
               onChange={(e) => setInviteCount(parseInt(e.target.value))}
               className="w-full"
@@ -343,16 +360,16 @@ const GuestListTab = ({ eventId, analytics, event }) => {
             />
           </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 mt-4">
             <button
               onClick={() => document.getElementById("payment_modal").close()}
-              className="px-4 py-2 border rounded"
+              className="px-3 md:px-4 py-2 border rounded text-sm md:text-base"
             >
               Cancel
             </button>
             <button
               onClick={handleTopUp}
-              className="px-4 py-2 bg-brandPurple text-white rounded"
+              className="px-3 md:px-4 py-2 bg-brandPurple text-white rounded text-sm md:text-base"
               disabled={toppingUp}
             >
               {toppingUp ? "Processing..." : "Confirm"}

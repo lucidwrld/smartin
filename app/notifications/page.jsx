@@ -44,7 +44,7 @@ const NotificationsPage = () => {
   return (
     <BaseDashboardNavigation title="Notifications">
       {notifications?.data && notifications?.data?.length > 0 && (
-        <div className="w-full items-center justify-end flex">
+        <div className="w-full items-center justify-end flex mb-5 md:mb-0">
           <CustomButton
             buttonText={"Mark All as Read"}
             onClick={() => openAll()}
@@ -53,7 +53,7 @@ const NotificationsPage = () => {
           />
         </div>
       )}
-      <div className="w-full max-w-[70%]">
+      <div className="md:w-full max-w-[95%] mx-auto md:max-w-[70%]">
         {loadingNotifications ? (
           <Loader />
         ) : notifications?.data && notifications.data.length > 0 ? (

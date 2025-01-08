@@ -17,12 +17,11 @@ const TableList = ({ isLoading, data, setCurrentPage, eventId }) => {
   const { manageAssignment, isLoading: unassigning } =
     AssignUnassignGuestsManager({ isAdd: false });
 
-  // Add these state declarations after other useState declarations
   const [newTableName, setNewTableName] = useState("");
   const [newSeatNumber, setNewSeatNumber] = useState("");
   const [tableId, setTableId] = useState(null);
-  // Move the editingTableId state declaration before the hooks
   const [editingTableId, setEditingTableId] = useState(null);
+
   const {
     deleteTable,
     isLoading: deleting,
@@ -71,6 +70,7 @@ const TableList = ({ isLoading, data, setCurrentPage, eventId }) => {
     setTableId(id);
     document.getElementById("delete").showModal();
   };
+
   const startEditing = (table) => {
     setEditingTableId(table?.id);
     setNewTableName(table?.name);
@@ -94,7 +94,6 @@ const TableList = ({ isLoading, data, setCurrentPage, eventId }) => {
       };
 
       await editTable(updatedData);
-
       setEditingTableId(null);
       setNewTableName("");
       setNewSeatNumber("");
@@ -103,9 +102,10 @@ const TableList = ({ isLoading, data, setCurrentPage, eventId }) => {
       alert("Failed to update table. Please try again.");
     }
   };
+
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-      <h2 className="text-xl font-semibold mb-4">Tables</h2>
+    <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-6">
+      <h2 className="text-lg md:text-xl font-semibold mb-4">Tables</h2>
       {isLoading ? (
         <Loader />
       ) : data?.data.length === 0 ? (
@@ -115,32 +115,38 @@ const TableList = ({ isLoading, data, setCurrentPage, eventId }) => {
           {getFilteredData().map((table) => (
             <div
               key={table?.id}
-              className="border rounded-lg p-4 hover:bg-gray-50"
+              className="border rounded-lg p-3 md:p-4 hover:bg-gray-50"
             >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                   {editingTableId === table?.id ? (
-                    <div className="flex gap-2">
-                      <InputWithFullBoarder
-                        label="Table Name"
-                        type="text"
-                        value={newTableName}
-                        onChange={(e) => setNewTableName(e.target.value)}
-                      />
-                      <InputWithFullBoarder
-                        label="Number of Seats"
-                        type="number"
-                        value={newSeatNumber}
-                        onChange={(e) => setNewSeatNumber(e.target.value)}
-                        min="1"
-                      />
-                      <CustomButton
-                        buttonText="Save"
-                        buttonColor="bg-purple-600"
-                        radius="rounded-full"
-                        isLoading={editing}
-                        onClick={() => saveTableEdit(table.id)}
-                      />
+                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                      <div className="w-full sm:w-48">
+                        <InputWithFullBoarder
+                          label="Table Name"
+                          type="text"
+                          value={newTableName}
+                          onChange={(e) => setNewTableName(e.target.value)}
+                        />
+                      </div>
+                      <div className="w-full sm:w-48">
+                        <InputWithFullBoarder
+                          label="Number of Seats"
+                          type="number"
+                          value={newSeatNumber}
+                          onChange={(e) => setNewSeatNumber(e.target.value)}
+                          min="1"
+                        />
+                      </div>
+                      <div className="mt-2 sm:mt-0">
+                        <CustomButton
+                          buttonText="Save"
+                          buttonColor="bg-purple-600"
+                          radius="rounded-full"
+                          isLoading={editing}
+                          onClick={() => saveTableEdit(table.id)}
+                        />
+                      </div>
                     </div>
                   ) : (
                     <>
@@ -152,7 +158,7 @@ const TableList = ({ isLoading, data, setCurrentPage, eventId }) => {
                     </>
                   )}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 justify-start md:justify-end">
                   <button
                     onClick={() => startEditing(table)}
                     className="p-2 text-gray-600 hover:text-purple-600 rounded-full hover:bg-purple-50"
@@ -174,22 +180,21 @@ const TableList = ({ isLoading, data, setCurrentPage, eventId }) => {
                 </div>
               </div>
 
-              {/* Assigned participants */}
-              <div className="mt-2">
+              <div className="mt-3 md:mt-4">
                 <h4 className="font-medium mb-2">Assigned Participants:</h4>
                 <div className="flex flex-wrap gap-2">
                   {table?.guests &&
                     table?.guests.map((participant) => (
                       <div
                         key={participant.id}
-                        className="bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                        className="bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full text-sm flex items-center gap-2 max-w-full sm:max-w-[200px]"
                       >
-                        {participant.name}
+                        <span className="truncate">{participant.name}</span>
                         <button
                           onClick={() =>
                             removeParticipant(participant?.id, table.id)
                           }
-                          className="text-purple-400 hover:text-purple-600"
+                          className="text-purple-400 hover:text-purple-600 flex-shrink-0"
                         >
                           ×
                         </button>

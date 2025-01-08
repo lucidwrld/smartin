@@ -47,7 +47,7 @@ const BaseDashboardNavigation = ({ children, title }) => {
   };
 
   return (
-    <div className="relative md:fixed flex h-[100vh] w-full bg-[#F9FAFB] text-whiteColor pr-3">
+    <div className="relative md:fixed flex h-[100vh] w-full bg-[#F9FAFB] text-whiteColor md:pr-3">
       <div
         className={` hidden md:flex flex-col items-start justify-between w-[20%] h-full bg-backgroundPurple pt-2 pb-10 z-50 md:overflow-auto  scrollbar-hide relative`}
       >
@@ -199,7 +199,7 @@ const BaseDashboardNavigation = ({ children, title }) => {
               </div>
             </div>
           </div>
-          <div className="max-h-[90%] ml-0 relative w-full md:w-[90%] md:mx-auto pb-10 mt-10 text-brandBlack">
+          <div className="max-h-[90%] px-4 relative w-full md:w-[90%] md:mx-auto pb-10 mt-10 text-brandBlack">
             {children}
           </div>
         </div>

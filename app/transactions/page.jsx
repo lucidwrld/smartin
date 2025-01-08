@@ -53,19 +53,25 @@ const TransactionsPage = () => {
   };
   return (
     <BaseDashboardNavigation title={"Transactions"}>
-      <div className="grid grid-cols-4 gap-4 p-4">
+      {/* <div className="grid grid-cols-4 gap-4 p-4">
+        {cards.map((card, index) => (
+          <StatusCard key={index} {...card} />
+        ))}
+      </div> */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
         {cards.map((card, index) => (
           <StatusCard key={index} {...card} />
         ))}
       </div>
       <div className="mt-6 flex flex-col w-full gap-4">
-        <div className="h-[67vh] w-full relative">
+        <div className="md:h-[67vh] w-full relative">
           {
             <TablesComponent
               isLoading={isLoading}
               data={data?.data}
               getFormattedValue={getFormattedValue}
               headers={headers}
+              showCheckBox={false}
               buttonFunction={(val) => setSelectedTransaction(val)}
             />
           }

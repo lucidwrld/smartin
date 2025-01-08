@@ -23,7 +23,7 @@ const EventTile = ({ event }) => {
           alt=""
         />
       </div>
-      <div className="h-[40%] flex flex-col p-10 items-start gap-2 text-brandBlack">
+      <div className="h-[40%] flex flex-col p-4 md:p-10 items-start gap-2 text-brandBlack">
         <div className="flex items-center justify-center gap-2">
           <p className="text-16px leading-[24px] font-medium">{event?.name}</p>
           <StatusButton status={event?.isActive ? "Active" : "Inactive"} />

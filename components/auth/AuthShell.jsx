@@ -37,7 +37,7 @@ const AuthShell = ({
             className="max-w-[80%] md:max-w-[30%]"
           />
         </Link>
-        <div className=" max-w-[80%] md:max-w-[452px] w-full mx-auto h-full flex flex-col items-center justify-center gap-10 relative">
+        <div className=" max-w-[95%] md:max-w-[452px] w-full mx-auto h-full flex flex-col items-center justify-center gap-10 relative">
           <div className="flex flex-col items-start w-full">
             <p className="font-semibold text-[36px]">{title}</p>
             <p className="text-14px text-textGrey ">

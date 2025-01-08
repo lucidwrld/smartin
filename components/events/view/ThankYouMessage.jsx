@@ -81,7 +81,7 @@ const ThankYouMessage = ({ event }) => {
       <p className="text-16px leading-[28px] my-5 text-textGrey3">
         Create your thank you message for guests
       </p>
-      <div className="w-full flex flex-col md:flex-row gap-8 bg-whiteColor p-10">
+      <div className="w-full flex flex-col md:flex-row gap-8 bg-whiteColor p-4 md:p-10">
         <div className="w-full md:w-1/2">
           <ImageUploader
             onImageChange={handleImageChange}
