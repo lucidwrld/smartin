@@ -15,7 +15,7 @@ AxiosWithToken.interceptors.request.use(
   async (config) => {
     const isAdminRoute = config.url?.includes("/admin");
     const token = localStorage.getItem("token");
-    const adminToken = localStorage.getItem("admin-token");
+    const adminToken = localStorage.getItem("token"); //supposed to be admin-token
 
     // console.log(`Route type: ${isAdminRoute ? "Admin" : "User"}`);
     // console.log("User token:", token);

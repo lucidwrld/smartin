@@ -24,8 +24,16 @@ const TransactionsPage = () => {
   const { confirmBankPayment, isLoading: confirming } =
     ConfirmBankPaymentManager();
   const cards = [
-    { title: "Total Transactions", count: 120, icon: ArrowLeftRight },
-    { title: "Pending Confirmation", count: 120, icon: Clock },
+    {
+      title: "Total Transactions",
+      count: data?.totals?.totalTransactions,
+      icon: ArrowLeftRight,
+    },
+    {
+      title: "Pending Confirmation",
+      count: data?.totals?.totalPending,
+      icon: Clock,
+    },
   ];
   const headers = [
     "Name",
@@ -51,7 +59,7 @@ const TransactionsPage = () => {
   };
   return (
     <BaseDashboardNavigation title={"Transactions"}>
-      <div className="grid grid-cols-4 gap-4 p-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
         {cards.map((card, index) => (
           <StatusCard key={index} {...card} />
         ))}

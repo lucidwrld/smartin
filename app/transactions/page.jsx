@@ -24,8 +24,16 @@ const TransactionsPage = () => {
     enabled: Boolean(userDetail?.data?.user?.id),
   });
   const cards = [
-    { title: "Total Transactions", count: 120, icon: ArrowLeftRight },
-    { title: "Pending Confirmation", count: 120, icon: Clock },
+    {
+      title: "Total Transactions",
+      count: data?.totals?.totalTransactions,
+      icon: ArrowLeftRight,
+    },
+    {
+      title: "Pending Confirmation",
+      count: data?.totals?.totalPending,
+      icon: Clock,
+    },
   ];
   const headers = [
     "Name",

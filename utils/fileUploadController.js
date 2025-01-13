@@ -15,7 +15,7 @@ const useFileUpload = () => {
     // Step 1: Get signed request and URL
     try {
       const [response] = [
-        await AxiosWithToken.post(
+        await Axios.post(
           `/services/file/presign-url?file_name=${fileName}&file_type=${fileType}`
         ),
       ];

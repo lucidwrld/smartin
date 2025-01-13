@@ -17,6 +17,7 @@ import { formatDateToLongString } from "@/utils/formatDateToLongString";
 import { formatDate } from "@/utils/formatDate";
 import { useRouter } from "next/navigation";
 import { SuspendEventManager } from "@/app/events/controllers/suspendEventController";
+import useGetUserAnalyticsManager from "@/app/events/controllers/getUserAnalyticsController";
 
 const EventsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,11 +33,30 @@ const EventsPage = () => {
       suspendEvent();
     }
   }, [event]);
+
+  const { data: analytics } = useGetUserAnalyticsManager();
+
   const cards = [
-    { title: "Total Events", count: 120, icon: ArrowLeftRight },
-    { title: "Inactive Events", count: 120, icon: Clock },
-    { title: "Active Events", count: 120, icon: Clock },
-    { title: "Upcoming Events", count: 120, icon: Clock },
+    {
+      title: "Total Events",
+      count: analytics?.data?.totalEvents,
+      icon: ArrowLeftRight,
+    },
+    {
+      title: "Inactive Events",
+      count: analytics?.data?.totalInactiveEvents,
+      icon: Clock,
+    },
+    {
+      title: "Active Events",
+      count: analytics?.data?.totalActiveEvents,
+      icon: Clock,
+    },
+    {
+      title: "Upcoming Events",
+      count: analytics?.data?.totalUpcomingEvents,
+      icon: Clock,
+    },
   ];
   const headers = [
     "Event",
@@ -72,7 +92,7 @@ const EventsPage = () => {
   };
   return (
     <BaseDashboardNavigation title={"Events"}>
-      <div className="grid grid-cols-4 gap-4 p-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
         {cards.map((card, index) => (
           <StatusCard key={index} {...card} />
         ))}

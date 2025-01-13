@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import BaseDashboardNavigation from "@/components/BaseDashboardNavigation";
+import useGetUserAnalyticsManager from "@/app/events/controllers/getUserAnalyticsController";
 
 const StatCard = ({ icon: Icon, label, value, trend }) => (
   <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
@@ -79,11 +80,33 @@ const RecentUser = ({ name, email, joinDate, eventCount }) => (
 );
 
 const AdminDashboard = () => {
+  const { data: analytics } = useGetUserAnalyticsManager();
+
   const stats = [
-    { icon: Users, label: "Total Users", value: "2,453", trend: 8.2 },
-    { icon: Calendar, label: "Active Events", value: "456", trend: 12.5 },
-    { icon: DollarSign, label: "Revenue", value: "$15,240", trend: 15.8 },
-    { icon: Activity, label: "Platform Usage", value: "89%", trend: 5.3 },
+    {
+      icon: Users,
+      label: "Total Users",
+      value: analytics?.data?.totalUsers,
+      trend: null,
+    },
+    {
+      icon: Calendar,
+      label: "Active Events",
+      value: analytics?.data?.totalActiveEvents,
+      trend: null,
+    },
+    {
+      icon: DollarSign,
+      label: "Revenue",
+      value: analytics?.data?.totalRevenueDollar,
+      trend: null,
+    },
+    {
+      icon: Activity,
+      label: "Platform Usage",
+      value: analytics?.data?.totalRevenueNaira,
+      trend: null,
+    },
   ];
 
   const alerts = [

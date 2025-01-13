@@ -21,6 +21,7 @@ import useGetAllNotificationsManager from "../notifications/controllers/getAllNo
 import { formatDateAgo } from "@/utils/timeAgo";
 import { formatDateToLongString } from "@/utils/formatDateToLongString";
 import { OpenSingleNotificationManager } from "../notifications/controllers/openSingleNotificationController";
+import useGetUserAnalyticsManager from "../events/controllers/getUserAnalyticsController";
 
 const StatCard = ({ icon: Icon, label, value, trend }) => (
   <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-brandBlack">
@@ -104,20 +105,36 @@ const PromoCard = () => (
 );
 
 const Dashboard = () => {
+  const { data: analytics } = useGetUserAnalyticsManager();
   const stats = [
-    { icon: Calendar, label: "Active Events", value: "3", trend: 12.5 },
-    { icon: Send, label: "Invitations Sent", value: "145", trend: -5.2 },
-    { icon: UserCheck, label: "Responses", value: "89", trend: 8.7 },
-    { icon: Gift, label: "Gift Registry Items", value: "24", trend: 15.3 },
-  ];
-
-  const upcomingEvents = [
-    { title: "Wedding Ceremony", date: "Dec 15, 2024", guestCount: 150 },
-    { title: "Birthday Party", date: "Dec 20, 2024", guestCount: 45 },
-    { title: "Christmas Dinner", date: "Dec 25, 2024", guestCount: 25 },
+    {
+      icon: Calendar,
+      label: "Active Events",
+      value: analytics?.data?.totalActiveEvents,
+      trend: null,
+    },
+    {
+      icon: Send,
+      label: "Invitations Sent",
+      value: analytics?.data?.totalInvitationsSent,
+      trend: null,
+    },
+    {
+      icon: UserCheck,
+      label: "Responses",
+      value: analytics?.data?.totalResponses,
+      trend: null,
+    },
+    {
+      icon: Gift,
+      label: "Gift Registry Items",
+      value: analytics?.data?.totalGiftItems,
+      trend: null,
+    },
   ];
 
   const { data: userDetails } = useGetUserDetailsManager();
+
   const { data: userInvites, isLoading: loadingInvites } =
     useGetAllUserInvitedEventsManager({
       status: "upcoming",
