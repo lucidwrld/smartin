@@ -21,6 +21,7 @@ import GoBackButton from "@/components/GoBackButton";
 import { shouldChargeInNaira } from "@/utils/shouldChargeInNaira";
 import useGetUserDetailsManager from "@/app/profile-settings/controllers/get_UserDetails_controller";
 import { AddInviteesManager } from "../controllers/addInviteesController";
+import usePayForEventManager from "../controllers/payForEventController";
 
 const EventPage = () => {
   const { id, section } = getQueryParams(["id", "section"]);
@@ -58,6 +59,9 @@ const EventPage = () => {
     data: createdEvent,
     isSuccess,
   } = CreateEventManager();
+  const { postCaller: payForEvent, isLoading: paying } = usePayForEventManager({
+    eventId: id,
+  });
   const {
     isLoading: updating,
     updateEvent,
@@ -240,9 +244,74 @@ const EventPage = () => {
     }
   };
 
+  const handlePayment = async (eventId) => {
+    try {
+      switch (formData.payment_type) {
+        case "later":
+          router.push("/events");
+          break;
+
+        case "bank":
+          if (currency === "NGN") {
+            setShowProofModal(true);
+          }
+          break;
+
+        case "online":
+          if (!isEditMode) {
+            // For newly created events, redirect to checkout URL
+            const checkoutUrl = createdEvent?.data?.checkoutUrl;
+            if (checkoutUrl) {
+              window.location.href = checkoutUrl;
+            }
+          } else {
+            // For existing events, payForEvent handles the navigation
+            await payForEvent();
+          }
+          break;
+
+        default:
+          router.push(`/events/event?id=${eventId}`);
+      }
+    } catch (error) {
+      console.error("Error processing payment:", error);
+      // Handle payment error appropriately
+    }
+  };
+
+  const handleFileUploads = async (formData) => {
+    const updatedData = { ...formData };
+
+    if (coverFile) {
+      const imageUrl = await handleFileUpload(coverFile);
+      updatedData.image = imageUrl;
+    }
+
+    if (formData.gallery?.length > 0) {
+      const existingUrls = formData.gallery.filter(
+        (item) => !(item instanceof File)
+      );
+      const filesToUpload = formData.gallery.filter(
+        (item) => item instanceof File
+      );
+
+      if (filesToUpload.length > 0) {
+        const uploadPromises = filesToUpload.map((file) =>
+          handleFileUpload(file)
+        );
+        const newUrls = await Promise.all(uploadPromises);
+        updatedData.gallery = [...existingUrls, ...newUrls];
+      } else {
+        updatedData.gallery = existingUrls;
+      }
+    }
+
+    return updatedData;
+  };
+
   const handleSubmit = async () => {
     try {
-      const updatedFormData = {
+      let updatedFormData = {
         ...formData,
         no_of_invitees: Number(formData.no_of_invitees),
         currency,
@@ -254,55 +323,30 @@ const EventPage = () => {
       }
 
       // Handle file uploads
-      if (coverFile) {
-        const imageUrl = await handleFileUpload(coverFile);
-        updatedFormData.image = imageUrl;
-      }
+      updatedFormData = await handleFileUploads(updatedFormData);
 
-      if (formData.gallery?.length > 0) {
-        const existingUrls = formData.gallery.filter(
-          (item) => !(item instanceof File)
-        );
-        const filesToUpload = formData.gallery.filter(
-          (item) => item instanceof File
-        );
-
-        if (filesToUpload.length > 0) {
-          const uploadPromises = filesToUpload.map((file) =>
-            handleFileUpload(file)
-          );
-          const newUrls = await Promise.all(uploadPromises);
-          updatedFormData.gallery = [...existingUrls, ...newUrls];
-        } else {
-          updatedFormData.gallery = existingUrls;
-        }
-      }
+      const isPaymentSection = section?.toLowerCase() === "payment";
 
       if (isEditMode) {
-        if (section.toLowerCase() === "guest list") {
+        if (section?.toLowerCase() === "guest list") {
           const details = { eventId: id, invitees: formData.guestList };
           await addInvitees(details);
+        } else if (isPaymentSection) {
+          await handlePayment(id);
         } else {
           await updateEvent(updatedFormData);
         }
       } else {
         await createEvent(updatedFormData);
+        const eventId = createdEvent?.data?.id || id;
 
-        if (formData.payment_type === "later") {
-          router.push("/events");
-        } else if (formData.payment_type === "bank" && currency === "NGN") {
-          setShowProofModal(true);
-        } else if (formData.payment_type === "online") {
-          const checkoutUrl = result?.data?.checkoutUrl;
-          if (checkoutUrl) {
-            window.location.href = checkoutUrl;
-          } else {
-            router.push(`/events/event?id=${id}`);
-          }
+        if (currentStep === 2 || isPaymentSection) {
+          await handlePayment(eventId);
         }
       }
     } catch (error) {
       console.error("Error submitting form:", error);
+      // Handle submission error appropriately
     }
   };
 
@@ -390,7 +434,7 @@ const EventPage = () => {
                   type="button"
                   onClick={handlePrevious}
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-gray-100 rounded-lg disabled:opacity-50"
+                  className="px-4 py-2 bg-black rounded-full disabled:opacity-50 text-white"
                 >
                   Previous
                 </button>

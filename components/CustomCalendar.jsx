@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
-const CustomCalendar = ({ events = [], onDateSelect }) => {
+const CustomCalendar = ({ events = [], onDateSelect, onClearFilter }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const today = new Date();
@@ -64,6 +64,14 @@ const CustomCalendar = ({ events = [], onDateSelect }) => {
     }
   };
 
+  // Handle clear filter
+  const handleClearFilter = () => {
+    setSelectedDate(null);
+    if (onClearFilter) {
+      onClearFilter();
+    }
+  };
+
   // Generate calendar data
   const generateCalendar = () => {
     const daysInMonth = getDaysInMonth(currentDate);
@@ -123,18 +131,12 @@ const CustomCalendar = ({ events = [], onDateSelect }) => {
 
   // Check if a date has events (adjusting for 1-based months)
   const hasEvents = (date) => {
-    return events.some((event) => {
-      const eventWithAdjustedMonth = new Date(
-        event.getFullYear(),
-        event.getMonth() - 1, // Convert 1-based month to 0-based
-        event.getDate()
-      );
-      return (
-        eventWithAdjustedMonth.getDate() === date.getDate() &&
-        eventWithAdjustedMonth.getMonth() === date.getMonth() &&
-        eventWithAdjustedMonth.getFullYear() === date.getFullYear()
-      );
-    });
+    return events.some(
+      (event) =>
+        event.getFullYear() === date.getFullYear() &&
+        event.getMonth() === date.getMonth() &&
+        event.getDate() === date.getDate()
+    );
   };
 
   // Format month and year
@@ -146,7 +148,7 @@ const CustomCalendar = ({ events = [], onDateSelect }) => {
 
   return (
     <div className="w-full max-w-sm bg-white rounded-lg shadow p-4 text-brandBlack">
-      <h2 className="text-lg font-semibold mb-4">Event schedule</h2>
+      <h2 className="text-lg font-semibold mb-4">Filter by calendar</h2>
 
       <div className="relative flex items-center justify-center mb-4">
         <button
@@ -190,6 +192,7 @@ const CustomCalendar = ({ events = [], onDateSelect }) => {
               ${isToday(dateObj.date) ? "bg-purple-600 text-white" : ""}
               ${isSelected(dateObj.date) ? "bg-purple-100" : ""}
               ${dateObj.isCurrentMonth ? "text-gray-900" : "text-gray-400"}
+              ${hasEvents(dateObj.date) ? "font-bold" : ""}
             `}
             >
               {dateObj.day}
@@ -202,11 +205,12 @@ const CustomCalendar = ({ events = [], onDateSelect }) => {
       </div>
 
       <button
-        className="w-full mt-4 text-sm text-purple-600 flex items-center justify-center gap-1 py-2 border-t"
+        onClick={handleClearFilter}
+        className="w-full mt-4 text-sm text-purple-600 flex items-center justify-center gap-1 py-2 border-t hover:bg-gray-50"
         type="button"
       >
-        See all
-        <ChevronRight className="w-4 h-4" />
+        Clear filter
+        <X className="w-4 h-4" />
       </button>
     </div>
   );

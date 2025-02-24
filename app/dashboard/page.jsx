@@ -22,6 +22,7 @@ import { formatDateAgo } from "@/utils/timeAgo";
 import { formatDateToLongString } from "@/utils/formatDateToLongString";
 import { OpenSingleNotificationManager } from "../notifications/controllers/openSingleNotificationController";
 import useGetUserAnalyticsManager from "../events/controllers/getUserAnalyticsController";
+import useGetAllEventsManager from "../events/controllers/getAllEventsController";
 
 const StatCard = ({ icon: Icon, label, value, trend }) => (
   <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-brandBlack">
@@ -134,13 +135,20 @@ const Dashboard = () => {
   ];
 
   const { data: userDetails } = useGetUserDetailsManager();
+  const userId = userDetails?.data?.user?.id;
 
-  const { data: userInvites, isLoading: loadingInvites } =
-    useGetAllUserInvitedEventsManager({
-      status: "upcoming",
-      enabled: true,
-      page: 1,
-    });
+  // const { data: userInvites, isLoading: loadingInvites } =
+  // useGetAllUserInvitedEventsManager({
+  //   status: "upcoming",
+  //   enabled: true,
+  //   page: 1,
+  // });
+  const { data: userInvites } = useGetAllEventsManager({
+    user: userId,
+    enabled: Boolean(userId),
+    page: 1,
+    status: "upcoming",
+  });
   const { data: notifications, isLoading: loadingNotifications } =
     useGetAllNotificationsManager({});
   const { openNotification } = OpenSingleNotificationManager();

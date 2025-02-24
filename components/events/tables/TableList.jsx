@@ -53,13 +53,31 @@ const TableList = ({ isLoading, data, setCurrentPage, eventId }) => {
   };
 
   const duplicateTable = async (table) => {
-    const duplicateNum =
-      data?.data.filter((t) => t.baseIdentifier === table.baseIdentifier)
-        .length + 1;
+    // Find all tables with the same base identifier
+    const tablesWithSameBase = data?.data.filter(
+      (t) => t.name.replace(/\d+$/, "") === table.name.replace(/\d+$/, "")
+    );
+
+    // Get the highest number suffix
+    let highestNumber = 0;
+    tablesWithSameBase.forEach((t) => {
+      const match = t.name.match(/\d+$/);
+      if (match) {
+        const num = parseInt(match[0]);
+        if (num > highestNumber) {
+          highestNumber = num;
+        }
+      }
+    });
+
+    // Create new table name with incremented number
+    const baseTableName = table.name.replace(/\d+$/, "");
+    const newTableName = `${baseTableName}${highestNumber + 1}`;
+
     const duplicatedTable = {
       ...table,
       event: id,
-      name: `${table?.name}${duplicateNum}`,
+      name: newTableName,
       no_of_seats: table?.no_of_seats,
     };
 

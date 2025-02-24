@@ -8,10 +8,11 @@ const useGetAllEventsManager = ({
   search = "",
   user,
   status,
+  date,
   enabled = true,
 }) => {
   return useQuery(
-    ["events", enabled, search, page, pageSize, user, status],
+    ["events", enabled, search, page, pageSize, user, status, date],
     async () => {
       try {
         const [response] = [
@@ -20,6 +21,7 @@ const useGetAllEventsManager = ({
               page,
               pageSize,
               ...(search && { search }),
+              ...(date && { date }),
               ...(user && { user }),
               ...(status && { status }),
             },

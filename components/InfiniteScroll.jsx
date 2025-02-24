@@ -14,10 +14,12 @@ const InfiniteScroll = ({
   const [isFetchingNext, setIsFetchingNext] = useState(false);
 
   useEffect(() => {
-    if (data?.length) {
+    if (currentPage === 1) {
+      setAllData(data);
+    } else if (data?.length) {
       setAllData((prev) => [...prev, ...data]);
     }
-  }, [data]);
+  }, [data, currentPage]);
 
   const lastItemRef = useCallback(
     (node) => {
