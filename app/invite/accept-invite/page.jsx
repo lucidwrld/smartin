@@ -16,6 +16,7 @@ import { formatDateToLongString } from "@/utils/formatDateToLongString";
 import { convertToAmPm } from "@/utils/timeStringToAMPM";
 import useFileUpload from "@/utils/fileUploadController";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const AcceptInvitePage = ({ verificationType = "facial" }) => {
   const [photo, setPhoto] = useState(null);
@@ -136,6 +137,7 @@ const AcceptInvitePage = ({ verificationType = "facial" }) => {
                         <li>1. Ensure your face is well-lit.</li>
                         <li>2. Remove hats and sunglasses.</li>
                         <li>3. Keep a neutral expression.</li>
+                        <li>4. Use a recent picture.</li>
                       </ul>
                     </div>
                     <Divider />
@@ -260,7 +262,18 @@ const AcceptInvitePage = ({ verificationType = "facial" }) => {
       <footer className="bg-white border-t py-4 md:py-6">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-3 text-sm text-gray-600">
-            <p>Powered by Smart Invites © {new Date().getFullYear()}</p>
+            <p>
+              Powered by{" "}
+              <Link
+                href={`https://smartinvites.xyz`}
+                className="underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Smart Invites
+              </Link>{" "}
+              © {new Date().getFullYear()}
+            </p>
             <div className="flex gap-4 md:gap-6">
               <a href="/privacy" className="hover:text-brandPurple">
                 Privacy Policy

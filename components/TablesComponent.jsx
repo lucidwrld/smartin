@@ -54,7 +54,7 @@ const TablesComponent = ({
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 bg-white">
+      <div className="flex flex-col items-center justify-center h-full bg-white">
         <img src={emptyState.src} className="w-32" alt="No data" />
         <span className="text-lg font-medium text-brandGreen mt-4">
           No Data
@@ -64,127 +64,153 @@ const TablesComponent = ({
   }
 
   return (
-    <div className="bg-white w-full relative">
-      {/* Desktop View - Only visible on lg screens */}
-      <div className="hidden lg:block w-full overflow-x-auto">
-        <table className="w-full">
-          <thead className="sticky top-0 bg-[#F0F2F5] z-10">
-            <tr>
-              {headers.map((header, i) => (
-                <th
-                  key={i}
-                  className="py-3.5 px-4 text-left font-medium text-black text-sm"
-                >
-                  <div className="flex gap-3 items-center">
-                    {i === 0 && showCheckBox && (
-                      <CustomCheckBox
-                        checked={
-                          data.length > 0 && selectedRows.length === data.length
-                        }
-                        onChange={toggleSelectAll}
-                        indeterminate={
-                          selectedRows.length > 0 &&
-                          selectedRows.length < data.length
-                        }
-                      />
+    <div className="flex flex-col h-full">
+      {/* Desktop View */}
+      <div className="hidden lg:flex flex-col flex-1 min-h-0">
+        <div className="bg-[#F0F2F5]">
+          <table className="w-full">
+            <thead>
+              <tr>
+                {headers.map((header, i) => (
+                  <th
+                    key={i}
+                    className="py-3.5 px-4 text-left font-medium text-black text-sm"
+                  >
+                    <div className="flex gap-3 items-center">
+                      {i === 0 && showCheckBox && (
+                        <CustomCheckBox
+                          checked={
+                            data.length > 0 &&
+                            selectedRows.length === data.length
+                          }
+                          onChange={toggleSelectAll}
+                          indeterminate={
+                            selectedRows.length > 0 &&
+                            selectedRows.length < data.length
+                          }
+                        />
+                      )}
+                      {header}
+                    </div>
+                  </th>
+                ))}
+                {!hideActionButton && <th className="py-3.5 px-4"></th>}
+              </tr>
+            </thead>
+          </table>
+        </div>
+        <div className="flex-1 overflow-auto">
+          <table className="w-full">
+            <tbody>
+              {data.map((eachRow, index) => {
+                const formatedValue = getFormattedValue(eachRow, index);
+                return (
+                  <tr
+                    key={index}
+                    className={`${index % 2 ? "bg-white" : "bg-[#fafafa]"}`}
+                  >
+                    {formatedValue.map((item, i) => (
+                      <td
+                        key={i}
+                        className="px-4 py-5 text-sm text-gray-900 whitespace-nowrap"
+                      >
+                        <div className="flex items-center gap-3">
+                          {i === 0 && showCheckBox && (
+                            <CustomCheckBox
+                              onChange={() => toggleRow(index, eachRow)}
+                              checked={selectedRows.includes(index)}
+                            />
+                          )}
+                          {renderData(item)}
+                        </div>
+                      </td>
+                    ))}
+                    {!hideActionButton && (
+                      <td className="whitespace-nowrap px-4">
+                        <ActionButtons
+                          eachRow={eachRow}
+                          index={index}
+                          currentIndex={currentIndex}
+                          showOptions={showOptions}
+                          options={options}
+                          setSelected={setSelected}
+                          setShowOptions={setShowOptions}
+                          setCurrentIndex={setCurrentIndex}
+                          buttonFunction={buttonFunction}
+                          popUpFunction={popUpFunction}
+                        />
+                      </td>
                     )}
-                    {header}
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Mobile View */}
+      <div className="lg:hidden flex-1 flex flex-col min-h-0">
+        <div className="bg-[#F0F2F5] px-4 py-3 flex items-center gap-3">
+          {showCheckBox && (
+            <>
+              <CustomCheckBox
+                checked={data.length > 0 && selectedRows.length === data.length}
+                onChange={toggleSelectAll}
+                indeterminate={
+                  selectedRows.length > 0 && selectedRows.length < data.length
+                }
+              />
+              <span className="font-medium text-sm">Select All</span>
+            </>
+          )}
+        </div>
+        <div className="flex-1 overflow-auto">
+          <div className="divide-y">
             {data.map((eachRow, index) => {
               const formatedValue = getFormattedValue(eachRow, index);
               return (
-                <tr
+                <div
                   key={index}
-                  className={`${index % 2 ? "bg-white" : "bg-[#fafafa]"}`}
+                  className={`p-4 ${index % 2 ? "bg-white" : "bg-[#fafafa]"}`}
                 >
-                  {formatedValue.map((item, i) => (
-                    <td
-                      key={i}
-                      className="px-4 py-5 text-sm text-gray-900 whitespace-nowrap"
-                    >
-                      <div className="flex items-center gap-3">
-                        {i === 0 && showCheckBox && (
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-start gap-3">
+                      {showCheckBox && (
+                        <div className="pt-1">
                           <CustomCheckBox
                             onChange={() => toggleRow(index, eachRow)}
                             checked={selectedRows.includes(index)}
                           />
-                        )}
-                        {renderData(item)}
-                      </div>
-                    </td>
-                  ))}
-                  {!hideActionButton && (
-                    <td className="whitespace-nowrap px-4">
-                      <ActionButtons
-                        eachRow={eachRow}
-                        index={index}
-                        currentIndex={currentIndex}
-                        showOptions={showOptions}
-                        options={options}
-                        setSelected={setSelected}
-                        setShowOptions={setShowOptions}
-                        setCurrentIndex={setCurrentIndex}
-                        buttonFunction={buttonFunction}
-                        popUpFunction={popUpFunction}
-                      />
-                    </td>
-                  )}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Mobile View - Only visible on screens smaller than lg */}
-      <div className="lg:hidden">
-        <div className="px-4 py-3 bg-[#F0F2F5] flex items-center gap-3">
-          {showCheckBox && (
-            <CustomCheckBox
-              checked={data.length > 0 && selectedRows.length === data.length}
-              onChange={toggleSelectAll}
-              indeterminate={
-                selectedRows.length > 0 && selectedRows.length < data.length
-              }
-            />
-          )}
-          {showCheckBox && (
-            <span className="font-medium text-sm">Select All</span>
-          )}
-        </div>
-        <div className="divide-y">
-          {data.map((eachRow, index) => {
-            const formatedValue = getFormattedValue(eachRow, index);
-            return (
-              <div
-                key={index}
-                className={`p-4 ${index % 2 ? "bg-white" : "bg-[#fafafa]"}`}
-              >
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-start gap-3">
-                    {showCheckBox && (
-                      <div className="pt-1">
-                        <CustomCheckBox
-                          onChange={() => toggleRow(index, eachRow)}
-                          checked={selectedRows.includes(index)}
-                        />
-                      </div>
-                    )}
-                    <div className="flex flex-1 flex-col gap-3">
-                      <div className="flex flex-wrap gap-4">
-                        {formatedValue.map((item, i) => (
-                          <div key={i} className="text-sm text-gray-900">
-                            {renderData(item)}
+                        </div>
+                      )}
+                      <div className="flex flex-1 flex-col gap-3">
+                        <div className="flex flex-wrap gap-4">
+                          {formatedValue.map((item, i) => (
+                            <div key={i} className="text-sm text-gray-900">
+                              {renderData(item)}
+                            </div>
+                          ))}
+                        </div>
+                        {!hideActionButton && options.length === 0 && (
+                          <div className="w-full">
+                            <ActionButtons
+                              eachRow={eachRow}
+                              index={index}
+                              currentIndex={currentIndex}
+                              showOptions={showOptions}
+                              options={options}
+                              setSelected={setSelected}
+                              setShowOptions={setShowOptions}
+                              setCurrentIndex={setCurrentIndex}
+                              buttonFunction={buttonFunction}
+                              popUpFunction={popUpFunction}
+                            />
                           </div>
-                        ))}
+                        )}
                       </div>
-                      {!hideActionButton && options.length === 0 && (
-                        <div className="w-full">
+                      {!hideActionButton && options.length > 0 && (
+                        <div className="flex-shrink-0">
                           <ActionButtons
                             eachRow={eachRow}
                             index={index}
@@ -200,34 +226,17 @@ const TablesComponent = ({
                         </div>
                       )}
                     </div>
-                    {!hideActionButton && options.length > 0 && (
-                      <div className="flex-shrink-0">
-                        <ActionButtons
-                          eachRow={eachRow}
-                          index={index}
-                          currentIndex={currentIndex}
-                          showOptions={showOptions}
-                          options={options}
-                          setSelected={setSelected}
-                          setShowOptions={setShowOptions}
-                          setCurrentIndex={setCurrentIndex}
-                          buttonFunction={buttonFunction}
-                          popUpFunction={popUpFunction}
-                        />
-                      </div>
-                    )}
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-// Extracted Action Buttons component to reduce duplication
 const ActionButtons = ({
   eachRow,
   index,

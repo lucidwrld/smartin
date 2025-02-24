@@ -62,9 +62,7 @@ const EventTile = ({ event }) => {
             {!event?.isPaid && (
               <CustomButton
                 buttonText={
-                  event?.payment_type === "bank" && event?.isPending
-                    ? "Awaiting Payment Confirmation"
-                    : "Pay Now"
+                  event?.isPending ? "Awaiting Payment Confirmation" : "Pay Now"
                 }
                 className={"w-full md:w-fit"}
                 suffixIcon={<Wallet />}

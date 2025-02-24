@@ -70,23 +70,6 @@ const EventPage = () => {
     eventId: id,
   });
 
-  useEffect(() => {
-    if (isSuccess) {
-      router.push(
-        `${window.location.pathname}?id=${createdEvent.data.id}`,
-        undefined,
-        { shallow: true }
-      );
-    }
-  }, [isSuccess]);
-  const isSuccessful = updated || added;
-
-  useEffect(() => {
-    if (isSuccessful) {
-      router.push(`/events/event?id=${id}`);
-    }
-  }, [isSuccessful]);
-
   // Form data state
   const [formData, setFormData] = useState({
     name: "",
@@ -114,6 +97,29 @@ const EventPage = () => {
       message: "",
     },
   });
+
+  useEffect(() => {
+    if (isSuccess && createdEvent?.data) {
+      // Handle different payment types after successful creation
+      if (formData.payment_type === "online" && createdEvent.data.checkoutUrl) {
+        window.location.href = createdEvent.data.checkoutUrl;
+      } else if (formData.payment_type === "bank") {
+        setShowProofModal(true);
+      } else if (formData.payment_type === "later") {
+        router.push("/events");
+      } else {
+        // Default fallback - navigate to the event page
+        router.push(`/events/event?id=${createdEvent.data.id}`);
+      }
+    }
+  }, [isSuccess, createdEvent, formData.payment_type]);
+  const isSuccessful = updated || added;
+
+  useEffect(() => {
+    if (isSuccessful) {
+      router.push(`/events/event?id=${id}`);
+    }
+  }, [isSuccessful]);
 
   // Initialize form data with event data in edit mode
   useEffect(() => {
@@ -339,10 +345,6 @@ const EventPage = () => {
       } else {
         await createEvent(updatedFormData);
         const eventId = createdEvent?.data?.id || id;
-
-        if (currentStep === 2 || isPaymentSection) {
-          await handlePayment(eventId);
-        }
       }
     } catch (error) {
       console.error("Error submitting form:", error);

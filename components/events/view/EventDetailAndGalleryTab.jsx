@@ -12,6 +12,7 @@ import { usePathname, useRouter } from "next/navigation";
 import CustomButton from "@/components/Button";
 import { SuspendEventManager } from "@/app/events/controllers/suspendEventController";
 import { ActivateDeactivateEvent } from "@/app/events/controllers/activeDeactivateEventController";
+import ResponseComponent from "@/components/Response";
 
 const EventDetailAndGalleryTab = ({ event, isLoading }) => {
   const pathname = usePathname();
@@ -69,11 +70,15 @@ const EventDetailAndGalleryTab = ({ event, isLoading }) => {
             </div>
           </div>
           {!event?.isPaid && (
+            <ResponseComponent
+              isSuccess={false}
+              error={"Payment required to continue event setup"}
+            />
+          )}
+          {!event?.isPaid && (
             <CustomButton
               buttonText={
-                event?.payment_type === "bank" && event?.isPending
-                  ? "Awaiting Payment Confirmation"
-                  : "Pay Now"
+                event?.isPending ? "Awaiting Payment Confirmation" : "Pay Now"
               }
               suffixIcon={<Wallet />}
               onClick={() => {
@@ -83,6 +88,7 @@ const EventDetailAndGalleryTab = ({ event, isLoading }) => {
               }}
             />
           )}
+
           {event?.isPaid && (
             <CustomButton
               buttonText={

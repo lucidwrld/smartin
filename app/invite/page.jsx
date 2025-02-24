@@ -20,6 +20,7 @@ import { RespondToInviteManager } from "../events/controllers/respondToInviteCon
 import { useRouter } from "next/navigation";
 import { addToGoogleCalendar } from "@/utils/addtoGoogleCalendar";
 import { openInMaps } from "@/utils/openInMaps";
+import Link from "next/link";
 
 const InvitePage = ({}) => {
   const router = useRouter();
@@ -97,7 +98,9 @@ const InvitePage = ({}) => {
               <div className="bg-white rounded-lg p-6 shadow-sm">
                 <h2 className="text-xl font-medium flex items-center gap-2">
                   {capitalizeFirstLetter(data?.name)}
-                  <StatusButton status={data?.response} />
+                  <StatusButton
+                    status={data?.response ?? "Awaiting Response"}
+                  />
                 </h2>
                 <div className="mt-4 space-y-3">
                   {data?.email && (
@@ -225,18 +228,6 @@ const InvitePage = ({}) => {
               </div>
             </>
           )}
-
-          {/* Tab Content */}
-          <div className="w-full">
-            {currentView === 0 && <Gallery files={event?.gallery} />}
-            {currentView === 1 && (
-              <GiftRegistryTab
-                isViewOnly={true}
-                event={event}
-                isLoading={isLoading}
-              />
-            )}
-          </div>
         </div>
       </main>
 
@@ -244,7 +235,18 @@ const InvitePage = ({}) => {
       <footer className="bg-white border-t py-6">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-600">
-            <p>Powered by Smart Invites © {new Date().getFullYear()}</p>
+            <p>
+              Powered by{" "}
+              <Link
+                href={`https://smartinvites.xyz`}
+                className="underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Smart Invites
+              </Link>{" "}
+              © {new Date().getFullYear()}
+            </p>
             <div className="flex gap-6">
               <a href="/privacy" className="hover:text-brandPurple">
                 Privacy Policy

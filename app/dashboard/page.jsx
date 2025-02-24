@@ -147,6 +147,7 @@ const Dashboard = () => {
     user: userId,
     enabled: Boolean(userId),
     page: 1,
+    pageSize: 4,
     status: "upcoming",
   });
   const { data: notifications, isLoading: loadingNotifications } =
@@ -223,7 +224,13 @@ const Dashboard = () => {
               {userInvites?.data && userInvites.data.length > 0 ? (
                 <div className="divide-y">
                   {userInvites.data.map((event, index) => (
-                    <UpcomingEvent key={index} {...event} />
+                    <Link
+                      className="w-full"
+                      key={index}
+                      href={`/events/event/?id=${event?._id}`}
+                    >
+                      <UpcomingEvent {...event} />
+                    </Link>
                   ))}
                 </div>
               ) : (

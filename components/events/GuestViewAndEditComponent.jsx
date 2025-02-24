@@ -156,11 +156,23 @@ export const GuestEditModal = ({ guest }) => {
     email: guest?.email || "",
   });
 
+  // Add this useEffect to update form data when guest prop changes
+  React.useEffect(() => {
+    if (guest) {
+      setFormData({
+        name: guest.name || "",
+        phone: guest.phone || "",
+        email: guest.email || "",
+      });
+    }
+  }, [guest]);
+
   if (!guest) return null;
 
   const handleClose = () => {
     document.getElementById("edit_guest_modal").close();
   };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -180,27 +192,27 @@ export const GuestEditModal = ({ guest }) => {
       <div className="bg-white p-6 rounded-lg w-96">
         <form onSubmit={handleSubmit} className="space-y-4">
           <InputWithFullBoarder
-            label={"Name"}
+            label="Name"
             type="text"
-            id="name"
+            name="name"
             value={formData.name}
             onChange={handleChange}
             isRequired
           />
 
           <InputWithFullBoarder
-            label={"Phone"}
+            label="Phone"
             type="tel"
-            id="phone"
+            name="phone"
             value={formData.phone}
             onChange={handleChange}
             isRequired
           />
 
           <InputWithFullBoarder
-            label={"Email"}
+            label="Email"
             type="email"
-            id="email"
+            name="email"
             value={formData.email}
             onChange={handleChange}
           />
@@ -214,10 +226,10 @@ export const GuestEditModal = ({ guest }) => {
               Close
             </button>
             <CustomButton
-              buttonText={"Save Changes"}
+              buttonText="Save Changes"
               isLoading={editing}
-              type={"submit"}
-              radius={"rounded-full"}
+              type="submit"
+              radius="rounded-full"
             />
           </div>
         </form>
