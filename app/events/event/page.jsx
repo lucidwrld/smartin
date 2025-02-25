@@ -12,6 +12,7 @@ import useGetSingleEventManager from "../controllers/getSingleEventController";
 import useGetEventAnalyticsManager from "../controllers/getEventAnalyticsController";
 import { TableArrangement } from "@/components/events/view/TableArrangement";
 import { ThankYouMessage } from "@/components/events/view/ThankYouMessage";
+import AccessManagement from "@/components/events/view/AccessManagementScreen";
 
 const EventDetailsPage = () => {
   const { id } = getQueryParams(["id"]);
@@ -37,6 +38,7 @@ const EventDetailsPage = () => {
     "Guest List",
     "Table Arrangement",
     "Thank you message",
+    "Access Management",
   ];
   return (
     <BaseDashboardNavigation title={"Event Detail"}>
@@ -68,6 +70,7 @@ const EventDetailsPage = () => {
       )}
       {currentView === 3 && <TableArrangement eventId={id} />}
       {currentView === 4 && <ThankYouMessage event={event?.data} />}
+      {currentView === 5 && <AccessManagement event={event?.data} />}
     </BaseDashboardNavigation>
   );
 };
