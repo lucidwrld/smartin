@@ -24,13 +24,22 @@ const Footer = () => {
     {
       title: "Connect",
       links: [
-        { label: "Twitter", href: "https://twitter.com/smartinvites" },
-        { label: "Facebook", href: "https://facebook.com/smartinvites" },
-        { label: "Instagram", href: "https://instagram.com/smartinvites" },
         {
-          label: "LinkedIn",
-          href: "https://linkedin.com/company/smartinvites",
+          label: "Contact Support",
+          href: "https://smartinvites.xyz/contact-support",
         },
+        {
+          label: "Facebook",
+          href: "https://web.facebook.com/profile.php?id=61573614393252",
+        },
+        {
+          label: "Instagram",
+          href: "https://www.instagram.com/smartinvitesofficial/",
+        },
+        // {
+        //   label: "LinkedIn",
+        //   href: "https://linkedin.com/company/smartinvites",
+        // },
       ],
     },
   ];
