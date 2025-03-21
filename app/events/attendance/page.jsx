@@ -10,10 +10,28 @@ import useGetAccessCodeDetailsManager from "@/app/events/controllers/members/get
 import QRCodeScanner from "@/components/events/publicComponents/QRCodeScanner";
 import CompletePagination from "@/components/CompletePagination";
 import PublicGuestDetailsModal from "@/components/events/publicComponents/PublicGuestDetailsModal";
+import { logoMain, logoMain1 } from "@/public/images";
 
 const AttendanceMarking = () => {
   const searchParams = useSearchParams();
   const accessCode = searchParams.get("c");
+
+  // Check if accessCode is not found
+  if (!accessCode) {
+    return (
+      <div className="max-w-4xl mx-auto p-4 flex flex-col justify-center items-center h-screen">
+        <img src={logoMain1.src} alt="" className="w-[80%] mb-10" />
+        <div className="bg-white rounded-lg shadow p-6 text-center">
+          <h2 className="text-xl font-bold text-gray-800 mb-2">
+            Access Code Not Found
+          </h2>
+          <p className="text-gray-600">
+            Please ensure you have the correct URL with the access code.
+          </p>
+        </div>
+      </div>
+    );
+  }
   const [currentPage, setCurrentPage] = useState(1);
 
   // Get event details via access code
