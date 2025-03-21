@@ -1,3 +1,4 @@
+import Axios from "@/constants/api_management/MyHttpHelper";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 import { useQuery } from "react-query";
@@ -9,17 +10,29 @@ const useGetEventInviteesManager = ({
   enabled = true,
   eventId,
   assigned,
+  code,
 }) => {
+  const axiosInstance = code ? Axios : AxiosWithToken;
   return useQuery(
-    ["events_invitees", enabled, search, page, pageSize, eventId, assigned],
+    [
+      "events_invitees",
+      enabled,
+      search,
+      page,
+      pageSize,
+      eventId,
+      assigned,
+      code,
+    ],
     async () => {
       try {
         const [response] = [
-          await AxiosWithToken.get(`/event/${eventId}/invitees`, {
+          await axiosInstance.get(`/event/${eventId}/invitees`, {
             params: {
               page,
               pageSize,
               ...(search && { search }),
+              ...(code && { accessCode: code }),
               ...(assigned !== undefined && { assigned }),
             },
           }),

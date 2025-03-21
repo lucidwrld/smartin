@@ -1,15 +1,15 @@
 import useUpdateManager from "@/constants/controller_templates/put_controller_template";
 import { useRouter } from "next/navigation";
 
-export const MarkAttendanceManager = () => {
+export const ChangeAccessCodeManager = ({ eventId }) => {
   const router = useRouter();
   const { updateCaller, isLoading, isSuccess, error, data } = useUpdateManager(
-    `/event/attendance/`,
-    "events_invitees",
+    `/event/${eventId}/access-code`,
+    ["accessCodes"],
     false,
-    false
+    true
   );
-  const markAttendance = async (details) => {
+  const changeAccessCode = async (details) => {
     try {
       await updateCaller(details);
     } catch (error) {
@@ -17,7 +17,7 @@ export const MarkAttendanceManager = () => {
     }
   };
   return {
-    markAttendance,
+    changeAccessCode,
     data,
     isLoading,
     isSuccess,

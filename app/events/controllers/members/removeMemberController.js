@@ -1,23 +1,21 @@
 import useUpdateManager from "@/constants/controller_templates/put_controller_template";
-import { useRouter } from "next/navigation";
 
-export const MarkAttendanceManager = () => {
-  const router = useRouter();
+export const RemoveMemberManager = ({ eventId, memberId }) => {
   const { updateCaller, isLoading, isSuccess, error, data } = useUpdateManager(
-    `/event/attendance/`,
-    "events_invitees",
+    `/event/${eventId}/members/${memberId}/remove`,
+    ["members"],
     false,
-    false
+    true
   );
-  const markAttendance = async (details) => {
+  const removeMember = async () => {
     try {
-      await updateCaller(details);
+      await updateCaller();
     } catch (error) {
       console.error("error:", error);
     }
   };
   return {
-    markAttendance,
+    removeMember,
     data,
     isLoading,
     isSuccess,

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Copy,
   PlusCircle,
@@ -11,176 +11,215 @@ import {
   CheckCheck,
   UserX,
 } from "lucide-react";
+import useGetMembersManager from "@/app/events/controllers/members/getMembersController";
+import { AddMemberManager } from "@/app/events/controllers/members/addMembersController";
+import { RemoveMemberManager } from "@/app/events/controllers/members/removeMemberController";
+import { UpdateMemberPermissionManager } from "@/app/events/controllers/members/editMemberPermissionController";
+import useGetEventAccessCodesManager from "@/app/events/controllers/members/getEventAccessCodesController";
+import { ChangeAccessCodeManager } from "@/app/events/controllers/members/changeEventAccessCodeController";
+import { copyToClipboard } from "@/utils/copyToClipboard";
+import { formatDate } from "@/utils/formatDate";
+import CustomButton from "@/components/Button";
 
-const AccessManagement = ({ eventId }) => {
-  // State for users with access
-  const [users, setUsers] = useState([
-    {
-      email: "john@example.com",
-      permissions: {
-        editEvent: true,
-        addGuests: true,
-        sendNotifications: true,
-        manageTable: true,
-        markAttendance: true,
-        viewOnly: false,
-        editThankYou: false,
-      },
-    },
-    {
-      email: "alice@example.com",
-      permissions: {
-        editEvent: false,
-        addGuests: true,
-        sendNotifications: true,
-        manageTable: false,
-        markAttendance: true,
-        viewOnly: false,
-        editThankYou: true,
-      },
-    },
-  ]);
+const AccessManagement = ({ event }) => {
+  const [selectedMember, setSelectedMember] = useState(null);
 
-  // State for new user
-  const [newUserEmail, setNewUserEmail] = useState("");
-  const [newUserPermissions, setNewUserPermissions] = useState({
-    editEvent: false,
-    addGuests: false,
-    sendNotifications: false,
-    manageTable: false,
-    markAttendance: false,
-    viewOnly: true,
-    editThankYou: false,
+  // Fetch members data
+  const { data, isLoading, refetch } = useGetMembersManager({
+    eventId: event?.id,
   });
 
-  // State for access codes
-  const [accessCodes, setAccessCodes] = useState([
-    { code: "EVENT-123-ABC", type: "view", expiresAt: "2025-03-25T10:00:00Z" },
-    {
-      code: "ATT-456-DEF",
-      type: "attendance",
-      expiresAt: "2025-03-25T23:59:59Z",
-    },
-  ]);
+  const { data: accessCodeData, isLoading: loading } =
+    useGetEventAccessCodesManager({ eventId: event?.id });
+  const accessCodes = accessCodeData?.data || [];
+  const { changeAccessCode, isLoading: changing } = ChangeAccessCodeManager({
+    eventId: event?.id,
+  });
+
+  // Add member hook
+  const { addMember, isLoading: adding } = AddMemberManager({
+    eventId: event?.id,
+  });
+
+  // Remove member hook
+  const { removeMember, isLoading: removing } = RemoveMemberManager({
+    eventId: event?.id,
+    memberId: selectedMember,
+  });
+
+  // Update member permissions hook
+  const { updateMember, isLoading: updating } = UpdateMemberPermissionManager({
+    eventId: event?.id,
+    memberId: selectedMember,
+  });
+
+  const users = data?.data || [];
+
+  // State for new users
+  const [newUserEmails, setNewUserEmails] = useState("");
+  const [newUserPermissions, setNewUserPermissions] = useState({
+    edit_event: false,
+    add_guest: false,
+    send_notification: false,
+    manage_table: false,
+    mark_attendance: false,
+    view_only: true,
+    edit_thankyou: false,
+  });
 
   // State for active tab
   const [activeTab, setActiveTab] = useState("users");
 
-  // Function to add new user
-  const handleAddUser = () => {
-    if (!newUserEmail || !newUserEmail.includes("@")) {
-      alert("Please enter a valid email address");
+  // Refresh data after operations
+  useEffect(() => {
+    if (!adding && !removing && !updating) {
+      refetch();
+    }
+  }, [adding, removing, updating, refetch]);
+
+  // Function to add new users
+  const handleAddUsers = async () => {
+    if (!newUserEmails) {
+      alert("Please enter at least one email address");
       return;
     }
 
-    if (users.some((user) => user.email === newUserEmail)) {
-      alert("This email already has access");
+    // Split by commas, semicolons, or newlines and trim each email
+    const emailList = newUserEmails
+      .split(/[,;\n]/)
+      .map((email) => email.trim())
+      .filter((email) => email.length > 0);
+
+    // Validate emails
+    const invalidEmails = emailList.filter((email) => !email.includes("@"));
+    if (invalidEmails.length > 0) {
+      alert(
+        `Please correct these invalid email addresses: ${invalidEmails.join(
+          ", "
+        )}`
+      );
       return;
     }
 
-    setUsers([
-      ...users,
-      { email: newUserEmail, permissions: newUserPermissions },
-    ]);
-    setNewUserEmail("");
-    setNewUserPermissions({
-      editEvent: false,
-      addGuests: false,
-      sendNotifications: false,
-      manageTable: false,
-      markAttendance: false,
-      viewOnly: true,
-      editThankYou: false,
-    });
+    // Check for existing emails
+    const existingEmails = emailList.filter((email) =>
+      users.some((user) => user.email === email)
+    );
+    if (existingEmails.length > 0) {
+      alert(`These emails already have access: ${existingEmails.join(", ")}`);
+      return;
+    }
 
-    alert("Access granted successfully");
+    // Create members array with all emails using the same permissions
+    const members = emailList.map((email) => ({
+      email,
+      permissions: newUserPermissions,
+    }));
+
+    const detailsToSubmit = { members };
+
+    try {
+      await addMember(detailsToSubmit);
+
+      setNewUserEmails("");
+      setNewUserPermissions({
+        edit_event: false,
+        add_guest: false,
+        send_notification: false,
+        manage_table: false,
+        mark_attendance: false,
+        view_only: true,
+        edit_thankyou: false,
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   // Function to remove user
-  const handleRemoveUser = (email) => {
-    setUsers(users.filter((user) => user.email !== email));
+  const handleRemoveUser = async (email, memberId) => {
+    try {
+      await removeMember();
+    } catch (error) {}
   };
 
   // Function to update user permissions
-  const handleUpdatePermissions = (email, permission, value) => {
-    setUsers(
-      users.map((user) => {
-        if (user.email === email) {
-          return {
-            ...user,
-            permissions: {
-              ...user.permissions,
-              [permission]: value,
-            },
-          };
-        }
-        return user;
-      })
-    );
+  const handleUpdatePermissions = async (
+    email,
+    permission,
+    value,
+    memberId
+  ) => {
+    try {
+      setSelectedMember(memberId);
 
-    // Show success message
-    alert(`Permission updated for ${email}`);
+      // Get the current user's permissions
+      const currentUser = users.find((user) => user.email === email);
+      if (!currentUser) return;
+
+      // Create updated permissions object
+      const updatedPermissions = {
+        ...currentUser.permissions,
+        [permission]: value,
+      };
+
+      // Prepare data for API
+      const details = {
+        email: email,
+        permissions: updatedPermissions,
+      };
+
+      await updateMember(details);
+    } catch (error) {}
   };
 
   // Function to bulk update permissions
-  const handleBulkPermissionUpdate = (email, newPermissions) => {
-    setUsers(
-      users.map((user) => {
-        if (user.email === email) {
-          return {
-            ...user,
-            permissions: {
-              ...user.permissions,
-              ...newPermissions,
-            },
-          };
-        }
-        return user;
-      })
-    );
+  const handleBulkPermissionUpdate = async (
+    email,
+    newPermissions,
+    memberId
+  ) => {
+    try {
+      setSelectedMember(memberId);
 
-    alert(`Permissions updated for ${email}`);
+      // Get the current user's permissions
+      const currentUser = users.find((user) => user.email === email);
+      if (!currentUser) return;
+
+      // Create updated permissions object by merging
+      const updatedPermissions = {
+        ...currentUser.permissions,
+        ...newPermissions,
+      };
+
+      // Prepare data for API
+      const details = {
+        email: email,
+        permissions: updatedPermissions,
+      };
+
+      await updateMember(details);
+    } catch (error) {}
   };
 
   // Function to generate access code
-  const handleGenerateCode = (type) => {
-    const randomCode = `${type === "view" ? "VIEW" : "ATT"}-${Math.random()
-      .toString(36)
-      .substring(2, 6)
-      .toUpperCase()}-${Math.random()
-      .toString(36)
-      .substring(2, 5)
-      .toUpperCase()}`;
-
-    // Set expiry date to 24 hours from now
-    const expiryDate = new Date();
-    expiryDate.setHours(expiryDate.getHours() + 24);
-
-    setAccessCodes([
-      ...accessCodes,
-      {
-        code: randomCode,
-        type,
-        expiresAt: expiryDate.toISOString(),
-      },
-    ]);
-
-    alert(
-      `New ${
-        type === "view" ? "view-only" : "attendance"
-      } code created successfully`
-    );
+  const handleGenerateCode = async (type) => {
+    const dataToSend =
+      type === "view"
+        ? {
+            mark_attendance: false,
+            view_only: true,
+          }
+        : {
+            mark_attendance: true,
+            view_only: false,
+          };
+    await changeAccessCode(dataToSend);
   };
 
   // Function to copy access code
   const handleCopyCode = (code) => {
-    navigator.clipboard.writeText(code);
-    alert("Access code copied to clipboard");
-  };
-
-  // Function to revoke access code
-  const handleRevokeCode = (code) => {
-    setAccessCodes(accessCodes.filter((ac) => ac.code !== code));
+    copyToClipboard(code);
   };
 
   return (
@@ -232,16 +271,20 @@ const AccessManagement = ({ eventId }) => {
                     htmlFor="email"
                     className="block text-sm font-medium text-gray-700 mb-1"
                   >
-                    Email address
+                    Email address(es)
                   </label>
-                  <input
+                  <textarea
                     id="email"
-                    type="email"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                    placeholder="user@example.com"
-                    value={newUserEmail}
-                    onChange={(e) => setNewUserEmail(e.target.value)}
+                    placeholder="Enter emails separated by commas, semicolons, or new lines (e.g., user1@example.com, user2@example.com)"
+                    value={newUserEmails}
+                    onChange={(e) => setNewUserEmails(e.target.value)}
+                    rows={3}
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    You can enter multiple email addresses separated by commas,
+                    semicolons, or new lines.
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -265,7 +308,7 @@ const AccessManagement = ({ eventId }) => {
                           htmlFor={`new-${key}`}
                           className="text-sm text-gray-700 capitalize"
                         >
-                          {key.replace(/([A-Z])/g, " $1").toLowerCase()}
+                          {key.replace(/_/g, " ")}
                         </label>
                       </div>
                     ))}
@@ -273,114 +316,153 @@ const AccessManagement = ({ eventId }) => {
                 </div>
 
                 <button
-                  onClick={handleAddUser}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                  onClick={handleAddUsers}
+                  disabled={adding}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:bg-purple-300"
                 >
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Grant Access
+                  {adding ? (
+                    "Adding..."
+                  ) : (
+                    <>
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Grant Access
+                    </>
+                  )}
                 </button>
               </div>
             </div>
 
             <div>
               <h3 className="text-lg font-medium mb-4">Current access</h3>
-              <div className="space-y-4">
-                {users.length === 0 ? (
-                  <p className="text-gray-500 italic">
-                    No users have been granted access yet.
-                  </p>
-                ) : (
-                  users.map((user, index) => (
-                    <div
-                      key={index}
-                      className="border rounded-lg overflow-hidden"
-                    >
-                      <div className="p-4 bg-gray-50 flex justify-between items-center">
-                        <div className="flex items-center">
-                          <Mail className="mr-2 h-4 w-4 text-gray-500" />
-                          <span className="font-medium">{user.email}</span>
+              {isLoading ? (
+                <p className="text-gray-500">Loading members...</p>
+              ) : (
+                <div className="space-y-4">
+                  {users.length === 0 ? (
+                    <p className="text-gray-500 italic">
+                      No users have been granted access yet.
+                    </p>
+                  ) : (
+                    users.map((user) => (
+                      <div
+                        key={user.id || user.email}
+                        onMouseEnter={() => setSelectedMember(user.id)}
+                        className="border rounded-lg overflow-hidden"
+                      >
+                        <div className="p-4 bg-gray-50 flex justify-between items-center">
+                          <div className="flex items-center">
+                            <Mail className="mr-2 h-4 w-4 text-gray-500" />
+                            <span className="font-medium">{user.email}</span>
+                          </div>
+                          <button
+                            onMouseEnter={() => setSelectedMember(user.id)}
+                            onClick={() => {
+                              handleRemoveUser(user.email, user.id);
+                            }}
+                            disabled={removing && selectedMember === user.id}
+                            className="p-1 rounded-full text-red-500 hover:bg-red-50 focus:outline-none disabled:text-red-300"
+                          >
+                            <Trash className="h-4 w-4" />
+                            <span className="sr-only">Remove</span>
+                          </button>
                         </div>
-                        <button
-                          onClick={() => handleRemoveUser(user.email)}
-                          className="p-1 rounded-full text-red-500 hover:bg-red-50 focus:outline-none"
-                        >
-                          <Trash className="h-4 w-4" />
-                          <span className="sr-only">Remove</span>
-                        </button>
-                      </div>
-                      <div className="p-4">
-                        <div className="flex justify-between items-center mb-2">
-                          <h4 className="text-sm font-medium">Permissions</h4>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() =>
-                                handleBulkPermissionUpdate(user.email, {
-                                  editEvent: true,
-                                  addGuests: true,
-                                  sendNotifications: true,
-                                  manageTable: true,
-                                  markAttendance: true,
-                                  viewOnly: false,
-                                  editThankYou: true,
-                                })
-                              }
-                              className="px-2 py-1 text-xs font-medium text-white bg-green-600 rounded hover:bg-green-700"
-                            >
-                              Grant All
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleBulkPermissionUpdate(user.email, {
-                                  editEvent: false,
-                                  addGuests: false,
-                                  sendNotifications: false,
-                                  manageTable: false,
-                                  markAttendance: false,
-                                  viewOnly: true,
-                                  editThankYou: false,
-                                })
-                              }
-                              className="px-2 py-1 text-xs font-medium text-white bg-gray-600 rounded hover:bg-gray-700"
-                            >
-                              View Only
-                            </button>
+                        <div className="p-4">
+                          <div className="flex justify-between items-center mb-2">
+                            <h4 className="text-sm font-medium">Permissions</h4>
+                            <div className="flex gap-2">
+                              <button
+                                onMouseEnter={() => setSelectedMember(user.id)}
+                                onClick={() => {
+                                  handleBulkPermissionUpdate(
+                                    user.email,
+                                    {
+                                      edit_event: true,
+                                      add_guest: true,
+                                      send_notification: true,
+                                      manage_table: true,
+                                      mark_attendance: true,
+                                      view_only: false,
+                                      edit_thankyou: true,
+                                    },
+                                    user.id
+                                  );
+                                }}
+                                disabled={
+                                  updating && selectedMember === user.id
+                                }
+                                className="px-2 py-1 text-xs font-medium text-white bg-green-600 rounded hover:bg-green-700 disabled:bg-green-300"
+                              >
+                                Grant All
+                              </button>
+                              <button
+                                onMouseEnter={() => setSelectedMember(user.id)}
+                                onClick={() =>
+                                  handleBulkPermissionUpdate(
+                                    user.email,
+                                    {
+                                      edit_event: false,
+                                      add_guest: false,
+                                      send_notification: false,
+                                      manage_table: false,
+                                      mark_attendance: false,
+                                      view_only: true,
+                                      edit_thankyou: false,
+                                    },
+                                    user.id
+                                  )
+                                }
+                                disabled={
+                                  updating && selectedMember === user.id
+                                }
+                                className="px-2 py-1 text-xs font-medium text-white bg-gray-600 rounded hover:bg-gray-700 disabled:bg-gray-300"
+                              >
+                                View Only
+                              </button>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            {Object.entries(user.permissions || {}).map(
+                              ([key, value]) => (
+                                <div
+                                  key={key}
+                                  className="flex items-center space-x-2"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    id={`${user.email}-${key}`}
+                                    checked={value}
+                                    onMouseEnter={() =>
+                                      setSelectedMember(user.id)
+                                    }
+                                    onChange={(e) =>
+                                      handleUpdatePermissions(
+                                        user.email,
+                                        key,
+                                        e.target.checked,
+                                        user.id
+                                      )
+                                    }
+                                    disabled={
+                                      updating && selectedMember === user.id
+                                    }
+                                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded disabled:text-purple-300"
+                                  />
+                                  <label
+                                    htmlFor={`${user.email}-${key}`}
+                                    className="text-sm text-gray-700 capitalize"
+                                  >
+                                    {key.replace(/_/g, " ")}
+                                  </label>
+                                </div>
+                              )
+                            )}
                           </div>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                          {Object.entries(user.permissions).map(
-                            ([key, value]) => (
-                              <div
-                                key={key}
-                                className="flex items-center space-x-2"
-                              >
-                                <input
-                                  type="checkbox"
-                                  id={`${user.email}-${key}`}
-                                  checked={value}
-                                  onChange={(e) =>
-                                    handleUpdatePermissions(
-                                      user.email,
-                                      key,
-                                      e.target.checked
-                                    )
-                                  }
-                                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                                />
-                                <label
-                                  htmlFor={`${user.email}-${key}`}
-                                  className="text-sm text-gray-700 capitalize"
-                                >
-                                  {key.replace(/([A-Z])/g, " $1").toLowerCase()}
-                                </label>
-                              </div>
-                            )
-                          )}
-                        </div>
                       </div>
-                    </div>
-                  ))
-                )}
-              </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -406,13 +488,14 @@ const AccessManagement = ({ eventId }) => {
                   Creates a code that allows seeing the guest list and table
                   arrangement without editing.
                 </p>
-                <button
+
+                <CustomButton
+                  buttonText={"Generate View Code"}
                   onClick={() => handleGenerateCode("view")}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                >
-                  <Eye className="mr-2 h-4 w-4" />
-                  Generate View Code
-                </button>
+                  prefixIcon={<Eye className="mr-2 h-4 w-4" />}
+                  isLoading={changing}
+                  className={"px-4 py-2 rounded-md  "}
+                />
               </div>
 
               <div className="border rounded-lg p-4">
@@ -423,13 +506,13 @@ const AccessManagement = ({ eventId }) => {
                   Creates a code that allows marking attendance at the event
                   entrance.
                 </p>
-                <button
+                <CustomButton
+                  buttonText={"Generate Attendance Code"}
                   onClick={() => handleGenerateCode("attendance")}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                >
-                  <CheckCheck className="mr-2 h-4 w-4" />
-                  Generate Attendance Code
-                </button>
+                  prefixIcon={<CheckCheck className="mr-2 h-4 w-4" />}
+                  isLoading={changing}
+                  className={"px-4 py-2 rounded-md  "}
+                />
               </div>
             </div>
 
@@ -442,9 +525,6 @@ const AccessManagement = ({ eventId }) => {
                   </p>
                 ) : (
                   accessCodes.map((accessCode, index) => {
-                    const expiryDate = new Date(accessCode.expiresAt);
-                    const isExpired = expiryDate < new Date();
-
                     return (
                       <div
                         key={index}
@@ -453,12 +533,12 @@ const AccessManagement = ({ eventId }) => {
                         <div className="flex items-center space-x-3">
                           <span
                             className={`px-2 py-1 text-xs font-medium rounded-full ${
-                              accessCode.type === "view"
+                              accessCode?.permissions?.view_only
                                 ? "bg-blue-100 text-blue-800"
                                 : "bg-green-100 text-green-800"
                             }`}
                           >
-                            {accessCode.type === "view"
+                            {accessCode?.permissions?.view_only
                               ? "View Only"
                               : "Attendance"}
                           </span>
@@ -468,35 +548,18 @@ const AccessManagement = ({ eventId }) => {
                         </div>
 
                         <div className="flex items-center space-x-2">
-                          {isExpired ? (
-                            <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
-                              Expired
-                            </span>
-                          ) : (
+                          {
                             <span className="text-xs text-gray-500">
-                              Expires: {expiryDate.toLocaleString()}
+                              Last updated: {formatDate(accessCode?.updatedAt)}
                             </span>
-                          )}
+                          }
 
                           <button
                             onClick={() => handleCopyCode(accessCode.code)}
-                            disabled={isExpired}
-                            className={`p-1 rounded-full focus:outline-none ${
-                              isExpired
-                                ? "text-gray-400 cursor-not-allowed"
-                                : "text-gray-500 hover:bg-gray-100"
-                            }`}
+                            className={`p-1 rounded-full focus:outline-none ${"text-gray-500 hover:bg-gray-100"}`}
                           >
                             <Copy className="h-4 w-4" />
                             <span className="sr-only">Copy</span>
-                          </button>
-
-                          <button
-                            onClick={() => handleRevokeCode(accessCode.code)}
-                            className="p-1 rounded-full text-red-500 hover:bg-red-50 focus:outline-none"
-                          >
-                            <UserX className="h-4 w-4" />
-                            <span className="sr-only">Revoke</span>
                           </button>
                         </div>
                       </div>

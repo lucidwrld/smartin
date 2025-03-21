@@ -89,6 +89,31 @@ export const GuestViewModal = ({ guest, onEdit, onDelete }) => {
           )}
         </div>
 
+        {/* Note and Dietary Requirements */}
+        {(guest.note || guest.dietary_requirements) && (
+          <div className="bg-gray-50 p-4 rounded-lg mb-6">
+            {guest.note && (
+              <div className="mb-4">
+                <span className="font-medium block mb-2">Note</span>
+                <div className="bg-white p-3 rounded border text-sm">
+                  {guest.note}
+                </div>
+              </div>
+            )}
+
+            {guest.dietary_requirements && (
+              <div>
+                <span className="font-medium block mb-2">
+                  Dietary Requirements
+                </span>
+                <div className="bg-white p-3 rounded border text-sm">
+                  {guest.dietary_requirements}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Timeline & Status */}
         <div className="space-y-4">
           <div className="flex justify-between items-center text-sm">
@@ -154,6 +179,8 @@ export const GuestEditModal = ({ guest }) => {
     name: guest?.name || "",
     phone: guest?.phone || "",
     email: guest?.email || "",
+    note: guest?.note || "",
+    dietary_requirements: guest?.dietary_requirements || "",
   });
 
   // Add this useEffect to update form data when guest prop changes
@@ -163,6 +190,8 @@ export const GuestEditModal = ({ guest }) => {
         name: guest.name || "",
         phone: guest.phone || "",
         email: guest.email || "",
+        note: guest.note || "",
+        dietary_requirements: guest.dietary_requirements || "",
       });
     }
   }, [guest]);
@@ -214,6 +243,22 @@ export const GuestEditModal = ({ guest }) => {
             type="email"
             name="email"
             value={formData.email}
+            onChange={handleChange}
+          />
+
+          <InputWithFullBoarder
+            label="Note"
+            type="text"
+            name="note"
+            value={formData.note}
+            onChange={handleChange}
+          />
+
+          <InputWithFullBoarder
+            label="Dietary Requirements"
+            type="text"
+            name="dietary_requirements"
+            value={formData.dietary_requirements}
             onChange={handleChange}
           />
 
