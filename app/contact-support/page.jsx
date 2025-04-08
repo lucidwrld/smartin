@@ -46,7 +46,7 @@ const ContactSupportPage = () => {
     <>
       <Header isLandingPage={false} />
 
-      <div className="w-full py-24 mt-8 bg-gray-50">
+      <div className="w-full py-24 mt-0 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
             <div className="grid grid-cols-1 md:grid-cols-2">
@@ -70,7 +70,7 @@ const ContactSupportPage = () => {
                         </div>
                         <div className="ml-4">
                           <p className="text-gray-700">+23 703 520 5494</p>
-                          {/* <p className="text-gray-700">+234 703 037 0175</p> */}
+                          <p className="text-gray-700">+234 806 811 1435</p>
                         </div>
                       </div>
 
@@ -170,7 +170,7 @@ const ContactSupportPage = () => {
                     <CustomButton
                       buttonText="Submit"
                       className="w-full h-[50px]"
-                      buttonColor="brandOrange"
+                      buttonColor="bg-brandOrange"
                       radius="rounded-[30px]"
                       isLoading={isLoading}
                       onClick={handleSubmit}

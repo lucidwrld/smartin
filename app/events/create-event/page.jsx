@@ -84,6 +84,8 @@ const EventPage = () => {
     no_of_invitees: "",
     items: [],
     verification_type: "",
+    timezone: "Africa/Lagos",
+    path: "/events/",
     donation: {
       account_name: "",
       bank_name: "",
@@ -272,7 +274,7 @@ const EventPage = () => {
             }
           } else {
             // For existing events, payForEvent handles the navigation
-            await payForEvent();
+            await payForEvent({ path: "/events/" });
           }
           break;
 

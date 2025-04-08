@@ -89,7 +89,8 @@ const Footer = () => {
         </div>
         <div className="border-t mt-12 pt-8 text-center text-gray-600">
           <p>
-            © {new Date().getFullYear()} Smart Invites. All rights reserved.
+            © {new Date().getFullYear()} Smart Invites Limited. All rights
+            reserved.
           </p>
         </div>
       </div>
