@@ -2,7 +2,15 @@
 import HeaderWithEdit from "@/components/HeaderWithEdit";
 import StatusButton from "@/components/StatusButton";
 import React from "react";
-import { Calendar, Clock, Mail, MapPin, Phone, Wallet } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Mail,
+  MapPin,
+  Phone,
+  Share2,
+  Wallet,
+} from "lucide-react";
 import Gallery from "@/components/Gallery";
 import { convertToAmPm } from "@/utils/timeStringToAMPM";
 import { formatDateToLongString } from "@/utils/formatDateToLongString";
@@ -76,48 +84,115 @@ const EventDetailAndGalleryTab = ({ event, isLoading }) => {
             />
           )}
           {!event?.isPaid && (
-            <CustomButton
-              buttonText={
-                event?.isPending ? "Awaiting Payment Confirmation" : "Pay Now"
-              }
-              suffixIcon={<Wallet />}
-              onClick={() => {
-                route.push(
-                  `/events/create-event?id=${event.id}&section=Payment`
-                );
-              }}
-            />
+            <div className="flex gap-3 w-full">
+              <CustomButton
+                buttonText={
+                  event?.isPending ? "Awaiting Payment Confirmation" : "Pay Now"
+                }
+                suffixIcon={<Wallet />}
+                onClick={() => {
+                  route.push(
+                    `/events/create-event?id=${event.id}&section=Payment`
+                  );
+                }}
+              />
+              {/* Share Event Button...using this as a strategy to get more people using the platform */}
+              <CustomButton
+                buttonText="Share Event"
+                suffixIcon={<Share2 size={16} />}
+                onClick={() => {
+                  // Generate public event link
+                  const eventUrl = `${window.location.origin}/p/?id=${event?.id}`;
+
+                  // Try to use Web Share API if available
+                  if (navigator.share) {
+                    navigator
+                      .share({
+                        title: event?.name,
+                        text: `Check out this event: ${event?.name}`,
+                        url: eventUrl,
+                      })
+                      .catch((err) => {
+                        // Fallback to clipboard
+                        navigator.clipboard.writeText(eventUrl);
+                        // You'll need a state to show a copied notification
+                      });
+                  } else {
+                    // Fallback to clipboard
+                    navigator.clipboard.writeText(eventUrl);
+                    // You'll need a state to show a copied notification
+                  }
+                }}
+                buttonColor="bg-brandBlack" // or another color of your choice
+                radius={"rounded-full"}
+                // className="flex-1"
+              />
+            </div>
           )}
 
           {event?.isPaid && (
-            <CustomButton
-              buttonText={
-                isAdminPath
-                  ? event?.isSuspended
-                    ? "Unsuspend Event"
-                    : "Suspend Event"
-                  : event?.isActive
-                  ? "Deactivate Event"
-                  : "Activate Event"
-              }
-              onClick={() => {
-                if (isAdminPath) {
-                  suspendEvent();
-                } else {
-                  //activate or deactivate event
-                  manageEvent();
+            <div className="flex gap-3 w-full">
+              <CustomButton
+                buttonText={
+                  isAdminPath
+                    ? event?.isSuspended
+                      ? "Unsuspend Event"
+                      : "Suspend Event"
+                    : event?.isActive
+                    ? "Deactivate Event"
+                    : "Activate Event"
                 }
-              }}
-              isLoading={suspending || activating}
-              buttonColor={
-                event?.isSuspended
-                  ? "bg-brandPurple" // if suspended
-                  : event?.isActive
-                  ? "bg-redColor" // if active but not suspended
-                  : "bg-brandPurple" // if neither suspended nor active
-              }
-              radius={"rounded-full w-full"}
-            />
+                onClick={() => {
+                  if (isAdminPath) {
+                    suspendEvent();
+                  } else {
+                    //activate or deactivate event
+                    manageEvent();
+                  }
+                }}
+                isLoading={suspending || activating}
+                className={"flex-1"}
+                buttonColor={
+                  event?.isSuspended
+                    ? "bg-brandPurple" // if suspended
+                    : event?.isActive
+                    ? "bg-redColor" // if active but not suspended
+                    : "bg-brandPurple" // if neither suspended nor active
+                }
+                radius={"rounded-full w-full"}
+              />
+              {/* Share Event Button */}
+              <CustomButton
+                buttonText="Share Event"
+                suffixIcon={<Share2 size={16} />}
+                onClick={() => {
+                  // Generate public event link
+                  const eventUrl = `${window.location.origin}/p/?id=${event?.id}`;
+
+                  // Try to use Web Share API if available
+                  if (navigator.share) {
+                    navigator
+                      .share({
+                        title: event?.name,
+                        text: `Check out this event: ${event?.name}`,
+                        url: eventUrl,
+                      })
+                      .catch((err) => {
+                        // Fallback to clipboard
+                        navigator.clipboard.writeText(eventUrl);
+                        // You'll need a state to show a copied notification
+                      });
+                  } else {
+                    // Fallback to clipboard
+                    navigator.clipboard.writeText(eventUrl);
+                    // You'll need a state to show a copied notification
+                  }
+                }}
+                buttonColor="bg-brandBlack" // or another color of your choice
+                radius={"rounded-full"}
+                className="flex-1"
+              />
+            </div>
           )}
         </div>
       </div>
