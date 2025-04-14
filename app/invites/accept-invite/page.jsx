@@ -66,7 +66,7 @@ const AcceptInvitePage = ({ verificationType = "facial" }) => {
 
   useEffect(() => {
     if (isSuccess) {
-      router.push(`/invite?code=${code}`);
+      router.push(`/invites?code=${code}`);
     }
   }, [isSuccess]);
 

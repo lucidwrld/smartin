@@ -161,7 +161,7 @@ const InvitePage = ({}) => {
                         };
                         sendResponse(detail);
                       } else {
-                        router.push(`/invite/accept-invite?code=${code}`);
+                        router.push(`/invites/accept-invite?code=${code}`);
                       }
                     }}
                   />{" "}
