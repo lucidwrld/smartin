@@ -8,12 +8,18 @@ import {
   Menu,
   X,
   TableProperties,
+  Smartphone,
 } from "lucide-react";
 import Link from "next/link";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { useRouter } from "next/navigation";
-import { appscreenshots } from "@/public/images";
+import {
+  appscreenshots,
+  appstore,
+  mobilescreenshot,
+  playstore,
+} from "@/public/images";
 import InputWithFullBoarder from "./InputWithFullBoarder";
 import { validateCompletePhoneNumber } from "@/utils/validateCompletePhoneNumber";
 import CustomButton from "./Button";
@@ -163,6 +169,68 @@ const LandingPage = () => {
             </div>
           </div>
         </section> */}
+
+        <section id="mobile-app" className="py-16 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div className="order-2 md:order-1 flex justify-center">
+                <div className="relative">
+                  <div className="bg-backgroundPurple/10 rounded-3xl p-8">
+                    <div className="bg-white rounded-3xl shadow-xl overflow-hidden border-8 border-white w-64">
+                      <img
+                        src={mobilescreenshot.src}
+                        alt="Mobile App Screenshot"
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="order-1 md:order-2">
+                <div className="flex items-center mb-4">
+                  <Smartphone className="text-brandPurple mr-3" size={28} />
+                  <h2 className="text-3xl font-bold">
+                    Manage Events On The Go
+                  </h2>
+                </div>
+                <p className="text-xl text-gray-600 mb-6">
+                  Download our mobile app to create and manage your events from
+                  anywhere. Send invitations, track RSVPs, and update your guest
+                  list - all from your smartphone.
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  <a
+                    href="https://apps.apple.com/kz/app/smart-invites/id6742789707"
+                    className="inline-block"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img
+                      src={appstore.src}
+                      alt="Download on App Store"
+                      className="h-12"
+                    />
+                  </a>
+                  <a
+                    href="https://play.google.com/store/apps/details?id=xyz.smartinvites.smartinvites"
+                    className="inline-block"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img
+                      src={playstore.src}
+                      alt="Get it on Google Play"
+                      className="h-12"
+                    />
+                  </a>
+                </div>
+                <div className="mt-6 text-sm text-gray-500">
+                  <p>Available for iOS and Android devices</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <section id="features" className="py-16 md:py-24">
           <div className="max-w-7xl mx-auto px-4">
