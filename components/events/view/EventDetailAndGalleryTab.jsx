@@ -1,7 +1,7 @@
 "use client";
 import HeaderWithEdit from "@/components/HeaderWithEdit";
 import StatusButton from "@/components/StatusButton";
-import React from "react";
+import React, { useState } from "react";
 import {
   Calendar,
   Clock,
@@ -10,6 +10,7 @@ import {
   Phone,
   Share2,
   Wallet,
+  MessageSquare,
 } from "lucide-react";
 import Gallery from "@/components/Gallery";
 import { convertToAmPm } from "@/utils/timeStringToAMPM";
@@ -20,19 +21,49 @@ import { usePathname, useRouter } from "next/navigation";
 import CustomButton from "@/components/Button";
 import { SuspendEventManager } from "@/app/events/controllers/suspendEventController";
 import { ActivateDeactivateEvent } from "@/app/events/controllers/activeDeactivateEventController";
+import { EditEventManager } from "@/app/events/controllers/editEventController";
 import ResponseComponent from "@/components/Response";
+import useGetAllEventFeedbacksManager from "@/app/events/controllers/feedbacks/getAllEventFeedbacksController";
 
 const EventDetailAndGalleryTab = ({ event, isLoading }) => {
   const pathname = usePathname();
   const isAdminPath = pathname?.startsWith("/admin");
+  const [showFeedbackToggle, setShowFeedbackToggle] = useState(
+    event?.showFeedback || false
+  );
+
   const { suspendEvent, isLoading: suspending } = SuspendEventManager({
+    eventId: event?.id,
+  });
+
+  const { data: feedbacks } = useGetAllEventFeedbacksManager({
     eventId: event?.id,
   });
 
   const { manageEvent, isLoading: activating } = ActivateDeactivateEvent({
     eventId: event?.id,
   });
+
+  const { updateEvent, isLoading: updatingFeedback } = EditEventManager({
+    eventId: event?.id,
+  });
+
   const route = useRouter();
+
+  // Handle feedback toggle
+  const handleFeedbackToggle = async () => {
+    const newValue = !showFeedbackToggle;
+    setShowFeedbackToggle(newValue);
+
+    try {
+      await updateEvent({ showFeedback: newValue });
+    } catch (error) {
+      // Revert on error
+      setShowFeedbackToggle(!newValue);
+      console.error("Error updating feedback setting:", error);
+    }
+  };
+
   return isLoading ? (
     <Loader />
   ) : (
@@ -77,6 +108,43 @@ const EventDetailAndGalleryTab = ({ event, isLoading }) => {
               <span className="text-sm">{event?.venue}</span>
             </div>
           </div>
+
+          {/* Feedback Settings */}
+          {event?.isPaid && (
+            <div className="w-full border-t pt-6">
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <MessageSquare className="h-5 w-5 text-purple-600" />
+                  <div>
+                    <h4 className="font-medium text-gray-900">
+                      Event Feedback
+                    </h4>
+                    <p className="text-sm text-gray-600">
+                      Allow guests to see feedback section when available
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <button
+                    onClick={handleFeedbackToggle}
+                    disabled={updatingFeedback}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
+                      showFeedbackToggle ? "bg-purple-600" : "bg-gray-200"
+                    } ${
+                      updatingFeedback ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        showFeedbackToggle ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {!event?.isPaid && (
             <ResponseComponent
               isSuccess={false}

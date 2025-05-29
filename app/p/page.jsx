@@ -27,6 +27,7 @@ import {
   Ticket,
   Search,
   Send,
+  MessageSquare,
 } from "lucide-react";
 import { formatDateToLongString } from "@/utils/formatDateToLongString";
 import { convertToAmPm } from "@/utils/timeStringToAMPM";
@@ -35,6 +36,9 @@ import { addToGoogleCalendar } from "@/utils/addtoGoogleCalendar";
 import { getQueryParams } from "@/utils/getQueryParams";
 import useGetSingleEventPublicManager from "../events/controllers/getSingleEventPublicController";
 import Loader from "@/components/Loader";
+
+import FeedbackModal from "@/components/events/publicComponents/FeedbackModal";
+import PublicFeedbackDisplay from "@/components/events/publicComponents/PublicFeedbackDisplay";
 
 const EventWebsite = ({ event }) => {
   const router = useRouter();
@@ -59,6 +63,7 @@ const EventWebsite = ({ event }) => {
   const [checkingInvite, setCheckingInvite] = useState(false);
   const [inviteError, setInviteError] = useState("");
   const [showInviteForm, setShowInviteForm] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
   // Refs for scroll animations
   const sectionRefs = {
@@ -262,6 +267,7 @@ const EventWebsite = ({ event }) => {
   };
 
   // Determine available sections based on data
+  // Add this to the navLinks generation function (around line 180)
   const getAvailableSections = () => {
     const sections = [{ id: "home", label: "Home" }];
 
@@ -646,7 +652,6 @@ const EventWebsite = ({ event }) => {
     >
       {/* Custom CSS */}
       <style jsx>{animationCSS}</style>
-
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md shadow-sm z-50 transition-all duration-300">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -722,7 +727,6 @@ const EventWebsite = ({ event }) => {
           )}
         </div>
       </nav>
-
       {/* Hero Section with Blurred Background */}
       <section
         id="home"
@@ -911,7 +915,6 @@ const EventWebsite = ({ event }) => {
           ></div>
         </div>
       </section>
-
       {/* About Section */}
       {event.description && (
         <section
@@ -954,7 +957,6 @@ const EventWebsite = ({ event }) => {
           </div>
         </section>
       )}
-
       {/* Speakers Section */}
       {event.speakers && event.speakers.length > 0 && (
         <section
@@ -1005,7 +1007,6 @@ const EventWebsite = ({ event }) => {
           <div className="absolute -top-16 -right-16 w-64 h-64 bg-gradient-to-b from-gray-100 to-transparent rounded-full opacity-50"></div>
         </section>
       )}
-
       {/* Gallery Section */}
       {event.gallery && event.gallery.length > 0 && (
         <section
@@ -1160,7 +1161,6 @@ const EventWebsite = ({ event }) => {
           )}
         </section>
       )}
-
       {/* Registry Section */}
       {((event.donation &&
         (event.donation.account_name ||
@@ -1313,7 +1313,6 @@ const EventWebsite = ({ event }) => {
           ></div>
         </section>
       )}
-
       {/* Invitation Verification Section */}
       <section
         id="invitation"
@@ -1437,6 +1436,67 @@ const EventWebsite = ({ event }) => {
           </div>
         </div>
       </section>
+      <PublicFeedbackDisplay event={event} colors={colors} />
+      {/* Feedback Section - Always visible */}
+      <section
+        id="feedback"
+        className="py-24 bg-white relative overflow-hidden"
+      >
+        <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-gray-50 to-transparent"></div>
+        <div className="absolute bottom-0 right-0 w-full h-64 bg-gradient-to-t from-gray-50 to-transparent"></div>
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-3xl mx-auto text-center">
+            <div
+              className={`inline-block ${colors.bgLight} p-3 rounded-full mb-6`}
+            >
+              <MessageSquare
+                className={`h-8 w-8 ${colors.primary}`}
+                aria-hidden="true"
+              />
+            </div>
+
+            <h2 className="text-3xl md:text-5xl font-serif text-center font-bold text-gray-800 mb-4">
+              Share Your Experience
+            </h2>
+
+            <p className="text-gray-600 mb-8 text-lg">
+              We'd love to hear about your experience at {event.name}. Your
+              feedback helps us create even better events in the future.
+            </p>
+
+            <div
+              className={`max-w-lg mx-auto p-8 rounded-2xl shadow-xl relative overflow-hidden bg-white border ${colors.border}`}
+            >
+              <div className="text-center">
+                <p className="text-gray-700 mb-6">
+                  Share your thoughts, photos, or videos from the event. Your
+                  feedback is valuable to us and helps other guests know what to
+                  expect.
+                </p>
+
+                <button
+                  onClick={() => setShowFeedbackModal(true)}
+                  className={`w-full py-3 px-6 ${colors.bgDark} text-white rounded-lg shadow-md hover:shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 ${colors.focusRing} flex items-center justify-center`}
+                >
+                  <MessageSquare className="mr-2 h-5 w-5" aria-hidden="true" />
+                  Share Your Feedback
+                </button>
+
+                <p className="mt-4 text-sm text-gray-500">
+                  You'll need your invitation code to leave feedback
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      {/* Feedback Modal */}
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+        eventId={event.id || event._id}
+      />
 
       {/* Footer */}
       <footer className="py-16 bg-gray-900 text-white relative overflow-hidden">
@@ -1468,7 +1528,7 @@ const EventWebsite = ({ event }) => {
               • {event.venue}
             </p>
 
-            <div className="flex flex-wrap justify-center gap-6 max-w-md mx-auto mb-10">
+            {/* <div className="flex flex-wrap justify-center gap-6 max-w-md mx-auto mb-10">
               {navLinks.map((link) => (
                 <button
                   key={link.id}
@@ -1478,8 +1538,26 @@ const EventWebsite = ({ event }) => {
                   {link.label}
                 </button>
               ))}
+            </div> */}
+            <div className="flex flex-wrap justify-center gap-6 max-w-md mx-auto mb-10">
+              {[...navLinks, { id: "feedback", label: "Feedback" }].map(
+                (link) => (
+                  <button
+                    key={link.id}
+                    onClick={() => {
+                      if (link.id === "feedback") {
+                        setShowFeedbackModal(true);
+                      } else {
+                        scrollToSection(link.id);
+                      }
+                    }}
+                    className="text-sm text-gray-400 hover:text-white transition-colors focus:outline-none focus:ring-1 focus:ring-white focus:ring-offset-1 focus:ring-offset-gray-900 rounded"
+                  >
+                    {link.label}
+                  </button>
+                )
+              )}
             </div>
-
             <button
               onClick={() =>
                 addToGoogleCalendar({

@@ -1,20 +1,20 @@
 import { useQuery } from "react-query";
 import Axios from "@/constants/api_management/MyHttpHelper";
 
-const useGetInviteByCodeManager = ({ code, enabled = true }) => {
+const useGetPublicFeedbacksManager = ({ eventId, enabled = true }) => {
   return useQuery({
-    queryKey: ["invite", code],
+    queryKey: ["public_feedbacks", eventId],
     queryFn: async () => {
       try {
-        const response = await Axios.get(`/event/invites/${code}`);
+        const response = await Axios.get(`/feedbacks/event/${eventId}`);
         return response.data;
       } catch (error) {
         throw new Error("Sorry: " + error.response?.data?.message);
       }
     },
-    enabled: enabled,
+    enabled: Boolean(eventId) && enabled,
     refetchOnWindowFocus: false,
   });
 };
 
-export default useGetInviteByCodeManager;
+export default useGetPublicFeedbacksManager;
