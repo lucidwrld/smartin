@@ -92,6 +92,7 @@ const EventPage = () => {
       account_number: "",
     },
     gallery: [],
+    showFeedback: true,
     pay_later: false,
     currency: currency,
     thank_you_message: {
@@ -106,6 +107,7 @@ const EventPage = () => {
       if (formData.payment_type === "online" && createdEvent.data.checkoutUrl) {
         window.location.href = createdEvent.data.checkoutUrl;
       } else if (formData.payment_type === "bank") {
+        router.replace(`/events/create-event?id=${createdEvent.data.id}`);
         setShowProofModal(true);
       } else if (formData.payment_type === "later") {
         router.push("/events");
