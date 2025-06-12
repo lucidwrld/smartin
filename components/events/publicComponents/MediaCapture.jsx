@@ -119,6 +119,7 @@ const MediaCapture = ({ onMediaCapture, currentMedia = null }) => {
                 videoConstraints={videoConstraints}
                 className="w-full h-full object-cover"
                 style={{ transform: "scaleX(-1)" }} // Mirror effect
+                muted={true}
               />
 
               {/* Recording indicator */}
