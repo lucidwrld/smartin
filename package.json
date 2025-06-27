@@ -10,6 +10,7 @@
     "deploy-production": "next build && scp -i ~/ssh/skillseeds-v2 -r ./out/* support@24.199.82.187:/var/www/smartinvites/html"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/material": "^6.4.5",
