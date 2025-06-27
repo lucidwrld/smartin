@@ -257,7 +257,7 @@ const ContactSupportPage = () => {
               {/* Contact Form Section */}
               <div className="p-8 md:p-12">
                 {/* Debug info - Remove this in production */}
-                <div className="mb-4 p-3 bg-gray-100 rounded text-sm">
+                {/* <div className="mb-4 p-3 bg-gray-100 rounded text-sm">
                   <p>
                     <strong>Debug Info:</strong>
                   </p>
@@ -283,7 +283,7 @@ const ContactSupportPage = () => {
                       Clear Token (Force EmailJS)
                     </button>
                   )}
-                </div>
+                </div> */}
 
                 <form className="space-y-6" onSubmit={handleSubmit}>
                   <div>
