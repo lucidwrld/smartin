@@ -124,6 +124,14 @@ const EventPage = () => {
     registration_end_date: "",
     registration_forms: [],
 
+    // NEW: Invitation Settings
+    enable_invitations: false,
+    invitation_methods: [], // ["email", "sms", "whatsapp", "voice"]
+    enable_reminders: false,
+
+    // NEW: Payment Mode
+    payment_mode: "pay_per_event", // "subscription" or "pay_per_event"
+
     // Ticketing (for future steps)
     enable_ticketing: false,
     tickets: [],
@@ -187,6 +195,11 @@ const EventPage = () => {
         registration_forms: event?.data?.registration_forms || [],
         primary_color: event?.data?.primary_color || "#6366f1",
         secondary_color: event?.data?.secondary_color || "#8b5cf6",
+        // New invitation fields
+        enable_invitations: event?.data?.enable_invitations || false,
+        invitation_methods: event?.data?.invitation_methods || [],
+        enable_reminders: event?.data?.enable_reminders || false,
+        payment_mode: event?.data?.payment_mode || "pay_per_event",
       });
       if (section) {
         const stepIndex = steps.findIndex(
