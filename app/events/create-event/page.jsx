@@ -9,6 +9,8 @@ import { GalleryStep } from "@/components/events/GalleryStep";
 import { GiftRegistryStep } from "@/components/events/GiftRegistryStep";
 import { GuestListStep } from "@/components/events/GuestListStep";
 import PaymentStep from "@/components/events/PaymentStep";
+import { SessionsStep } from "@/components/events/SessionsStep";
+import { RegistrationFormsStep } from "@/components/events/RegistrationFormsStep";
 import { PaymentProofModal } from "@/components/events/PaymentProofModal";
 import { VerificationModal } from "@/components/events/VerificationModal";
 import { validateFormSubmission } from "@/utils/validateForm";
@@ -43,6 +45,7 @@ const EventPage = () => {
     isSuccess: added,
   } = AddInviteesManager();
   const currency = userDetails?.data?.user?.currency || "USD";
+
   // Custom hooks
   const {
     progress,
@@ -70,8 +73,9 @@ const EventPage = () => {
     eventId: id,
   });
 
-  // Form data state
+  // Enhanced form data state with new fields
   const [formData, setFormData] = useState({
+    // Existing fields - UNCHANGED
     name: "",
     description: "",
     host: "",
@@ -99,6 +103,49 @@ const EventPage = () => {
       image: "",
       message: "",
     },
+
+    // NEW FIELDS for enhanced functionality
+    is_multi_day: false,
+    end_date: "",
+    end_time: "",
+    video_url: "",
+    logo: null,
+    banner_image: null,
+    primary_color: "#6366f1",
+    secondary_color: "#8b5cf6",
+
+    // Session management
+    enable_sessions: false,
+    sessions: [],
+
+    // Registration forms
+    enable_registration: false,
+    registration_start_date: "",
+    registration_end_date: "",
+    registration_forms: [],
+
+    // Ticketing (for future steps)
+    enable_ticketing: false,
+    tickets: [],
+
+    // Vendors (for future steps)
+    vendors: [],
+
+    // Program/agenda (for future steps)
+    program: {
+      enabled: false,
+      is_public: true,
+      schedule: [],
+      speakers: [],
+    },
+
+    // Stakeholders (for future steps)
+    hosts: [],
+    sponsors: [],
+    partners: [],
+
+    // Resources (for future steps)
+    resources: [],
   });
 
   useEffect(() => {
@@ -117,6 +164,7 @@ const EventPage = () => {
       }
     }
   }, [isSuccess, createdEvent, formData.payment_type]);
+
   const isSuccessful = updated || added;
 
   useEffect(() => {
@@ -128,7 +176,18 @@ const EventPage = () => {
   // Initialize form data with event data in edit mode
   useEffect(() => {
     if (isEditMode && event) {
-      setFormData(event?.data);
+      setFormData({
+        ...formData,
+        ...event?.data,
+        // Ensure new fields have defaults if not present in existing data
+        is_multi_day: event?.data?.is_multi_day || false,
+        enable_sessions: event?.data?.enable_sessions || false,
+        sessions: event?.data?.sessions || [],
+        enable_registration: event?.data?.enable_registration || false,
+        registration_forms: event?.data?.registration_forms || [],
+        primary_color: event?.data?.primary_color || "#6366f1",
+        secondary_color: event?.data?.secondary_color || "#8b5cf6",
+      });
       if (section) {
         const stepIndex = steps.findIndex(
           (step) => step.title.toLowerCase() === section.toLowerCase()
@@ -163,6 +222,7 @@ const EventPage = () => {
     }
   };
 
+  // Enhanced steps array with new steps
   const steps = [
     {
       title: "Event Details",
@@ -178,6 +238,24 @@ const EventPage = () => {
       title: "Invitation Settings",
       component: (
         <InvitationSettingsStep
+          formData={formData}
+          onFormDataChange={handleFormDataChange}
+        />
+      ),
+    },
+    {
+      title: "Sessions",
+      component: (
+        <SessionsStep
+          formData={formData}
+          onFormDataChange={handleFormDataChange}
+        />
+      ),
+    },
+    {
+      title: "Registration Forms",
+      component: (
+        <RegistrationFormsStep
           formData={formData}
           onFormDataChange={handleFormDataChange}
         />
@@ -292,11 +370,25 @@ const EventPage = () => {
   const handleFileUploads = async (formData) => {
     const updatedData = { ...formData };
 
+    // Handle main image upload
     if (coverFile) {
       const imageUrl = await handleFileUpload(coverFile);
       updatedData.image = imageUrl;
     }
 
+    // Handle logo upload
+    if (formData.logo && typeof formData.logo === "object") {
+      const logoUrl = await handleFileUpload(formData.logo);
+      updatedData.logo = logoUrl;
+    }
+
+    // Handle banner upload
+    if (formData.banner_image && typeof formData.banner_image === "object") {
+      const bannerUrl = await handleFileUpload(formData.banner_image);
+      updatedData.banner_image = bannerUrl;
+    }
+
+    // Handle gallery uploads (existing logic)
     if (formData.gallery?.length > 0) {
       const existingUrls = formData.gallery.filter(
         (item) => !(item instanceof File)
@@ -377,9 +469,10 @@ const EventPage = () => {
 
     // In create mode
     if (!section) {
-      // Normal flow with all steps
-      if (currentStep === 0 || currentStep === 1) return "Next";
-      if (currentStep === 2) {
+      // Normal flow with all steps - Updated for new step positions
+      if (currentStep < 4) return "Next"; // Steps 0-3: Event Details, Invitation, Sessions, Registration
+      if (currentStep === 4) {
+        // Payment step
         if (formData.payment_type === "later") return "Save and Pay Later";
         if (formData.payment_type === "bank") return "Submit Payment Proof";
         if (formData.payment_type === "online") return "Proceed to Payment";
@@ -460,10 +553,10 @@ const EventPage = () => {
                     return;
                   }
 
-                  // For other cases
+                  // For other cases - Updated for new payment step position
                   if (
                     currentStep === visibleSteps.length - 1 ||
-                    (currentStep === 2 && !section)
+                    (currentStep === 4 && !section) // Payment is now step 4
                   ) {
                     handleSubmit();
                   } else {

@@ -8,17 +8,30 @@ export const EventDetailsStep = ({
   isEditMode,
 }) => {
   const [imagePreview, setImagePreview] = useState(null);
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [bannerPreview, setBannerPreview] = useState(null);
   const today = new Date().toISOString().split("T")[0];
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = (e, type = "image") => {
     const file = e.target.files[0];
     if (file) {
-      onFormDataChange("image", file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+      if (type === "logo") {
+        onFormDataChange("logo", file);
+        const reader = new FileReader();
+        reader.onloadend = () => setLogoPreview(reader.result);
+        reader.readAsDataURL(file);
+      } else if (type === "banner") {
+        onFormDataChange("banner_image", file);
+        const reader = new FileReader();
+        reader.onloadend = () => setBannerPreview(reader.result);
+        reader.readAsDataURL(file);
+      } else {
+        // Existing image upload logic - UNCHANGED
+        onFormDataChange("image", file);
+        const reader = new FileReader();
+        reader.onloadend = () => setImagePreview(reader.result);
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -30,14 +43,16 @@ export const EventDetailsStep = ({
     ? new Date(formData.date).toISOString().split("T")[0]
     : "";
   const formattedTime = formData.time ? formData.time.substring(0, 5) : "";
+
   return (
     <div className="flex flex-col w-full text-brandBlack">
       <p className="text-16px leading-[28px] mb-5 text-textGrey2">
         Kindly provide the details for your event
       </p>
       <div className="w-full flex flex-col md:flex-row gap-8 bg-whiteColor p-3 md:p-10">
+        {/* EXISTING IMAGE UPLOAD SECTION - UNCHANGED */}
         <div className="w-full md:w-1/2">
-          <p className="text-14px leading-[22px] mb-1">Upload image</p>
+          <p className="text-14px leading-[22px] mb-1">Upload main image</p>
           <div
             className="flex flex-col items-center justify-center w-full h-96 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
             onClick={() => document.getElementById("imageInput").click()}
@@ -96,12 +111,13 @@ export const EventDetailsStep = ({
               type="file"
               className="hidden"
               accept="image/*"
-              onChange={handleImageUpload}
+              onChange={(e) => handleImageUpload(e, "image")}
             />
           </div>
         </div>
 
         <div className="w-full md:w-1/2 space-y-4">
+          {/* EXISTING FORM FIELDS - UNCHANGED */}
           <InputWithFullBoarder
             label="Event Title"
             id="name"
@@ -149,6 +165,51 @@ export const EventDetailsStep = ({
             </div>
           </div>
 
+          {/* NEW: Multi-day Event Section */}
+          <div className="w-full border-t pt-4 mt-4">
+            <div className="flex items-center gap-2 mb-4">
+              <input
+                type="checkbox"
+                id="is_multi_day"
+                checked={formData.is_multi_day || false}
+                onChange={(e) =>
+                  handleInputChange("is_multi_day", e.target.checked)
+                }
+                className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+              />
+              <label
+                htmlFor="is_multi_day"
+                className="text-sm font-medium text-gray-700"
+              >
+                This is a multi-day event
+              </label>
+            </div>
+
+            {formData.is_multi_day && (
+              <div className="grid grid-cols-2 gap-4">
+                <InputWithFullBoarder
+                  label="End Date"
+                  id="end_date"
+                  type="date"
+                  value={formData.end_date || ""}
+                  onChange={(e) =>
+                    handleInputChange("end_date", e.target.value)
+                  }
+                  min={formData.date || today}
+                />
+                <InputWithFullBoarder
+                  label="End Time"
+                  id="end_time"
+                  type="time"
+                  value={formData.end_time || ""}
+                  onChange={(e) =>
+                    handleInputChange("end_time", e.target.value)
+                  }
+                />
+              </div>
+            )}
+          </div>
+
           <InputWithFullBoarder
             label="Venue Address"
             id="venue"
@@ -191,6 +252,153 @@ export const EventDetailsStep = ({
                 />
               </div>
             )}
+          </div>
+
+          {/* NEW: Additional Media Section */}
+          <div className="border-t pt-4 mt-4 space-y-4">
+            <h3 className="text-lg font-medium">Additional Media (Optional)</h3>
+
+            {/* Video URL */}
+            <InputWithFullBoarder
+              label="Event Video URL"
+              id="video_url"
+              value={formData.video_url || ""}
+              onChange={(e) => handleInputChange("video_url", e.target.value)}
+              placeholder="https://youtube.com/watch?v=..."
+            />
+
+            {/* Logo Upload */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-14px leading-[22px] mb-1">Event Logo</p>
+                <div
+                  className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                  onClick={() => document.getElementById("logoInput").click()}
+                >
+                  {logoPreview || formData.logo ? (
+                    <img
+                      src={logoPreview || formData.logo}
+                      alt="Logo Preview"
+                      className="w-full h-full object-contain rounded-lg"
+                    />
+                  ) : (
+                    <div className="text-center">
+                      <svg
+                        className="w-6 h-6 mx-auto mb-2 text-gray-400"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <p className="text-xs text-gray-500">Upload Logo</p>
+                    </div>
+                  )}
+                  <input
+                    id="logoInput"
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={(e) => handleImageUpload(e, "logo")}
+                  />
+                </div>
+              </div>
+
+              {/* Banner Upload */}
+              <div>
+                <p className="text-14px leading-[22px] mb-1">Banner Image</p>
+                <div
+                  className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                  onClick={() => document.getElementById("bannerInput").click()}
+                >
+                  {bannerPreview || formData.banner_image ? (
+                    <img
+                      src={bannerPreview || formData.banner_image}
+                      alt="Banner Preview"
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  ) : (
+                    <div className="text-center">
+                      <svg
+                        className="w-6 h-6 mx-auto mb-2 text-gray-400"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <p className="text-xs text-gray-500">Upload Banner</p>
+                    </div>
+                  )}
+                  <input
+                    id="bannerInput"
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={(e) => handleImageUpload(e, "banner")}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Branding Colors */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Primary Color
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={formData.primary_color || "#6366f1"}
+                    onChange={(e) =>
+                      handleInputChange("primary_color", e.target.value)
+                    }
+                    className="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={formData.primary_color || "#6366f1"}
+                    onChange={(e) =>
+                      handleInputChange("primary_color", e.target.value)
+                    }
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    placeholder="#6366f1"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Secondary Color
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={formData.secondary_color || "#8b5cf6"}
+                    onChange={(e) =>
+                      handleInputChange("secondary_color", e.target.value)
+                    }
+                    className="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={formData.secondary_color || "#8b5cf6"}
+                    onChange={(e) =>
+                      handleInputChange("secondary_color", e.target.value)
+                    }
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    placeholder="#8b5cf6"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
