@@ -24,8 +24,9 @@ import { ActivateDeactivateEvent } from "@/app/events/controllers/activeDeactiva
 import { EditEventManager } from "@/app/events/controllers/editEventController";
 import ResponseComponent from "@/components/Response";
 import useGetAllEventFeedbacksManager from "@/app/events/controllers/feedbacks/getAllEventFeedbacksController";
+import StatusCard from "@/components/StatusCard";
 
-const EventDetailAndGalleryTab = ({ event, isLoading }) => {
+const EventDetailAndGalleryTab = ({ event, isLoading, analytics, analyticsCards }) => {
   const pathname = usePathname();
   const isAdminPath = pathname?.startsWith("/admin");
   const [showFeedbackToggle, setShowFeedbackToggle] = useState(
@@ -68,6 +69,18 @@ const EventDetailAndGalleryTab = ({ event, isLoading }) => {
     <Loader />
   ) : (
     <div>
+      {/* Analytics Cards */}
+      {analyticsCards && (
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Event Analytics</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {analyticsCards.map((card, index) => (
+              <StatusCard key={index} {...card} />
+            ))}
+          </div>
+        </div>
+      )}
+
       <HeaderWithEdit
         title={"Event Details"}
         href={`/events/create-event?id=${event?.id}&section=event details`}

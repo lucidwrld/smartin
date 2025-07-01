@@ -1,7 +1,29 @@
 "use client";
-import BaseDashboardNavigation from "@/components/BaseDashboardNavigation";
+import EventDetailsLayout from "@/components/EventDetailsLayout";
 import React, { useState } from "react";
-import { Users, Send, UserRoundCheck, Clock } from "lucide-react";
+import {
+  Users,
+  Send,
+  UserRoundCheck,
+  Clock,
+  Calendar,
+  Gift,
+  UserCheck,
+  Settings,
+  FileText,
+  Building,
+  Users2,
+  Ticket,
+  Handshake,
+  Crown,
+  Timer,
+  MessageSquare,
+  Heart,
+  Lock,
+  BarChart3,
+  Folder,
+  Speaker,
+} from "lucide-react";
 import StatusCard from "@/components/StatusCard";
 import TabManager from "@/components/TabManager";
 import EventDetailAndGalleryTab from "@/components/events/view/EventDetailAndGalleryTab";
@@ -50,61 +72,55 @@ const EventDetailsPage = ({ params }) => {
   const menuSections = [
     {
       title: "Overview",
-      items: [{ id: 0, name: "Event Details", icon: "📅" }],
+      items: [{ id: 0, name: "Event Details", icon: Calendar }],
     },
     {
       title: "Event Management",
       items: [
-        { id: 7, name: "Resources", icon: "📁" },
-        { id: 17, name: "Registration Form", icon: "📁" },
-        { id: 8, name: "Vendors", icon: "🏢" },
-        { id: 9, name: "Program", icon: "📋" },
-        { id: 10, name: "Stakeholders", icon: "👥" },
-        { id: 11, name: "Ticketing", icon: "🎫" },
-        { id: 13, name: "Sponsors & Partners", icon: "🤝" },
-        { id: 14, name: "Hosts & Figures", icon: "👑" },
-        { id: 15, name: "Broadcast", icon: "📢" },
-        { id: 16, name: "Sessions", icon: "⏰" },
+        { id: 7, name: "Resources", icon: Folder },
+        { id: 17, name: "Registration Form", icon: FileText },
+        { id: 8, name: "Vendors", icon: Building },
+        { id: 9, name: "Program", icon: FileText },
+        { id: 10, name: "Stakeholders", icon: Users2 },
+        { id: 11, name: "Ticketing", icon: Ticket },
+        { id: 13, name: "Sponsors & Partners", icon: Handshake },
+        { id: 14, name: "Hosts & Figures", icon: Crown },
+        { id: 15, name: "Broadcast", icon: Speaker },
+        { id: 16, name: "Sessions", icon: Timer },
       ],
     },
     {
       title: "Guest Management",
       items: [
-        { id: 2, name: "Guest List", icon: "👤" },
-        { id: 3, name: "Table Arrangement", icon: "🪑" },
-        { id: 5, name: "Access Management", icon: "🔐" },
+        { id: 2, name: "Guest List", icon: Users },
+        { id: 3, name: "Table Arrangement", icon: Settings },
+        { id: 5, name: "Access Management", icon: Lock },
       ],
     },
     {
       title: "Experience",
       items: [
-        { id: 1, name: "Gift Registry", icon: "🎁" },
-        { id: 6, name: "Feedback", icon: "💬" },
-        { id: 12, name: "Polls & Q&A", icon: "📊" },
-        { id: 4, name: "Thank You Message", icon: "💌" },
+        { id: 1, name: "Gift Registry", icon: Gift },
+        { id: 6, name: "Feedback", icon: MessageSquare },
+        { id: 12, name: "Polls & Q&A", icon: BarChart3 },
+        { id: 4, name: "Thank You Message", icon: Heart },
       ],
     },
   ];
   return (
-    <BaseDashboardNavigation title={"Event Detail"}>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
-        {cards.map((card, index) => (
-          <StatusCard key={index} {...card} />
-        ))}
-      </div>
-
-      {/* New Layout with Sidebar */}
-      <div className="flex h-screen bg-gray-50">
+    <EventDetailsLayout eventName={event?.data?.eventName || "Event Details"}>
+      {/* Main Content Layout with Sidebar - Full Height */}
+      <div className="flex flex-1 bg-gray-50 h-full overflow-hidden">
         {/* Mobile menu button */}
-        <div className="lg:hidden">
+        <div className="lg:hidden fixed top-20 left-4 z-50">
           <button
             type="button"
-            className="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+            className="bg-white border border-gray-200 inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50 shadow-sm"
             onClick={() => setSidebarOpen(!sidebarOpen)}
           >
-            <span className="sr-only">Open main menu</span>
+            <span className="sr-only">Open navigation menu</span>
             <svg
-              className="block h-6 w-6"
+              className="block h-5 w-5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -122,66 +138,84 @@ const EventDetailsPage = ({ params }) => {
         {/* Sidebar */}
         <div
           className={`${
-            sidebarOpen ? "block" : "hidden"
-          } lg:block lg:w-64 bg-white shadow-sm border-r border-gray-200`}
+            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0 fixed lg:relative inset-y-0 left-0 z-40 w-72 bg-white shadow-lg lg:shadow-sm border-r border-gray-200 transition-transform duration-300 ease-in-out lg:block h-full`}
         >
-          <div className="h-full px-3 py-4 overflow-y-auto">
-            <div className="space-y-6">
-              {menuSections.map((section, sectionIndex) => (
-                <div key={sectionIndex}>
-                  <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {section.title}
-                  </h3>
-                  <div className="mt-2 space-y-1">
-                    {section.items.map((item) => {
-                      const isDisabled =
-                        !event?.data?.isPaid && [1, 2, 3, 4].includes(item.id);
-                      return (
-                        <button
-                          key={item.id}
-                          onClick={() => {
-                            if (!isDisabled) {
-                              setCurrentView(item.id);
-                              setSidebarOpen(false);
-                            }
-                          }}
-                          disabled={isDisabled}
-                          className={`${
-                            currentView === item.id
-                              ? "bg-purple-100 border-purple-500 text-purple-700"
-                              : isDisabled
-                              ? "text-gray-400 cursor-not-allowed"
-                              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                          } group w-full flex items-center px-3 py-2 text-sm font-medium rounded-md border-l-4 ${
-                            currentView === item.id
-                              ? "border-purple-500"
-                              : "border-transparent"
-                          } transition-colors duration-150`}
-                        >
-                          <span className="mr-3 text-lg">{item.icon}</span>
-                          {item.name}
-                          {isDisabled && (
-                            <span className="ml-auto text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded">
-                              Locked
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
+          <div className="h-full flex flex-col overflow-hidden">
+            <div className="p-4 border-b border-gray-200 flex-shrink-0">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Event Management
+              </h2>
+              <p className="text-sm text-gray-500 truncate">
+                {event?.data?.eventName}
+              </p>
+            </div>
+            <div className="flex-1 overflow-y-auto scrollbar-hide">
+              <div className="px-4 py-6">
+                <div className="space-y-6">
+                  {menuSections.map((section, sectionIndex) => (
+                    <div key={sectionIndex}>
+                      <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                        {section.title}
+                      </h3>
+                      <div className="space-y-1">
+                        {section.items.map((item) => {
+                          const isDisabled =
+                            !event?.data?.isPaid &&
+                            [1, 2, 3, 4].includes(item.id);
+                          const IconComponent = item.icon;
+                          return (
+                            <button
+                              key={item.id}
+                              onClick={() => {
+                                if (!isDisabled) {
+                                  setCurrentView(item.id);
+                                  setSidebarOpen(false);
+                                }
+                              }}
+                              disabled={isDisabled}
+                              className={`${
+                                currentView === item.id
+                                  ? "bg-purple-50 border-purple-200 text-purple-700"
+                                  : isDisabled
+                                  ? "text-gray-400 cursor-not-allowed"
+                                  : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                              } group w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg border transition-all duration-150 ${
+                                currentView === item.id
+                                  ? "border-purple-200 shadow-sm"
+                                  : "border-transparent"
+                              }`}
+                            >
+                              <IconComponent className="mr-3 h-4 w-4 flex-shrink-0" />
+                              <span className="flex-1 text-left">
+                                {item.name}
+                              </span>
+                              {isDisabled && (
+                                <span className="ml-2 text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">
+                                  Pro
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Main content */}
-        <div className="flex-1 overflow-auto bg-white">
+        <div className="flex-1 overflow-y-auto bg-white min-w-0 h-full">
           <div className="p-6">
             {currentView === 0 && (
               <EventDetailAndGalleryTab
                 event={event?.data}
                 isLoading={isLoading}
+                analytics={analytics?.data}
+                analyticsCards={cards}
               />
             )}
             {currentView === 1 && (
@@ -222,7 +256,15 @@ const EventDetailsPage = ({ params }) => {
           </div>
         </div>
       </div>
-    </BaseDashboardNavigation>
+
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+    </EventDetailsLayout>
   );
 };
 
