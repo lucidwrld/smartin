@@ -227,7 +227,7 @@ const Dashboard = () => {
                     <Link
                       className="w-full"
                       key={index}
-                      href={`/events/event/?id=${event?._id}`}
+                      href={`/events/${event?._id}`}
                     >
                       <UpcomingEvent {...event} />
                     </Link>

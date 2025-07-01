@@ -57,7 +57,7 @@ const EventTile = ({ event }) => {
               className={"border border-grey3 w-full md:w-fit"}
               textColor={"blackColor"}
               suffixIcon={arrowRight.src}
-              onClick={() => route.push(`/events/event?id=${event.id}`)}
+              onClick={() => route.push(`/events/${event.id}`)}
             />
             {!event?.isPaid && (
               <CustomButton

@@ -37,8 +37,7 @@ import { formatDateToLongString } from "@/utils/formatDateToLongString";
 import { convertToAmPm } from "@/utils/timeStringToAMPM";
 import { openInMaps } from "@/utils/openInMaps";
 import { addToGoogleCalendar } from "@/utils/addtoGoogleCalendar";
-import { getQueryParams } from "@/utils/getQueryParams";
-import useGetSingleEventPublicManager from "../events/controllers/getSingleEventPublicController";
+import useGetSingleEventPublicManager from "../../events/controllers/getSingleEventPublicController";
 import Loader from "@/components/Loader";
 import { generateMockEventData } from "@/utils/mockEventData";
 
@@ -2183,8 +2182,8 @@ const EventWebsite = ({ event: rawEvent }) => {
 };
 
 // Example usage with the specific event data structure
-const EventPage = () => {
-  const { id } = getQueryParams(["id"]);
+const EventPage = ({ params }) => {
+  const { eventId: id } = params;
 
   const {
     data: eventInfo,

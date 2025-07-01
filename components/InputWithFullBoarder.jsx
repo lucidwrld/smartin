@@ -167,6 +167,7 @@ const InputWithFullBoarder = ({
     border rounded-md p-2 outline-none focus:outline-none placeholder:text-14px
     ${error && touched ? "border-red-500" : "border-gray-300"}
     ${disabled ? "bg-gray-100" : "bg-white"}
+    ${isTextArea && "h-[200px]"}
   `;
 
   const commonInputProps = {

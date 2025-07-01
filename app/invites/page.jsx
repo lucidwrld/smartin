@@ -143,16 +143,37 @@ const InvitePage = ({}) => {
               {/* Invite Card */}
               <EventAccessCard inviteDetail={data} />
 
+              {/* Ticketing Notice */}
+              {event?.enable_ticketing && data?.response !== "accepted" && (
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                      🎫
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-purple-800">Ticket Purchase Required</h4>
+                      <p className="text-sm text-purple-700 mt-1">
+                        This event requires ticket purchase as part of your invitation acceptance.
+                        You'll be able to select and purchase your tickets in the next step.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Calendar Button */}
               {data?.response !== "accepted" ? (
                 <div className="flex items-center justify-center gap-5 w-full">
                   <CustomButton
-                    buttonText={"Accept Invite"}
+                    buttonText={event?.enable_ticketing ? "Accept & Buy Tickets" : "Accept Invite"}
                     radius={"rounded-full w-full"}
                     buttonColor={"bg-success"}
                     isLoading={sending && isaccepting}
                     onClick={() => {
-                      if (event?.verification_type === "accessCode") {
+                      if (event?.enable_ticketing) {
+                        // Redirect to ticketed acceptance flow
+                        router.push(`/invites/ticketed-accept?code=${code}`);
+                      } else if (event?.verification_type === "accessCode") {
                         setIsAccepting(true);
                         //accept invitation
                         const detail = {

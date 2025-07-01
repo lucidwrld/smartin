@@ -11,6 +11,11 @@ import { GuestListStep } from "@/components/events/GuestListStep";
 import PaymentStep from "@/components/events/PaymentStep";
 import { SessionsStep } from "@/components/events/SessionsStep";
 import { RegistrationFormsStep } from "@/components/events/RegistrationFormsStep";
+import { ResourcesStep } from "@/components/events/ResourcesStep";
+import { VendorsStep } from "@/components/events/VendorsStep";
+import { ProgramStep } from "@/components/events/ProgramStep";
+import { StakeholdersStep } from "@/components/events/StakeholdersStep";
+import { TicketingStep } from "@/components/events/TicketingStep";
 import { PaymentProofModal } from "@/components/events/PaymentProofModal";
 import { VerificationModal } from "@/components/events/VerificationModal";
 import { validateFormSubmission } from "@/utils/validateForm";
@@ -168,7 +173,7 @@ const EventPage = () => {
         router.push("/events");
       } else {
         // Default fallback - navigate to the event page
-        router.push(`/events/event?id=${createdEvent.data.id}`);
+        router.push(`/events/${createdEvent.data.id}`);
       }
     }
   }, [isSuccess, createdEvent, formData.payment_type]);
@@ -177,7 +182,7 @@ const EventPage = () => {
 
   useEffect(() => {
     if (isSuccessful) {
-      router.push(`/events/event?id=${id}`);
+      router.push(`/events/${id}`);
     }
   }, [isSuccessful]);
 
@@ -235,7 +240,7 @@ const EventPage = () => {
     }
   };
 
-  // Enhanced steps array with new steps
+  // Simplified steps array - only 3 essential steps
   const steps = [
     {
       title: "Event Details",
@@ -248,27 +253,9 @@ const EventPage = () => {
       ),
     },
     {
-      title: "Invitation Settings",
+      title: "Invitation Settings & Form",
       component: (
         <InvitationSettingsStep
-          formData={formData}
-          onFormDataChange={handleFormDataChange}
-        />
-      ),
-    },
-    {
-      title: "Sessions",
-      component: (
-        <SessionsStep
-          formData={formData}
-          onFormDataChange={handleFormDataChange}
-        />
-      ),
-    },
-    {
-      title: "Registration Forms",
-      component: (
-        <RegistrationFormsStep
           formData={formData}
           onFormDataChange={handleFormDataChange}
         />
@@ -283,33 +270,6 @@ const EventPage = () => {
           formData={formData}
           onFormDataChange={handleFormDataChange}
           currency={currency}
-        />
-      ),
-    },
-    {
-      title: "Gallery",
-      component: (
-        <GalleryStep
-          formData={formData}
-          onFormDataChange={handleFormDataChange}
-        />
-      ),
-    },
-    {
-      title: "Gift Registry",
-      component: (
-        <GiftRegistryStep
-          formData={formData}
-          onFormDataChange={handleFormDataChange}
-        />
-      ),
-    },
-    {
-      title: "Guest List",
-      component: (
-        <GuestListStep
-          formData={formData}
-          onFormDataChange={handleFormDataChange}
         />
       ),
     },
@@ -372,7 +332,7 @@ const EventPage = () => {
           break;
 
         default:
-          router.push(`/events/event?id=${eventId}`);
+          router.push(`/events/${eventId}`);
       }
     } catch (error) {
       console.error("Error processing payment:", error);
@@ -482,9 +442,9 @@ const EventPage = () => {
 
     // In create mode
     if (!section) {
-      // Normal flow with all steps - Updated for new step positions
-      if (currentStep < 4) return "Next"; // Steps 0-3: Event Details, Invitation, Sessions, Registration
-      if (currentStep === 4) {
+      // Simplified flow with 3 steps: Event Details, Invitation Settings & Form, Payment
+      if (currentStep < 2) return "Next"; // Steps 0-1: Event Details, Invitation Settings & Form
+      if (currentStep === 2) {
         // Payment step
         if (formData.payment_type === "later") return "Save and Pay Later";
         if (formData.payment_type === "bank") return "Submit Payment Proof";
@@ -569,7 +529,7 @@ const EventPage = () => {
                   // For other cases - Updated for new payment step position
                   if (
                     currentStep === visibleSteps.length - 1 ||
-                    (currentStep === 4 && !section) // Payment is now step 4
+                    (currentStep === 9 && !section) // Payment is now step 9
                   ) {
                     handleSubmit();
                   } else {
@@ -598,7 +558,7 @@ const EventPage = () => {
         isOpen={showVerificationModal}
         onClose={() => {
           setShowVerificationModal(false);
-          router.push(`/events/event?id=${id}`);
+          router.push(`/events/${id}`);
         }}
       />
     </BaseDashboardNavigation>

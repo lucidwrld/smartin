@@ -7,7 +7,6 @@ import TabManager from "@/components/TabManager";
 import EventDetailAndGalleryTab from "@/components/events/view/EventDetailAndGalleryTab";
 import GiftRegistryTab from "@/components/events/view/GiftRegistryTab";
 import GuestListTab from "@/components/events/view/GuestListTab";
-import { getQueryParams } from "@/utils/getQueryParams";
 import useGetSingleEventManager from "../controllers/getSingleEventController";
 import useGetEventAnalyticsManager from "../controllers/getEventAnalyticsController";
 import { TableArrangement } from "@/components/events/view/TableArrangement";
@@ -27,11 +26,11 @@ import SubscriptionManagementTab from "@/components/events/view/SubscriptionMana
 import SessionsManagementTab from "@/components/events/view/SessionsManagementTab";
 import FormsManagementTab from "@/components/events/view/FormsManagementTab";
 
-const EventDetailsPage = () => {
-  const { id } = getQueryParams(["id"]);
-  const { data: event, isLoading } = useGetSingleEventManager({ eventId: id });
+const EventDetailsPage = ({ params }) => {
+  const { eventId } = React.use(params);
+  const { data: event, isLoading } = useGetSingleEventManager({ eventId });
   const { data: analytics, isLoading: loadingAnalytics } =
-    useGetEventAnalyticsManager({ eventId: id });
+    useGetEventAnalyticsManager({ eventId });
 
   const cards = [
     { title: "Guests", count: analytics?.data?.totalInvites, icon: Users },
@@ -190,15 +189,15 @@ const EventDetailsPage = () => {
             )}
             {currentView === 2 && (
               <GuestListTab
-                eventId={id}
+                eventId={eventId}
                 analytics={analytics?.data}
                 event={event?.data}
               />
             )}
-            {currentView === 3 && <TableArrangement eventId={id} />}
+            {currentView === 3 && <TableArrangement eventId={eventId} />}
             {currentView === 4 && <ThankYouMessage event={event?.data} />}
             {currentView === 5 && <AccessManagement event={event?.data} />}
-            {currentView === 6 && <FeedbackManagementTab eventId={id} />}
+            {currentView === 6 && <FeedbackManagementTab eventId={eventId} />}
             {currentView === 7 && (
               <ResourcesManagementTab event={event?.data} />
             )}

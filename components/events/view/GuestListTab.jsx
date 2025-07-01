@@ -15,6 +15,8 @@ import {
   PlusCircle,
   Send,
   PlusIcon,
+  Calendar,
+  Clock,
 } from "lucide-react";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import StatusButtonWithBool from "@/components/StatusWithBool";
@@ -44,6 +46,10 @@ const GuestListTab = ({ eventId, analytics, event }) => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectedGuestIds, setSelectedGuestIds] = useState([]);
   const [modalToOpen, setModalToOpen] = useState(null);
+  const [selectedSession, setSelectedSession] = useState("all");
+  const [showSessionModal, setShowSessionModal] = useState(false);
+  const [sessionForAttendance, setSessionForAttendance] = useState(null);
+  const [guestForAttendance, setGuestForAttendance] = useState(null);
   const { data: userDetails } = useGetUserDetailsManager();
   const currency = userDetails?.data?.user?.currency || "USD";
   const { data, isLoading } = useGetEventInviteesManager({
@@ -90,7 +96,7 @@ const GuestListTab = ({ eventId, analytics, event }) => {
       eventId,
       no_of_invitees: inviteCount,
       currency: currency,
-      path: `/events/event/?id=${eventId}`,
+      path: `/events/${eventId}`,
     });
   };
 
@@ -140,7 +146,15 @@ const GuestListTab = ({ eventId, analytics, event }) => {
     el?.phone,
     el?.email || "No email",
     <StatusButton status={el?.response} />,
-    <StatusButton status={el?.attended ? "Attended" : "Not Attended"} />,
+    event?.enable_sessions && el?.session_attendance ? (
+      <div className="text-xs">
+        <span className="font-medium">
+          {el.session_attendance.length}/{event.sessions?.length || 0} sessions
+        </span>
+      </div>
+    ) : (
+      <StatusButton status={el?.attended ? "Attended" : "Not Attended"} />
+    ),
     <div className="flex items-center gap-2">
       <StatusButtonWithBool
         isActive={el?.notification_sent?.whatsapp}
@@ -187,7 +201,8 @@ const GuestListTab = ({ eventId, analytics, event }) => {
     }
   };
 
-  const { markAttendance } = MarkAttendanceManager();
+  const { markAttendance, isLoading: markingAttendance } = MarkAttendanceManager();
+  
   const handleGuestAction = (option, _, guest) => {
     setSelectedGuest(guest);
 
@@ -196,10 +211,35 @@ const GuestListTab = ({ eventId, analytics, event }) => {
     } else if (option === "Edit Guest Info") {
       setModalToOpen("edit_guest_modal");
     } else if (option === "Confirm Attendance") {
-      markAttendance({ inviteeId: guest?.id });
+      // Check if event has sessions enabled
+      if (event?.enable_sessions && event?.sessions?.length > 0) {
+        setGuestForAttendance(guest);
+        setShowSessionModal(true);
+      } else {
+        // No sessions, mark general attendance
+        markAttendance({ inviteeId: guest?.id });
+      }
     } else if (option === "Remove Guest") {
       removeGuests({ inviteIds: [guest.id] });
     }
+  };
+
+  const handleMarkSessionAttendance = async () => {
+    if (!guestForAttendance) return;
+    
+    const attendanceData = {
+      inviteeId: guestForAttendance.id,
+    };
+    
+    // Add session ID if specific session selected
+    if (sessionForAttendance && sessionForAttendance !== "all") {
+      attendanceData.sessionId = sessionForAttendance;
+    }
+    
+    await markAttendance(attendanceData);
+    setShowSessionModal(false);
+    setGuestForAttendance(null);
+    setSessionForAttendance(null);
   };
   const renderActionButtons = () => {
     if (selectedGuestIds.length > 0) {
@@ -290,7 +330,7 @@ const GuestListTab = ({ eventId, analytics, event }) => {
           radius="rounded-full"
           className="text-xs md:text-sm w-full md:w-auto"
           onClick={() =>
-            route.push(`/events/create-event/?id=${eventId}&section=Guest List`)
+            route.push(`/events/create-event?id=${eventId}&section=Guest List`)
           }
         />
       </div>
@@ -392,6 +432,72 @@ const GuestListTab = ({ eventId, analytics, event }) => {
         }}
       />
       <GuestEditModal guest={selectedGuest} />
+
+      {/* Session Selection Modal */}
+      {showSessionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <h3 className="text-lg font-semibold mb-4">Select Session for Attendance</h3>
+            
+            {guestForAttendance && (
+              <p className="text-sm text-gray-600 mb-4">
+                Marking attendance for: <span className="font-medium">{guestForAttendance.name}</span>
+              </p>
+            )}
+
+            <div className="space-y-2 mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Choose Session
+              </label>
+              <select
+                value={sessionForAttendance || "all"}
+                onChange={(e) => setSessionForAttendance(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+              >
+                <option value="all">General Attendance (All Sessions)</option>
+                {event?.sessions?.map((session) => (
+                  <option key={session.id} value={session.id}>
+                    {session.name} - {new Date(session.date).toLocaleDateString()}
+                    {session.start_time && ` at ${session.start_time}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {sessionForAttendance && sessionForAttendance !== "all" && (
+              <div className="mb-4 p-3 bg-gray-50 rounded">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Calendar className="h-4 w-4" />
+                  <span>{event?.sessions?.find(s => s.id === sessionForAttendance)?.date}</span>
+                  <Clock className="h-4 w-4 ml-2" />
+                  <span>{event?.sessions?.find(s => s.id === sessionForAttendance)?.start_time}</span>
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-3 justify-end">
+              <CustomButton
+                buttonText="Cancel"
+                buttonColor="bg-gray-300"
+                textColor="text-gray-700"
+                radius="rounded-md"
+                onClick={() => {
+                  setShowSessionModal(false);
+                  setGuestForAttendance(null);
+                  setSessionForAttendance(null);
+                }}
+              />
+              <CustomButton
+                buttonText="Mark Attendance"
+                buttonColor="bg-purple-600"
+                radius="rounded-md"
+                onClick={handleMarkSessionAttendance}
+                isLoading={markingAttendance}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
