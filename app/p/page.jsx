@@ -48,7 +48,7 @@ import PublicFeedbackDisplay from "@/components/events/publicComponents/PublicFe
 const EventWebsite = ({ event: rawEvent }) => {
   const router = useRouter();
   const [activeSection, setActiveSection] = useState("home");
-  
+
   // Generate enhanced event data with mock content for missing sections
   const event = generateMockEventData(rawEvent);
 
@@ -304,7 +304,7 @@ const EventWebsite = ({ event: rawEvent }) => {
       sections.push({ id: "resources", label: "Resources" });
     }
 
-    // Vendors section  
+    // Vendors section
     if (event.vendors && event.vendors.length > 0) {
       sections.push({ id: "vendors", label: "Vendors" });
     }
@@ -319,7 +319,7 @@ const EventWebsite = ({ event: rawEvent }) => {
       sections.push({ id: "sponsors", label: "Sponsors" });
     }
 
-    // Partners section  
+    // Partners section
     if (event.partners && event.partners.length > 0) {
       sections.push({ id: "partners", label: "Partners" });
     }
@@ -1007,7 +1007,7 @@ const EventWebsite = ({ event: rawEvent }) => {
           </div>
         </section>
       )}
-      
+
       {/* Program Section */}
       {event.program?.schedule && event.program.schedule.length > 0 && (
         <section
@@ -1034,7 +1034,8 @@ const EventWebsite = ({ event: rawEvent }) => {
                 Event Program
               </h2>
               <p className="text-gray-600 max-w-3xl mx-auto text-lg">
-                Discover what's planned for this amazing event. Here's the detailed schedule and agenda.
+                Discover what's planned for this amazing event. Here's the
+                detailed schedule and agenda.
               </p>
             </div>
 
@@ -1045,7 +1046,7 @@ const EventWebsite = ({ event: rawEvent }) => {
                   if (dateCompare !== 0) return dateCompare;
                   return a.start_time.localeCompare(b.start_time);
                 })
-                .filter(session => session.is_public !== false)
+                .filter((session) => session.is_public !== false)
                 .map((session, index) => (
                   <div
                     key={index}
@@ -1058,18 +1059,28 @@ const EventWebsite = ({ event: rawEvent }) => {
                             {session.title}
                           </h3>
                           {session.session_type && (
-                            <span className={`px-3 py-1 text-xs rounded-full ${colors.bgLight} ${colors.primary} font-medium`}>
+                            <span
+                              className={`px-3 py-1 text-xs rounded-full ${colors.bgLight} ${colors.primary} font-medium`}
+                            >
                               {session.session_type}
                             </span>
                           )}
                         </div>
                         {session.description && (
-                          <p className="text-gray-600 mb-3">{session.description}</p>
+                          <p className="text-gray-600 mb-3">
+                            {session.description}
+                          </p>
                         )}
                         {session.speaker && (
                           <p className="text-sm text-gray-700 mb-2">
-                            <span className="font-medium">Speaker:</span> {session.speaker.name}
-                            {session.speaker.title && <span className="text-gray-500"> - {session.speaker.title}</span>}
+                            <span className="font-medium">Speaker:</span>{" "}
+                            {session.speaker.name}
+                            {session.speaker.title && (
+                              <span className="text-gray-500">
+                                {" "}
+                                - {session.speaker.title}
+                              </span>
+                            )}
                           </p>
                         )}
                       </div>
@@ -1131,27 +1142,45 @@ const EventWebsite = ({ event: rawEvent }) => {
                 Resources
               </h2>
               <p className="text-gray-600 max-w-3xl mx-auto text-lg">
-                Access helpful resources, documents, and materials related to this event.
+                Access helpful resources, documents, and materials related to
+                this event.
               </p>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {event.resources
-                .filter(resource => resource.visibility === 'public' || !resource.visibility)
+                .filter(
+                  (resource) =>
+                    resource.visibility === "public" || !resource.visibility
+                )
                 .map((resource, index) => (
                   <div
                     key={index}
                     className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group"
                   >
                     <div className="flex items-center justify-between mb-4">
-                      <div className={`w-12 h-12 ${colors.bgLight} rounded-lg flex items-center justify-center`}>
-                        {resource.type === 'document' && <FileText className={`w-6 h-6 ${colors.primary}`} />}
-                        {resource.type === 'image' && <Camera className={`w-6 h-6 ${colors.primary}`} />}
-                        {resource.type === 'video' && <Film className={`w-6 h-6 ${colors.primary}`} />}
-                        {resource.type === 'link' && <ExternalLink className={`w-6 h-6 ${colors.primary}`} />}
+                      <div
+                        className={`w-12 h-12 ${colors.bgLight} rounded-lg flex items-center justify-center`}
+                      >
+                        {resource.type === "document" && (
+                          <FileText className={`w-6 h-6 ${colors.primary}`} />
+                        )}
+                        {resource.type === "image" && (
+                          <Camera className={`w-6 h-6 ${colors.primary}`} />
+                        )}
+                        {resource.type === "video" && (
+                          <Film className={`w-6 h-6 ${colors.primary}`} />
+                        )}
+                        {resource.type === "link" && (
+                          <ExternalLink
+                            className={`w-6 h-6 ${colors.primary}`}
+                          />
+                        )}
                       </div>
                       {resource.category && (
-                        <span className={`px-2 py-1 text-xs rounded ${colors.bgLight} ${colors.primary}`}>
+                        <span
+                          className={`px-2 py-1 text-xs rounded ${colors.bgLight} ${colors.primary}`}
+                        >
                           {resource.category}
                         </span>
                       )}
@@ -1160,7 +1189,9 @@ const EventWebsite = ({ event: rawEvent }) => {
                       {resource.name}
                     </h3>
                     {resource.description && (
-                      <p className="text-gray-600 text-sm mb-4">{resource.description}</p>
+                      <p className="text-gray-600 text-sm mb-4">
+                        {resource.description}
+                      </p>
                     )}
                     <a
                       href={resource.url}
@@ -1204,13 +1235,18 @@ const EventWebsite = ({ event: rawEvent }) => {
                 Our Partners
               </h2>
               <p className="text-gray-600 max-w-3xl mx-auto text-lg">
-                Meet the amazing vendors and partners who are helping make this event possible.
+                Meet the amazing vendors and partners who are helping make this
+                event possible.
               </p>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
               {event.vendors
-                .filter(vendor => vendor.status === 'confirmed' || vendor.status === 'contracted')
+                .filter(
+                  (vendor) =>
+                    vendor.status === "confirmed" ||
+                    vendor.status === "contracted"
+                )
                 .map((vendor, index) => (
                   <div
                     key={index}
@@ -1235,18 +1271,21 @@ const EventWebsite = ({ event: rawEvent }) => {
                         Contact: {vendor.contact_person}
                       </p>
                     )}
-                    {vendor.services_provided && vendor.services_provided.length > 0 && (
-                      <div className="flex flex-wrap justify-center gap-1 mb-4">
-                        {vendor.services_provided.slice(0, 3).map((service, serviceIndex) => (
-                          <span
-                            key={serviceIndex}
-                            className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
-                          >
-                            {service}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    {vendor.services_provided &&
+                      vendor.services_provided.length > 0 && (
+                        <div className="flex flex-wrap justify-center gap-1 mb-4">
+                          {vendor.services_provided
+                            .slice(0, 3)
+                            .map((service, serviceIndex) => (
+                              <span
+                                key={serviceIndex}
+                                className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
+                              >
+                                {service}
+                              </span>
+                            ))}
+                        </div>
+                      )}
                     {vendor.website && (
                       <a
                         href={vendor.website}
@@ -1287,13 +1326,14 @@ const EventWebsite = ({ event: rawEvent }) => {
                 Our Team
               </h2>
               <p className="text-gray-600 max-w-3xl mx-auto text-lg">
-                Meet the dedicated team members and stakeholders making this event happen.
+                Meet the dedicated team members and stakeholders making this
+                event happen.
               </p>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
               {event.stakeholders
-                .filter(stakeholder => stakeholder.status === 'active')
+                .filter((stakeholder) => stakeholder.status === "active")
                 .map((stakeholder, index) => (
                   <div
                     key={index}
@@ -1302,35 +1342,52 @@ const EventWebsite = ({ event: rawEvent }) => {
                     <div
                       className={`w-16 h-16 ${colors.bgLight} rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}
                     >
-                      {stakeholder.role === 'sponsor' && <Crown className={`h-8 w-8 ${colors.primary}`} />}
-                      {stakeholder.role === 'speaker' && <Mic className={`h-8 w-8 ${colors.primary}`} />}
-                      {stakeholder.role === 'organizer' && <Users className={`h-8 w-8 ${colors.primary}`} />}
-                      {!['sponsor', 'speaker', 'organizer'].includes(stakeholder.role) && <User className={`h-8 w-8 ${colors.primary}`} />}
+                      {stakeholder.role === "sponsor" && (
+                        <Crown className={`h-8 w-8 ${colors.primary}`} />
+                      )}
+                      {stakeholder.role === "speaker" && (
+                        <Mic className={`h-8 w-8 ${colors.primary}`} />
+                      )}
+                      {stakeholder.role === "organizer" && (
+                        <Users className={`h-8 w-8 ${colors.primary}`} />
+                      )}
+                      {!["sponsor", "speaker", "organizer"].includes(
+                        stakeholder.role
+                      ) && <User className={`h-8 w-8 ${colors.primary}`} />}
                     </div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-1">
                       {stakeholder.name}
                     </h3>
                     {stakeholder.title && (
-                      <p className="text-gray-600 text-sm mb-2">{stakeholder.title}</p>
+                      <p className="text-gray-600 text-sm mb-2">
+                        {stakeholder.title}
+                      </p>
                     )}
                     {stakeholder.organization && (
-                      <p className="text-gray-500 text-xs mb-3">{stakeholder.organization}</p>
+                      <p className="text-gray-500 text-xs mb-3">
+                        {stakeholder.organization}
+                      </p>
                     )}
-                    <span className={`px-3 py-1 text-xs rounded-full ${colors.bgLight} ${colors.primary} font-medium`}>
+                    <span
+                      className={`px-3 py-1 text-xs rounded-full ${colors.bgLight} ${colors.primary} font-medium`}
+                    >
                       {stakeholder.role}
                     </span>
-                    {stakeholder.expertise_areas && stakeholder.expertise_areas.length > 0 && (
-                      <div className="mt-3 flex flex-wrap justify-center gap-1">
-                        {stakeholder.expertise_areas.slice(0, 2).map((area, areaIndex) => (
-                          <span
-                            key={areaIndex}
-                            className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
-                          >
-                            {area}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    {stakeholder.expertise_areas &&
+                      stakeholder.expertise_areas.length > 0 && (
+                        <div className="mt-3 flex flex-wrap justify-center gap-1">
+                          {stakeholder.expertise_areas
+                            .slice(0, 2)
+                            .map((area, areaIndex) => (
+                              <span
+                                key={areaIndex}
+                                className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
+                              >
+                                {area}
+                              </span>
+                            ))}
+                        </div>
+                      )}
                   </div>
                 ))}
             </div>
@@ -1364,7 +1421,8 @@ const EventWebsite = ({ event: rawEvent }) => {
                 Our Sponsors
               </h2>
               <p className="text-gray-600 max-w-3xl mx-auto text-lg">
-                We're grateful to our sponsors who help make this event possible through their generous support.
+                We're grateful to our sponsors who help make this event possible
+                through their generous support.
               </p>
             </div>
 
@@ -1425,7 +1483,8 @@ const EventWebsite = ({ event: rawEvent }) => {
                 Our Partners
               </h2>
               <p className="text-gray-600 max-w-3xl mx-auto text-lg">
-                Working together with amazing partners to create an exceptional experience for everyone.
+                Working together with amazing partners to create an exceptional
+                experience for everyone.
               </p>
             </div>
 
@@ -1490,7 +1549,8 @@ const EventWebsite = ({ event: rawEvent }) => {
                 Meet Your Hosts
               </h2>
               <p className="text-gray-600 max-w-3xl mx-auto text-lg">
-                The passionate individuals behind this event who are dedicated to creating a memorable experience.
+                The passionate individuals behind this event who are dedicated
+                to creating a memorable experience.
               </p>
             </div>
 
