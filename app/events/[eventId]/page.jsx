@@ -23,6 +23,7 @@ import {
   BarChart3,
   Folder,
   Speaker,
+  Mail,
 } from "lucide-react";
 import StatusCard from "@/components/StatusCard";
 import TabManager from "@/components/TabManager";
@@ -47,6 +48,7 @@ import BroadcastManagementTab from "@/components/events/view/BroadcastManagement
 import SubscriptionManagementTab from "@/components/events/view/SubscriptionManagementTab";
 import SessionsManagementTab from "@/components/events/view/SessionsManagementTab";
 import FormsManagementTab from "@/components/events/view/FormsManagementTab";
+import InvitationManagementTab from "@/components/events/view/InvitationManagementTab";
 
 const EventDetailsPage = ({ params }) => {
   const { eventId } = React.use(params);
@@ -95,6 +97,12 @@ const EventDetailsPage = ({ params }) => {
         { id: 2, name: "Guest List", icon: Users },
         { id: 3, name: "Table Arrangement", icon: Settings },
         { id: 5, name: "Access Management", icon: Lock },
+      ],
+    },
+    {
+      title: "Invitation Management",
+      items: [
+        { id: 18, name: "Invitation Management", icon: Mail },
       ],
     },
     {
@@ -253,6 +261,9 @@ const EventDetailsPage = ({ params }) => {
               <SessionsManagementTab event={event?.data} />
             )}
             {currentView === 17 && <FormsManagementTab event={event?.data} />}
+            {currentView === 18 && (
+              <InvitationManagementTab event={event?.data} eventId={eventId} />
+            )}
           </div>
         </div>
       </div>

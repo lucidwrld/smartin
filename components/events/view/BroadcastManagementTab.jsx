@@ -20,10 +20,12 @@ import {
   Filter,
   Calendar,
   Search,
-  MessageCircle
+  MessageCircle,
+  Volume2
 } from "lucide-react";
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
+import VoiceRecorder from "@/components/VoiceRecorder";
 
 const BroadcastManagementTab = ({ event }) => {
   const [broadcasts, setBroadcasts] = useState([
@@ -72,7 +74,8 @@ const BroadcastManagementTab = ({ event }) => {
     channels: ["email"],
     recipients: "all",
     scheduled_for: "",
-    send_immediately: true
+    send_immediately: true,
+    voiceRecording: null
   });
 
   const broadcastTypes = [
@@ -86,6 +89,7 @@ const BroadcastManagementTab = ({ event }) => {
     { value: "email", label: "Email", icon: Mail },
     { value: "sms", label: "SMS", icon: Smartphone },
     { value: "whatsapp", label: "WhatsApp", icon: MessageCircle },
+    { value: "voice", label: "Voice Call", icon: Volume2 },
     { value: "push", label: "Push Notification", icon: Bell }
   ];
 
@@ -117,7 +121,8 @@ const BroadcastManagementTab = ({ event }) => {
         channels: broadcast.channels || ["email"],
         recipients: broadcast.recipients || "all",
         scheduled_for: broadcast.scheduled_for ? new Date(broadcast.scheduled_for).toISOString().slice(0, 16) : "",
-        send_immediately: !broadcast.scheduled_for
+        send_immediately: !broadcast.scheduled_for,
+        voiceRecording: broadcast.voiceRecording || null
       });
     } else {
       setFormData({
@@ -127,7 +132,8 @@ const BroadcastManagementTab = ({ event }) => {
         channels: ["email"],
         recipients: "all",
         scheduled_for: "",
-        send_immediately: true
+        send_immediately: true,
+        voiceRecording: null
       });
     }
     
@@ -144,7 +150,8 @@ const BroadcastManagementTab = ({ event }) => {
       channels: ["email"],
       recipients: "all",
       scheduled_for: "",
-      send_immediately: true
+      send_immediately: true,
+      voiceRecording: null
     });
   };
 
@@ -152,6 +159,13 @@ const BroadcastManagementTab = ({ event }) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
+    }));
+  };
+
+  const handleVoiceRecordingComplete = (audioBlob) => {
+    setFormData(prev => ({
+      ...prev,
+      voiceRecording: audioBlob
     }));
   };
 
@@ -293,6 +307,35 @@ const BroadcastManagementTab = ({ event }) => {
           radius="rounded-md"
           onClick={() => handleOpenModal()}
         />
+      </div>
+
+      {/* Notification Credits Balance */}
+      <div className="bg-green-50 p-4 rounded-lg">
+        <h3 className="font-medium text-gray-900 mb-3">Available Notification Credits</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {channelOptions.map(channel => {
+            const Icon = channel.icon;
+            // Mock credit balances - replace with actual data
+            const credits = {
+              email: 200,
+              sms: 120,
+              whatsapp: 180,
+              voice: 50,
+              push: 300
+            };
+            
+            return (
+              <div key={channel.value} className="flex items-center space-x-2">
+                <Icon size={16} className="text-gray-600" />
+                <span className="text-sm font-medium">{channel.label}:</span>
+                <span className="text-sm text-green-600 font-bold">{credits[channel.value] || 0}</span>
+              </div>
+            );
+          })}
+        </div>
+        <p className="text-xs text-gray-500 mt-2">
+          Need more credits? Purchase additional notification credits from Invitation Management.
+        </p>
       </div>
 
       {/* Filters and Search */}
@@ -539,6 +582,22 @@ const BroadcastManagementTab = ({ event }) => {
                     })}
                   </div>
                 </div>
+
+                {/* Voice Recording Section */}
+                {formData.channels.includes("voice") && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Voice Broadcast Recording
+                    </label>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Record or upload a voice message for your broadcast announcement.
+                    </p>
+                    <VoiceRecorder
+                      onRecordingComplete={handleVoiceRecordingComplete}
+                      existingRecording={formData.voiceRecording}
+                    />
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">

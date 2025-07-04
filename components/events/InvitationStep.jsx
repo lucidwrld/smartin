@@ -1,4 +1,5 @@
 import InputWithFullBoarder from "../InputWithFullBoarder";
+import VoiceRecorder from "../VoiceRecorder";
 import {
   KeySquare,
   Scan,
@@ -165,6 +166,7 @@ export const InvitationSettingsStep = ({ formData, onFormDataChange }) => {
   const selectedMethods = formData.invitation_methods || [];
   const enableInvitations = formData.enable_invitations || false;
   const enableReminders = formData.enable_reminders || false;
+  const enableThankYou = formData.enable_thank_you || false;
 
   const handleInputChange = (field, value) => {
     onFormDataChange(field, value);
@@ -197,19 +199,26 @@ export const InvitationSettingsStep = ({ formData, onFormDataChange }) => {
     if (!enableInvitations || !selectedMethods.length) return 0;
 
     const guestCount = parseInt(formData.no_of_invitees) || 0;
-    let totalCost = 0;
+    let baseCost = 0;
 
     selectedMethods.forEach((methodId) => {
       const method = invitationMethods.find((m) => m.id === methodId);
       if (method) {
         const price = currency === "NGN" ? method.priceNGN : method.priceUSD;
-        totalCost += price * guestCount;
+        baseCost += price * guestCount;
       }
     });
 
-    // Add reminder cost (50% of invitation cost)
+    let totalCost = baseCost;
+
+    // Add reminder cost (50% of base invitation cost)
     if (enableReminders) {
-      totalCost = totalCost * 1.5;
+      totalCost += baseCost * 0.5;
+    }
+
+    // Add thank you message cost (75% of base invitation cost)
+    if (enableThankYou) {
+      totalCost += baseCost * 0.75;
     }
 
     return totalCost;
@@ -276,12 +285,13 @@ export const InvitationSettingsStep = ({ formData, onFormDataChange }) => {
               {enableInvitations && (
                 <div className="bg-white p-4 rounded-lg border">
                   <h4 className="font-medium text-gray-900 mb-2">
-                    Cost Estimate
+                    Notification Credits Estimate
                   </h4>
                   <div className="text-sm text-gray-600 space-y-1">
                     <p>Guests: {formData.no_of_invitees || 0}</p>
                     <p>Selected methods: {selectedMethods.length}</p>
-                    <p>Reminders: {enableReminders ? "Enabled" : "Disabled"}</p>
+                    <p>Reminders: {enableReminders ? "Enabled (+50%)" : "Disabled"}</p>
+                    <p>Thank you messages: {enableThankYou ? "Enabled (+75%)" : "Disabled"}</p>
                     <p className="font-medium text-lg text-brandPurple">
                       Total: {currency === "NGN" ? "₦" : "$"}
                       {calculateInvitationCost().toFixed(2)}
@@ -339,13 +349,18 @@ export const InvitationSettingsStep = ({ formData, onFormDataChange }) => {
               )}
             </div>
 
-            {/* Reminder Options */}
-            <div className="border-t pt-6">
+            {/* Additional Notification Options */}
+            <div className="border-t pt-6 space-y-4">
+              <h3 className="font-medium text-gray-900 mb-4">
+                Additional Notification Options
+              </h3>
+              
+              {/* Reminder Messages */}
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h3 className="font-medium text-gray-900 mb-2">
+                  <h4 className="font-medium text-gray-900 mb-1">
                     Enable Reminder Messages
-                  </h3>
+                  </h4>
                   <p className="text-sm text-gray-600">
                     Send automatic reminder messages 24 hours before the event.
                     This adds 50% to your invitation costs.
@@ -376,19 +391,61 @@ export const InvitationSettingsStep = ({ formData, onFormDataChange }) => {
                   </button>
                 </div>
               </div>
+
+              {/* Thank You Messages */}
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h4 className="font-medium text-gray-900 mb-1">
+                    Enable Thank You Messages
+                  </h4>
+                  <p className="text-sm text-gray-600">
+                    Send thank you messages to guests after the event.
+                    This adds 75% to your invitation costs.
+                  </p>
+                </div>
+
+                <div className="ml-4">
+                  <button
+                    onClick={() =>
+                      handleInputChange("enable_thank_you", !enableThankYou)
+                    }
+                    disabled={
+                      !enableInvitations || selectedMethods.length === 0
+                    }
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brandPurple focus:ring-offset-2 ${
+                      enableThankYou ? "bg-brandPurple" : "bg-gray-200"
+                    } ${
+                      !enableInvitations || selectedMethods.length === 0
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        enableThankYou ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
 
         {/* Information Note */}
         <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+          <p className="text-sm text-gray-600 mb-2">
+            <strong>Notification Credits:</strong> Your selected notification options will determine 
+            how many credits you need. Credits will be added to your event creation fee.
+          </p>
           <p className="text-sm text-gray-600">
-            <strong>Note:</strong> Invitation costs will be added to your event
-            creation fee. You can manage and send invitations after your event
-            is created and payment is processed.
+            <strong>Recharge Anytime:</strong> You can always purchase additional notification 
+            credits later from your event dashboard to send more invitations, reminders, 
+            or thank you messages as needed.
           </p>
         </div>
       </div>
+
     </div>
   );
 };

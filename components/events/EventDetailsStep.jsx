@@ -210,14 +210,45 @@ export const EventDetailsStep = ({
             )}
           </div>
 
-          <InputWithFullBoarder
-            label="Venue Address"
-            id="venue"
-            isRequired={true}
-            value={formData.venue}
-            onChange={(e) => handleInputChange("venue", e.target.value)}
-            placeholder={"Enter the location of your event"}
-          />
+          {/* Venue/Virtual Meeting Section */}
+          {formData.event_format === "virtual" ? (
+            <InputWithFullBoarder
+              label="Virtual Meeting Link"
+              id="venue"
+              isRequired={true}
+              value={formData.venue}
+              onChange={(e) => handleInputChange("venue", e.target.value)}
+              placeholder={"Enter the meeting link (Zoom, Teams, etc.)"}
+            />
+          ) : formData.event_format === "hybrid" ? (
+            <div className="space-y-4">
+              <InputWithFullBoarder
+                label="Physical Venue Address"
+                id="venue"
+                isRequired={true}
+                value={formData.venue}
+                onChange={(e) => handleInputChange("venue", e.target.value)}
+                placeholder={"Enter the physical location of your event"}
+              />
+              <InputWithFullBoarder
+                label="Virtual Meeting Link"
+                id="virtual_link"
+                isRequired={true}
+                value={formData.virtual_link}
+                onChange={(e) => handleInputChange("virtual_link", e.target.value)}
+                placeholder={"Enter the meeting link for virtual attendees"}
+              />
+            </div>
+          ) : (
+            <InputWithFullBoarder
+              label="Venue Address"
+              id="venue"
+              isRequired={true}
+              value={formData.venue}
+              onChange={(e) => handleInputChange("venue", e.target.value)}
+              placeholder={"Enter the location of your event"}
+            />
+          )}
 
           <div className="flex gap-4">
             <div className="w-1/2">
@@ -235,6 +266,24 @@ export const EventDetailsStep = ({
                   handleInputChange("event_type", e.target.value)
                 }
                 placeholder="Select an option..."
+              />
+            </div>
+            <div className="w-1/2">
+              <Dropdown
+                label="Event Format"
+                id="event_format"
+                isRequired={true}
+                type="select"
+                value={formData.event_format}
+                options={[
+                  { value: "physical", label: "Physical" },
+                  { value: "virtual", label: "Virtual" },
+                  { value: "hybrid", label: "Hybrid" },
+                ]}
+                onChange={(e) =>
+                  handleInputChange("event_format", e.target.value)
+                }
+                placeholder="Select event format..."
               />
             </div>
             {!isEditMode && (
@@ -401,204 +450,6 @@ export const EventDetailsStep = ({
             </div>
           </div>
 
-          {/* NEW: Event People Section */}
-          <div className="border-t pt-4 mt-4 space-y-4">
-            <h3 className="text-lg font-medium">Event People (Optional)</h3>
-
-            {/* Sponsors */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Sponsors
-              </label>
-              <div className="space-y-2">
-                {(formData.sponsors || []).map((sponsor, index) => (
-                  <div key={index} className="flex items-center gap-2 p-2 border border-gray-200 rounded">
-                    <input
-                      type="text"
-                      value={sponsor.name || ""}
-                      onChange={(e) => {
-                        const updatedSponsors = [...(formData.sponsors || [])];
-                        updatedSponsors[index] = { ...sponsor, name: e.target.value };
-                        handleInputChange("sponsors", updatedSponsors);
-                      }}
-                      placeholder="Sponsor name"
-                      className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
-                    />
-                    <input
-                      type="url"
-                      value={sponsor.website || ""}
-                      onChange={(e) => {
-                        const updatedSponsors = [...(formData.sponsors || [])];
-                        updatedSponsors[index] = { ...sponsor, website: e.target.value };
-                        handleInputChange("sponsors", updatedSponsors);
-                      }}
-                      placeholder="Website URL"
-                      className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const updatedSponsors = [...(formData.sponsors || [])];
-                        updatedSponsors.splice(index, 1);
-                        handleInputChange("sponsors", updatedSponsors);
-                      }}
-                      className="px-2 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => {
-                    const updatedSponsors = [...(formData.sponsors || []), { name: "", website: "" }];
-                    handleInputChange("sponsors", updatedSponsors);
-                  }}
-                  className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-                >
-                  Add Sponsor
-                </button>
-              </div>
-            </div>
-
-            {/* Partners */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Partners
-              </label>
-              <div className="space-y-2">
-                {(formData.partners || []).map((partner, index) => (
-                  <div key={index} className="flex items-center gap-2 p-2 border border-gray-200 rounded">
-                    <input
-                      type="text"
-                      value={partner.name || ""}
-                      onChange={(e) => {
-                        const updatedPartners = [...(formData.partners || [])];
-                        updatedPartners[index] = { ...partner, name: e.target.value };
-                        handleInputChange("partners", updatedPartners);
-                      }}
-                      placeholder="Partner name"
-                      className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
-                    />
-                    <input
-                      type="url"
-                      value={partner.website || ""}
-                      onChange={(e) => {
-                        const updatedPartners = [...(formData.partners || [])];
-                        updatedPartners[index] = { ...partner, website: e.target.value };
-                        handleInputChange("partners", updatedPartners);
-                      }}
-                      placeholder="Website URL"
-                      className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const updatedPartners = [...(formData.partners || [])];
-                        updatedPartners.splice(index, 1);
-                        handleInputChange("partners", updatedPartners);
-                      }}
-                      className="px-2 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => {
-                    const updatedPartners = [...(formData.partners || []), { name: "", website: "" }];
-                    handleInputChange("partners", updatedPartners);
-                  }}
-                  className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-                >
-                  Add Partner
-                </button>
-              </div>
-            </div>
-
-            {/* Hosts/Important Figures */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Hosts & Important Figures
-              </label>
-              <div className="space-y-2">
-                {(formData.hosts || []).map((host, index) => (
-                  <div key={index} className="p-3 border border-gray-200 rounded space-y-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      <input
-                        type="text"
-                        value={host.name || ""}
-                        onChange={(e) => {
-                          const updatedHosts = [...(formData.hosts || [])];
-                          updatedHosts[index] = { ...host, name: e.target.value };
-                          handleInputChange("hosts", updatedHosts);
-                        }}
-                        placeholder="Full name"
-                        className="px-2 py-1 border border-gray-300 rounded text-sm"
-                      />
-                      <input
-                        type="text"
-                        value={host.title || ""}
-                        onChange={(e) => {
-                          const updatedHosts = [...(formData.hosts || [])];
-                          updatedHosts[index] = { ...host, title: e.target.value };
-                          handleInputChange("hosts", updatedHosts);
-                        }}
-                        placeholder="Title/Position"
-                        className="px-2 py-1 border border-gray-300 rounded text-sm"
-                      />
-                    </div>
-                    <textarea
-                      value={host.bio || ""}
-                      onChange={(e) => {
-                        const updatedHosts = [...(formData.hosts || [])];
-                        updatedHosts[index] = { ...host, bio: e.target.value };
-                        handleInputChange("hosts", updatedHosts);
-                      }}
-                      placeholder="Brief bio/description"
-                      rows={2}
-                      className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                    />
-                    <div className="flex items-center justify-between">
-                      <input
-                        type="url"
-                        value={host.image || ""}
-                        onChange={(e) => {
-                          const updatedHosts = [...(formData.hosts || [])];
-                          updatedHosts[index] = { ...host, image: e.target.value };
-                          handleInputChange("hosts", updatedHosts);
-                        }}
-                        placeholder="Profile image URL"
-                        className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const updatedHosts = [...(formData.hosts || [])];
-                          updatedHosts.splice(index, 1);
-                          handleInputChange("hosts", updatedHosts);
-                        }}
-                        className="ml-2 px-2 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => {
-                    const updatedHosts = [...(formData.hosts || []), { name: "", title: "", bio: "", image: "" }];
-                    handleInputChange("hosts", updatedHosts);
-                  }}
-                  className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-                >
-                  Add Host/Figure
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
