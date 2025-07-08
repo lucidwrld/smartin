@@ -33,6 +33,10 @@ const ForgotPasswordPage = () => {
     <AuthShell
       title="Forgot Password"
       subtitle1="Enter your registered email address to reset your password"
+      subtitle2=""
+      subtitle2Click={() => {}}
+      progress={undefined}
+      onClick={undefined}
       isLoading={isLoading}
       buttonText="Reset Password"
       form="forgotPasswordForm"

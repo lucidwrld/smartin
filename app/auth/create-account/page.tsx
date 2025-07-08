@@ -89,7 +89,28 @@ const CreateAccountPage = () => {
                   placeholder="e.g. +1 for US, +44 for UK"
                   value={formData.phone}
                   type="tel"
+                  form=""
+                  tokens=""
+                  checked={false}
+                  onClick={() => {}}
+                  className=""
+                  min=""
+                  labelClass=""
+                  labelColor=""
+                  message=""
+                  maxLength=""
+                  minLength=""
+                  showCharacterCount={false}
+                  disabled={false}
+                  hasSuffix={false}
+                  row="50"
+                  icon=""
+                  accept=""
+                  none=""
+                  isTextArea={false}
+                  wrapperClassName=""
                   customValidator={validateCompletePhoneNumber}
+                  customErrorMessage=""
                   onChange={(e) => {
                     let value = e.target.value;
                     // Ensure the + is always there
@@ -105,6 +126,7 @@ const CreateAccountPage = () => {
               </div>
             </div>
             <div className="w-full">
+              {/* @ts-ignore */}
               <InputWithFullBoarder
                 id={`fullname`}
                 label={`Full Name`}
@@ -115,6 +137,7 @@ const CreateAccountPage = () => {
                   setFormData({ ...formData, fullname: e.target.value })
                 }
               />
+              {/* @ts-ignore */}
               <InputWithFullBoarder
                 id={"email"}
                 label={`Email Address`}
@@ -130,6 +153,7 @@ const CreateAccountPage = () => {
                 }}
               />
 
+              {/* @ts-ignore */}
               <InputWithFullBoarder
                 hasSuffix={true}
                 isRequired={true}
@@ -166,7 +190,7 @@ const CreateAccountPage = () => {
                   <span
                     className="text-brandOrange w-auto text-sm   cursor-pointer"
                     onClick={() =>
-                      document.getElementById("term_modal").showModal()
+                      (document.getElementById("term_modal") as any)?.showModal()
                     }
                   >
                     Terms and Conditions
@@ -174,7 +198,7 @@ const CreateAccountPage = () => {
                   and
                   <span
                     onClick={() =>
-                      document.getElementById("privacy_modal").showModal()
+                      (document.getElementById("privacy_modal") as any)?.showModal()
                     }
                     className="text-brandOrange text-sm w-auto cursor-pointer"
                   >

@@ -18,6 +18,7 @@ import { formatDateToLongString } from "@/utils/formatDateToLongString";
 import useGetAllEventsManager from "@/app/events/controllers/getAllEventsController";
 import { formatDate } from "@/utils/formatDate";
 import { MakeUserPartnerManager } from "../controllers/makeUserPartnerController";
+import { ConfirmBankPaymentManager } from "@/app/transactions/controllers/confirmBankPaymentController";
 import { SuspendUnsuspendUserManager } from "../controllers/suspendUnsuspendUserController";
 
 const UserDetailsPage = () => {
@@ -25,6 +26,7 @@ const UserDetailsPage = () => {
   const router = useRouter();
   const [currentView, setCurrentView] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
   const { data: user, isLoading } = useGetSingleUser({
     userId: id,
     enabled: Boolean(id),
@@ -33,6 +35,7 @@ const UserDetailsPage = () => {
   const { manageSuspend } = SuspendUnsuspendUserManager({
     userId: id,
   });
+  const { confirmBankPayment } = ConfirmBankPaymentManager();
   const { data, isLoading: loadingTransactions } = useGetAllTransactionsManager(
     {
       enabled: Boolean(id),
@@ -255,6 +258,11 @@ const UserDetailsPage = () => {
             data={data?.data}
             getFormattedValue={getPaymentValue}
             headers={paymentHeaders}
+            buttonFunction={() => {}}
+            toggleRowFunction={() => {}}
+            toggleSelectAllFunction={() => {}}
+            setSelectedRows={() => {}}
+            selectedRows={[]}
             popUpFunction={(option, inx, val) => {
               if (inx === 0) {
                 setSelectedTransaction(val);
@@ -277,6 +285,11 @@ const UserDetailsPage = () => {
             isLoading={loadingEvents}
             data={events?.data}
             options={["View Event", "Suspend Event"]}
+            buttonFunction={() => {}}
+            toggleRowFunction={() => {}}
+            toggleSelectAllFunction={() => {}}
+            setSelectedRows={() => {}}
+            selectedRows={[]}
             popUpFunction={(option, inx, val) => {
               if (inx === 0) {
                 router.push(`/admin/events/event?id=${val?.id}`);
