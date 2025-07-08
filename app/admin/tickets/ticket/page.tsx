@@ -68,7 +68,7 @@ const AdminTicketsDetailsPage = () => {
     return <Loader />;
   }
   return (
-    <BaseDashboardNavigation>
+    <BaseDashboardNavigation title="Ticket Details">
       <GoBackButton />
       <div className="flex items-start mt-10 gap-10">
         <div className="w-[789px] flex flex-col gap-4 scrollbar-hide bg-white rounded-[12px] p-10 ">
@@ -99,11 +99,32 @@ const AdminTicketsDetailsPage = () => {
           </div>
           {ticket?.status !== "closed" && (
             <InputWithFullBoarder
+              id="reply_message"
               label={`Reply`}
               placeholder={`Enter text`}
               className={`w-full h-[200px]`}
               isTextArea={true}
               value={formData.message}
+              form=""
+              tokens=""
+              checked={false}
+              onClick={() => {}}
+              min=""
+              labelClass=""
+              labelColor=""
+              message=""
+              maxLength=""
+              minLength=""
+              showCharacterCount={false}
+              disabled={false}
+              hasSuffix={false}
+              row="50"
+              icon=""
+              accept=""
+              none=""
+              wrapperClassName=""
+              customValidator={undefined}
+              customErrorMessage=""
               onChange={(e) =>
                 setFormData({ ...formData, message: e.target.value })
               }
@@ -121,6 +142,8 @@ const AdminTicketsDetailsPage = () => {
               fileName={attachmentFile ? attachmentFile.name : null}
               progress={progress}
               accept={"video/*,application/pdf,image/*"}
+              files={[]}
+              className=""
               buttonClick={() => setAttachmentFile(null)}
               onChange={async (e) => {
                 const file = e.target.files[0];

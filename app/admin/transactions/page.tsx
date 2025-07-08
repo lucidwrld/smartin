@@ -19,6 +19,7 @@ const TransactionsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const { data, isLoading } = useGetAllTransactionsManager({
     page: currentPage,
+    user: null,
   });
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const { confirmBankPayment, isLoading: confirming } =
@@ -72,6 +73,11 @@ const TransactionsPage = () => {
               data={data?.data}
               getFormattedValue={getFormattedValue}
               headers={headers}
+              buttonFunction={() => {}}
+              toggleRowFunction={() => {}}
+              toggleSelectAllFunction={() => {}}
+              setSelectedRows={() => {}}
+              selectedRows={[]}
               popUpFunction={(option, inx, val) => {
                 if (inx === 0) {
                   setSelectedTransaction(val);

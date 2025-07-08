@@ -80,6 +80,11 @@ const UsersPage = () => {
               data={data?.data?.users}
               getFormattedValue={getFormattedValue}
               headers={headers}
+              buttonFunction={() => {}}
+              toggleRowFunction={() => {}}
+              toggleSelectAllFunction={() => {}}
+              setSelectedRows={() => {}}
+              selectedRows={[]}
               popUpFunction={(option, inx, val) => {
                 setSelectedUser(val?.id);
                 if (inx === 0) {
@@ -99,7 +104,7 @@ const UsersPage = () => {
                 }
                 if (inx === 3) {
                   //delete user. use a modal here.
-                  document.getElementById("delete").showModal();
+                  (document.getElementById("delete") as any)?.showModal();
                 }
               }}
               options={[
@@ -126,6 +131,9 @@ const UsersPage = () => {
         buttonText={"Delete User"}
         isLoading={deleting}
         onClick={() => deleteUser()}
+        id="delete"
+        buttonColor=""
+        successFul={false}
       />
     </BaseDashboardNavigation>
   );

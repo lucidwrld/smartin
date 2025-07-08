@@ -29,7 +29,8 @@ const AdminSettingsPage = () => {
 
   // Handle 404 and create
   useEffect(() => {
-    if (error?.message === "Sorry: Terms and Agreement not found" && type) {
+    if (error && typeof error === 'object' && 'message' in error && 
+        (error as { message: string }).message === "Sorry: Terms and Agreement not found" && type) {
       createTerms({
         content: `Content for ${type}`,
         type: type,

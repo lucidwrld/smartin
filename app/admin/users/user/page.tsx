@@ -45,6 +45,8 @@ const UserDetailsPage = () => {
     enabled: Boolean(id),
     user: id,
     page: currentPage,
+    status: null,
+    date: null,
   });
 
   // Mock data for payments and events tables
@@ -92,7 +94,7 @@ const UserDetailsPage = () => {
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <BaseDashboardNavigation>
+    <BaseDashboardNavigation title="User Details">
       <div className="flex items-center gap-4 mb-6 text-brandBlack">
         <ArrowLeft
           className="cursor-pointer"
