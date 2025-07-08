@@ -1,0 +1,4871 @@
+{
+	"info": {
+		"_postman_id": "44f107a4-6569-4435-8a2a-c68d2476a75a",
+		"name": "Invitation app",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17652468"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fullname\": \"Smart Invites\",\n    \"email\": \"smartinvitesofficial@gmail.com\",\n    \"password\": \"Integrity2019#\",\n    \"phone\": \"+2348068111435\",\n    \"currency\": \"NGN\",\n    \"referral_code\": \"ng4xzy\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Sucess",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"fullname\": \"Chukwuka Ezeaka\",\n    \"email\": \"yoitsburby@gmail.com\",\n    \"password\": \"password\",\n    \"phone\": \"08123456789\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "132"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"84-tENDDZzAUiQyx1yVXcRdNHdjnZU\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 16 Dec 2024 13:12:39 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"A verification OTP has been sent to your email to complete your registration, OTP expires in 1 hour\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Verify acount",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/verify/{{verification_code}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"verify",
+								"{{verification_code}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/auth/verify/{{verification_code}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"verify",
+										"{{verification_code}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1011"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"3f3-i3n4wVugISkk3of9vX3wqi3bQuM\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 16 Dec 2024 13:13:21 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Account verification successful\",\n    \"data\": {\n        \"user\": {\n            \"device_token\": [],\n            \"roles\": [\n                {\n                    \"_id\": \"676026e17c50d456905b90e9\",\n                    \"name\": \"user\",\n                    \"__v\": 0,\n                    \"createdAt\": \"2024-12-16T13:10:57.166Z\",\n                    \"updatedAt\": \"2024-12-16T13:10:57.166Z\"\n                }\n            ],\n            \"is_active\": true,\n            \"isSuspended\": false,\n            \"isDeleted\": false,\n            \"_id\": \"67602747c0fb825740339b3a\",\n            \"fullname\": \"Chukwuka Ezeaka\",\n            \"email\": \"yoitsburby@gmail.com\",\n            \"phone\": \"08123456789\",\n            \"activation_code\": null,\n            \"activation_expires_in\": null,\n            \"createdAt\": \"2024-12-16T13:12:39.046Z\",\n            \"updatedAt\": \"2024-12-16T13:13:20.885Z\",\n            \"id\": \"67602747c0fb825740339b3a\"\n        },\n        \"token\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjAyNzQ3YzBmYjgyNTc0MDMzOWIzYSIsImVtYWlsIjoieW9pdHNidXJieUBnbWFpbC5jb20iLCJyb2xlcyI6W3siX2lkIjoiNjc2MDI2ZTE3YzUwZDQ1NjkwNWI5MGU5IiwibmFtZSI6InVzZXIiLCJjcmVhdGVkQXQiOiIyMDI0LTEyLTE2VDEzOjEwOjU3LjE2NloiLCJ1cGRhdGVkQXQiOiIyMDI0LTEyLTE2VDEzOjEwOjU3LjE2NloifV0sImlhdCI6MTczNDM1NDgwMSwiZXhwIjoxNzM2OTQ2ODAxfQ.TNQdcKozgvSE1hR7IFY1N33QkYesW4TJgqJQHU5nRnM\",\n        \"expires_in\": 2592000\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"yoitsburby@gmail.com\",\n    \"password\":\"password\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "id can either be \"username\", or \"email\","
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"yoitsburby@gmail.com\",\n    \"password\":\"password\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "727"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"2d7-Dz5U8YCGxprZZR/vIgeP9m0MchA\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 16 Dec 2024 13:15:03 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Login successful\",\n    \"data\": {\n        \"user\": {\n            \"device_token\": [],\n            \"roles\": [\n                {\n                    \"_id\": \"676026e17c50d456905b90e9\",\n                    \"name\": \"user\"\n                }\n            ],\n            \"is_active\": true,\n            \"isSuspended\": false,\n            \"isDeleted\": false,\n            \"_id\": \"67602747c0fb825740339b3a\",\n            \"fullname\": \"Chukwuka Ezeaka\",\n            \"email\": \"yoitsburby@gmail.com\",\n            \"phone\": \"08123456789\",\n            \"activation_code\": null,\n            \"activation_expires_in\": null,\n            \"createdAt\": \"2024-12-16T13:12:39.046Z\",\n            \"updatedAt\": \"2024-12-16T13:13:20.885Z\",\n            \"id\": \"67602747c0fb825740339b3a\"\n        },\n        \"token\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjAyNzQ3YzBmYjgyNTc0MDMzOWIzYSIsImVtYWlsIjoieW9pdHNidXJieUBnbWFpbC5jb20iLCJpYXQiOjE3MzQzNTQ5MDMsImV4cCI6MTczNjk0NjkwM30.PeReuyZGx6g4aUCQpSyLISPM0QnSCMUn86cyB5sK75g\",\n        \"expires_in\": 2592000\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Admin login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"chukwuka\",\n    \"password\":\"password\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/admin/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"admin",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Admin Login",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/verify-admin/{{verification_code}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"verify-admin",
+								"{{verification_code}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Resend verification code",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/resend-verification",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"resend-verification"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Password reset request",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"chukwuka.ezeaka1@outlook.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/password-request",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"password-request"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset password",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"452456\",\n    \"password\": \"mastermind\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/password-reset",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"password-reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"device_token\":\"ougefosgosbosf\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						},
+						"description": "**Token required** : pass in header"
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Pricing",
+			"item": [
+				{
+					"name": "Create pricing",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"event_price_naira\": 1700,\n    \"price_per_invite_naira\": 850,\n    \"event_price_usd\": 1,\n    \"price_per_invite_usd\": 0.5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pricing/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pricing",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get pricing",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Discount",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"no_of_invites\": 200,\n    \"percent\": 10,\n    \"type\": \"default | partner\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pricing/discount",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pricing",
+								"discount"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Discount",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"no_of_invites\": 200,\n    \"percent\": 10,\n    \"type\": \"default | partner\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pricing/discount/{{discountId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pricing",
+								"discount",
+								"{{discountId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get discount",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/pricing/discount",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pricing",
+								"discount"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Discount",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/pricing/discount/{{discountId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pricing",
+								"discount",
+								"{{discountId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Event",
+			"item": [
+				{
+					"name": "Invitees",
+					"item": [
+						{
+							"name": "Add invitees",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"676037045953ed631965afaf\",\n    \"invitees\": [\n        {\n            \"name\": \"Burbby Siegel\",\n            \"phone\": \"081-345678\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/invitees/add",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"invitees",
+										"add"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Upload invitee excel",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "file",
+											"type": "file",
+											"src": "/Users/burby/Downloads/inviteeapp.xlsx"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/{{eventId}}/invitees/upload",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"{{eventId}}",
+										"invitees",
+										"upload"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get event invitees",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/{{eventId}}/invitees",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"{{eventId}}",
+										"invitees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get single invitee",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/invitees/{{inviteeId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"invitees",
+										"{{inviteeId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "edit invitee",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Burby Siegel\",\n    \"phone\": \"08123456789\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/invitees/{{inviteeId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"invitees",
+										"{{inviteeId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user invites",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/invites",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"invites"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get invite by code",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/invites/{{code}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"invites",
+										"{{code}}"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/event/invites/{{code}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"event",
+												"invites",
+												"{{code}}"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "1723"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"6bb-XIMZJw7kEDR/lkaRjRQrf7FpB3s\""
+										},
+										{
+											"key": "Date",
+											"value": "Mon, 16 Dec 2024 17:42:29 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"notification_sent\": {\n        \"whatsapp\": true,\n        \"sms\": false,\n        \"email\": false\n    },\n    \"responded\": true,\n    \"_id\": \"67605f68ff19c71a0a0b8784\",\n    \"name\": \"Burby Siegel\",\n    \"phone\": \"08123456789\",\n    \"event\": {\n        \"donation\": {\n            \"account_name\": \"Ada Jecinta\",\n            \"bank_name\": \"First bank\",\n            \"account_number\": \"3078345678\"\n        },\n        \"event_type\": \"public\",\n        \"payment_type\": \"free\",\n        \"isSuspended\": false,\n        \"isPaid\": true,\n        \"paid_amount\": 2000,\n        \"gallery\": [\n            \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\"\n        ],\n        \"_id\": \"676037045953ed631965afaf\",\n        \"type\": \"public\",\n        \"name\": \"Wedding Anniversary\",\n        \"description\": \"Random description abput the anniversary\",\n        \"image\": \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\",\n        \"venue\": \"Usuiji ecent centre, Jos, Plateau State\",\n        \"date\": \"2024-12-22T00:00:00.000Z\",\n        \"time\": \"19:00 am\",\n        \"no_of_invitees\": 20,\n        \"items\": [\n            {\n                \"_id\": \"676037045953ed631965afb0\",\n                \"name\": \"fridge\",\n                \"link\": \"https://www.jumia.com.ng/haier-thermocool-93-litres-single-door-dcool-refrigerator-hr-135ba-r6-blk-110395490.html?utm_source=twitter&utm_medium=social&utm_campaign=pdpshare\"\n            }\n        ],\n        \"user\": {\n            \"device_token\": [],\n            \"roles\": [\n                \"676026e17c50d456905b90e9\"\n            ],\n            \"is_active\": true,\n            \"isSuspended\": false,\n            \"_id\": \"67602747c0fb825740339b3a\",\n            \"fullname\": \"Chukwuka Ezeaka\",\n            \"email\": \"yoitsburby@gmail.com\",\n            \"phone\": \"08123456789\",\n            \"createdAt\": \"2024-12-16T13:12:39.046Z\",\n            \"updatedAt\": \"2024-12-16T13:13:20.885Z\",\n            \"__v\": 0,\n            \"id\": \"67602747c0fb825740339b3a\"\n        },\n        \"createdAt\": \"2024-12-16T14:19:48.670Z\",\n        \"updatedAt\": \"2024-12-16T16:12:08.661Z\",\n        \"__v\": 0,\n        \"id\": \"676037045953ed631965afaf\"\n    },\n    \"response\": \"accepted\",\n    \"code\": \"svrWBe\",\n    \"createdAt\": \"2024-12-16T17:12:08.942Z\",\n    \"updatedAt\": \"2024-12-16T17:41:14.506Z\",\n    \"id\": \"67605f68ff19c71a0a0b8784\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Respond to invite",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"code\": \"svrWBe\",\n    \"response\": \"accepted | declined\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/respond",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"respond"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove invited guests",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"inviteIds\": [\n        \"6772948f6c6caa0015ff3e5e\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/{{eventId}}/remove",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"{{eventId}}",
+										"remove"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Notify Invitees",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"inviteeIds\": [\n        \"6772948f6c6caa0015ff3e5d\",\n        \"6772948f6c6caa0015ff3e5e\"\n    ],\n    \"type\": \"event | update | thankyou\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/{{eventId}}invitees/notify",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"{{eventId}}invitees",
+										"notify"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Mark attendance",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/attendance/{{inviteeId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"attendance",
+										"{{inviteeId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Table",
+					"item": [
+						{
+							"name": "Add table",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"event\": \"6769207ee7d2433e9716216c\",\n    \"name\": \"A1\",\n    \"no_of_seats\": 5\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/table",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"table"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get tables",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/{{eventId}}/tables",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"{{eventId}}",
+										"tables"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get table",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/tables/{{tableId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"tables",
+										"{{tableId}}"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/event/tables/67712f2095848745b7235b36",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"event",
+												"tables",
+												"67712f2095848745b7235b36"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "1451"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"5ab-A8UEadyYJnsodU5O6hWCJ7GwJCQ\""
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 29 Dec 2024 11:18:53 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"table fetched\",\n    \"data\": {\n        \"_id\": \"67712f2095848745b7235b36\",\n        \"event\": {\n            \"donation\": {\n                \"account_name\": \"Ada Jecinta\",\n                \"bank_name\": \"First bank\",\n                \"account_number\": \"3078345678\"\n            },\n            \"payment_type\": \"free\",\n            \"isSuspended\": false,\n            \"isPaid\": true,\n            \"paid_amount\": 0,\n            \"gallery\": [\n                \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\"\n            ],\n            \"isActive\": true,\n            \"verification_type\": \"accessCode\",\n            \"status\": \"upcoming\",\n            \"_id\": \"6769207ee7d2433e9716216c\",\n            \"name\": \"Wedding Anniversary\",\n            \"description\": \"Random description abput the anniversary\",\n            \"host\": \"Jerry Sprunger\",\n            \"image\": \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\",\n            \"event_type\": \"public\",\n            \"venue\": \"Usuiji ecent centre, Jos, Plateau State\",\n            \"date\": \"2024-12-22T00:00:00.000Z\",\n            \"time\": \"19:00 am\",\n            \"no_of_invitees\": 20,\n            \"items\": [\n                {\n                    \"_id\": \"6769207ee7d2433e9716216d\",\n                    \"name\": \"fridge\",\n                    \"link\": \"https://www.jumia.com.ng/haier-thermocool-93-litres-single-door-dcool-refrigerator-hr-135ba-r6-blk-110395490.html?utm_source=twitter&utm_medium=social&utm_campaign=pdpshare\"\n                }\n            ],\n            \"user\": \"67602747c0fb825740339b3a\",\n            \"createdAt\": \"2024-12-23T08:34:06.243Z\",\n            \"updatedAt\": \"2024-12-29T10:13:36.765Z\",\n            \"__v\": 0,\n            \"id\": \"6769207ee7d2433e9716216c\"\n        },\n        \"name\": \"A1\",\n        \"no_of_seats\": 5,\n        \"createdAt\": \"2024-12-29T11:14:40.293Z\",\n        \"updatedAt\": \"2024-12-29T11:14:40.293Z\",\n        \"__v\": 0,\n        \"guests\": [],\n        \"id\": \"67712f2095848745b7235b36\",\n        \"seats_left\": 5\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Edit table",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"A1\",\n    \"no_of_seats\": 5\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/tables/{{tableId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"tables",
+										"{{tableId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete table",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/tables/{{tableId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"tables",
+										"{{tableId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Assign guests to table",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"6769207ee7d2433e9716216c\",\n    \"tableId\": \"67712f2095848745b7235b36\",\n    \"guestIds\": [\n        \"6772948f6c6caa0015ff3e5e\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/tables/guests/add",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"tables",
+										"guests",
+										"add"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"eventId\": \"6769207ee7d2433e9716216c\",\n    \"tableId\": \"67712f2095848745b7235b36\",\n    \"guestIds\": [\n        \"6772948f6c6caa0015ff3e5e\"\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/event/tables/guests/add",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"event",
+												"tables",
+												"guests",
+												"add"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "1972"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"7b4-2Pmnbnhj55RL77hqHKavoUe/M7o\""
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 31 Dec 2024 10:42:01 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Seats have been assigned to gusets\",\n    \"data\": {\n        \"status\": \"success\",\n        \"message\": \"table fetched\",\n        \"data\": {\n            \"_id\": \"67712f2095848745b7235b36\",\n            \"event\": {\n                \"donation\": {\n                    \"account_name\": \"Ada Jecinta\",\n                    \"bank_name\": \"First bank\",\n                    \"account_number\": \"3078345678\"\n                },\n                \"payment_type\": \"free\",\n                \"isSuspended\": false,\n                \"isPaid\": true,\n                \"isPending\": false,\n                \"paid_amount\": 0,\n                \"gallery\": [\n                    \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\"\n                ],\n                \"isActive\": true,\n                \"verification_type\": \"accessCode\",\n                \"status\": \"upcoming\",\n                \"_id\": \"6769207ee7d2433e9716216c\",\n                \"name\": \"Wedding Anniversary\",\n                \"description\": \"Random description abput the anniversary\",\n                \"host\": \"Jerry Sprunger\",\n                \"image\": \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\",\n                \"event_type\": \"public\",\n                \"venue\": \"Usuiji ecent centre, Jos, Plateau State\",\n                \"date\": \"2024-12-22T00:00:00.000Z\",\n                \"time\": \"19:00 am\",\n                \"no_of_invitees\": 20,\n                \"items\": [\n                    {\n                        \"_id\": \"6769207ee7d2433e9716216d\",\n                        \"name\": \"fridge\",\n                        \"link\": \"https://www.jumia.com.ng/haier-thermocool-93-litres-single-door-dcool-refrigerator-hr-135ba-r6-blk-110395490.html?utm_source=twitter&utm_medium=social&utm_campaign=pdpshare\"\n                    }\n                ],\n                \"user\": \"67602747c0fb825740339b3a\",\n                \"createdAt\": \"2024-12-23T08:34:06.243Z\",\n                \"updatedAt\": \"2024-12-30T12:31:26.479Z\",\n                \"__v\": 0,\n                \"id\": \"6769207ee7d2433e9716216c\"\n            },\n            \"name\": \"A1\",\n            \"no_of_seats\": 5,\n            \"createdAt\": \"2024-12-29T11:14:40.293Z\",\n            \"updatedAt\": \"2024-12-29T11:14:40.293Z\",\n            \"__v\": 0,\n            \"guests\": [\n                {\n                    \"notification_sent\": {\n                        \"whatsapp\": false,\n                        \"sms\": false,\n                        \"email\": false\n                    },\n                    \"responded\": false,\n                    \"status\": \"upcoming\",\n                    \"_id\": \"6772948f6c6caa0015ff3e5e\",\n                    \"name\": \"Ifeanyi Ejindu\",\n                    \"phone\": \"+18068111435\",\n                    \"event\": \"6769207ee7d2433e9716216c\",\n                    \"response\": \"pending\",\n                    \"code\": \"sRtTcp\",\n                    \"createdAt\": \"2024-12-30T12:39:43.888Z\",\n                    \"updatedAt\": \"2024-12-31T10:42:00.279Z\",\n                    \"__v\": 0,\n                    \"table\": \"67712f2095848745b7235b36\",\n                    \"id\": \"6772948f6c6caa0015ff3e5e\"\n                }\n            ],\n            \"seats_occupied\": 1,\n            \"id\": \"67712f2095848745b7235b36\",\n            \"seats_left\": 4\n        }\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Unassign guests from table",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"6769207ee7d2433e9716216c\",\n    \"tableId\": \"67712f2095848745b7235b36\",\n    \"guestIds\": [\n        \"6772948f6c6caa0015ff3e5e\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/tables/guests/remove",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"tables",
+										"guests",
+										"remove"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"eventId\": \"6769207ee7d2433e9716216c\",\n    \"tableId\": \"67712f2095848745b7235b36\",\n    \"guestIds\": [\n        \"6772948f6c6caa0015ff3e5e\"\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/event/tables/guests/add",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"event",
+												"tables",
+												"guests",
+												"add"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "1972"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"7b4-2Pmnbnhj55RL77hqHKavoUe/M7o\""
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 31 Dec 2024 10:42:01 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Seats have been assigned to gusets\",\n    \"data\": {\n        \"status\": \"success\",\n        \"message\": \"table fetched\",\n        \"data\": {\n            \"_id\": \"67712f2095848745b7235b36\",\n            \"event\": {\n                \"donation\": {\n                    \"account_name\": \"Ada Jecinta\",\n                    \"bank_name\": \"First bank\",\n                    \"account_number\": \"3078345678\"\n                },\n                \"payment_type\": \"free\",\n                \"isSuspended\": false,\n                \"isPaid\": true,\n                \"isPending\": false,\n                \"paid_amount\": 0,\n                \"gallery\": [\n                    \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\"\n                ],\n                \"isActive\": true,\n                \"verification_type\": \"accessCode\",\n                \"status\": \"upcoming\",\n                \"_id\": \"6769207ee7d2433e9716216c\",\n                \"name\": \"Wedding Anniversary\",\n                \"description\": \"Random description abput the anniversary\",\n                \"host\": \"Jerry Sprunger\",\n                \"image\": \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\",\n                \"event_type\": \"public\",\n                \"venue\": \"Usuiji ecent centre, Jos, Plateau State\",\n                \"date\": \"2024-12-22T00:00:00.000Z\",\n                \"time\": \"19:00 am\",\n                \"no_of_invitees\": 20,\n                \"items\": [\n                    {\n                        \"_id\": \"6769207ee7d2433e9716216d\",\n                        \"name\": \"fridge\",\n                        \"link\": \"https://www.jumia.com.ng/haier-thermocool-93-litres-single-door-dcool-refrigerator-hr-135ba-r6-blk-110395490.html?utm_source=twitter&utm_medium=social&utm_campaign=pdpshare\"\n                    }\n                ],\n                \"user\": \"67602747c0fb825740339b3a\",\n                \"createdAt\": \"2024-12-23T08:34:06.243Z\",\n                \"updatedAt\": \"2024-12-30T12:31:26.479Z\",\n                \"__v\": 0,\n                \"id\": \"6769207ee7d2433e9716216c\"\n            },\n            \"name\": \"A1\",\n            \"no_of_seats\": 5,\n            \"createdAt\": \"2024-12-29T11:14:40.293Z\",\n            \"updatedAt\": \"2024-12-29T11:14:40.293Z\",\n            \"__v\": 0,\n            \"guests\": [\n                {\n                    \"notification_sent\": {\n                        \"whatsapp\": false,\n                        \"sms\": false,\n                        \"email\": false\n                    },\n                    \"responded\": false,\n                    \"status\": \"upcoming\",\n                    \"_id\": \"6772948f6c6caa0015ff3e5e\",\n                    \"name\": \"Ifeanyi Ejindu\",\n                    \"phone\": \"+18068111435\",\n                    \"event\": \"6769207ee7d2433e9716216c\",\n                    \"response\": \"pending\",\n                    \"code\": \"sRtTcp\",\n                    \"createdAt\": \"2024-12-30T12:39:43.888Z\",\n                    \"updatedAt\": \"2024-12-31T10:42:00.279Z\",\n                    \"__v\": 0,\n                    \"table\": \"67712f2095848745b7235b36\",\n                    \"id\": \"6772948f6c6caa0015ff3e5e\"\n                }\n            ],\n            \"seats_occupied\": 1,\n            \"id\": \"67712f2095848745b7235b36\",\n            \"seats_left\": 4\n        }\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Search for table and guests",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/{{eventId}}/tables/search?s=any",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"{{eventId}}",
+										"tables",
+										"search"
+									],
+									"query": [
+										{
+											"key": "s",
+											"value": "any"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Members",
+					"item": [
+						{
+							"name": "Add members",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"members\": [\n        {\n            \"email\": \"yoitsburby+dev@gmail.com\",\n            \"permissions\": {\n                \"edit_event\": true,\n                \"send_notification\": true,\n                \"mark_attendance\": true,\n                \"edit_thankyou\": true,\n                \"add_guest\": true,\n                \"manage_table\": true,\n                \"view_only\": true\n            }\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/67bc138866970500152e61ac/members/add",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"67bc138866970500152e61ac",
+										"members",
+										"add"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get event members",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/{{eventId}}/members",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"{{eventId}}",
+										"members"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update member access",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"yoitsburby+boss@gmail.com\",\n    \"permissions\": {\n        \"edit_event\": false,\n        \"send_notification\": true,\n        \"mark_attendance\": true,\n        \"edit_thankyou\": true,\n        \"add_guest\": false,\n        \"manage_table\": true,\n        \"view_only\": true\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/{{eventId}}/members/{{memberId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"{{eventId}}",
+										"members",
+										"{{memberId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove member",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/{{eventId}}/members/{{memberId}}/remove",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"{{eventId}}",
+										"members",
+										"{{memberId}}",
+										"remove"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Feedback",
+					"item": [
+						{
+							"name": "Post Feedback",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"event\": \"676037045953ed631965afaf\",\n    \"invitee_code\": \"svrWBe\",\n    \"rating\": 5,\n    \"media\": [ \"{{$randomAbstractImage}}\"],\n    \"comment\": \"Congratulations senior man\",\n    \"designation\": \"\",\n    \"company\": \"Skillseeds limited\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/feedbacks",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"feedbacks"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"event\": \"676037045953ed631965afaf\",\n    \"invitee_code\": \"svrWBe\",\n    \"rating\": 5,\n    \"media\": [ \"{{$randomAbstractImage}}\"],\n    \"comment\": \"Congratulations senior man\",\n    \"designation\": \"\",\n    \"company\": \"Skillseeds limited\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/feedbacks",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"feedbacks"
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "421"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"1a5-4kkXbh7FVyj+wdgk6WmZT3faiSU\""
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 25 May 2025 14:49:42 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Feedback posted successfully\",\n    \"data\": {\n        \"media\": [\n            \"http://placeimg.com/640/480/abstract\"\n        ],\n        \"designation\": \"\",\n        \"company\": \"Skillseeds limited\",\n        \"show\": false,\n        \"_id\": \"68332e06eaed3b16d0f73a53\",\n        \"event\": \"676037045953ed631965afaf\",\n        \"rating\": 5,\n        \"comment\": \"Congratulations senior man\",\n        \"invitee\": \"67605f68ff19c71a0a0b8784\",\n        \"createdAt\": \"2025-05-25T14:49:42.280Z\",\n        \"updatedAt\": \"2025-05-25T14:49:42.280Z\",\n        \"__v\": 0\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Get feedbacks (public)",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/feedbacks/event/{{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"feedbacks",
+										"event",
+										"{{eventId}}"
+									],
+									"query": [
+										{
+											"key": "show",
+											"value": "true",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get all event feedback for logged in event admin",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/feedbacks/event/{{eventId}}/all",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"feedbacks",
+										"event",
+										"{{eventId}}",
+										"all"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get single feedback by Id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/feedbacks/event/{{eventId}}/feedback/{{feedbackId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"feedbacks",
+										"event",
+										"{{eventId}}",
+										"feedback",
+										"{{feedbackId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Approve response",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"feedbackId\":\"66730a2a3c129418e9b0b4ba\",\n    \"show\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/feedbacks/event/{{eventId}}/approve",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"feedbacks",
+										"event",
+										"{{eventId}}",
+										"approve"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"responseId\":\"667307cb709a38e7f883d867\",\n    \"show\": true\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/link-management/response/approve",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"link-management",
+												"response",
+												"approve"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "358"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"166-wMQ+aYyyKPP494c6MJvzt6h56dQ\""
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 19 Jun 2024 16:36:49 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"response approved successfully\",\n    \"data\": {\n        \"media\": {\n            \"type\": \"image\",\n            \"url\": \"http://placeimg.com/640/480/abstract\"\n        },\n        \"_id\": \"667307cb709a38e7f883d867\",\n        \"fullname\": \"Chukwuka Ezeaka\",\n        \"rating\": 5,\n        \"comment\": \"Congratulations senior man\",\n        \"designation\": \"\",\n        \"company\": \"Skillseeds limited\",\n        \"logo\": \"\",\n        \"user\": \"66730435aad15ca77da30c9a\",\n        \"show\": true\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Approve all responses",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/feedbacks/event/{{eventId}}/approve/all",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"feedbacks",
+										"event",
+										"{{eventId}}",
+										"approve",
+										"all"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Program",
+					"item": [
+						{
+							"name": "Add event program",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"686b64a6424d054309978ae9\",\n    \"data\": [\n        {\n            \"description\": \"Opening remarks\",\n            \"date\": \"2025-07-23\",\n            \"start_time\": \"10:00 am\",\n            \"end_time\": \"10:30 am\",\n            \"location\": \"Leki Phase 1, Lagos\",\n            \"speaker\": \"Janet Doe\",\n            \"speaker_title\": \"Doctor\",\n            \"is_public\": true\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/add/program",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"add",
+										"program"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Program",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"63ffa5fcfe080c7300872680\",\n    \"id\": \"63ffa6bbb7c5e27fa7e59853\",\n    \"data\": {\n        \"description\": \"Opening remarks\",\n        \"date\": \"2025-07-23\",\n        \"start_time\": \"10:00 am\",\n        \"end_time\": \"10:30 am\",\n        \"location\": \"Leki Phase 1, Lagos\",\n        \"speaker\": \"Janet Doe\",\n        \"speaker_title\": \"Doctor\",\n        \"is_public\": true\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/update/program",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"update",
+										"program"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete program",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"63ffa5fcfe080c7300872680\",\n    \"ids\": [\n        \"63ffa6bbb7c5e27fa7e59853\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/event/delete/program",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"event",
+										"delete",
+										"program"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Speakers",
+					"item": [
+						{
+							"name": "Add event speakers",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"63ffa5fcfe080c7300872680\",\n    \"data\": [\n        {\n            \"name\": \"Burby Siegel\",\n            \"email\": \"yoitsburby@gmail.com\",\n            \"topic\": \"Wealth is important\",\n            \"image\": \"https://toolset.com/wp-content/uploads/2018/06/909657-profile_pic.png\",\n            \"date\": \"2022-12-20\",\n            \"time\": \"11:00am\",\n            \"is_public\": true\n        },\n        {\n            \"name\": \"Mark Money\",\n            \"email\": \"markmoney@gmail.com\",\"image\": \"https://toolset.com/wp-content/uploads/2018/06/909657-profile_pic.png\",\n            \"topic\": \"How to grow wealth\",\n            \"date\": \"2022-12-20\",\n            \"time\": \"12:00am\",\n            \"is_public\": true\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/event/add/speakers",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"event",
+										"add",
+										"speakers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Speakers",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"63ffa5fcfe080c7300872680\",\n    \"id\": \"63ffa6d0b7c5e27fa7e5986c\",\n    \"data\":  {\n        \"name\": \"Burby Siegel\",\n        \"email\": \"yoitsburby@gmail.com\",\n        \"topic\": \"Wealth is important\",\n        \"image\": \"https://toolset.com/wp-content/uploads/2018/06/909657-profile_pic.png\",\n        \"date\": \"2022-12-20\",\n        \"time\": \"11:00am\",\n        \"is_public\": true\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/event/update/speakers",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"event",
+										"update",
+										"speakers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete speakers",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"63ffa5fcfe080c7300872680\",\n    \"ids\": [\n        \"63ffa6d0b7c5e27fa7e5986c\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/event/delete/speakers",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"event",
+										"delete",
+										"speakers"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Sponsors",
+					"item": [
+						{
+							"name": "Add event sponsors",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"686b64a6424d054309978ae9\",\n    \"data\": [\n        {\n            \"name\": \"Ciroc\",\n            \"logo\": \"https://ciroc-logo.png\",\n            \"website\": \"https://ciroc.com\",\n            \"description\": \"ranadom description\",\n            \"sponsorship_tier\": \"Bronze\",\n            \"contact_person\": \"John Doe\",\n            \"contact_email\": \"johndoe@gmail.com\",\n            \"contribution_benefits\": \"Free drinks/ brand recognition\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/add/sponsors",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"add",
+										"sponsors"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update sponsors",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"6416f2af7aa0619e423b0c3b\",\n    \"id\": \"6416f36d7aa0619e423b0c82\",\n    \"data\": {\n        \"name\": \"Ciroc\",\n        \"logo\": \"https://ciroc-logo.png\",\n        \"website\": \"https://ciroc.com\",\n        \"description\": \"ranadom description\",\n        \"sponsorship_tier\": \"Bronze\",\n        \"contact_person\": \"John Doe\",\n        \"contact_email\": \"johndoe@gmail.com\",\n        \"contribution_benefits\": \"Free drinks/ brand recognition\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/update/sponsors",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"update",
+										"sponsors"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete sponsors",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"6416f2af7aa0619e423b0c3b\",\n    \"ids\": [\n        \"6416f36d7aa0619e423b0c82\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/event/delete/sponsors",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"event",
+										"delete",
+										"sponsors"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Vendors",
+					"item": [
+						{
+							"name": "Add event vendors",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"63ffa5fcfe080c7300872680\",\n    \"id\": \"63ffa700b7c5e27fa7e5989c\",\n    \"data\": {\n        \"name\": \"Fast Foods\",\n        \"company\": \"fast Food Co\",\n        \"contact_person\": \"John Doe\",\n        \"email\": \"johndoe@gmail.com\",\n        \"phone\": \"+2345678987766\",\n        \"address\": \"Ikeja, Lagos\",\n        \"website\": \"https://fastfood.com\",\n        \"job_description\": \"catering\",\n        \"status\": \"pending\",\n        \"payment_status\": \"paid\",\n        \"contract_amount\": 100000,\n        \"contract_date\": \"2025-07-23\",\n        \"services_provided\": \"catering, drinks\",\n        \"notes\": \"extra notes\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/add/vendors",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"add",
+										"vendors"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update vendors",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"63ffa5fcfe080c7300872680\",\n    \"id\": \"63ffa700b7c5e27fa7e5989c\",\n    \"data\":{\n        \"budget\": 30000,\n        \"name\":\"Fast food\",\n        \"email\": \"foodstuffs@gmail.com\",\n        \"job_description\": \"refreshment\" \n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/event/update/vendors",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"event",
+										"update",
+										"vendors"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete vendors",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"63ffa5fcfe080c7300872680\",\n    \"ids\": [\n        \"63ffa700b7c5e27fa7e5989c\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/event/delete/vendors",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"event",
+										"delete",
+										"vendors"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Resources",
+					"item": [
+						{
+							"name": "Add event resources",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"686b64a6424d054309978ae9\",\n    \"data\": [\n        {\n            \"name\": \"Program\",\n            \"type\": \"document\",\n            \"url\": \"https://document-link.com\",\n            \"description\": \"random description\",\n            \"category\": \"documents\",\n            \"tags\": \"program, item\",\n            \"is_public\": true\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/add/resources",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"add",
+										"resources"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update rresources",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": \"63ffa700b7c5e27fa7e5989c\",\n    \"eventId\": \"686b64a6424d054309978ae9\",\n    \"data\": [\n        {\n            \"name\": \"Program\",\n            \"type\": \"document\",\n            \"url\": \"https://document-link.com\",\n            \"description\": \"random description\",\n            \"category\": \"documents\",\n            \"tags\": \"program, item\",\n            \"is_public\": true\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/update/resources",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"update",
+										"resources"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete vendors",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"63ffa5fcfe080c7300872680\",\n    \"ids\": [\n        \"63ffa700b7c5e27fa7e5989c\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/delete/resources",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"delete",
+										"resources"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Host",
+					"item": [
+						{
+							"name": "Add event host",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"686b64a6424d054309978ae9\",\n    \"data\": [\n        {\n            \"name\": \"Funke Williams\",\n            \"title\": \"Mrs\",\n            \"organization\": \"Skillseeds Limited\",\n            \"email\": \"funkewilliams@gmail.com\",\n            \"phone\": \"+2345678909876\",\n            \"profile_image\": \"https://image.com\",\n            \"description\": \"Digital marketer\",\n            \"areas_of_expertise\": \"Digital marketing\",\n            \"website\": \"https://skillseedslimited.com\",\n            \"linkedin\": \"funke-williams\",\n            \"twitter\": \"funke-williams\",\n            \"instagram\": \"funke-williams\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/add/host",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"add",
+										"host"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update hosts",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"63ffa5fcfe080c7300872680\",\n    \"id\": \"63ffa715b7c5e27fa7e598b3\",\n    \"data\": {\n        \"name\": \"Funke Williams\",\n        \"title\": \"Mrs\",\n        \"organization\": \"Skillseeds Limited\",\n        \"email\": \"funkewilliams@gmail.com\",\n        \"phone\": \"+2345678909876\",\n        \"profile_image\": \"https://image.com\",\n        \"description\": \"Digital marketer\",\n        \"areas_of_expertise\": \"Digital marketing\",\n        \"website\": \"https://skillseedslimited.com\",\n        \"linkedin\": \"funke-williams\",\n        \"twitter\": \"funke-williams\",\n        \"instagram\": \"funke-williams\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/event/update/hosts",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"event",
+										"update",
+										"hosts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete hosts",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"63ffa5fcfe080c7300872680\",\n    \"ids\": [\n        \"63ffa715b7c5e27fa7e598b3\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/event/delete/host",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"event",
+										"delete",
+										"host"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Stakeholders",
+					"item": [
+						{
+							"name": "Add event stakeholder",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"686b64a6424d054309978ae9\",\n    \"data\": [\n        {\n            \"name\": \"Paul Doe\",\n            \"title\": \"Engineer\",\n            \"organization\": \"Skillseeds Limited\",\n            \"role\": \"Organizer\",\n            \"email\": \"pauldoe@gmail.com\",\n            \"phone\": \"+23456789034\",\n            \"address\": \"Leki Phase 1, Lagos\",\n            \"website\": \"https://website.com\",\n            \"status\": \"pending\",\n            \"priority\": \"medium\",\n            \"involvement_level\": 3,\n            \"availability\": \"weekdays 9-5\",\n            \"responsibilities\": \"Event coordination\",\n            \"expertise\": \"marketing, planning\",\n            \"notes\": \"extras\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/add/stakeholders",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"add",
+										"stakeholders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update hosts",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"63ffa5fcfe080c7300872680\",\n    \"id\": \"63ffa715b7c5e27fa7e598b3\",\n    \"data\": {\n        \"name\": \"Paul Doe\",\n        \"title\": \"Engineer\",\n        \"organization\": \"Skillseeds Limited\",\n        \"role\": \"Organizer\",\n        \"email\": \"pauldoe@gmail.com\",\n        \"phone\": \"+23456789034\",\n        \"address\": \"Leki Phase 1, Lagos\",\n        \"website\": \"https://website.com\",\n        \"status\": \"pending\",\n        \"priority\": \"medium\",\n        \"involvement_level\": 3,\n        \"availability\": \"weekdays 9-5\",\n        \"responsibilities\": \"Event coordination\",\n        \"expertise\": \"marketing, planning\",\n        \"notes\": \"extras\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/update/stakeholders",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"update",
+										"stakeholders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete hosts",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"63ffa5fcfe080c7300872680\",\n    \"ids\": [\n        \"63ffa715b7c5e27fa7e598b3\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/event/delete/host",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"event",
+										"delete",
+										"host"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Partners",
+					"item": [
+						{
+							"name": "Add Partner",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"686b64a6424d054309978ae9\",\n    \"data\": [\n        {\n            \"name\": \"Janet Doe Enterprise\",\n            \"descritpion\": \"partner description\",\n            \"logo\": \"https:???logo.com\",\n            \"website\": \"https://website.com\",\n            \"contact_person\": \"Janet doe\",\n            \"contact_email\": \"janetdoe@gmail.com\",\n            \"partnership_type\": \"General Partner\",\n            \"details\": \"partnership details\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/add/partners",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"add",
+										"partners"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update partners",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"63ffa5fcfe080c7300872680\",\n    \"id\": \"63ffa715b7c5e27fa7e598b3\",\n    \"data\": {\n        \"name\": \"Janet Doe Enterprise\",\n            \"descritpion\": \"partner description\",\n            \"logo\": \"https:???logo.com\",\n            \"website\": \"https://website.com\",\n            \"contact_person\": \"Janet doe\",\n            \"contact_email\": \"janetdoe@gmail.com\",\n            \"partnership_type\": \"General Partner\",\n            \"details\": \"partnership details\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/update/partners",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"update",
+										"partners"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete partners",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"eventId\": \"63ffa5fcfe080c7300872680\",\n    \"ids\": [\n        \"63ffa715b7c5e27fa7e598b3\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/event/delete/partners",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"event",
+										"delete",
+										"partners"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Create Event",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Wedding Invitation\",\n    \"description\": \"You are welcomed to to be a partaker of our journey\",\n    \"host\": \"Smart Invite\",\n    \"image\": \"https://Votemania-b2.s3.us-west-002.backblazeb2.com/counsellme-17356172829535235628.jpg\",\n    \"event_type\": \"public\",\n    \"payment_type\": \"online\",\n    \"venue\": \"Usuiji event centre, Jos, Plateau State\",\n    \"no_of_invitees\": 1,\n    \"items\": [\n        {\n            \"name\": \"fridge\",\n            \"link\": \"https://www.jumia.com.ng/haier-thermocool-93-litres-single-door-dcool-refrigerator-hr-135ba-r6-blk-110395490.html?utm_source=twitter&utm_medium=social&utm_campaign=pdpshare\"\n        }\n    ],\n    \"donation\": {\n        \"account_name\": \"Ada Jecinta\",\n        \"bank_name\": \"First bank\",\n        \"account_number\": \"3078345678\"\n    },\n    \"gallery\": [\n        \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\"\n    ],\n    \"pay_later\": false,\n    \"currency\": \"NGN\",\n    \"verification_type\": \"facial\",\n    \"speakers\": [\n        {\n            \"name\": \"John Doe\",\n            \"designation\": \"Chairman\"\n        }\n    ],\n    \"isVirtual\": false,\n    \"timezone\": \"Africa/Lagos\",\n    \"showFeedback\": true,\n    \"video\": \"https://videourl.com\",\n    \"logo\": \"https://logo.com\",\n    \"event_days\": [\n        {\n            \"date\": \"2025-07-23\",\n            \"time\": \"9:00 am\"\n        }\n    ],\n    \"resources\": [ \"https://resource.link\"],\n    \"event_notifications\": {\n        \"email\": true,\n        \"sms\": false,\n        \"whatsapp\": true\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/event/mobile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"mobile"
+							]
+						},
+						"description": "values for **'type'** cane be either one of two:\n\n- instant\n\n- scheduled"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Wedding Anniversary\",\n    \"description\": \"Random description abput the anniversary\",\n    \"image\": \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\",\n    \"event_type\": \"public\",\n    \"payment_type\": \"free\",\n    \"venue\": \"Usuiji ecent centre, Jos, Plateau State\",\n    \"date\": \"2024-12-22\",\n    \"time\": \"19:00 am\",\n    \"no_of_invitees\": 20,\n    \"items\": [\n        {\n            \"name\": \"fridge\",\n            \"link\": \"https://www.jumia.com.ng/haier-thermocool-93-litres-single-door-dcool-refrigerator-hr-135ba-r6-blk-110395490.html?utm_source=twitter&utm_medium=social&utm_campaign=pdpshare\"\n        }\n    ],\n    \"donation\": {\n        \"account_name\": \"Ada Jecinta\",\n        \"bank_name\": \"First bank\",\n        \"account_number\": \"3078345678\"\n    },\n    \"gallery\": [\n        \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1142"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"476-Jv/C3KEEvEJ3CPoSTVm5KfwVZBE\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 16 Dec 2024 14:19:49 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Event created successfully\",\n    \"data\": {\n        \"type\": \"public\",\n        \"payment_type\": \"free\",\n        \"isSuspended\": false,\n        \"isPaid\": false,\n        \"paid_amount\": 0,\n        \"gallery\": [\n            \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\"\n        ],\n        \"_id\": \"676037045953ed631965afaf\",\n        \"name\": \"Wedding Anniversary\",\n        \"description\": \"Random description abput the anniversary\",\n        \"image\": \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\",\n        \"venue\": \"Usuiji ecent centre, Jos, Plateau State\",\n        \"date\": \"2024-12-22T00:00:00.000Z\",\n        \"time\": \"19:00 am\",\n        \"no_of_invitees\": 20,\n        \"items\": [\n            {\n                \"_id\": \"676037045953ed631965afb0\",\n                \"name\": \"fridge\",\n                \"link\": \"https://www.jumia.com.ng/haier-thermocool-93-litres-single-door-dcool-refrigerator-hr-135ba-r6-blk-110395490.html?utm_source=twitter&utm_medium=social&utm_campaign=pdpshare\"\n            }\n        ],\n        \"donation\": {\n            \"account_name\": \"Ada Jecinta\",\n            \"bank_name\": \"First bank\",\n            \"account_number\": \"3078345678\"\n        },\n        \"user\": \"67602747c0fb825740339b3a\",\n        \"createdAt\": \"2024-12-16T14:19:48.670Z\",\n        \"updatedAt\": \"2024-12-16T14:19:48.670Z\",\n        \"id\": \"676037045953ed631965afaf\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Pay for event",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"path\": \"/confirmation\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/event/{{eventId}}/pay",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"{{eventId}}",
+								"pay"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pay for event mobile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event/{{eventId}}/pay/mobile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"{{eventId}}",
+								"pay",
+								"mobile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pay for event via bank transfer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"eventId\": \"6769207ee7d2433e9716216c\",\n    \"image:\": \"https://payment-url.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/event/pay/bank",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"pay",
+								"bank"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Topup event invitees",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"eventId\": \"676037045953ed631965afaf\",\n    \"no_of_invitees\": 50,\n    \"path\": \"/path\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/event/invitees/topup",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"invitees",
+								"topup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Topup event invitees Mobile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"eventId\": \"676037045953ed631965afaf\",\n    \"no_of_invitees\": 50\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/event/invitees/topup/mobile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"invitees",
+								"topup",
+								"mobile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all events",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event/list",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"list"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/list",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"list"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1527"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"5f7-x7EA6uXfleGuAnMDBnsOhS2yC2k\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 16 Dec 2024 16:08:28 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"pagination\": {\n        \"prevPage\": null,\n        \"currentPage\": 1,\n        \"nextPage\": null,\n        \"pageTotal\": 1,\n        \"pageSize\": 1,\n        \"total\": 1\n    },\n    \"data\": [\n        {\n            \"donation\": {\n                \"account_name\": \"Ada Jecinta\",\n                \"bank_name\": \"First bank\",\n                \"account_number\": \"3078345678\"\n            },\n            \"event_type\": \"public\",\n            \"payment_type\": \"free\",\n            \"isSuspended\": false,\n            \"isPaid\": false,\n            \"paid_amount\": 0,\n            \"gallery\": [\n                \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\"\n            ],\n            \"_id\": \"676037045953ed631965afaf\",\n            \"type\": \"public\",\n            \"name\": \"Wedding Anniversary\",\n            \"description\": \"Random description abput the anniversary\",\n            \"image\": \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\",\n            \"venue\": \"Usuiji ecent centre, Jos, Plateau State\",\n            \"date\": \"2024-12-22T00:00:00.000Z\",\n            \"time\": \"19:00 am\",\n            \"no_of_invitees\": 20,\n            \"items\": [\n                {\n                    \"_id\": \"676037045953ed631965afb0\",\n                    \"name\": \"fridge\",\n                    \"link\": \"https://www.jumia.com.ng/haier-thermocool-93-litres-single-door-dcool-refrigerator-hr-135ba-r6-blk-110395490.html?utm_source=twitter&utm_medium=social&utm_campaign=pdpshare\"\n                }\n            ],\n            \"user\": {\n                \"device_token\": [],\n                \"roles\": [\n                    \"676026e17c50d456905b90e9\"\n                ],\n                \"is_active\": true,\n                \"isSuspended\": false,\n                \"_id\": \"67602747c0fb825740339b3a\",\n                \"fullname\": \"Chukwuka Ezeaka\",\n                \"email\": \"yoitsburby@gmail.com\",\n                \"phone\": \"08123456789\",\n                \"createdAt\": \"2024-12-16T13:12:39.046Z\",\n                \"updatedAt\": \"2024-12-16T13:13:20.885Z\",\n                \"__v\": 0,\n                \"id\": \"67602747c0fb825740339b3a\"\n            },\n            \"createdAt\": \"2024-12-16T14:19:48.670Z\",\n            \"updatedAt\": \"2024-12-16T14:19:48.670Z\",\n            \"id\": \"676037045953ed631965afaf\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get single event by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event/{{eventId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"{{eventId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/676037045953ed631965afaf",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"676037045953ed631965afaf"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1613"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"64d-1qjcw4l/TD3YH61fdq0seePDQ1M\""
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 27 Dec 2024 15:48:52 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Event fetched\",\n    \"data\": {\n        \"donation\": {\n            \"account_name\": \"Ada Jecinta\",\n            \"bank_name\": \"First bank\",\n            \"account_number\": \"3078345678\"\n        },\n        \"payment_type\": \"free\",\n        \"isSuspended\": false,\n        \"isPaid\": true,\n        \"paid_amount\": 2000,\n        \"gallery\": [\n            \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\"\n        ],\n        \"isActive\": false,\n        \"_id\": \"676037045953ed631965afaf\",\n        \"type\": \"public\",\n        \"name\": \"Wedding Anniversary\",\n        \"description\": \"Random description abput the anniversary\",\n        \"image\": \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\",\n        \"venue\": \"Usuiji ecent centre, Jos, Plateau State\",\n        \"date\": \"2024-12-22T00:00:00.000Z\",\n        \"time\": \"19:00 am\",\n        \"no_of_invitees\": 20,\n        \"items\": [\n            {\n                \"_id\": \"676037045953ed631965afb0\",\n                \"name\": \"fridge\",\n                \"link\": \"https://www.jumia.com.ng/haier-thermocool-93-litres-single-door-dcool-refrigerator-hr-135ba-r6-blk-110395490.html?utm_source=twitter&utm_medium=social&utm_campaign=pdpshare\"\n            }\n        ],\n        \"user\": {\n            \"device_token\": [\n                \"cQ7EzmqhHHKr8z0oR5wf0o:APA91bELSRnckRjnoxKbHVLe9m-OGMGG1vNpKf1oSlxa104VCHkcCK6or1bFdKb0mQNMXD1XEuj0QsjsgxbfEUAYCl-AFCdowFQQdhWXSjxoJMe7otZ3zdQfCkadV_sxSNEY5W3pM7_O\"\n            ],\n            \"roles\": [\n                \"676026e17c50d456905b90e9\"\n            ],\n            \"is_active\": true,\n            \"isSuspended\": false,\n            \"_id\": \"67602747c0fb825740339b3a\",\n            \"fullname\": \"Chukwuka Ezeaka\",\n            \"email\": \"yoitsburby@gmail.com\",\n            \"phone\": \"08123456789\",\n            \"createdAt\": \"2024-12-16T13:12:39.046Z\",\n            \"updatedAt\": \"2024-12-22T06:22:27.418Z\",\n            \"__v\": 1,\n            \"id\": \"67602747c0fb825740339b3a\"\n        },\n        \"createdAt\": \"2024-12-16T14:19:48.670Z\",\n        \"updatedAt\": \"2024-12-16T16:12:08.661Z\",\n        \"id\": \"676037045953ed631965afaf\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get single event by id public",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event/public/6769207ee7d2433e9716216c",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"public",
+								"6769207ee7d2433e9716216c"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/676037045953ed631965afaf",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"676037045953ed631965afaf"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1613"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"64d-1qjcw4l/TD3YH61fdq0seePDQ1M\""
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 27 Dec 2024 15:48:52 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Event fetched\",\n    \"data\": {\n        \"donation\": {\n            \"account_name\": \"Ada Jecinta\",\n            \"bank_name\": \"First bank\",\n            \"account_number\": \"3078345678\"\n        },\n        \"payment_type\": \"free\",\n        \"isSuspended\": false,\n        \"isPaid\": true,\n        \"paid_amount\": 2000,\n        \"gallery\": [\n            \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\"\n        ],\n        \"isActive\": false,\n        \"_id\": \"676037045953ed631965afaf\",\n        \"type\": \"public\",\n        \"name\": \"Wedding Anniversary\",\n        \"description\": \"Random description abput the anniversary\",\n        \"image\": \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\",\n        \"venue\": \"Usuiji ecent centre, Jos, Plateau State\",\n        \"date\": \"2024-12-22T00:00:00.000Z\",\n        \"time\": \"19:00 am\",\n        \"no_of_invitees\": 20,\n        \"items\": [\n            {\n                \"_id\": \"676037045953ed631965afb0\",\n                \"name\": \"fridge\",\n                \"link\": \"https://www.jumia.com.ng/haier-thermocool-93-litres-single-door-dcool-refrigerator-hr-135ba-r6-blk-110395490.html?utm_source=twitter&utm_medium=social&utm_campaign=pdpshare\"\n            }\n        ],\n        \"user\": {\n            \"device_token\": [\n                \"cQ7EzmqhHHKr8z0oR5wf0o:APA91bELSRnckRjnoxKbHVLe9m-OGMGG1vNpKf1oSlxa104VCHkcCK6or1bFdKb0mQNMXD1XEuj0QsjsgxbfEUAYCl-AFCdowFQQdhWXSjxoJMe7otZ3zdQfCkadV_sxSNEY5W3pM7_O\"\n            ],\n            \"roles\": [\n                \"676026e17c50d456905b90e9\"\n            ],\n            \"is_active\": true,\n            \"isSuspended\": false,\n            \"_id\": \"67602747c0fb825740339b3a\",\n            \"fullname\": \"Chukwuka Ezeaka\",\n            \"email\": \"yoitsburby@gmail.com\",\n            \"phone\": \"08123456789\",\n            \"createdAt\": \"2024-12-16T13:12:39.046Z\",\n            \"updatedAt\": \"2024-12-22T06:22:27.418Z\",\n            \"__v\": 1,\n            \"id\": \"67602747c0fb825740339b3a\"\n        },\n        \"createdAt\": \"2024-12-16T14:19:48.670Z\",\n        \"updatedAt\": \"2024-12-16T16:12:08.661Z\",\n        \"id\": \"676037045953ed631965afaf\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Edit event",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"gallery\": [\n        \"https://Votemania-b2.s3.us-west-002.backblazeb2.com/counsellme-17356172829535235628.jpg\",\n        \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\"\n    ],\n    \"showFeedback\": true,\n     \"video\": \"https://videourl.com\",\n    \"logo\": \"https://logo.com\",\n    \"event_days\": [\n        {\n            \"date\": \"2025-07-23\",\n            \"time\": \"9:00 am\"\n        }\n    ],\n    \"resources\": [ \"https://resource.link\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/event/6769207ee7d2433e9716216c",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"6769207ee7d2433e9716216c"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete event",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event/{{eventId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"{{eventId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Suspend Event",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"suspend\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/event/{{eventId}}/suspend",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"{{eventId}}",
+								"suspend"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Suspend event",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event/{{eventId}}/suspend",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"{{eventId}}",
+								"suspend"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate/Activate Event",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event/{{eventId}}/deactivate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"{{eventId}}",
+								"deactivate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test Event",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"phone\": \"+2348100612255\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/event/test",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"test"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Event access code",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"mark_attendance\": true,\n    \"view_only\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/event/{{eventId}}/access-code",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"{{eventId}}",
+								"access-code"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/676037045953ed631965afaf/access-code",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"676037045953ed631965afaf",
+										"access-code"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "250"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"fa-GyuouyR2BgTWuOSB9V7TDvGSh4M\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 05 Jan 2025 16:24:06 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"code generated\",\n    \"data\": {\n        \"_id\": \"677ab226fcefdbc5c275ea48\",\n        \"event\": \"676037045953ed631965afaf\",\n        \"code\": \"By7NCh\",\n        \"createdAt\": \"2025-01-05T16:24:06.225Z\",\n        \"updatedAt\": \"2025-01-05T16:24:06.225Z\",\n        \"id\": \"677ab226fcefdbc5c275ea48\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get event access codes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event/{{eventId}}/access-code",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"{{eventId}}",
+								"access-code"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get code permission",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event/access-code/{{code}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"access-code",
+								"{{code}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/access-code/Y5Gyq1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"access-code",
+										"Y5Gyq1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1192"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"4a8-6l60HUfR6oV1sQRqGaPrJqsrXcw\""
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 11 Mar 2025 16:58:17 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Access code fetched\",\n    \"data\": {\n        \"permissions\": {\n            \"mark_attendance\": true,\n            \"view_only\": false\n        },\n        \"_id\": \"67c976005f7fbd841b89505b\",\n        \"event\": {\n            \"donation\": {\n                \"account_name\": \"\",\n                \"bank_name\": \"\",\n                \"account_number\": \"\"\n            },\n            \"thank_you_message\": {\n                \"image\": \"\",\n                \"message\": \"\"\n            },\n            \"payment_type\": \"online\",\n            \"isSuspended\": false,\n            \"isPaid\": false,\n            \"isPending\": false,\n            \"paid_amount\": 0,\n            \"gallery\": [],\n            \"isActive\": false,\n            \"verification_type\": \"accessCode\",\n            \"status\": \"past\",\n            \"type\": \"event\",\n            \"isVirtual\": false,\n            \"_id\": \"67bc138866970500152e61ac\",\n            \"name\": \"vested energies\",\n            \"description\": \"sdfsdfsdfs\",\n            \"host\": \"Emily&Laura\",\n            \"image\": \"https://Votemania-b2.s3.us-west-002.backblazeb2.com/smartinvite-1740379013874confidant-174010928021646fa4bef5f9dad4d6a221b158d4c5737.jpg\",\n            \"event_type\": \"public\",\n            \"venue\": \"Usuiji ecent centre, Jos, Plateau State\",\n            \"date\": \"2025-02-28T00:00:00.000Z\",\n            \"time\": \"07:20\",\n            \"no_of_invitees\": 60,\n            \"items\": [],\n            \"currency\": \"USD\",\n            \"user\": \"67602747c0fb825740339b3a\",\n            \"createdAt\": \"2025-02-24T06:36:56.394Z\",\n            \"updatedAt\": \"2025-03-11T16:55:43.637Z\",\n            \"__v\": 0,\n            \"speakers\": [],\n            \"id\": \"67bc138866970500152e61ac\"\n        },\n        \"code\": \"Y5Gyq1\",\n        \"createdAt\": \"2025-03-06T10:16:32.173Z\",\n        \"updatedAt\": \"2025-03-06T10:16:32.173Z\",\n        \"id\": \"67c976005f7fbd841b89505b\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get single event analytics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event/{{eventId}}/analytics",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"{{eventId}}",
+								"analytics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user event analytics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event/analytics",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"analytics"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/analytics",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"analytics"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "146"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"92-eePy+r/9cxcY4O4UC9JZtQUYfb8\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 11 Jan 2025 08:02:20 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Analytics fetched\",\n    \"data\": {\n        \"totalActiveEvents\": 7,\n        \"totalInvitationsSent\": 38,\n        \"totalResponses\": 3,\n        \"totalGiftItems\": 13\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get admin event analytics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event/analytics/admin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"analytics",
+								"admin"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/analytics/admin",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"analytics",
+										"admin"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "225"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"e1-fgi1sD52iSuHyoxOIUJODVcR0xs\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 11 Jan 2025 08:17:04 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Analytics fetched\",\n    \"data\": {\n        \"totalEvents\": 35,\n        \"totalActiveEvents\": 7,\n        \"totalInactiveEvents\": 28,\n        \"totalUpcomingEvents\": 7,\n        \"totalUsers\": 9,\n        \"totalRevenueNaira\": \"₦200,600\",\n        \"totalRevenueDollar\": \"$5,110\"\n    }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Ticket",
+			"item": [
+				{
+					"name": "Create ticket category",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"General Admission\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ticket/category",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ticket",
+								"category"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Ticket Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/ticket/category",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ticket",
+								"category"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/ticket/category",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										"category"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "125"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"7d-z/3lFAZtoaww4g+a5D566N/LBDQ\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 05 Jul 2025 12:42:16 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"category list fetched\",\n    \"data\": [\n        {\n            \"_id\": \"68691cb5aa337885c460e65c\",\n            \"name\": \"General Admission\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Create ticket",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"event\": \"67ef9ef742e432ece1e388a3\",\n    \"name\": \"Standard\",\n    \"category\": \"68691cb5aa337885c460e65c\",\n    \"price\": 1000,\n    \"description\": \"\",\n    \"quantity\": 50,\n    \"currency\": \"NGN\",\n    \"sale_start_date\": \"2025-07-15\",\n    \"sale_end_date\": \"2025-07-30\",\n    \"min_per_order\": 1,\n    \"max_per_order\": 4,\n    \"is_active\": true,\n    \"requires_approval\": false,\n    \"is_free\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ticket/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ticket",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get tickets for event",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/ticket/event/{{eventId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ticket",
+								"event",
+								"{{eventId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/ticket/event/{{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										"event",
+										"{{eventId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1093"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"445-cyLAE1KTTYRme2BDfuEkbcdf4fY\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 05 Jul 2025 12:50:51 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"tickets fetched\",\n    \"data\": [\n        {\n            \"is_active\": true,\n            \"requires_approval\": false,\n            \"is_free\": false,\n            \"sold_out\": false,\n            \"_id\": \"68691ddbc3284b01c5158ace\",\n            \"event\": \"67ef9ef742e432ece1e388a3\",\n            \"name\": \"Standard\",\n            \"category\": {\n                \"_id\": \"68691cb5aa337885c460e65c\",\n                \"name\": \"General Admission\"\n            },\n            \"price\": 1000,\n            \"quantity\": 50,\n            \"currency\": \"NGN\",\n            \"sale_start_date\": \"2025-07-15T00:00:00.000Z\",\n            \"sale_end_date\": \"2025-07-30T00:00:00.000Z\",\n            \"min_per_order\": 1,\n            \"max_per_order\": 4,\n            \"quantity_remaining\": 50,\n            \"createdAt\": \"2025-07-05T12:43:07.792Z\",\n            \"updatedAt\": \"2025-07-05T12:43:07.792Z\"\n        },\n        {\n            \"is_active\": true,\n            \"requires_approval\": false,\n            \"is_free\": false,\n            \"sold_out\": false,\n            \"_id\": \"68691fa4528b6b03f5cedd30\",\n            \"event\": \"67ef9ef742e432ece1e388a3\",\n            \"name\": \"VIP\",\n            \"category\": {\n                \"_id\": \"68691cb5aa337885c460e65c\",\n                \"name\": \"General Admission\"\n            },\n            \"price\": 3000,\n            \"description\": \"VIP access\",\n            \"quantity\": 50,\n            \"currency\": \"NGN\",\n            \"sale_start_date\": \"2025-07-15T00:00:00.000Z\",\n            \"sale_end_date\": \"2025-07-30T00:00:00.000Z\",\n            \"min_per_order\": 1,\n            \"max_per_order\": 4,\n            \"quantity_remaining\": 50,\n            \"createdAt\": \"2025-07-05T12:50:44.189Z\",\n            \"updatedAt\": \"2025-07-05T12:50:44.189Z\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Edit ticket",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"VIP\",\n    \"category\": \"68691cb5aa337885c460e65c\",\n    \"price\": 3000,\n    \"description\": \"VIP access\",\n    \"quantity\": 50,\n    \"currency\": \"NGN\",\n    \"sale_start_date\": \"2025-07-15\",\n    \"sale_end_date\": \"2025-07-30\",\n    \"min_per_order\": 1,\n    \"max_per_order\": 4,\n    \"is_active\": true,\n    \"requires_approval\": false,\n    \"is_free\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ticket/{{ticketid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ticket",
+								"{{ticketid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete ticket",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/ticket/{{ticketid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ticket",
+								"{{ticketid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buy ticket",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"tickets\": [\n        {\n            \"ticketId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        },\n        {\n            \"ticketId\": \"68691ddbc3284b01c5158ace\",\n            \"quantity\": 2\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ticket/event/{{eventId}}/buy",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ticket",
+								"event",
+								"{{eventId}}",
+								"buy"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"tickets\": [\n        {\n            \"ticketId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        },\n        {\n            \"ticketId\": \"68691ddbc3284b01c5158ace\",\n            \"quantity\": 2\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ticket/event/{{eventId}}/buy",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										"event",
+										"{{eventId}}",
+										"buy"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "123"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"7b-3YWuJ3L7gXG9RhtVkcMNsoYLdUk\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 05 Jul 2025 13:05:41 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"amount\": 11000,\n        \"currency\": \"NGN\",\n        \"checkoutUrl\": \"https://checkout.paystack.com/z61fy7xm600e4n1\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Buy ticket mobile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"tickets\": [\n        {\n            \"ticketId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        },\n        {\n            \"ticketId\": \"68691ddbc3284b01c5158ace\",\n            \"quantity\": 2\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ticket/event/{{eventId}}/buy",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ticket",
+								"event",
+								"{{eventId}}",
+								"buy"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"tickets\": [\n        {\n            \"ticketId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        },\n        {\n            \"ticketId\": \"68691ddbc3284b01c5158ace\",\n            \"quantity\": 2\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ticket/event/{{eventId}}/buy/mobile",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										"event",
+										"{{eventId}}",
+										"buy",
+										"mobile"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "275"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"113-veDFz9tjmVQnpnXqzN9kr+bwTvg\""
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 05 Jul 2025 13:03:47 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"tx_ref\": \"SMINV202507050203471316573518836\",\n        \"amount\": 1100000,\n        \"currency\": \"NGN\",\n        \"email\": \"chukwuka.ezeaka@gmail.com\",\n        \"paystackpubk\": \"pk_test_95c9358df659cc6e679deb09f36afccbeacb31d2\",\n        \"paystackseck\": \"sk_test_320351ef1896a71b35d92d5e79ff836f22edd03c\"\n    }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Transactions",
+			"item": [
+				{
+					"name": "Approve payment",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"paymentId\":\"\",\n    \"approve\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/event/payment/approve",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"payment",
+								"approve"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Payment list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/event/payment/list",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"event",
+								"payment",
+								"list"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Notifications",
+			"item": [
+				{
+					"name": "Broadcast",
+					"item": [
+						{
+							"name": "Create Broadcast",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"draft broadcast\",\n    \"body\": \"this is a random draft broadcast\",\n    \"isDraft\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/notification/broadcast/create",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"notification",
+										"broadcast",
+										"create"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Broadcasts",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/notification/broadcast",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"notification",
+										"broadcast"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get single broadcast",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/notification/broadcast/:{{broadcastId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"notification",
+										"broadcast",
+										":{{broadcastId}}"
+									],
+									"variable": [
+										{
+											"key": "{{broadcastId}}",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Edit broadcast",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"draft broadcast edited\",\n    \"body\": \"this is a random draft broadcast\",\n    \"isDraft\": false\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/notification/broadcast/:{{brodcastId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"notification",
+										"broadcast",
+										":{{brodcastId}}"
+									],
+									"variable": [
+										{
+											"key": "{{brodcastId}}",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Resend Broadcast",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/notification/broadcast/:{{brodcastId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"notification",
+										"broadcast",
+										":{{brodcastId}}"
+									],
+									"variable": [
+										{
+											"key": "{{brodcastId}}",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Broadcast",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/notification/broadcast/:{{brodcastId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"notification",
+										"broadcast",
+										":{{brodcastId}}"
+									],
+									"variable": [
+										{
+											"key": "{{brodcastId}}",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Fetch user notifications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/notification",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"notification"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read/Unread notification",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"notificationId\": \"6255639a1e9d3f00167fcfbc\",\n    \"status\": \"read\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/notification/update",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"notification",
+								"update"
+							]
+						},
+						"description": "status can either be: **read** or **unread**"
+					},
+					"response": []
+				},
+				{
+					"name": "Open all notifications for a user",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/notification/open/all",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"notification",
+								"open",
+								"all"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Support",
+			"item": [
+				{
+					"name": "Create ticket",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"cybertr@gmail.com\",\n    \"title\": \"Unable to enroll for package\",\n    \"description\": \"My payment keeps failing\",\n    \"attachments\": [\"http://testimage.png\"],\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/support/create",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"support",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get single ticket",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/support/tickets/{{ticketId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"support",
+								"tickets",
+								"{{ticketId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get single ticket",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/support/tickets/650d600e76dc88812f318a92",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"support",
+										"tickets",
+										"650d600e76dc88812f318a92"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "2043"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"7fb-WV2ECpUYyYetFgaesGIKpB8mwZE\""
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 22 Sep 2023 09:56:10 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Ticket fetched\",\n    \"data\": {\n        \"status\": \"open\",\n        \"attachments\": [\n            \"http://testimage.png\"\n        ],\n        \"_id\": \"650d600e76dc88812f318a92\",\n        \"user\": {\n            \"location\": {\n                \"address\": \"Garki\",\n                \"city\": \"Abuja\",\n                \"state\": \"FCT\",\n                \"country\": \"Nigeria\"\n            },\n            \"phone\": \"+234081067892345\",\n            \"occupation\": \"Software Engineer\",\n            \"marital_status\": \"single\",\n            \"roles\": [\n                \"64f5f3f393d69bc8e692c2ee\"\n            ],\n            \"isActive\": true,\n            \"isSuspended\": false,\n            \"isDeleted\": false,\n            \"online\": true,\n            \"bornAgain\": true,\n            \"_id\": \"64f5f9c0a83495e03f1eb40c\",\n            \"first_name\": \"Chukwuka\",\n            \"last_name\": \"Ezeaka\",\n            \"email\": \"chukwuka.ezeaka1@outlook.com\",\n            \"username\": \"chukwuka\",\n            \"activation_expires_in\": null,\n            \"createdAt\": \"2023-09-04T15:37:36.784Z\",\n            \"updatedAt\": \"2023-09-22T09:46:15.557Z\",\n            \"campus\": \"64fa6ab94089d981ae2c0b5c\",\n            \"profile_picture\": \"\",\n            \"notification_counter\": 1,\n            \"id\": \"64f5f9c0a83495e03f1eb40c\"\n        },\n        \"admin\": \"64f5f8cc2b266bded24b75a3\",\n        \"email\": \"chukwuka.ezeaka1@outlook.com\",\n        \"title\": \"Unable to purchase sermon\",\n        \"description\": \"My ourchase keeps failing\",\n        \"createdAt\": \"2023-09-22T09:36:14.158Z\",\n        \"updatedAt\": \"2023-09-22T09:36:14.158Z\",\n        \"messages\": [\n            {\n                \"attachments\": [\n                    \"https://images.png\"\n                ],\n                \"read\": false,\n                \"isDeleted\": false,\n                \"_id\": \"650d6490432bd29a3e907418\",\n                \"sender\": {\n                    \"location\": {\n                        \"address\": \"Garki\",\n                        \"city\": \"Abuja\",\n                        \"state\": \"FCT\",\n                        \"country\": \"Nigeria\"\n                    },\n                    \"phone\": \"+234081067892345\",\n                    \"occupation\": \"Software Engineer\",\n                    \"marital_status\": \"single\",\n                    \"roles\": [\n                        \"64f5f3f393d69bc8e692c2ee\"\n                    ],\n                    \"isActive\": true,\n                    \"isSuspended\": false,\n                    \"isDeleted\": false,\n                    \"online\": true,\n                    \"bornAgain\": true,\n                    \"_id\": \"64f5f9c0a83495e03f1eb40c\",\n                    \"first_name\": \"Chukwuka\",\n                    \"last_name\": \"Ezeaka\",\n                    \"email\": \"chukwuka.ezeaka1@outlook.com\",\n                    \"username\": \"chukwuka\",\n                    \"activation_expires_in\": null,\n                    \"createdAt\": \"2023-09-04T15:37:36.784Z\",\n                    \"updatedAt\": \"2023-09-22T09:46:15.557Z\",\n                    \"campus\": \"64fa6ab94089d981ae2c0b5c\",\n                    \"profile_picture\": \"\",\n                    \"notification_counter\": 1,\n                    \"id\": \"64f5f9c0a83495e03f1eb40c\"\n                },\n                \"ticket\": \"650d600e76dc88812f318a92\",\n                \"message\": \"Are purchases restricted to certain cards?\",\n                \"createdAt\": \"2023-09-22T09:55:28.984Z\",\n                \"updatedAt\": \"2023-09-22T09:55:28.984Z\",\n                \"__v\": 0,\n                \"id\": \"650d6490432bd29a3e907418\"\n            }\n        ],\n        \"id\": \"650d600e76dc88812f318a92\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get user tickets",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/support/user/tickets",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"support",
+								"user",
+								"tickets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reply ticket",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ticket\": \"650d600e76dc88812f318a92\",\n    \"message\": \"Are purchases restricted to certain cards?\",\n    \"attachments\": [\"https://images.png\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/support/tickets/reply",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"support",
+								"tickets",
+								"reply"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit reply",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"message\": \"Are there suppported banks?\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/support/tickets/message/{{messageId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"support",
+								"tickets",
+								"message",
+								"{{messageId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get ticket messages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/support/tickets/{{ticketId}}/messages",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"support",
+								"tickets",
+								"{{ticketId}}",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Reply",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/support/tickets/message/{{messageId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"support",
+								"tickets",
+								"message",
+								"{{messageId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all tickets",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/support/tickets",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"support",
+								"tickets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get open tickets",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/support/tickets/open",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"support",
+								"tickets",
+								"open"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update ticket status",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"under_review | closed | open\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/support/tickets/{{ticketId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"support",
+								"tickets",
+								"{{ticketId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Terms",
+			"item": [
+				{
+					"name": "Create Terms",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\",\n    \"type\": \"signup | privacy | consultant\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/terms/create",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"terms",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Terms",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/terms/{{type}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"terms",
+								"{{type}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Terms",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"625ca941b4024bd640dc063c\",\n    \"content\": \"obfosabpaofbaepfa\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/terms/update",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"terms",
+								"update"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User mangement",
+			"item": [
+				{
+					"name": "Get logged in user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/user",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/user/list?page=1&pageSize=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"list"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "10"
+								}
+							]
+						},
+						"description": "filter users by passing search parameters as query params. e.g **{{baseUrl}}/api/v1/user/list?isActive=true&role=625c7ba9c4c1b16967dd8307**"
+					},
+					"response": [
+						{
+							"name": "Get all Users",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/user/list?page=1&pageSize=10",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"user",
+										"list"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "5327"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"14cf-SdL/7AUmnqmFhe/Mnp3cOg5z9oM\""
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 15 Jul 2022 08:28:42 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Users fetched\",\n    \"data\": {\n        \"pagination\": {\n            \"prevPage\": null,\n            \"currentPage\": 1,\n            \"nextPage\": 2,\n            \"pageTotal\": 2,\n            \"pageSize\": 10,\n            \"total\": 14\n        },\n        \"users\": [\n            {\n                \"device_token\": [],\n                \"roles\": [\n                    {\n                        \"_id\": \"625c7ba9c4c1b16967dd8307\",\n                        \"name\": \"customer\"\n                    }\n                ],\n                \"is_active\": false,\n                \"isSuspended\": false,\n                \"isDeleted\": false,\n                \"phone\": \"\",\n                \"description\": \"\",\n                \"nationality\": \"\",\n                \"occupation\": \"\",\n                \"profile_picture\": \"\",\n                \"shops\": [],\n                \"address\": [],\n                \"_id\": \"62d10e3d94ac850016079410\",\n                \"fullname\": \"Mbiplang Ardel\",\n                \"username\": \"bee\",\n                \"email\": \"ardelmbiplang@gmail.com\",\n                \"country\": \"chocolate\",\n                \"activation_code\": \"444244\",\n                \"activation_expires_in\": \"2022-07-15T10:50:37.000Z\",\n                \"createdAt\": \"2022-07-15T06:50:37.592Z\",\n                \"updatedAt\": \"2022-07-15T06:50:37.592Z\"\n            },\n            {\n                \"device_token\": [\n                    \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\"\n                ],\n                \"roles\": [\n                    {\n                        \"_id\": \"625c7ba9c4c1b16967dd8307\",\n                        \"name\": \"customer\"\n                    }\n                ],\n                \"is_active\": true,\n                \"isSuspended\": false,\n                \"isDeleted\": false,\n                \"phone\": \"\",\n                \"description\": \"\",\n                \"nationality\": \"\",\n                \"occupation\": \"\",\n                \"profile_picture\": \"\",\n                \"shops\": [],\n                \"address\": [],\n                \"_id\": \"62d0c3d9ea81f10016c375c4\",\n                \"fullname\": \"Dave\",\n                \"username\": \"qupa\",\n                \"email\": \"dulmonirzi@vusra.com\",\n                \"country\": \"Nigeria\",\n                \"activation_code\": null,\n                \"activation_expires_in\": null,\n                \"createdAt\": \"2022-07-15T01:33:13.291Z\",\n                \"updatedAt\": \"2022-07-15T01:51:30.414Z\"\n            },\n            {\n                \"device_token\": [],\n                \"roles\": [\n                    {\n                        \"_id\": \"625c7ba9c4c1b16967dd8307\",\n                        \"name\": \"customer\"\n                    }\n                ],\n                \"is_active\": true,\n                \"isSuspended\": false,\n                \"isDeleted\": false,\n                \"phone\": \"\",\n                \"description\": \"\",\n                \"nationality\": \"\",\n                \"occupation\": \"\",\n                \"profile_picture\": \"\",\n                \"shops\": [],\n                \"address\": [],\n                \"_id\": \"62d0c0ccea81f10016c375ba\",\n                \"fullname\": \"Reese\",\n                \"username\": \"witherspoon\",\n                \"email\": \"sedruzalmu@vusra.com\",\n                \"country\": \"Nigeria\",\n                \"activation_code\": null,\n                \"activation_expires_in\": null,\n                \"createdAt\": \"2022-07-15T01:20:12.353Z\",\n                \"updatedAt\": \"2022-07-15T01:20:57.494Z\"\n            },\n            {\n                \"device_token\": [],\n                \"roles\": [\n                    {\n                        \"_id\": \"625c7ba9c4c1b16967dd8307\",\n                        \"name\": \"customer\"\n                    }\n                ],\n                \"is_active\": true,\n                \"isSuspended\": false,\n                \"isDeleted\": false,\n                \"phone\": \"\",\n                \"description\": \"\",\n                \"nationality\": \"\",\n                \"occupation\": \"\",\n                \"profile_picture\": \"\",\n                \"shops\": [],\n                \"address\": [],\n                \"_id\": \"62d0bf2bea81f10016c375b1\",\n                \"fullname\": \"Ben\",\n                \"username\": \"aflek\",\n                \"email\": \"jeydulumli@vusra.com\",\n                \"country\": \"Nigeria\",\n                \"activation_code\": null,\n                \"activation_expires_in\": null,\n                \"createdAt\": \"2022-07-15T01:13:15.982Z\",\n                \"updatedAt\": \"2022-07-15T01:14:01.853Z\"\n            },\n            {\n                \"device_token\": [],\n                \"roles\": [\n                    {\n                        \"_id\": \"625c7ba9c4c1b16967dd8307\",\n                        \"name\": \"customer\"\n                    }\n                ],\n                \"is_active\": true,\n                \"isSuspended\": false,\n                \"isDeleted\": false,\n                \"phone\": \"\",\n                \"description\": \"\",\n                \"nationality\": \"\",\n                \"occupation\": \"\",\n                \"profile_picture\": \"\",\n                \"shops\": [],\n                \"address\": [],\n                \"_id\": \"62d0bd6bea81f10016c375a7\",\n                \"fullname\": \"Steve\",\n                \"username\": \"harvey\",\n                \"email\": \"gopsegegnu@vusra.com\",\n                \"country\": \"Nigeria\",\n                \"activation_code\": null,\n                \"activation_expires_in\": null,\n                \"createdAt\": \"2022-07-15T01:05:47.828Z\",\n                \"updatedAt\": \"2022-07-15T01:06:24.713Z\"\n            },\n            {\n                \"device_token\": [],\n                \"roles\": [\n                    {\n                        \"_id\": \"625c7ba9c4c1b16967dd8307\",\n                        \"name\": \"customer\"\n                    }\n                ],\n                \"is_active\": false,\n                \"isSuspended\": false,\n                \"isDeleted\": false,\n                \"phone\": \"\",\n                \"description\": \"\",\n                \"nationality\": \"\",\n                \"occupation\": \"\",\n                \"profile_picture\": \"\",\n                \"shops\": [],\n                \"address\": [],\n                \"_id\": \"62d08e286a54b6001657e377\",\n                \"fullname\": \"david\",\n                \"username\": \"beckham\",\n                \"email\": \"roydenorku@vusra.com\",\n                \"country\": \"Nigeria\",\n                \"activation_code\": \"335446\",\n                \"activation_expires_in\": \"2022-07-15T01:44:08.000Z\",\n                \"createdAt\": \"2022-07-14T21:44:08.763Z\",\n                \"updatedAt\": \"2022-07-14T21:44:08.763Z\"\n            },\n            {\n                \"device_token\": [],\n                \"roles\": [\n                    {\n                        \"_id\": \"625c7ba9c4c1b16967dd8307\",\n                        \"name\": \"customer\"\n                    }\n                ],\n                \"is_active\": false,\n                \"isSuspended\": false,\n                \"isDeleted\": false,\n                \"phone\": \"\",\n                \"description\": \"\",\n                \"nationality\": \"\",\n                \"occupation\": \"\",\n                \"profile_picture\": \"\",\n                \"shops\": [],\n                \"address\": [],\n                \"_id\": \"62d08ae66a54b6001657e371\",\n                \"fullname\": \"Kunle\",\n                \"username\": \"kay\",\n                \"email\": \"curkarerze@vusra.com\",\n                \"country\": \"Nigeria\",\n                \"activation_code\": \"675837\",\n                \"activation_expires_in\": \"2022-07-15T01:30:14.000Z\",\n                \"createdAt\": \"2022-07-14T21:30:14.280Z\",\n                \"updatedAt\": \"2022-07-14T21:30:14.280Z\"\n            },\n            {\n                \"device_token\": [\n                    \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\"\n                ],\n                \"roles\": [\n                    {\n                        \"_id\": \"625c7ba9c4c1b16967dd8307\",\n                        \"name\": \"customer\"\n                    }\n                ],\n                \"is_active\": true,\n                \"isSuspended\": false,\n                \"isDeleted\": false,\n                \"phone\": \"\",\n                \"description\": \"\",\n                \"nationality\": \"\",\n                \"occupation\": \"\",\n                \"profile_picture\": \"\",\n                \"shops\": [],\n                \"address\": [],\n                \"_id\": \"62d080046a54b6001657e362\",\n                \"fullname\": \"Emmanuel\",\n                \"username\": \"mega\",\n                \"email\": \"yultuyelto@vusra.com\",\n                \"country\": \"Nigeria\",\n                \"activation_code\": null,\n                \"activation_expires_in\": null,\n                \"createdAt\": \"2022-07-14T20:43:48.478Z\",\n                \"updatedAt\": \"2022-07-14T20:56:41.908Z\"\n            },\n            {\n                \"device_token\": [],\n                \"roles\": [\n                    {\n                        \"_id\": \"625c7ba9c4c1b16967dd8307\",\n                        \"name\": \"customer\"\n                    }\n                ],\n                \"is_active\": true,\n                \"isSuspended\": false,\n                \"isDeleted\": false,\n                \"phone\": \"\",\n                \"description\": \"\",\n                \"nationality\": \"\",\n                \"occupation\": \"\",\n                \"profile_picture\": \"\",\n                \"shops\": [],\n                \"address\": [],\n                \"_id\": \"62d07de06a54b6001657e356\",\n                \"fullname\": \"Shawn\",\n                \"username\": \"mendez\",\n                \"email\": \"sulmocuydo@vusra.com\",\n                \"country\": \"Nigeria\",\n                \"activation_code\": null,\n                \"activation_expires_in\": null,\n                \"createdAt\": \"2022-07-14T20:34:40.666Z\",\n                \"updatedAt\": \"2022-07-14T20:39:14.736Z\"\n            },\n            {\n                \"device_token\": [],\n                \"roles\": [\n                    {\n                        \"_id\": \"625c7ba9c4c1b16967dd8307\",\n                        \"name\": \"customer\"\n                    }\n                ],\n                \"is_active\": false,\n                \"isSuspended\": false,\n                \"isDeleted\": false,\n                \"phone\": \"\",\n                \"description\": \"\",\n                \"nationality\": \"\",\n                \"occupation\": \"\",\n                \"profile_picture\": \"\",\n                \"shops\": [],\n                \"address\": [],\n                \"_id\": \"62d07c036a54b6001657e34e\",\n                \"fullname\": \"Steven\",\n                \"username\": \"baker\",\n                \"email\": \"gefyojolmu@vusra.com\",\n                \"country\": \"Nigeria\",\n                \"activation_code\": \"180781\",\n                \"activation_expires_in\": \"2022-07-15T00:26:43.000Z\",\n                \"createdAt\": \"2022-07-14T20:26:43.035Z\",\n                \"updatedAt\": \"2022-07-14T20:26:43.035Z\"\n            }\n        ]\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get user by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update profile",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"Chukwuka\",\n    \"last_name\": \"Siegel\",\n    \"phone\": \"8153010637\",\n    \"profile_picture\": \"https://raw.githubusercontent.com/Ashwinvalento/cartoon-avatar/master/lib/images/male/45.png\",\n    \"address\": {\n        \"street_address\": \"Guzape Hills\",\n        \"country\": \"Nigeria\",\n        \"city\": \"Abuja\",\n        \"state\": \"FCT\",\n        \"lga\": \"Guzape\",\n        \"location\": {\n            \"lat\": 9.0123,\n            \"lng\": 5.984\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/update",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"update"
+							]
+						},
+						"description": "**Phone:** should be 10 characters long (omit leading 0)"
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"old_password\": \"password\",\n    \"new_password\": \"complicatedpassword\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/reset-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Account",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "suspend user",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/{{userId}}/suspend",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"{{userId}}",
+								"suspend"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "make user a partner",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/user/{{userId}}/partner",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"{{userId}}",
+								"partner"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Settings",
+			"item": [
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create setting",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"bank_details\": {\n        \"bank_name\": \"First Bank\",\n        \"account_name\": \"Smart invites\",\n        \"account_number\": \"3078456789\",\n        \"currency\": \"NGN\"\n    },\n    \"referral_commission\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/settings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"settings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Setting",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/settings/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"settings",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update setting",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"bank_details\": {\n        \"bank_name\": \"First Bank\",\n        \"account_name\": \"Smart invites\",\n        \"account_number\": \"3078456789\",\n        \"currency\": \"NGN\"\n    },\n    \"referral_commission\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/settings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"settings"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

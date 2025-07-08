@@ -21,6 +21,7 @@ import {
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import StatusButton from "@/components/StatusButton";
+import { AddVendorsManager, UpdateVendorsManager, DeleteVendorsManager } from "@/app/events/controllers/eventManagementController";
 
 const VendorCard = ({ vendor, onEdit, onDelete, onUpdateStatus, isLoading }) => {
   const {
@@ -593,93 +594,22 @@ const VendorsManagementTab = ({ event }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVendor, setEditingVendor] = useState(null);
   const [vendors, setVendors] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterService, setFilterService] = useState("all");
 
-  // Initialize with mock data if event has vendors
+  // Controllers
+  const { addVendors, isLoading: adding, isSuccess: addSuccess } = AddVendorsManager();
+  const { updateVendors, isLoading: updating, isSuccess: updateSuccess } = UpdateVendorsManager();
+  const { deleteVendors, isLoading: deleting, isSuccess: deleteSuccess } = DeleteVendorsManager();
+
+  const isLoading = adding || updating || deleting;
+
+  // Initialize with real data from event
   React.useEffect(() => {
-    if (event?.vendors) {
+    if (event?.vendors && Array.isArray(event.vendors)) {
       setVendors(event.vendors);
     } else {
-      // Mock data for demonstration
-      setVendors([
-        {
-          id: "vendor_1",
-          name: "Sarah Johnson",
-          company: "Elite Catering Solutions",
-          service_type: "Catering",
-          contact_person: "Sarah Johnson",
-          email: "sarah@elitecatering.com",
-          phone: "+1 (555) 123-4567",
-          address: "123 Main St, New York, NY 10001",
-          website: "https://elitecatering.com",
-          rating: 5,
-          status: "confirmed",
-          contract_amount: 8500,
-          payment_status: "paid",
-          notes: "Excellent service, highly recommended. Specializes in corporate events.",
-          services_provided: ["Buffet Service", "Beverages", "Waitstaff"],
-          contract_date: "2024-01-15",
-          createdAt: "2024-01-10T10:00:00Z",
-        },
-        {
-          id: "vendor_2",
-          name: "Mike Chen",
-          company: "PhotoPro Studios",
-          service_type: "Photography",
-          contact_person: "Mike Chen",
-          email: "mike@photopro.com",
-          phone: "+1 (555) 987-6543",
-          address: "456 Photography Ave, Los Angeles, CA 90210",
-          website: "https://photoprostudios.com",
-          rating: 4,
-          status: "contracted",
-          contract_amount: 3200,
-          payment_status: "partial",
-          notes: "Creative photographer with great portfolio. Payment scheduled in installments.",
-          services_provided: ["Event Photography", "Photo Editing", "Digital Gallery"],
-          contract_date: "2024-01-20",
-          createdAt: "2024-01-12T14:30:00Z",
-        },
-        {
-          id: "vendor_3",
-          name: "Lisa Rodriguez",
-          company: "Sound & Vision AV",
-          service_type: "Audio/Visual",
-          contact_person: "Lisa Rodriguez",
-          email: "lisa@soundvision.com",
-          phone: "+1 (555) 456-7890",
-          website: "https://soundvision.com",
-          rating: 4,
-          status: "pending",
-          contract_amount: 2800,
-          payment_status: "pending",
-          notes: "Waiting for final confirmation on equipment requirements.",
-          services_provided: ["Audio Equipment", "Projection", "Lighting", "Technical Support"],
-          contract_date: "",
-          createdAt: "2024-01-18T09:15:00Z",
-        },
-        {
-          id: "vendor_4",
-          name: "David Park",
-          company: "Elegant Decorations",
-          service_type: "Decoration",
-          contact_person: "David Park",
-          email: "david@elegantdecorations.com",
-          phone: "+1 (555) 321-0987",
-          address: "789 Design Blvd, Miami, FL 33101",
-          website: "https://elegantdecorations.com",
-          rating: 3,
-          status: "cancelled",
-          contract_amount: 4500,
-          payment_status: "pending",
-          notes: "Cancelled due to scheduling conflicts. Looking for replacement.",
-          services_provided: ["Floral Arrangements", "Table Settings", "Backdrop Design"],
-          contract_date: "",
-          createdAt: "2024-01-08T16:45:00Z",
-        },
-      ]);
+      setVendors([]);
     }
   }, [event]);
 
@@ -693,36 +623,78 @@ const VendorsManagementTab = ({ event }) => {
     setIsModalOpen(true);
   };
 
-  const handleSaveVendor = (vendorData) => {
-    setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
+  const handleSaveVendor = async (vendorData) => {
+    try {
+      // Include ALL frontend data points, even if backend doesn't support them yet
+      const vendorPayload = {
+        // Backend-supported fields
+        name: vendorData.name,
+        company: vendorData.company,
+        contact_person: vendorData.contact_person,
+        email: vendorData.email,
+        phone: vendorData.phone,
+        address: vendorData.address,
+        website: vendorData.website,
+        job_description: vendorData.service_type,
+        status: vendorData.status,
+        payment_status: vendorData.payment_status,
+        contract_amount: vendorData.contract_amount,
+        contract_date: vendorData.contract_date,
+        services_provided: Array.isArray(vendorData.services_provided) 
+          ? vendorData.services_provided.join(", ") 
+          : vendorData.services_provided,
+        notes: vendorData.notes,
+
+        // ADDITIONAL frontend data points backend should support
+        service_type: vendorData.service_type, // Alternative job_description field name
+        rating: vendorData.rating, // Vendor rating (1-5 stars)
+        createdAt: vendorData.createdAt, // Creation timestamp
+      };
+
       if (editingVendor) {
         // Update existing vendor
-        setVendors(vendors.map(v => 
+        const updatedVendors = vendors.map(v => 
           v.id === editingVendor.id ? vendorData : v
-        ));
+        );
+        await updateVendors(event.id, updatedVendors);
+        setVendors(updatedVendors);
       } else {
         // Add new vendor
-        setVendors([...vendors, vendorData]);
+        const newVendors = [...vendors, { id: `vendor_${Date.now()}`, ...vendorData }];
+        await addVendors(event.id, vendorPayload, vendorData.id);
+        setVendors(newVendors);
       }
       
       setIsModalOpen(false);
       setEditingVendor(null);
-      setIsLoading(false);
-    }, 1000);
+    } catch (error) {
+      console.error("Error saving vendor:", error);
+      alert("Error saving vendor. Please try again.");
+    }
   };
 
-  const handleUpdateStatus = (vendorId, newStatus) => {
-    setVendors(vendors.map(v => 
-      v.id === vendorId ? { ...v, status: newStatus } : v
-    ));
+  const handleUpdateStatus = async (vendorId, newStatus) => {
+    try {
+      const updatedVendors = vendors.map(v => 
+        v.id === vendorId ? { ...v, status: newStatus } : v
+      );
+      await updateVendors(event.id, updatedVendors);
+      setVendors(updatedVendors);
+    } catch (error) {
+      console.error("Error updating vendor status:", error);
+      alert("Error updating vendor status. Please try again.");
+    }
   };
 
-  const handleDeleteVendor = (vendorId) => {
+  const handleDeleteVendor = async (vendorId) => {
     if (confirm("Are you sure you want to delete this vendor?")) {
-      setVendors(vendors.filter(v => v.id !== vendorId));
+      try {
+        await deleteVendors(event.id, [vendorId]);
+        setVendors(vendors.filter(v => v.id !== vendorId));
+      } catch (error) {
+        console.error("Error deleting vendor:", error);
+        alert("Error deleting vendor. Please try again.");
+      }
     }
   };
 

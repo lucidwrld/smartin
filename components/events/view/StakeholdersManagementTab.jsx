@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
+import { AddStakeholdersManager, UpdateStakeholdersManager, DeleteStakeholdersManager } from "@/app/events/controllers/stakeholdersController";
 
 const StakeholderCard = ({ stakeholder, onEdit, onDelete, onToggleStatus, isLoading }) => {
   const {
@@ -673,144 +674,23 @@ const StakeholdersManagementTab = ({ event }) => {
   const [stakeholders, setStakeholders] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStakeholder, setEditingStakeholder] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [filterRole, setFilterRole] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
 
-  // Initialize with mock data
+  // Controllers
+  const { addStakeholders, isLoading: adding, isSuccess: addSuccess } = AddStakeholdersManager();
+  const { updateStakeholders, isLoading: updating, isSuccess: updateSuccess } = UpdateStakeholdersManager();
+  const { deleteStakeholders, isLoading: deleting, isSuccess: deleteSuccess } = DeleteStakeholdersManager();
+
+  const isLoading = adding || updating || deleting;
+
+  // Initialize with real data from event
   React.useEffect(() => {
-    if (event?.stakeholders) {
+    if (event?.stakeholders && Array.isArray(event.stakeholders)) {
       setStakeholders(event.stakeholders);
     } else {
-      // Mock data for demonstration
-      setStakeholders([
-        {
-          id: "stakeholder_1",
-          name: "Emily Watson",
-          title: "Marketing Director",
-          organization: "TechCorp Solutions",
-          role: "sponsor",
-          contact_info: {
-            email: "emily.watson@techcorp.com",
-            phone: "+1 (555) 123-4567",
-            address: "123 Business Ave, San Francisco, CA 94102",
-            website: "https://techcorp.com",
-          },
-          involvement_level: 5,
-          status: "active",
-          notes: "Primary sponsor, very engaged. Regular monthly check-ins scheduled.",
-          responsibilities: [
-            "Financial sponsorship oversight",
-            "Brand promotion coordination",
-            "Executive attendance confirmation"
-          ],
-          expertise_areas: ["Marketing", "Brand Management", "Corporate Events"],
-          availability: "Weekdays 9 AM - 6 PM PST",
-          priority: "high",
-          last_contact: "2024-02-20",
-          created_at: "2024-01-15T10:00:00Z",
-        },
-        {
-          id: "stakeholder_2",
-          name: "Dr. Michael Chen",
-          title: "Chief Technology Officer",
-          organization: "Innovation Labs",
-          role: "speaker",
-          contact_info: {
-            email: "m.chen@innovationlabs.com",
-            phone: "+1 (555) 987-6543",
-            website: "https://innovationlabs.com",
-          },
-          involvement_level: 4,
-          status: "active",
-          notes: "Keynote speaker for technology track. Requires A/V setup for live coding demo.",
-          responsibilities: [
-            "Keynote presentation delivery",
-            "Technical content review",
-            "Q&A session moderation"
-          ],
-          expertise_areas: ["Artificial Intelligence", "Machine Learning", "Software Development"],
-          availability: "Available March 15-16",
-          priority: "high",
-          last_contact: "2024-02-18",
-          created_at: "2024-01-20T14:30:00Z",
-        },
-        {
-          id: "stakeholder_3",
-          name: "Sarah Rodriguez",
-          title: "Event Coordinator",
-          organization: "Local Events Association",
-          role: "partner",
-          contact_info: {
-            email: "sarah@localevents.org",
-            phone: "+1 (555) 456-7890",
-            address: "456 Community St, Austin, TX 78701",
-          },
-          involvement_level: 4,
-          status: "active",
-          notes: "Partner organization providing venue and local logistics support.",
-          responsibilities: [
-            "Venue coordination",
-            "Local vendor management",
-            "Permits and licensing"
-          ],
-          expertise_areas: ["Event Planning", "Venue Management", "Local Regulations"],
-          availability: "Full-time availability",
-          priority: "medium",
-          last_contact: "2024-02-22",
-          created_at: "2024-01-12T09:15:00Z",
-        },
-        {
-          id: "stakeholder_4",
-          name: "James Thompson",
-          title: "Student Ambassador",
-          organization: "University Tech Club",
-          role: "volunteer",
-          contact_info: {
-            email: "james.t@university.edu",
-            phone: "+1 (555) 321-0987",
-          },
-          involvement_level: 3,
-          status: "pending",
-          notes: "Enthusiastic volunteer, waiting for final schedule confirmation.",
-          responsibilities: [
-            "Registration desk support",
-            "Attendee guidance",
-            "Social media promotion"
-          ],
-          expertise_areas: ["Social Media", "Student Outreach", "Customer Service"],
-          availability: "Weekends and evenings",
-          priority: "low",
-          last_contact: "2024-02-10",
-          created_at: "2024-01-25T16:45:00Z",
-        },
-        {
-          id: "stakeholder_5",
-          name: "Rachel Green",
-          title: "Freelance Photographer",
-          organization: "Creative Lens Photography",
-          role: "vendor",
-          contact_info: {
-            email: "rachel@creativelens.com",
-            phone: "+1 (555) 234-5678",
-            website: "https://creativelens.com",
-          },
-          involvement_level: 2,
-          status: "active",
-          notes: "Professional event photographer with 10+ years experience.",
-          responsibilities: [
-            "Event photography",
-            "Photo editing and delivery",
-            "Social media content creation"
-          ],
-          expertise_areas: ["Photography", "Photo Editing", "Visual Storytelling"],
-          availability: "Full event coverage available",
-          priority: "medium",
-          last_contact: "2024-02-16",
-          created_at: "2024-01-30T11:20:00Z",
-        },
-      ]);
+      setStakeholders([]);
     }
   }, [event]);
 
@@ -824,37 +704,82 @@ const StakeholdersManagementTab = ({ event }) => {
     setIsModalOpen(true);
   };
 
-  const handleSaveStakeholder = (stakeholderData) => {
-    setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
+  const handleSaveStakeholder = async (stakeholderData) => {
+    try {
+      // Include ALL frontend data points, even if backend doesn't support them yet
+      const completeStakeholderData = {
+        // Basic backend-supported fields
+        name: stakeholderData.name,
+        title: stakeholderData.title,
+        organization: stakeholderData.organization,
+        role: stakeholderData.role,
+        email: stakeholderData.contact_info?.email || "",
+        phone: stakeholderData.contact_info?.phone || "",
+        address: stakeholderData.contact_info?.address || "",
+        website: stakeholderData.contact_info?.website || "",
+        status: stakeholderData.status,
+        priority: stakeholderData.priority,
+        involvement_level: stakeholderData.involvement_level,
+        availability: stakeholderData.availability,
+        responsibilities: stakeholderData.responsibilities,
+        expertise: Array.isArray(stakeholderData.expertise_areas) 
+          ? stakeholderData.expertise_areas.join(", ") 
+          : stakeholderData.expertise_areas,
+        notes: stakeholderData.notes,
+
+        // ADDITIONAL frontend data points backend should support
+        contact_info: stakeholderData.contact_info, // Full contact structure
+        expertise_areas: stakeholderData.expertise_areas, // Array format
+        last_contact: stakeholderData.last_contact,
+        created_at: stakeholderData.created_at,
+        id: stakeholderData.id
+      };
+
       if (editingStakeholder) {
         // Update existing stakeholder
-        setStakeholders(stakeholders.map(s => 
+        const updatedStakeholders = stakeholders.map(s => 
           s.id === editingStakeholder.id ? stakeholderData : s
-        ));
+        );
+        await updateStakeholders(event.id, [completeStakeholderData]);
+        setStakeholders(updatedStakeholders);
       } else {
         // Add new stakeholder
-        setStakeholders([...stakeholders, stakeholderData]);
+        const newStakeholders = [...stakeholders, stakeholderData];
+        await addStakeholders(event.id, [completeStakeholderData]);
+        setStakeholders(newStakeholders);
       }
       
       setIsModalOpen(false);
       setEditingStakeholder(null);
-      setIsLoading(false);
-    }, 1000);
-  };
-
-  const handleDeleteStakeholder = (stakeholderId) => {
-    if (confirm("Are you sure you want to delete this stakeholder?")) {
-      setStakeholders(stakeholders.filter(s => s.id !== stakeholderId));
+    } catch (error) {
+      console.error("Error saving stakeholder:", error);
+      alert("Error saving stakeholder. Please try again.");
     }
   };
 
-  const handleToggleStatus = (stakeholderId, newStatus) => {
-    setStakeholders(stakeholders.map(s => 
-      s.id === stakeholderId ? { ...s, status: newStatus } : s
-    ));
+  const handleDeleteStakeholder = async (stakeholderId) => {
+    if (confirm("Are you sure you want to delete this stakeholder?")) {
+      try {
+        await deleteStakeholders(event.id, [stakeholderId]);
+        setStakeholders(stakeholders.filter(s => s.id !== stakeholderId));
+      } catch (error) {
+        console.error("Error deleting stakeholder:", error);
+        alert("Error deleting stakeholder. Please try again.");
+      }
+    }
+  };
+
+  const handleToggleStatus = async (stakeholderId, newStatus) => {
+    try {
+      const updatedStakeholders = stakeholders.map(s => 
+        s.id === stakeholderId ? { ...s, status: newStatus } : s
+      );
+      await updateStakeholders(event.id, updatedStakeholders);
+      setStakeholders(updatedStakeholders);
+    } catch (error) {
+      console.error("Error updating stakeholder status:", error);
+      alert("Error updating stakeholder status. Please try again.");
+    }
   };
 
   const filteredStakeholders = stakeholders.filter(stakeholder => {

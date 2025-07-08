@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CouponSystem from "@/components/tickets/CouponSystem";
 import {
   Plus,
@@ -26,8 +26,15 @@ import {
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import StatusButton from "@/components/StatusButton";
+import { 
+  CreateTicketManager, 
+  useGetEventTicketsManager, 
+  UpdateTicketManager, 
+  DeleteTicketManager 
+} from "@/app/tickets/controllers/ticketController";
+import { useGetTicketCategoriesManager } from "@/app/tickets/controllers/ticketCategoryController";
 
-const TicketCard = ({ ticket, onEdit, onToggleStatus, isLoading }) => {
+const TicketCard = ({ ticket, onEdit, onDelete, onToggleStatus, isLoading }) => {
   const {
     id,
     name,
@@ -125,6 +132,14 @@ const TicketCard = ({ ticket, onEdit, onToggleStatus, isLoading }) => {
             ) : (
               <CheckCircle className="w-4 h-4" />
             )}
+          </button>
+          <button
+            onClick={() => onDelete(id)}
+            disabled={isLoading}
+            className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+            title="Delete ticket"
+          >
+            <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -328,151 +343,112 @@ const TicketingManagementTab = ({ event }) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [tickets, setTickets] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [showTicketModal, setShowTicketModal] = useState(false);
   const [editingTicket, setEditingTicket] = useState(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    category: "",
+    price: 0,
+    description: "",
+    quantity: 100,
+    currency: "USD",
+    sale_start_date: "",
+    sale_end_date: "",
+    min_per_order: 1,
+    max_per_order: 10,
+    is_active: true,
+    requires_approval: false,
+    is_free: false,
+  });
 
-  // Initialize with mock data
+  // API Integrations
+  const { data: ticketsData, isLoading: loadingTickets, refetch: refetchTickets } = useGetEventTicketsManager(event?.id || event?._id);
+  const { data: categoriesData } = useGetTicketCategoriesManager();
+  const { createTicket, isLoading: creatingTicket } = CreateTicketManager();
+  const { updateTicket, isLoading: updatingTicket } = UpdateTicketManager();
+  const { deleteTicket, isLoading: deletingTicket } = DeleteTicketManager();
+
+  const isLoading = creatingTicket || updatingTicket || deletingTicket;
+
+  // Map API data to component format
   React.useEffect(() => {
-    // Mock tickets data
-    setTickets([
-      {
-        id: "ticket_1",
-        name: "General Admission",
-        description: "Standard access to all sessions",
-        price: 99.99,
-        currency: "USD",
-        quantity: 500,
-        sold: 387,
-        status: "active",
-        category: "General",
-        sale_start_date: "2024-01-01",
-        sale_end_date: "2024-03-15",
-        revenue: 38613,
-        is_free: false,
-      },
-      {
-        id: "ticket_2",
-        name: "VIP Access",
-        description: "Premium access with exclusive benefits",
-        price: 299.99,
-        currency: "USD",
-        quantity: 100,
-        sold: 78,
-        status: "active",
-        category: "VIP",
-        sale_start_date: "2024-01-01",
-        sale_end_date: "2024-03-15",
-        revenue: 23399.22,
-        is_free: false,
-      },
-      {
-        id: "ticket_3",
-        name: "Student Discount",
-        description: "Discounted tickets for students",
-        price: 49.99,
-        currency: "USD",
-        quantity: 200,
-        sold: 145,
-        status: "active",
-        category: "Student",
-        sale_start_date: "2024-01-15",
-        sale_end_date: "2024-03-15",
-        revenue: 7248.55,
-        is_free: false,
-      },
-      {
-        id: "ticket_4",
-        name: "Free Registration",
-        description: "Complimentary access for partners",
-        price: 0,
-        currency: "USD",
-        quantity: 50,
-        sold: 42,
-        status: "paused",
-        category: "Complimentary",
-        sale_start_date: "2024-01-01",
-        sale_end_date: "2024-03-15",
-        revenue: 0,
-        is_free: true,
-      },
-    ]);
+    if (ticketsData?.data && Array.isArray(ticketsData.data)) {
+      const mappedTickets = ticketsData.data.map(ticket => ({
+        // Backend fields
+        id: ticket._id,
+        name: ticket.name,
+        description: ticket.description || "",
+        price: ticket.price,
+        currency: ticket.currency,
+        quantity: ticket.quantity,
+        sale_start_date: ticket.sale_start_date,
+        sale_end_date: ticket.sale_end_date,
+        is_free: ticket.is_free,
+        category: typeof ticket.category === 'object' ? ticket.category.name : ticket.category,
+        categoryId: typeof ticket.category === 'object' ? ticket.category._id : ticket.category,
+        min_per_order: ticket.min_per_order,
+        max_per_order: ticket.max_per_order,
+        requires_approval: ticket.requires_approval,
+        is_active: ticket.is_active,
+        sold_out: ticket.sold_out,
+        quantity_remaining: ticket.quantity_remaining,
+        
+        // Calculated/Frontend fields
+        sold: ticket.quantity - (ticket.quantity_remaining || ticket.quantity),
+        status: ticket.is_active ? (ticket.sold_out ? "sold_out" : "active") : "paused",
+        revenue: (ticket.quantity - (ticket.quantity_remaining || ticket.quantity)) * ticket.price,
+      }));
+      setTickets(mappedTickets);
+    }
+  }, [ticketsData]);
 
-    // Mock orders data
-    setOrders([
-      {
-        id: "order_1",
-        order_number: "ORD-001234",
-        customer_name: "John Smith",
-        customer_email: "john.smith@email.com",
-        customer_phone: "+1-555-0123",
-        tickets: [
-          {
-            ticket_id: "ticket_1",
-            ticket_name: "General Admission",
-            quantity: 2,
-            price: 99.99,
-          },
-        ],
-        total_amount: 199.98,
-        currency: "USD",
-        status: "completed",
-        payment_status: "paid",
-        order_date: "2024-02-15T10:30:00Z",
-        payment_method: "Credit Card",
-      },
-      {
-        id: "order_2",
-        order_number: "ORD-001235",
-        customer_name: "Sarah Johnson",
-        customer_email: "sarah.j@email.com",
-        customer_phone: "+1-555-0124",
-        tickets: [
-          {
-            ticket_id: "ticket_2",
-            ticket_name: "VIP Access",
-            quantity: 1,
-            price: 299.99,
-          },
-        ],
-        total_amount: 299.99,
-        currency: "USD",
-        status: "completed",
-        payment_status: "paid",
-        order_date: "2024-02-14T15:45:00Z",
-        payment_method: "PayPal",
-      },
-      {
-        id: "order_3",
-        order_number: "ORD-001236",
-        customer_name: "Mike Chen",
-        customer_email: "mike.chen@email.com",
-        tickets: [
-          {
-            ticket_id: "ticket_3",
-            ticket_name: "Student Discount",
-            quantity: 1,
-            price: 49.99,
-          },
-        ],
-        total_amount: 49.99,
-        currency: "USD",
-        status: "pending",
-        payment_status: "pending",
-        order_date: "2024-02-16T09:15:00Z",
-        payment_method: "Bank Transfer",
-      },
-    ]);
+  // Initialize with empty orders (no endpoint available yet)
+  React.useEffect(() => {
+    // Orders endpoint not available yet, keeping empty
+    setOrders([]);
   }, []);
 
-  const handleToggleTicketStatus = (ticketId, newStatus) => {
-    setTickets(
-      tickets.map((ticket) =>
-        ticket.id === ticketId ? { ...ticket, status: newStatus } : ticket
-      )
-    );
+  const handleToggleTicketStatus = async (ticketId, newStatus) => {
+    try {
+      const ticket = tickets.find(t => t.id === ticketId);
+      if (!ticket) return;
+      
+      // Include ALL frontend data points
+      const updateData = {
+        name: ticket.name,
+        category: ticket.categoryId,
+        price: ticket.price,
+        description: ticket.description,
+        quantity: ticket.quantity,
+        currency: ticket.currency,
+        sale_start_date: ticket.sale_start_date.split('T')[0],
+        sale_end_date: ticket.sale_end_date.split('T')[0],
+        min_per_order: ticket.min_per_order,
+        max_per_order: ticket.max_per_order,
+        is_active: newStatus === "active",
+        requires_approval: ticket.requires_approval,
+        is_free: ticket.is_free,
+        
+        // Additional frontend fields
+        status: newStatus,
+        sale_start_time: ticket.sale_start_time,
+        sale_end_time: ticket.sale_end_time,
+        visible_quantity: ticket.visible_quantity,
+        benefits: ticket.benefits,
+      };
+      
+      await updateTicket({ 
+        ticketId, 
+        data: updateData,
+        eventId: event?.id || event?._id 
+      });
+      await refetchTickets();
+    } catch (error) {
+      console.error("Error updating ticket status:", error);
+      alert("Error updating ticket status. Please try again.");
+    }
   };
 
   const handleUpdateOrderStatus = (orderId, newStatus) => {
@@ -481,6 +457,73 @@ const TicketingManagementTab = ({ event }) => {
         order.id === orderId ? { ...order, status: newStatus } : order
       )
     );
+  };
+
+  const handleSaveTicket = async () => {
+    try {
+      if (!formData.name || !formData.category) {
+        alert("Please fill in all required fields");
+        return;
+      }
+
+      // Include ALL frontend data points
+      const ticketData = {
+        event: event?.id || event?._id,
+        name: formData.name,
+        category: formData.category,
+        price: formData.price,
+        description: formData.description,
+        quantity: formData.quantity,
+        currency: formData.currency,
+        sale_start_date: formData.sale_start_date,
+        sale_end_date: formData.sale_end_date,
+        min_per_order: formData.min_per_order,
+        max_per_order: formData.max_per_order,
+        is_active: formData.is_active,
+        requires_approval: formData.requires_approval,
+        is_free: formData.is_free,
+
+        // Additional frontend fields
+        sale_start_time: formData.sale_start_time,
+        sale_end_time: formData.sale_end_time,
+        visible_quantity: formData.visible_quantity,
+        benefits: formData.benefits || [],
+      };
+
+      if (editingTicket) {
+        await updateTicket({
+          ticketId: editingTicket.id,
+          data: ticketData,
+          eventId: event?.id || event?._id,
+        });
+      } else {
+        await createTicket(ticketData);
+      }
+
+      await refetchTickets();
+      setShowTicketModal(false);
+      setEditingTicket(null);
+    } catch (error) {
+      console.error("Error saving ticket:", error);
+      alert("Error saving ticket. Please try again.");
+    }
+  };
+
+  const handleDeleteTicket = async (ticketId) => {
+    if (!confirm("Are you sure you want to delete this ticket?")) {
+      return;
+    }
+
+    try {
+      await deleteTicket({ 
+        ticketId, 
+        eventId: event?.id || event?._id 
+      });
+      await refetchTickets();
+    } catch (error) {
+      console.error("Error deleting ticket:", error);
+      alert("Error deleting ticket. Please try again.");
+    }
   };
 
   const filteredOrders = orders.filter((order) => {
@@ -651,25 +694,98 @@ const TicketingManagementTab = ({ event }) => {
               radius="rounded-full"
               onClick={() => {
                 setEditingTicket(null);
+                setFormData({
+                  name: "",
+                  category: "",
+                  price: 0,
+                  description: "",
+                  quantity: 100,
+                  currency: "USD",
+                  sale_start_date: "",
+                  sale_end_date: "",
+                  min_per_order: 1,
+                  max_per_order: 10,
+                  is_active: true,
+                  requires_approval: false,
+                  is_free: false,
+                });
                 setShowTicketModal(true);
               }}
             />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {tickets.map((ticket) => (
+          {loadingTickets ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading tickets...</p>
+            </div>
+          ) : tickets.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-lg border">
+              <Ticket className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No tickets yet
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Create your first ticket type to start selling.
+              </p>
+              <CustomButton
+                buttonText="Create First Ticket"
+                prefixIcon={<Plus size={16} />}
+                buttonColor="bg-purple-600"
+                radius="rounded-full"
+                onClick={() => {
+                  setEditingTicket(null);
+                  setFormData({
+                    name: "",
+                    category: "",
+                    price: 0,
+                    description: "",
+                    quantity: 100,
+                    currency: "USD",
+                    sale_start_date: "",
+                    sale_end_date: "",
+                    min_per_order: 1,
+                    max_per_order: 10,
+                    is_active: true,
+                    requires_approval: false,
+                    is_free: false,
+                  });
+                  setShowTicketModal(true);
+                }}
+              />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {tickets.map((ticket) => (
               <TicketCard
                 key={ticket.id}
                 ticket={ticket}
                 onEdit={() => {
                   setEditingTicket(ticket);
+                  setFormData({
+                    name: ticket.name,
+                    category: ticket.categoryId || "",
+                    price: ticket.price,
+                    description: ticket.description || "",
+                    quantity: ticket.quantity,
+                    currency: ticket.currency,
+                    sale_start_date: ticket.sale_start_date?.split('T')[0] || "",
+                    sale_end_date: ticket.sale_end_date?.split('T')[0] || "",
+                    min_per_order: ticket.min_per_order,
+                    max_per_order: ticket.max_per_order,
+                    is_active: ticket.is_active,
+                    requires_approval: ticket.requires_approval,
+                    is_free: ticket.is_free,
+                  });
                   setShowTicketModal(true);
                 }}
+                onDelete={handleDeleteTicket}
                 onToggleStatus={handleToggleTicketStatus}
                 isLoading={isLoading}
               />
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -757,33 +873,54 @@ const TicketingManagementTab = ({ event }) => {
                   {editingTicket ? "Edit Ticket" : "Add New Ticket"}
                 </h3>
                 <button
-                  onClick={() => setShowTicketModal(false)}
+                  onClick={() => {
+                    setShowTicketModal(false);
+                    setEditingTicket(null);
+                    setFormData({
+                      name: "",
+                      category: "",
+                      price: 0,
+                      description: "",
+                      quantity: 100,
+                      currency: "USD",
+                      sale_start_date: "",
+                      sale_end_date: "",
+                      min_per_order: 1,
+                      max_per_order: 10,
+                      is_active: true,
+                      requires_approval: false,
+                      is_free: false,
+                    });
+                  }}
                   className="text-gray-400 hover:text-gray-600"
                 >
                   ×
                 </button>
               </div>
 
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <InputWithFullBoarder
                     label="Ticket Name *"
                     placeholder="Enter ticket name"
-                    defaultValue={editingTicket?.name || ""}
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   />
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Category
+                      Category *
                     </label>
                     <select
-                      defaultValue={editingTicket?.category || "general"}
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                     >
-                      <option value="general">General Admission</option>
-                      <option value="vip">VIP</option>
-                      <option value="early_bird">Early Bird</option>
-                      <option value="student">Student</option>
-                      <option value="group">Group</option>
+                      <option value="">Select category</option>
+                      {categoriesData?.data?.map((cat) => (
+                        <option key={cat._id} value={cat._id}>
+                          {cat.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -793,7 +930,8 @@ const TicketingManagementTab = ({ event }) => {
                   placeholder="Brief description of the ticket"
                   isTextArea={true}
                   rows={2}
-                  defaultValue={editingTicket?.description || ""}
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -802,20 +940,23 @@ const TicketingManagementTab = ({ event }) => {
                     type="number"
                     step="0.01"
                     placeholder="0.00"
-                    defaultValue={editingTicket?.price || ""}
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
                   />
                   <InputWithFullBoarder
                     label="Quantity"
                     type="number"
                     placeholder="100"
-                    defaultValue={editingTicket?.quantity || ""}
+                    value={formData.quantity}
+                    onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
                   />
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Currency
                     </label>
                     <select
-                      defaultValue={editingTicket?.currency || "USD"}
+                      value={formData.currency}
+                      onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                     >
                       <option value="USD">USD</option>
@@ -830,12 +971,14 @@ const TicketingManagementTab = ({ event }) => {
                   <InputWithFullBoarder
                     label="Sale Start Date"
                     type="date"
-                    defaultValue={editingTicket?.sale_start_date || ""}
+                    value={formData.sale_start_date}
+                    onChange={(e) => setFormData({ ...formData, sale_start_date: e.target.value })}
                   />
                   <InputWithFullBoarder
                     label="Sale End Date"
                     type="date"
-                    defaultValue={editingTicket?.sale_end_date || ""}
+                    value={formData.sale_end_date}
+                    onChange={(e) => setFormData({ ...formData, sale_end_date: e.target.value })}
                   />
                 </div>
 
@@ -844,13 +987,15 @@ const TicketingManagementTab = ({ event }) => {
                     label="Min per Order"
                     type="number"
                     placeholder="1"
-                    defaultValue={editingTicket?.min_per_order || 1}
+                    value={formData.min_per_order}
+                    onChange={(e) => setFormData({ ...formData, min_per_order: parseInt(e.target.value) || 1 })}
                   />
                   <InputWithFullBoarder
                     label="Max per Order"
                     type="number"
                     placeholder="10"
-                    defaultValue={editingTicket?.max_per_order || 10}
+                    value={formData.max_per_order}
+                    onChange={(e) => setFormData({ ...formData, max_per_order: parseInt(e.target.value) || 10 })}
                   />
                 </div>
 
@@ -858,7 +1003,8 @@ const TicketingManagementTab = ({ event }) => {
                   <label className="flex items-center">
                     <input
                       type="checkbox"
-                      defaultChecked={editingTicket?.is_free || false}
+                      checked={formData.is_free}
+                      onChange={(e) => setFormData({ ...formData, is_free: e.target.checked })}
                       className="mr-2"
                     />
                     Free Ticket
@@ -866,7 +1012,8 @@ const TicketingManagementTab = ({ event }) => {
                   <label className="flex items-center">
                     <input
                       type="checkbox"
-                      defaultChecked={editingTicket?.requires_approval || false}
+                      checked={formData.requires_approval}
+                      onChange={(e) => setFormData({ ...formData, requires_approval: e.target.checked })}
                       className="mr-2"
                     />
                     Requires Approval
@@ -880,14 +1027,15 @@ const TicketingManagementTab = ({ event }) => {
                     }
                     buttonColor="bg-purple-600"
                     radius="rounded-md"
-                    onClick={() => {
-                      // Here you would handle the save logic
-                      setShowTicketModal(false);
-                    }}
+                    isLoading={isLoading}
+                    onClick={handleSaveTicket}
                   />
                   <CustomButton
                     buttonText="Cancel"
-                    onClick={() => setShowTicketModal(false)}
+                    onClick={() => {
+                      setShowTicketModal(false);
+                      setEditingTicket(null);
+                    }}
                     buttonColor="bg-gray-300"
                     textColor="text-gray-700"
                     radius="rounded-md"

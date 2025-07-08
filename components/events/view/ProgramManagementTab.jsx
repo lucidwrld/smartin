@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
+import { AddProgramManager, UpdateProgramManager, DeleteProgramManager } from "@/app/events/controllers/programController";
 
 const AgendaItem = ({ item, onEdit, onDelete, onToggleVisibility, isLoading }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -449,103 +450,24 @@ const ProgramManagementTab = ({ event }) => {
   const [agendaItems, setAgendaItems] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [filterType, setFilterType] = useState("all");
   const [sortBy, setSortBy] = useState("time");
 
-  // Initialize with mock data
+  // Controllers
+  const { addProgram, isLoading: adding, isSuccess: addSuccess } = AddProgramManager();
+  const { updateProgram, isLoading: updating, isSuccess: updateSuccess } = UpdateProgramManager();
+  const { deleteProgram, isLoading: deleting, isSuccess: deleteSuccess } = DeleteProgramManager();
+
+  const isLoading = adding || updating || deleting;
+
+  // Initialize with real data from event
   React.useEffect(() => {
-    // Mock agenda data
-    setAgendaItems([
-      {
-        id: "agenda_1",
-        title: "Registration & Welcome Coffee",
-        description: "Check-in, registration, networking with welcome refreshments",
-        type: "break",
-        startTime: "08:00",
-        endTime: "09:00",
-        location: "Main Lobby",
-        speaker: "",
-        speakerTitle: "",
-        isPublic: true,
-        objectives: [],
-        materials: [],
-      },
-      {
-        id: "agenda_2",
-        title: "Opening Keynote: The Future of Technology",
-        description: "An inspiring look at emerging technologies and their impact on society. Join us as we explore the trends that will shape the next decade.",
-        type: "keynote",
-        startTime: "09:00",
-        endTime: "10:00",
-        location: "Main Auditorium",
-        speaker: "Dr. Sarah Johnson",
-        speakerTitle: "Chief Technology Officer, TechCorp",
-        isPublic: true,
-        objectives: [
-          "Understand emerging technology trends",
-          "Learn about future industry directions",
-          "Gain insights into innovation strategies"
-        ],
-        materials: [
-          { name: "Keynote Slides", url: "https://example.com/slides1.pdf" },
-        ],
-      },
-      {
-        id: "agenda_3",
-        title: "AI Workshop: Building Your First Neural Network",
-        description: "Hands-on workshop where participants will build and train their first neural network using Python and TensorFlow.",
-        type: "workshop",
-        startTime: "10:30",
-        endTime: "12:00",
-        location: "Workshop Room A",
-        speaker: "Prof. Michael Chen",
-        speakerTitle: "AI Research Director, DataLab",
-        isPublic: true,
-        objectives: [
-          "Build a basic neural network",
-          "Understand TensorFlow fundamentals",
-          "Apply machine learning concepts"
-        ],
-        materials: [
-          { name: "Workshop Code", url: "https://github.com/example/ai-workshop" },
-          { name: "Setup Guide", url: "https://example.com/setup.pdf" },
-        ],
-      },
-      {
-        id: "agenda_4",
-        title: "Lunch Break",
-        description: "Buffet lunch with networking opportunities",
-        type: "lunch",
-        startTime: "12:00",
-        endTime: "13:00",
-        location: "Dining Hall",
-        speaker: "",
-        speakerTitle: "",
-        isPublic: true,
-        objectives: [],
-        materials: [],
-      },
-      {
-        id: "agenda_5",
-        title: "Panel: Ethics in AI Development",
-        description: "A thought-provoking discussion about the ethical implications of AI development and deployment.",
-        type: "panel",
-        startTime: "13:00",
-        endTime: "14:00",
-        location: "Conference Room B",
-        speaker: "Industry Expert Panel",
-        speakerTitle: "Various Industry Leaders",
-        isPublic: true,
-        objectives: [
-          "Explore ethical considerations in AI",
-          "Understand regulatory challenges",
-          "Discuss best practices"
-        ],
-        materials: [],
-      },
-    ]);
-  }, []);
+    if (event?.program && Array.isArray(event.program)) {
+      setAgendaItems(event.program);
+    } else {
+      setAgendaItems([]);
+    }
+  }, [event]);
 
   const handleAddItem = () => {
     setEditingItem(null);
@@ -557,34 +479,98 @@ const ProgramManagementTab = ({ event }) => {
     setIsModalOpen(true);
   };
 
-  const handleSaveItem = (itemData) => {
-    setIsLoading(true);
-    
-    setTimeout(() => {
+  const handleSaveItem = async (itemData) => {
+    try {
+      // Include ALL frontend data points, even if backend doesn't support them yet
+      const completeProgramItem = {
+        // Backend-supported fields
+        description: itemData.title, // Backend uses description for title
+        date: event?.date || new Date().toISOString().split('T')[0],
+        start_time: itemData.startTime,
+        end_time: itemData.endTime,
+        location: itemData.location,
+        speaker: itemData.speaker,
+        speaker_title: itemData.speakerTitle,
+        is_public: itemData.isPublic,
+
+        // ADDITIONAL frontend data points backend should support
+        title: itemData.title, // Separate title field
+        type: itemData.type, // keynote, workshop, panel, break, lunch, etc.
+        objectives: itemData.objectives || [], // Learning objectives array
+        materials: itemData.materials || [], // Materials array with name/url
+        id: itemData.id
+      };
+
       if (editingItem) {
-        setAgendaItems(agendaItems.map(item => 
+        // Update existing item
+        const updatedItems = agendaItems.map(item => 
           item.id === editingItem.id ? itemData : item
-        ));
+        );
+        await updateProgram(event.id, updatedItems.map(item => ({
+          // Backend format
+          description: item.title,
+          date: event?.date || new Date().toISOString().split('T')[0],
+          start_time: item.startTime,
+          end_time: item.endTime,
+          location: item.location,
+          speaker: item.speaker,
+          speaker_title: item.speakerTitle,
+          is_public: item.isPublic,
+          // Additional data
+          title: item.title,
+          type: item.type,
+          objectives: item.objectives || [],
+          materials: item.materials || [],
+          id: item.id
+        })));
+        setAgendaItems(updatedItems);
       } else {
-        setAgendaItems([...agendaItems, itemData]);
+        // Add new item
+        const newItems = [...agendaItems, itemData];
+        await addProgram(event.id, [completeProgramItem]);
+        setAgendaItems(newItems);
       }
       
       setIsModalOpen(false);
       setEditingItem(null);
-      setIsLoading(false);
-    }, 1000);
-  };
-
-  const handleDeleteItem = (itemId) => {
-    if (confirm("Are you sure you want to delete this agenda item?")) {
-      setAgendaItems(agendaItems.filter(item => item.id !== itemId));
+    } catch (error) {
+      console.error("Error saving program item:", error);
+      alert("Error saving program item. Please try again.");
     }
   };
 
-  const handleToggleVisibility = (itemId, isPublic) => {
-    setAgendaItems(agendaItems.map(item => 
-      item.id === itemId ? { ...item, isPublic } : item
-    ));
+  const handleDeleteItem = async (itemId) => {
+    if (confirm("Are you sure you want to delete this agenda item?")) {
+      try {
+        await deleteProgram(event.id, [itemId]);
+        setAgendaItems(agendaItems.filter(item => item.id !== itemId));
+      } catch (error) {
+        console.error("Error deleting program item:", error);
+        alert("Error deleting program item. Please try again.");
+      }
+    }
+  };
+
+  const handleToggleVisibility = async (itemId, isPublic) => {
+    try {
+      const updatedItems = agendaItems.map(item => 
+        item.id === itemId ? { ...item, isPublic } : item
+      );
+      await updateProgram(event.id, updatedItems.map(item => ({
+        description: item.title,
+        date: event?.date || new Date().toISOString().split('T')[0],
+        start_time: item.startTime,
+        end_time: item.endTime,
+        location: item.location,
+        speaker: item.speaker,
+        speaker_title: item.speakerTitle,
+        is_public: item.isPublic
+      })));
+      setAgendaItems(updatedItems);
+    } catch (error) {
+      console.error("Error updating program visibility:", error);
+      alert("Error updating program visibility. Please try again.");
+    }
   };
 
   const handleGeneratePDF = () => {

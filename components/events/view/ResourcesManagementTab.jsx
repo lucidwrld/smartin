@@ -18,6 +18,7 @@ import {
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import Loader from "@/components/Loader";
+import { AddResourcesManager, UpdateResourcesManager, DeleteResourcesManager } from "@/app/events/controllers/eventManagementController";
 
 const ResourceCard = ({ resource, onEdit, onDelete, isLoading }) => {
   const {
@@ -394,69 +395,22 @@ const ResourcesManagementTab = ({ event }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingResource, setEditingResource] = useState(null);
   const [resources, setResources] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [filterType, setFilterType] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
 
-  // Initialize with mock data if event has resources
+  // Controllers
+  const { addResources, isLoading: adding, isSuccess: addSuccess } = AddResourcesManager();
+  const { updateResources, isLoading: updating, isSuccess: updateSuccess } = UpdateResourcesManager();
+  const { deleteResources, isLoading: deleting, isSuccess: deleteSuccess } = DeleteResourcesManager();
+
+  const isLoading = adding || updating || deleting;
+
+  // Initialize with real data from event
   React.useEffect(() => {
-    if (event?.resources) {
+    if (event?.resources && Array.isArray(event.resources)) {
       setResources(event.resources);
     } else {
-      // Mock data for demonstration
-      setResources([
-        {
-          id: "resource_1",
-          name: "Event Schedule",
-          description: "Complete schedule of the event with all sessions and timings",
-          type: "document",
-          url: "https://example.com/schedule.pdf",
-          file_size: 245760,
-          is_public: true,
-          download_count: 45,
-          category: "Documents",
-          tags: ["schedule", "agenda", "timing"],
-          createdAt: "2024-01-15T10:00:00Z",
-        },
-        {
-          id: "resource_2",
-          name: "Venue Map",
-          description: "Interactive map of the event venue with all important locations",
-          type: "image",
-          url: "https://example.com/venue-map.jpg",
-          file_size: 512000,
-          is_public: true,
-          download_count: 32,
-          category: "Images",
-          tags: ["map", "venue", "location"],
-          createdAt: "2024-01-10T14:30:00Z",
-        },
-        {
-          id: "resource_3",
-          name: "Welcome Video",
-          description: "Welcome message from the organizers",
-          type: "video",
-          url: "https://example.com/welcome.mp4",
-          file_size: 15728640,
-          is_public: true,
-          download_count: 28,
-          category: "Videos",
-          tags: ["welcome", "introduction"],
-          createdAt: "2024-01-08T09:15:00Z",
-        },
-        {
-          id: "resource_4",
-          name: "Registration Portal",
-          description: "Link to complete event registration and get updates",
-          type: "link",
-          url: "https://registration.example.com",
-          is_public: false,
-          download_count: 67,
-          category: "Links",
-          tags: ["registration", "signup"],
-          createdAt: "2024-01-05T16:45:00Z",
-        },
-      ]);
+      setResources([]);
     }
   }, [event]);
 
@@ -470,30 +424,57 @@ const ResourcesManagementTab = ({ event }) => {
     setIsModalOpen(true);
   };
 
-  const handleSaveResource = (resourceData) => {
-    setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
+  const handleSaveResource = async (resourceData) => {
+    try {
+      // Include ALL frontend data points, even if backend doesn't support them yet
+      const resourcePayload = {
+        // Backend-supported fields
+        name: resourceData.name,
+        type: resourceData.type,
+        url: resourceData.url,
+        description: resourceData.description,
+        category: resourceData.category,
+        tags: Array.isArray(resourceData.tags) ? resourceData.tags.join(", ") : resourceData.tags,
+        is_public: resourceData.is_public,
+
+        // ADDITIONAL frontend data points backend should support
+        file_size: resourceData.file_size, // File size in bytes
+        download_count: resourceData.download_count || 0, // Download tracking
+        createdAt: resourceData.createdAt, // Creation timestamp
+        tags_array: Array.isArray(resourceData.tags) ? resourceData.tags : [], // Tags as array format
+      };
+
       if (editingResource) {
         // Update existing resource
-        setResources(resources.map(r => 
+        const updatedResources = resources.map(r => 
           r.id === editingResource.id ? resourceData : r
-        ));
+        );
+        await updateResources(event.id, updatedResources);
+        setResources(updatedResources);
       } else {
         // Add new resource
-        setResources([...resources, resourceData]);
+        const newResources = [...resources, { id: `resource_${Date.now()}`, ...resourceData }];
+        await addResources(event.id, [resourcePayload]);
+        setResources(newResources);
       }
       
       setIsModalOpen(false);
       setEditingResource(null);
-      setIsLoading(false);
-    }, 1000);
+    } catch (error) {
+      console.error("Error saving resource:", error);
+      alert("Error saving resource. Please try again.");
+    }
   };
 
-  const handleDeleteResource = (resourceId) => {
+  const handleDeleteResource = async (resourceId) => {
     if (confirm("Are you sure you want to delete this resource?")) {
-      setResources(resources.filter(r => r.id !== resourceId));
+      try {
+        await deleteResources(event.id, [resourceId]);
+        setResources(resources.filter(r => r.id !== resourceId));
+      } catch (error) {
+        console.error("Error deleting resource:", error);
+        alert("Error deleting resource. Please try again.");
+      }
     }
   };
 

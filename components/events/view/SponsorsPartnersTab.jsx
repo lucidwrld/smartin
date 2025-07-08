@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
+import { AddSponsorsManager, UpdateSponsorsManager, DeleteSponsorsManager, AddPartnersManager, UpdatePartnersManager, DeletePartnersManager } from "@/app/events/controllers/eventManagementController";
 
 const SponsorsPartnersTab = ({ event }) => {
   const [activeTab, setActiveTab] = useState("sponsors");
@@ -23,7 +24,16 @@ const SponsorsPartnersTab = ({ event }) => {
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [modalType, setModalType] = useState("sponsor"); // sponsor or partner
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Controllers
+  const { addSponsors, isLoading: addingSponsors } = AddSponsorsManager();
+  const { updateSponsors, isLoading: updatingSponsors } = UpdateSponsorsManager();
+  const { deleteSponsors, isLoading: deletingSponsors } = DeleteSponsorsManager();
+  const { addPartners, isLoading: addingPartners } = AddPartnersManager();
+  const { updatePartners, isLoading: updatingPartners } = UpdatePartnersManager();
+  const { deletePartners, isLoading: deletingPartners } = DeletePartnersManager();
+
+  const isLoading = addingSponsors || updatingSponsors || deletingSponsors || addingPartners || updatingPartners || deletingPartners;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -114,48 +124,76 @@ const SponsorsPartnersTab = ({ event }) => {
       alert("Please enter a name");
       return;
     }
-
-    setIsLoading(true);
     
     try {
-      const newItem = {
-        id: editingItem?.id || `${modalType}_${Date.now()}`,
-        ...formData,
-        created_at: editingItem?.created_at || new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-
       if (modalType === "sponsor") {
+        // Include ALL frontend data points, even if backend doesn't support them yet
+        const sponsorData = {
+          // Backend-supported fields
+          name: formData.name,
+          logo: formData.logo,
+          website: formData.website,
+          description: formData.description,
+          sponsorship_tier: formData.tier,
+          contact_person: formData.contact_person,
+          contact_email: formData.contact_email,
+          contribution_benefits: formData.contribution,
+
+          // ADDITIONAL frontend data points backend should support
+          tier: formData.tier, // Alternative tier field name
+          contribution: formData.contribution, // Alternative contribution field name
+        };
+
         if (editingItem) {
-          setSponsors(prev => 
-            prev.map(item => item.id === editingItem.id ? newItem : item)
+          // Update existing sponsor
+          const updatedSponsors = sponsors.map(item => 
+            item.id === editingItem.id ? { ...item, ...sponsorData } : item
           );
+          await updateSponsors(event.id, updatedSponsors);
+          setSponsors(updatedSponsors);
         } else {
-          setSponsors(prev => [...prev, newItem]);
+          // Add new sponsor
+          const newSponsors = [...sponsors, { id: `sponsor_${Date.now()}`, ...sponsorData }];
+          await addSponsors(event.id, [sponsorData]);
+          setSponsors(newSponsors);
         }
       } else {
+        // Include ALL frontend data points, even if backend doesn't support them yet
+        const partnerData = {
+          // Backend-supported fields (note: descritpion is misspelled in backend)
+          name: formData.name,
+          description: formData.description,
+          descritpion: formData.description, // Backend's misspelled field
+          logo: formData.logo,
+          website: formData.website,
+          contact_person: formData.contact_person,
+          contact_email: formData.contact_email,
+          partnership_type: formData.partnership_type,
+          details: formData.contribution,
+
+          // ADDITIONAL frontend data points backend should support
+          contribution: formData.contribution, // Alternative details field name
+        };
+
         if (editingItem) {
-          setPartners(prev => 
-            prev.map(item => item.id === editingItem.id ? newItem : item)
+          // Update existing partner
+          const updatedPartners = partners.map(item => 
+            item.id === editingItem.id ? { ...item, ...partnerData } : item
           );
+          await updatePartners(event.id, updatedPartners);
+          setPartners(updatedPartners);
         } else {
-          setPartners(prev => [...prev, newItem]);
+          // Add new partner
+          const newPartners = [...partners, { id: `partner_${Date.now()}`, ...partnerData }];
+          await addPartners(event.id, [partnerData]);
+          setPartners(newPartners);
         }
       }
-
-      // Here you would typically save to backend
-      // await updateEventSponsorsPartners({
-      //   eventId: event.id,
-      //   sponsors: modalType === "sponsor" ? (editingItem ? sponsors.map(...) : [...sponsors, newItem]) : sponsors,
-      //   partners: modalType === "partner" ? (editingItem ? partners.map(...) : [...partners, newItem]) : partners
-      // });
 
       handleCloseModal();
     } catch (error) {
       console.error("Error saving:", error);
       alert("Error saving. Please try again.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -166,13 +204,12 @@ const SponsorsPartnersTab = ({ event }) => {
 
     try {
       if (type === "sponsor") {
+        await deleteSponsors(event.id, [itemId]);
         setSponsors(prev => prev.filter(item => item.id !== itemId));
       } else {
+        await deletePartners(event.id, [itemId]);
         setPartners(prev => prev.filter(item => item.id !== itemId));
       }
-
-      // Here you would typically delete from backend
-      // await deleteEventSponsorPartner({ eventId: event.id, itemId, type });
     } catch (error) {
       console.error("Error deleting:", error);
       alert("Error deleting. Please try again.");

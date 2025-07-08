@@ -20,12 +20,19 @@ import {
 } from "lucide-react";
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
+import { AddHostsManager, UpdateHostsManager, DeleteHostsManager } from "@/app/events/controllers/eventManagementController";
 
 const HostsManagementTab = ({ event }) => {
   const [hosts, setHosts] = useState(event?.hosts || []);
   const [showModal, setShowModal] = useState(false);
   const [editingHost, setEditingHost] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Controllers
+  const { addHosts, isLoading: adding, isSuccess: addSuccess } = AddHostsManager();
+  const { updateHosts, isLoading: updating, isSuccess: updateSuccess } = UpdateHostsManager();
+  const { deleteHosts, isLoading: deleting, isSuccess: deleteSuccess } = DeleteHostsManager();
+
+  const isLoading = adding || updating || deleting;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -147,38 +154,53 @@ const HostsManagementTab = ({ event }) => {
       alert("Please enter a name");
       return;
     }
-
-    setIsLoading(true);
     
     try {
-      const newHost = {
-        id: editingHost?.id || `host_${Date.now()}`,
-        ...formData,
-        expertise_areas: formData.expertise_areas.split(",").map(area => area.trim()).filter(area => area),
-        created_at: editingHost?.created_at || new Date().toISOString(),
-        updated_at: new Date().toISOString()
+      // Include ALL frontend data points, even if backend doesn't support them yet
+      const hostData = {
+        // Backend-supported fields
+        name: formData.name,
+        title: formData.title,
+        organization: formData.organization,
+        email: formData.email,
+        phone: formData.phone,
+        profile_image: formData.image,
+        description: formData.bio,
+        areas_of_expertise: formData.expertise_areas,
+        website: formData.social_links.website,
+        linkedin: formData.social_links.linkedin,
+        twitter: formData.social_links.twitter,
+        instagram: formData.social_links.instagram,
+
+        // ADDITIONAL frontend data points backend should support
+        role_type: formData.role_type, // host, co-host, special_guest, keynote_speaker, etc.
+        social_links: formData.social_links, // Full social links object structure
+        facebook: formData.social_links.facebook, // Individual facebook field
+        bio: formData.bio, // Separate bio field from description
+        image: formData.image, // Alternative image field name
+        expertise_areas: Array.isArray(formData.expertise_areas) 
+          ? formData.expertise_areas 
+          : formData.expertise_areas.split(',').map(s => s.trim()).filter(Boolean), // Array format
       };
 
       if (editingHost) {
-        setHosts(prev => 
-          prev.map(host => host.id === editingHost.id ? newHost : host)
+        // Update existing host
+        const updatedHosts = hosts.map(host => 
+          host.id === editingHost.id ? { ...host, ...hostData } : host
         );
+        await updateHosts(event.id, updatedHosts);
+        setHosts(updatedHosts);
       } else {
-        setHosts(prev => [...prev, newHost]);
+        // Add new host
+        const newHosts = [...hosts, { id: `host_${Date.now()}`, ...hostData }];
+        await addHosts(event.id, [hostData]);
+        setHosts(newHosts);
       }
-
-      // Here you would typically save to backend
-      // await updateEventHosts({
-      //   eventId: event.id,
-      //   hosts: editingHost ? hosts.map(...) : [...hosts, newHost]
-      // });
 
       handleCloseModal();
     } catch (error) {
-      console.error("Error saving:", error);
-      alert("Error saving. Please try again.");
-    } finally {
-      setIsLoading(false);
+      console.error("Error saving host:", error);
+      alert("Error saving host. Please try again.");
     }
   };
 
@@ -188,13 +210,11 @@ const HostsManagementTab = ({ event }) => {
     }
 
     try {
+      await deleteHosts(event.id, [hostId]);
       setHosts(prev => prev.filter(host => host.id !== hostId));
-
-      // Here you would typically delete from backend
-      // await deleteEventHost({ eventId: event.id, hostId });
     } catch (error) {
-      console.error("Error deleting:", error);
-      alert("Error deleting. Please try again.");
+      console.error("Error deleting host:", error);
+      alert("Error deleting host. Please try again.");
     }
   };
 
