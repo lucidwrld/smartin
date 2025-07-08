@@ -51,7 +51,7 @@ const CreateAccountPage = () => {
       return;
     }
 
-    if (!validateFormSubmission(formRef, formData)) {
+    if (!validateFormSubmission(formRef, formData, undefined)) {
       return;
     }
     const isNairaCharge = await shouldChargeInNaira();
@@ -69,7 +69,8 @@ const CreateAccountPage = () => {
       title={`Create Account`}
       subtitle1={`Already have an account?`}
       subtitle2={`Login`}
-      // onClick={handleSubmit}
+      progress={undefined}
+      onClick={undefined}
       buttonText={`Sign up`}
       form="registrationForm"
       subtitle2Click={() => {

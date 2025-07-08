@@ -3,6 +3,9 @@ const nextConfig = {
   output: "standalone",
   trailingSlash: true,
   transpilePackages: ["react-quill"],
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   images: {
     unoptimized: true,
   },

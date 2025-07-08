@@ -2,21 +2,22 @@
 import Image from "next/image";
 import React from "react";
 import { ThreeDots } from "react-loader-spinner";
+import type { ButtonProps } from "@/types/global";
 
-const CustomButton = ({
+const CustomButton: React.FC<ButtonProps> = ({
   buttonText,
   textColor,
   className,
   onClick,
   buttonColor,
-  prefixIcon, // Changed from icon to prefixIcon
-  suffixIcon, // Added suffixIcon
+  prefixIcon,
+  suffixIcon,
   progress,
   form,
   imageclass,
   radius,
   isLoading,
-  type,
+  type = "button",
   loader,
 }) => {
   const renderContent = () => {

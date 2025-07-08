@@ -1,6 +1,7 @@
 "use client";
 import EventDetailsLayout from "@/components/EventDetailsLayout";
 import React, { useState } from "react";
+import type { MenuSection } from "@/types/global";
 import {
   Users,
   Send,
@@ -50,7 +51,11 @@ import SessionsManagementTab from "@/components/events/view/SessionsManagementTa
 import FormsManagementTab from "@/components/events/view/FormsManagementTab";
 import InvitationManagementTab from "@/components/events/view/InvitationManagementTab";
 
-const EventDetailsPage = ({ params }) => {
+interface EventDetailsPageProps {
+  params: Promise<{ eventId: string }>;
+}
+
+const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
   const { eventId } = React.use(params);
   const { data: event, isLoading } = useGetSingleEventManager({ eventId });
   const { data: analytics, isLoading: loadingAnalytics } =
@@ -71,7 +76,7 @@ const EventDetailsPage = ({ params }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Organized menu structure with categories
-  const menuSections = [
+  const menuSections: MenuSection[] = [
     {
       title: "Overview",
       items: [{ id: 0, name: "Event Details", icon: Calendar }],

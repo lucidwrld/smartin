@@ -24,17 +24,29 @@ import {
 import useGetSingleEventPublicManager from "@/app/events/controllers/getSingleEventPublicController";
 import { useParams } from "next/navigation";
 
+interface ConferenceWebsiteProps {
+  eventType?: "wedding" | "conference";
+  branding?: {
+    primaryColor: string;
+    secondaryColor: string;
+    logo: string | null;
+    eventName: string;
+    organizerName: string;
+    organizerTitle: string;
+  };
+}
+
 export default function ConferenceWebsite({
-  eventType = "wedding", // "conference", "wedding"
+  eventType = "wedding",
   branding = {
-    primaryColor: "#f97316", // orange-500
-    secondaryColor: "#ea580c", // orange-600
+    primaryColor: "#f97316",
+    secondaryColor: "#ea580c",
     logo: null,
     eventName: "Asian Technology Conference 2023",
     organizerName: "M. Faiz Raza Khan",
     organizerTitle: "UI/UX Designer",
   },
-}) {
+}: ConferenceWebsiteProps) {
   const resolvedParams = useParams();
   const eventId = resolvedParams?.eventId;
 
@@ -1835,53 +1847,4 @@ export default function ConferenceWebsite({
 
 // Example usage components for different event types
 
-// // Wedding Event Example
-export function WeddingEvent() {
-  return (
-    <ConferenceWebsite
-      eventType="wedding"
-      branding={{
-        primaryColor: "#d946ef", // Fuchsia
-        secondaryColor: "#c026d3", // Fuchsia-600
-        logo: null, // Add logo URL here
-        eventName: "Sarah & Michael's Wedding",
-        organizerName: "Sarah & Michael",
-        organizerTitle: "Getting Married!",
-      }}
-    />
-  );
-}
-
-// // Tech Conference Example
-export function TechConference() {
-  return (
-    <ConferenceWebsite
-      eventType="conference"
-      branding={{
-        primaryColor: "#0ea5e9", // Sky-500
-        secondaryColor: "#0284c7", // Sky-600
-        logo: "https://via.placeholder.com/120x40/0ea5e9/ffffff?text=LOGO",
-        eventName: "Future Tech Summit 2024",
-        organizerName: "TechEvents Inc",
-        organizerTitle: "Event Organizers",
-      }}
-    />
-  );
-}
-
-// Corporate Event Example
-export function CorporateEvent() {
-  return (
-    <ConferenceWebsite
-      eventType="conference"
-      branding={{
-        primaryColor: "#7c3aed", // Violet-600
-        secondaryColor: "#6d28d9", // Violet-700
-        logo: "https://via.placeholder.com/120x40/7c3aed/ffffff?text=CORP",
-        eventName: "Annual Company Retreat 2024",
-        organizerName: "Corporate Events Team",
-        organizerTitle: "Human Resources",
-      }}
-    />
-  );
-}
+// Additional component examples - not exported as page components

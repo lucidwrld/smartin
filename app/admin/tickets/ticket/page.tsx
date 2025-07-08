@@ -5,8 +5,8 @@ import GoBackButton from "@/components/GoBackButton";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import UploadFileComponent from "@/components/UploadFileComponent";
 import ReplyTile from "@/components/support/ReplyTile";
-import { markInReview, markResolved } from "@/public/icons";
 import React, { useEffect, useRef, useState } from "react";
+import { CheckCircle, Clock } from "lucide-react";
 import useGetSingleTicketManager from "../controllers/getSingleTicketController";
 import { useParams, useSearchParams } from "next/navigation";
 import Loader from "@/components/Loader";
@@ -150,22 +150,24 @@ const AdminTicketsDetailsPage = () => {
         </div>
         {ticket?.status !== "closed" && (
           <div className="flex flex-col items-center justify-center gap-3 mt-20 sticky top-10">
-            <img
-              role="button"
+            <button
+              className="p-2 bg-yellow-100 hover:bg-yellow-200 rounded-full transition-colors"
               onClick={() => {
                 updateStatus({ status: "under_review" });
               }}
-              src={markInReview.src}
-              alt=""
-            />
-            <img
-              role="button"
+              title="Mark as Under Review"
+            >
+              <Clock className="w-6 h-6 text-yellow-600" />
+            </button>
+            <button
+              className="p-2 bg-green-100 hover:bg-green-200 rounded-full transition-colors"
               onClick={() => {
                 updateStatus({ status: "closed" });
               }}
-              src={markResolved.src}
-              alt=""
-            />
+              title="Mark as Resolved"
+            >
+              <CheckCircle className="w-6 h-6 text-green-600" />
+            </button>
           </div>
         )}
       </div>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import React from "react";
 
-const HomePage = () => {
+const HomePage: React.FC = () => {
   const router = useRouter();
   return <LandingPage />;
 };

@@ -1,14 +1,27 @@
 import Axios from "@/constants/api_management/MyHttpHelper";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "react-query";
-
 import { toast } from "react-toastify";
+import type { ApiResponse, User } from "@/types/global";
 
-const useLoginManager = (email) => {
+interface LoginDetails {
+  email: string;
+  password: string;
+}
+
+interface LoginResponse extends ApiResponse {
+  data: {
+    token: string;
+    user: User;
+  };
+}
+
+const useLoginManager = (email: string) => {
   const router = useRouter();
-  let statusCode = null;
-  let statusMessage = null;
-  const loginController = async (details) => {
+  let statusCode: number | null = null;
+  let statusMessage: string | null = null;
+  
+  const loginController = async (details: LoginDetails): Promise<LoginResponse> => {
     try {
       const response = await Axios.post(`/auth/login`, details);
 
@@ -20,7 +33,7 @@ const useLoginManager = (email) => {
     }
   };
 
-  const mutation = useMutation(loginController, {
+  const mutation = useMutation<LoginResponse, Error, LoginDetails>(loginController, {
     onSuccess: (data) => {
       const token = data?.data?.token;
       const isAdmin = data?.data?.user?.roles[0]?.name === "admin";
@@ -47,7 +60,7 @@ const useLoginManager = (email) => {
     },
   });
 
-  const login = async (details) => {
+  const login = async (details: LoginDetails) => {
     try {
       await mutation.mutateAsync(details);
     } catch (error) {

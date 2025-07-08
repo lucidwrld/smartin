@@ -1,11 +1,12 @@
-// utils/validateForm.js
+// utils/validateForm.ts
 import { toast } from "react-toastify";
+import React from "react";
 
 export const validateFormSubmission = (
-  formRef,
-  formData,
-  customMessage // Optional parameter to override default message
-) => {
+  formRef: React.RefObject<HTMLFormElement>,
+  formData: Record<string, any>,
+  customMessage?: string // Optional parameter to override default message
+): boolean => {
   if (!formRef.current) {
     toast.info("Form reference is required");
     return false;

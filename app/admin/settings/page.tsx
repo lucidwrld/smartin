@@ -13,7 +13,6 @@ const AdminSettingsPage = () => {
   const [type, setType] = useState("");
   const { data, isLoading, error } = useGetTermsManager({
     type: type,
-    enabled: Boolean(type), // Only fetch when type exists
   });
   const { createTerms, isLoading: creating } = CreateTermsManager();
 

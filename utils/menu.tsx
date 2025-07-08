@@ -7,8 +7,16 @@ import {
   Settings,
   Users2,
 } from "lucide-react";
+import React from "react";
 
-export const mainMenu = [
+interface MenuItemType {
+  active: any;
+  inactive: any;
+  title: string;
+  url: string;
+}
+
+export const mainMenu: MenuItemType[] = [
   {
     active: dashboard,
     inactive: dashboard,
@@ -41,7 +49,7 @@ export const mainMenu = [
   },
 ];
 
-export const adminMenu = [
+export const adminMenu: MenuItemType[] = [
   {
     title: "Dashboard",
     url: "/admin/dashboard",

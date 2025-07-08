@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "type-check": "tsc --noEmit",
     "deploy-production": "next build && scp -i ~/ssh/skillseeds-v2 -r ./out/* support@24.199.82.187:/var/www/smartinvites/html"
   },
   "dependencies": {
@@ -39,7 +40,10 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/node": "24.0.10",
+    "@types/papaparse": "^5.3.16",
+    "@types/qrcode.react": "^3.0.0",
     "@types/react": "19.1.8",
+    "@types/react-dom": "^19.1.6",
     "daisyui": "^4.12.22",
     "eslint": "^9.21.0",
     "eslint-config-next": "15.1.1",

@@ -9,7 +9,7 @@ import useLoginManager from "./controller/login_controller";
 import { useRef } from "react"; // Add useRef to existing React imports
 import { validateFormSubmission } from "@/utils/validateForm";
 
-const LoginPage = () => {
+const LoginPage: React.FC = () => {
   const router = useRouter();
   const formRef = useRef(null);
   const [viewPassword, setViewPassword] = useState(false);
@@ -21,7 +21,7 @@ const LoginPage = () => {
 
   const [loginDetails, setLoginDetails] = useState(initialData);
 
-  const { login, isLoading } = useLoginManager();
+  const { login, isLoading } = useLoginManager(loginDetails.email);
   return (
     <AuthShell
       title={`Welcome Back 👋`}

@@ -6,6 +6,7 @@ import useGetAllNotificationsManager from "@/app/notifications/controllers/getAl
 import { OpenSingleNotificationManager } from "@/app/notifications/controllers/openSingleNotificationController";
 import { OpenAllNotificationsManager } from "@/app/notifications/controllers/openAllNotificationsController";
 import Loader from "@/components/Loader";
+import CustomButton from "@/components/Button";
 
 const NotificationItem = ({
   // icon: Icon,
@@ -27,7 +28,7 @@ const NotificationItem = ({
         <h3 className="text-sm font-medium text-gray-900">{title}</h3>
         <p className="text-sm text-gray-600 mt-1">{message}</p>
         <span className="text-xs text-gray-500 mt-2 block">
-          {formatDateAgo(createdAt)}
+          {new Date(createdAt).toLocaleDateString()}
         </span>
       </div>
     </div>
@@ -36,7 +37,7 @@ const NotificationItem = ({
 
 const NotificationsPage = () => {
   const { data: notifications, isLoading: loadingNotifications } =
-    useGetAllNotificationsManager({});
+    useGetAllNotificationsManager({ status: null });
   const { openNotification } = OpenSingleNotificationManager();
   const { openAll, isLoading: loadingAll } = OpenAllNotificationsManager();
 

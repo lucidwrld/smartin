@@ -5,8 +5,22 @@ import { logoMain, logoMain1, wedding } from "@/public/images";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import React from "react";
 
-const AuthShell = ({
+interface AuthShellProps {
+  children: React.ReactNode;
+  title: string;
+  subtitle1: string;
+  subtitle2: string;
+  progress?: any;
+  isLoading: boolean;
+  buttonText: string;
+  form: string;
+  onClick?: () => void;
+  subtitle2Click: () => void;
+}
+
+const AuthShell: React.FC<AuthShellProps> = ({
   children,
   title,
   subtitle1,
@@ -14,7 +28,6 @@ const AuthShell = ({
   progress,
   isLoading,
   buttonText,
-
   form,
   onClick,
   subtitle2Click,

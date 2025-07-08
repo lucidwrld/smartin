@@ -23,7 +23,12 @@ const EventsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [event, setEvent] = useState(null);
   const router = useRouter();
-  const { data, isLoading } = useGetAllEventsManager({ page: currentPage });
+  const { data, isLoading } = useGetAllEventsManager({ 
+    page: currentPage,
+    user: null,
+    status: null,
+    date: null
+  });
   const { suspendEvent, isLoading: suspending } = SuspendEventManager({
     eventId: event,
   });
@@ -106,6 +111,11 @@ const EventsPage = () => {
               getFormattedValue={getFormattedValue}
               headers={headers}
               options={["View Event", "Suspend Event"]}
+              buttonFunction={() => {}}
+              toggleRowFunction={() => {}}
+              toggleSelectAllFunction={() => {}}
+              setSelectedRows={() => {}}
+              selectedRows={[]}
               popUpFunction={(option, inx, val) => {
                 if (inx === 0) {
                   router.push(`/admin/events/event?id=${val?.id}`);
