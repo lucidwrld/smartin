@@ -9,6 +9,14 @@ import {
   X,
   TableProperties,
   Smartphone,
+  QrCode,
+  Users,
+  CreditCard,
+  BarChart3,
+  Clock,
+  MessageSquare,
+  Shield,
+  Globe,
 } from "lucide-react";
 import Link from "next/link";
 import { Header } from "./Header";
@@ -66,14 +74,13 @@ const LandingPage = () => {
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div>
                 <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                  Modern Digital Invitations
-                  <span className="text-brandPurple"> Made Simple</span>
+                  Complete Event Management
+                  <span className="text-brandPurple"> Platform</span>
                 </h1>
                 <p className="text-xl text-gray-600 mb-8">
-                  Create stunning digital invites, track RSVPs instantly, and
-                  manage your guest list effortlessly. With integrated gift
-                  registry and table management, planning your event has never
-                  been easier.
+                  Create stunning digital invitations, manage ticketed events, track RSVPs in real-time, 
+                  and handle everything from gift registries to seating arrangements. The all-in-one solution 
+                  for weddings, corporate events, and celebrations of all sizes.
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <Link
@@ -236,10 +243,10 @@ const LandingPage = () => {
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Everything You Need for Successful Events
+                Professional Event Management Made Simple
               </h2>
               <p className="text-xl text-gray-600">
-                Powerful features to make event planning a breeze
+                From intimate gatherings to large corporate events - we've got you covered
               </p>
             </div>
 
@@ -247,27 +254,27 @@ const LandingPage = () => {
               {[
                 {
                   icon: Send,
-                  title: "Digital Invitations",
+                  title: "Multi-Channel Invitations",
                   description:
-                    "Create stunning invites and track responses in real-time",
+                    "Send via email, SMS, WhatsApp, or voice calls. QR codes and access codes for secure entry",
                 },
                 {
                   icon: Gift,
-                  title: "Gift Registry",
+                  title: "Event Monetization",
                   description:
-                    "Create and manage your gift registry, allowing guests to easily choose and purchase gifts",
+                    "Sell tickets, manage gift registries, and process payments with multi-currency support",
                 },
                 {
                   icon: Calendar,
-                  title: "RSVP Management",
+                  title: "Real-Time Analytics",
                   description:
-                    "Track responses and manage guest lists automatically",
+                    "Track RSVPs, attendance, revenue, and engagement with comprehensive reporting",
                 },
                 {
                   icon: TableProperties,
-                  title: "Table Management",
+                  title: "Complete Event Tools",
                   description:
-                    "Effortlessly organize seating arrangements and manage table assignments",
+                    "Table management, vendor coordination, program scheduling, and guest check-in systems",
                 },
               ].map((feature, index) => (
                 <div
@@ -281,6 +288,315 @@ const LandingPage = () => {
                     {feature.title}
                   </h3>
                   <p className="text-gray-600">{feature.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="all-features" className="py-16 md:py-24 bg-gradient-to-b from-white to-backgroundPurple/5">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Everything You Need in One Powerful Platform
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                No more juggling multiple tools. Smart Invites brings together everything you need to create memorable events.
+              </p>
+            </div>
+
+            <div className="space-y-16">
+              {/* First Row - Core Features */}
+              <div className="grid md:grid-cols-3 gap-8">
+                <div className="bg-gradient-to-br from-brandPurple to-backgroundPurple text-white p-8 rounded-2xl shadow-xl">
+                  <Send className="w-12 h-12 mb-4" />
+                  <h3 className="text-2xl font-bold mb-4">Smart Invitations</h3>
+                  <ul className="space-y-3">
+                    <li className="flex items-start">
+                      <span className="mr-2">✓</span>
+                      <span>Multi-channel delivery (Email, SMS, WhatsApp)</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2">✓</span>
+                      <span>Beautiful custom templates</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2">✓</span>
+                      <span>Automated reminders & thank you notes</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+                  <Users className="w-12 h-12 mb-4 text-brandPurple" />
+                  <h3 className="text-2xl font-bold mb-4">Guest Excellence</h3>
+                  <ul className="space-y-3 text-gray-700">
+                    <li className="flex items-start">
+                      <CheckCircle className="text-brandPurple mr-2 mt-0.5 flex-shrink-0" size={16} />
+                      <span>Real-time RSVP tracking</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="text-brandPurple mr-2 mt-0.5 flex-shrink-0" size={16} />
+                      <span>Bulk import & categorization</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="text-brandPurple mr-2 mt-0.5 flex-shrink-0" size={16} />
+                      <span>Guest preferences & profiles</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="bg-gradient-to-br from-purple-50 to-white p-8 rounded-2xl shadow-xl border border-purple-100">
+                  <Shield className="w-12 h-12 mb-4 text-brandPurple" />
+                  <h3 className="text-2xl font-bold mb-4">Secure Check-In</h3>
+                  <ul className="space-y-3 text-gray-700">
+                    <li className="flex items-start">
+                      <QrCode className="text-brandPurple mr-2 mt-0.5 flex-shrink-0" size={16} />
+                      <span>QR code verification</span>
+                    </li>
+                    <li className="flex items-start">
+                      <QrCode className="text-brandPurple mr-2 mt-0.5 flex-shrink-0" size={16} />
+                      <span>Facial recognition option</span>
+                    </li>
+                    <li className="flex items-start">
+                      <QrCode className="text-brandPurple mr-2 mt-0.5 flex-shrink-0" size={16} />
+                      <span>Access code protection</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Second Row - Business Features */}
+              <div className="grid md:grid-cols-3 gap-8">
+                <div className="bg-gradient-to-br from-green-50 to-white p-8 rounded-2xl shadow-xl border border-green-100">
+                  <CreditCard className="w-12 h-12 mb-4 text-green-600" />
+                  <h3 className="text-2xl font-bold mb-4">Revenue Tools</h3>
+                  <ul className="space-y-3 text-gray-700">
+                    <li className="flex items-start">
+                      <span className="text-green-600 mr-2">$</span>
+                      <span>Sell tickets with tiered pricing</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-green-600 mr-2">$</span>
+                      <span>Multi-currency payments</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-green-600 mr-2">$</span>
+                      <span>Integrated gift registry</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+                  <BarChart3 className="w-12 h-12 mb-4 text-brandPurple" />
+                  <h3 className="text-2xl font-bold mb-4">Smart Analytics</h3>
+                  <ul className="space-y-3 text-gray-700">
+                    <li className="flex items-start">
+                      <CheckCircle className="text-brandPurple mr-2 mt-0.5 flex-shrink-0" size={16} />
+                      <span>Real-time event dashboard</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="text-brandPurple mr-2 mt-0.5 flex-shrink-0" size={16} />
+                      <span>Revenue & engagement tracking</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="text-brandPurple mr-2 mt-0.5 flex-shrink-0" size={16} />
+                      <span>Custom report exports</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="bg-gradient-to-br from-brandPurple to-backgroundPurple text-white p-8 rounded-2xl shadow-xl">
+                  <Globe className="w-12 h-12 mb-4" />
+                  <h3 className="text-2xl font-bold mb-4">Pro Features</h3>
+                  <ul className="space-y-3">
+                    <li className="flex items-start">
+                      <span className="mr-2">★</span>
+                      <span>Table & seating management</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2">★</span>
+                      <span>Vendor coordination tools</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2">★</span>
+                      <span>Virtual & hybrid events</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Additional Features Banner */}
+              <div className="bg-gradient-to-r from-backgroundPurple/10 to-brandPurple/10 p-8 rounded-2xl">
+                <div className="text-center">
+                  <h4 className="text-xl font-semibold mb-4">Plus Many More Features</h4>
+                  <div className="flex flex-wrap justify-center gap-4 text-sm">
+                    <span className="bg-white px-4 py-2 rounded-full shadow">Voice Call Invites</span>
+                    <span className="bg-white px-4 py-2 rounded-full shadow">Multi-Day Events</span>
+                    <span className="bg-white px-4 py-2 rounded-full shadow">Program Scheduling</span>
+                    <span className="bg-white px-4 py-2 rounded-full shadow">Photo Galleries</span>
+                    <span className="bg-white px-4 py-2 rounded-full shadow">Broadcast Messaging</span>
+                    <span className="bg-white px-4 py-2 rounded-full shadow">Mobile Apps</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="how-it-works" className="py-16">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                How Smart Invites Works
+              </h2>
+              <p className="text-xl text-gray-600">
+                Get your event up and running in minutes
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-4 gap-8">
+              {[
+                {
+                  step: "1",
+                  title: "Create Your Event",
+                  description: "Add event details, upload media, and customize your invitation design"
+                },
+                {
+                  step: "2",
+                  title: "Import Guests",
+                  description: "Add guests individually or bulk import via CSV. Organize into categories"
+                },
+                {
+                  step: "3",
+                  title: "Send Invitations",
+                  description: "Choose delivery method and send personalized invitations instantly"
+                },
+                {
+                  step: "4",
+                  title: "Manage & Track",
+                  description: "Monitor RSVPs, check in guests, and access real-time analytics"
+                }
+              ].map((step, index) => (
+                <div key={index} className="text-center">
+                  <div className="bg-brandPurple text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+                    {step.step}
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
+                  <p className="text-gray-600">{step.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="use-cases" className="py-16 bg-white">
+          <div className="max-w-5xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Built for Every Celebration
+              </h2>
+              <p className="text-xl text-gray-600">
+                One platform, endless possibilities
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                {
+                  title: "Personal Events",
+                  description: "Weddings, birthdays, anniversaries, and family gatherings",
+                  color: "bg-purple-50"
+                },
+                {
+                  title: "Corporate Events", 
+                  description: "Conferences, team meetings, product launches, and networking",
+                  color: "bg-blue-50"
+                },
+                {
+                  title: "Community Events",
+                  description: "Fundraisers, religious gatherings, festivals, and social causes",
+                  color: "bg-green-50"
+                }
+              ].map((category, index) => (
+                <div key={index} className={`${category.color} p-8 rounded-2xl`}>
+                  <h3 className="text-xl font-semibold mb-3">{category.title}</h3>
+                  <p className="text-gray-700">{category.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="pricing" className="py-16">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Flexible Pricing for Every Event
+              </h2>
+              <p className="text-xl text-gray-600">
+                Choose the perfect plan for your needs
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                {
+                  name: "Free",
+                  price: "$0",
+                  period: "forever",
+                  features: ["3 events per month", "50 guests per event", "Basic templates", "Email support"],
+                  cta: "Start Free",
+                  highlighted: false,
+                },
+                {
+                  name: "Premium",
+                  price: "$29.99",
+                  period: "per month",
+                  features: ["10 events per month", "200 guests per event", "Premium templates", "Gift registry", "Priority support"],
+                  cta: "Choose Premium",
+                  highlighted: true,
+                },
+                {
+                  name: "VIP",
+                  price: "$99.99",
+                  period: "per month",
+                  features: ["Unlimited events", "Unlimited guests", "Custom branding", "Advanced analytics", "24/7 support"],
+                  cta: "Go VIP",
+                  highlighted: false,
+                },
+              ].map((plan, index) => (
+                <div
+                  key={index}
+                  className={`bg-white p-8 rounded-xl shadow-lg ${
+                    plan.highlighted ? 'ring-2 ring-brandPurple transform scale-105' : ''
+                  }`}
+                >
+                  <div className="text-center mb-6">
+                    <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                    <div className="mb-4">
+                      <span className="text-4xl font-bold">{plan.price}</span>
+                      <span className="text-gray-600">/{plan.period}</span>
+                    </div>
+                  </div>
+                  <ul className="space-y-3 mb-8">
+                    {plan.features.map((feature, i) => (
+                      <li key={i} className="flex items-center">
+                        <CheckCircle className="text-green-500 mr-2" size={16} />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href="/auth/create-account"
+                    className={`w-full py-3 px-6 rounded-lg text-center block transition-colors ${
+                      plan.highlighted
+                        ? 'bg-brandPurple text-white hover:bg-backgroundPurple'
+                        : 'border border-brandPurple text-brandPurple hover:bg-brandPurple hover:text-white'
+                    }`}
+                  >
+                    {plan.cta}
+                  </Link>
                 </div>
               ))}
             </div>
@@ -388,10 +704,10 @@ const LandingPage = () => {
           <div className="max-w-7xl mx-auto px-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               {[
-                { value: "10k+", label: "Events Hosted" },
-                { value: "50k+", label: "Invitations Sent" },
-                { value: "98%", label: "Satisfaction Rate" },
-                { value: "24/7", label: "Customer Support" },
+                { value: "25k+", label: "Events Hosted" },
+                { value: "500k+", label: "Invitations Sent" },
+                { value: "99%", label: "Uptime Guarantee" },
+                { value: "Global", label: "Multi-Currency Support" },
               ].map((stat, index) => (
                 <div key={index}>
                   <h4 className="text-3xl font-bold mb-2">{stat.value}</h4>
