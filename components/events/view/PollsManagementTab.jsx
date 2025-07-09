@@ -24,22 +24,35 @@ import {
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import StatusButton from "@/components/StatusButton";
+import useGetEventPollsManager from "@/app/events/controllers/polls/getEventPollsController";
+import useCreatePollManager from "@/app/events/controllers/polls/createPollController";
+import useUpdatePollManager from "@/app/events/controllers/polls/updatePollController";
 
-const PollCard = ({ poll, onEdit, onDelete, onToggleStatus, onToggleVisibility, onViewResults, onShare, isLoading }) => {
+const PollCard = ({
+  poll,
+  onEdit,
+  onDelete,
+  onToggleStatus,
+  onToggleVisibility,
+  onViewResults,
+  onShare,
+  isLoading,
+}) => {
   const {
     id,
+    _id,
     title,
     description,
     question,
     options,
     type,
-    status,
+    status = "active", // Default to active if not provided
     is_public,
     allow_multiple,
-    show_results,
+    show_voter_result,
     start_date,
     end_date,
-    total_votes,
+    total_votes = 0, // Default to 0 if not provided
     created_at,
   } = poll;
 
@@ -82,10 +95,8 @@ const PollCard = ({ poll, onEdit, onDelete, onToggleStatus, onToggleVisibility, 
   };
 
   const getMostPopularOption = () => {
-    if (!options || options.length === 0) return null;
-    return options.reduce((prev, current) => 
-      (current.votes > prev.votes) ? current : prev
-    );
+    // Backend doesn't provide vote data, so we can't determine most popular
+    return null;
   };
 
   const mostPopular = getMostPopularOption();
@@ -96,11 +107,13 @@ const PollCard = ({ poll, onEdit, onDelete, onToggleStatus, onToggleVisibility, 
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             <h4 className="font-medium text-gray-900">{title}</h4>
-            <span className={`px-2 py-1 text-xs rounded ${getStatusColor(status)}`}>
+            <span
+              className={`px-2 py-1 text-xs rounded ${getStatusColor(status)}`}
+            >
               {status.toUpperCase()}
             </span>
             <span className={`px-2 py-1 text-xs rounded ${getTypeColor(type)}`}>
-              {type.replace('_', ' ').toUpperCase()}
+              {type.replace("_", " ").toUpperCase()}
             </span>
             {!is_public && (
               <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded">
@@ -108,9 +121,9 @@ const PollCard = ({ poll, onEdit, onDelete, onToggleStatus, onToggleVisibility, 
               </span>
             )}
           </div>
-          
+
           <p className="text-sm text-gray-600 mb-3">{question}</p>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Users className="w-4 h-4" />
@@ -118,12 +131,17 @@ const PollCard = ({ poll, onEdit, onDelete, onToggleStatus, onToggleVisibility, 
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Clock className="w-4 h-4" />
-              <span>{formatDate(start_date)} - {end_date ? formatDate(end_date) : 'Ongoing'}</span>
+              <span>
+                {formatDate(start_date)} -{" "}
+                {end_date ? formatDate(end_date) : "Ongoing"}
+              </span>
             </div>
             {mostPopular && (
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <TrendingUp className="w-4 h-4" />
-                <span>Leading: {mostPopular.text} ({mostPopular.votes} votes)</span>
+                <span>
+                  Leading: {mostPopular.text} ({mostPopular.votes} votes)
+                </span>
               </div>
             )}
           </div>
@@ -131,24 +149,35 @@ const PollCard = ({ poll, onEdit, onDelete, onToggleStatus, onToggleVisibility, 
           {/* Quick Results Preview */}
           {options && options.length > 0 && total_votes > 0 && (
             <div className="space-y-2">
-              <h5 className="text-xs font-medium text-gray-700 uppercase tracking-wide">Quick Results</h5>
+              <h5 className="text-xs font-medium text-gray-700 uppercase tracking-wide">
+                Quick Results
+              </h5>
               {options.slice(0, 3).map((option, index) => {
-                const percentage = total_votes > 0 ? (option.votes / total_votes) * 100 : 0;
+                // Backend sends simple array like ["Yes", "No"] or [1, 2, 3, 4, 5]
+                const optionText = String(option);
+                // No vote data from backend yet
+                const percentage = 0;
                 return (
                   <div key={index} className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600 min-w-0 flex-1 truncate">{option.text}</span>
+                    <span className="text-sm text-gray-600 min-w-0 flex-1 truncate">
+                      {optionText}
+                    </span>
                     <div className="w-24 bg-gray-200 rounded-full h-2">
-                      <div 
+                      <div
                         className="bg-purple-600 h-2 rounded-full transition-all duration-300"
                         style={{ width: `${Math.min(percentage, 100)}%` }}
                       ></div>
                     </div>
-                    <span className="text-xs text-gray-500 min-w-0">{Math.round(percentage)}%</span>
+                    <span className="text-xs text-gray-500 min-w-0">
+                      {Math.round(percentage)}%
+                    </span>
                   </div>
                 );
               })}
               {options.length > 3 && (
-                <p className="text-xs text-gray-500">+{options.length - 3} more options</p>
+                <p className="text-xs text-gray-500">
+                  +{options.length - 3} more options
+                </p>
               )}
             </div>
           )}
@@ -174,19 +203,29 @@ const PollCard = ({ poll, onEdit, onDelete, onToggleStatus, onToggleVisibility, 
             className="p-2 text-gray-500 hover:bg-gray-50 rounded-full transition-colors"
             title={is_public ? "Make private" : "Make public"}
           >
-            {is_public ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            {is_public ? (
+              <Eye className="w-4 h-4" />
+            ) : (
+              <EyeOff className="w-4 h-4" />
+            )}
           </button>
           <button
-            onClick={() => onToggleStatus(id, status === "active" ? "paused" : "active")}
+            onClick={() =>
+              onToggleStatus(id, status === "active" ? "paused" : "active")
+            }
             className={`p-2 rounded-full transition-colors ${
-              status === "active" 
-                ? "text-yellow-500 hover:bg-yellow-50" 
+              status === "active"
+                ? "text-yellow-500 hover:bg-yellow-50"
                 : "text-green-500 hover:bg-green-50"
             }`}
             title={status === "active" ? "Pause poll" : "Resume poll"}
             disabled={status === "ended"}
           >
-            {status === "active" ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+            {status === "active" ? (
+              <Pause className="w-4 h-4" />
+            ) : (
+              <Play className="w-4 h-4" />
+            )}
           </button>
           <button
             onClick={() => onEdit(poll)}
@@ -216,10 +255,13 @@ const PollModal = ({ isOpen, onClose, poll, onSave, isLoading }) => {
     description: "",
     question: "",
     type: "multiple_choice",
-    options: [{ text: "", votes: 0 }, { text: "", votes: 0 }],
+    options: [
+      { text: "", votes: 0 },
+      { text: "", votes: 0 },
+    ],
     allow_multiple: false,
     is_public: true,
-    show_results: true,
+    show_voter_result: true,
     start_date: "",
     end_date: "",
   });
@@ -231,10 +273,17 @@ const PollModal = ({ isOpen, onClose, poll, onSave, isLoading }) => {
         description: poll.description || "",
         question: poll.question || "",
         type: poll.type || "multiple_choice",
-        options: poll.options || [{ text: "", votes: 0 }, { text: "", votes: 0 }],
+        options: poll.options
+          ? // Convert backend simple array to frontend format for editing
+            poll.options.map((opt) => ({ text: String(opt), votes: 0 }))
+          : [
+              { text: "", votes: 0 },
+              { text: "", votes: 0 },
+            ],
         allow_multiple: poll.allow_multiple || false,
         is_public: poll.is_public !== undefined ? poll.is_public : true,
-        show_results: poll.show_results !== undefined ? poll.show_results : true,
+        show_voter_result:
+          poll.show_voter_result !== undefined ? poll.show_voter_result : true,
         start_date: poll.start_date || "",
         end_date: poll.end_date || "",
       });
@@ -244,10 +293,13 @@ const PollModal = ({ isOpen, onClose, poll, onSave, isLoading }) => {
         description: "",
         question: "",
         type: "multiple_choice",
-        options: [{ text: "", votes: 0 }, { text: "", votes: 0 }],
+        options: [
+          { text: "", votes: 0 },
+          { text: "", votes: 0 },
+        ],
         allow_multiple: false,
         is_public: true,
-        show_results: true,
+        show_voter_result: true,
         start_date: "",
         end_date: "",
       });
@@ -263,7 +315,7 @@ const PollModal = ({ isOpen, onClose, poll, onSave, isLoading }) => {
   const addOption = () => {
     setFormData({
       ...formData,
-      options: [...formData.options, { text: "", votes: 0 }]
+      options: [...formData.options, { text: "", votes: 0 }],
     });
   };
 
@@ -276,19 +328,36 @@ const PollModal = ({ isOpen, onClose, poll, onSave, isLoading }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!formData.title.trim() || !formData.question.trim()) {
       alert("Please fill in all required fields");
       return;
     }
 
-    if (formData.type !== "text" && formData.options.some(opt => !opt.text.trim())) {
+    // Only validate options for multiple choice polls
+    if (
+      formData.type === "multiple_choice" &&
+      formData.options.some((opt) => !opt.text.trim())
+    ) {
       alert("Please fill in all option texts");
       return;
     }
 
+    // Format options based on poll type
+    let formattedOptions;
+    if (formData.type === "yes_no") {
+      formattedOptions = ["Yes", "No"];
+    } else if (formData.type === "rating") {
+      formattedOptions = [1, 2, 3, 4, 5];
+    } else if (formData.type === "multiple_choice") {
+      formattedOptions = formData.options.map((opt) => opt.text);
+    } else {
+      formattedOptions = [];
+    }
+
     const pollData = {
       ...formData,
+      options: formattedOptions,
       id: poll?.id || `poll_${Date.now()}`,
       status: poll?.status || "draft",
       total_votes: poll?.total_votes || 0,
@@ -408,7 +477,7 @@ const PollModal = ({ isOpen, onClose, poll, onSave, isLoading }) => {
                         <div key={rating} className="flex items-center gap-2">
                           <input
                             type="text"
-                            value={`${rating} Star${rating !== 1 ? 's' : ''}`}
+                            value={`${rating} Star${rating !== 1 ? "s" : ""}`}
                             disabled
                             className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
                           />
@@ -422,7 +491,9 @@ const PollModal = ({ isOpen, onClose, poll, onSave, isLoading }) => {
                           <input
                             type="text"
                             value={option.text}
-                            onChange={(e) => handleOptionChange(index, e.target.value)}
+                            onChange={(e) =>
+                              handleOptionChange(index, e.target.value)
+                            }
                             placeholder={`Option ${index + 1}`}
                             className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                             required
@@ -479,10 +550,15 @@ const PollModal = ({ isOpen, onClose, poll, onSave, isLoading }) => {
                   type="checkbox"
                   checked={formData.allow_multiple}
                   onChange={(e) =>
-                    setFormData({ ...formData, allow_multiple: e.target.checked })
+                    setFormData({
+                      ...formData,
+                      allow_multiple: e.target.checked,
+                    })
                   }
                   className="mr-2"
-                  disabled={formData.type === "yes_no" || formData.type === "rating"}
+                  disabled={
+                    formData.type === "yes_no" || formData.type === "rating"
+                  }
                 />
                 Allow Multiple Selections
               </label>
@@ -500,9 +576,12 @@ const PollModal = ({ isOpen, onClose, poll, onSave, isLoading }) => {
               <label className="flex items-center">
                 <input
                   type="checkbox"
-                  checked={formData.show_results}
+                  checked={formData.show_voter_result}
                   onChange={(e) =>
-                    setFormData({ ...formData, show_results: e.target.checked })
+                    setFormData({
+                      ...formData,
+                      show_voter_result: e.target.checked,
+                    })
                   }
                   className="mr-2"
                 />
@@ -543,7 +622,9 @@ const ResultsModal = ({ isOpen, onClose, poll }) => {
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Poll Results: {poll.title}</h3>
+            <h3 className="text-lg font-semibold">
+              Poll Results: {poll.title}
+            </h3>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600"
@@ -577,20 +658,25 @@ const ResultsModal = ({ isOpen, onClose, poll }) => {
                 {poll.options
                   .sort((a, b) => b.votes - a.votes)
                   .map((option, index) => {
-                    const percentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
+                    const percentage =
+                      totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
                     return (
                       <div key={index} className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <span className="font-medium text-gray-900">{option.text}</span>
+                          <span className="font-medium text-gray-900">
+                            {option.text}
+                          </span>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-600">{option.votes} votes</span>
+                            <span className="text-sm text-gray-600">
+                              {option.votes} votes
+                            </span>
                             <span className="text-sm font-medium text-purple-600">
                               {Math.round(percentage)}%
                             </span>
                           </div>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-3">
-                          <div 
+                          <div
                             className="bg-purple-600 h-3 rounded-full transition-all duration-500"
                             style={{ width: `${Math.min(percentage, 100)}%` }}
                           ></div>
@@ -639,100 +725,24 @@ const PollsManagementTab = ({ event }) => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterType, setFilterType] = useState("all");
 
-  // Initialize with mock data
+  // API hooks
+  const {
+    data: pollsData,
+    isLoading: pollsLoading,
+    error: pollsError,
+  } = useGetEventPollsManager({
+    eventId: event?.id,
+    enabled: !!event?.id,
+  });
+  const createPollMutation = useCreatePollManager();
+  const updatePollMutation = useUpdatePollManager();
+
+  // Load polls from API
   React.useEffect(() => {
-    if (event?.polls) {
-      setPolls(event.polls);
-    } else {
-      // Mock data for demonstration
-      setPolls([
-        {
-          id: "poll_1",
-          title: "Session Satisfaction Survey",
-          description: "Rate your overall satisfaction with today's sessions",
-          question: "How satisfied are you with the quality of sessions presented today?",
-          type: "rating",
-          options: [
-            { text: "1 Star", votes: 5 },
-            { text: "2 Stars", votes: 12 },
-            { text: "3 Stars", votes: 34 },
-            { text: "4 Stars", votes: 89 },
-            { text: "5 Stars", votes: 127 },
-          ],
-          status: "active",
-          is_public: true,
-          allow_multiple: false,
-          show_results: true,
-          start_date: "2024-03-15",
-          end_date: "2024-03-16",
-          total_votes: 267,
-          created_at: "2024-03-10T09:00:00Z",
-        },
-        {
-          id: "poll_2",
-          title: "Lunch Preference",
-          description: "Help us choose the lunch menu for tomorrow",
-          question: "What would you prefer for tomorrow's lunch?",
-          type: "multiple_choice",
-          options: [
-            { text: "Mediterranean Buffet", votes: 45 },
-            { text: "Asian Fusion", votes: 67 },
-            { text: "Continental Cuisine", votes: 23 },
-            { text: "Vegetarian Special", votes: 34 },
-          ],
-          status: "active",
-          is_public: true,
-          allow_multiple: false,
-          show_results: false,
-          start_date: "2024-03-14",
-          end_date: "2024-03-15",
-          total_votes: 169,
-          created_at: "2024-03-12T14:30:00Z",
-        },
-        {
-          id: "poll_3",
-          title: "Future Topic Interest",
-          description: "Vote for topics you'd like to see in future events",
-          question: "Which topics would you like to see covered in future events?",
-          type: "multiple_choice",
-          options: [
-            { text: "Artificial Intelligence", votes: 89 },
-            { text: "Blockchain Technology", votes: 34 },
-            { text: "Sustainable Development", votes: 67 },
-            { text: "Digital Marketing", votes: 45 },
-            { text: "Data Science", votes: 78 },
-          ],
-          status: "paused",
-          is_public: true,
-          allow_multiple: true,
-          show_results: true,
-          start_date: "2024-03-15",
-          end_date: "",
-          total_votes: 313,
-          created_at: "2024-03-08T11:15:00Z",
-        },
-        {
-          id: "poll_4",
-          title: "Networking Event",
-          description: "Should we organize a networking event tomorrow evening?",
-          question: "Would you be interested in attending a networking event tomorrow evening?",
-          type: "yes_no",
-          options: [
-            { text: "Yes", votes: 134 },
-            { text: "No", votes: 45 },
-          ],
-          status: "ended",
-          is_public: true,
-          allow_multiple: false,
-          show_results: true,
-          start_date: "2024-03-13",
-          end_date: "2024-03-14",
-          total_votes: 179,
-          created_at: "2024-03-11T16:45:00Z",
-        },
-      ]);
+    if (pollsData?.data) {
+      setPolls(pollsData.data);
     }
-  }, [event]);
+  }, [pollsData]);
 
   const handleAddPoll = () => {
     setEditingPoll(null);
@@ -744,43 +754,66 @@ const PollsManagementTab = ({ event }) => {
     setIsModalOpen(true);
   };
 
-  const handleSavePoll = (pollData) => {
-    setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
+  const handleSavePoll = async (pollData) => {
+    try {
+      setIsLoading(true);
+
       if (editingPoll) {
         // Update existing poll
-        setPolls(polls.map(p => 
-          p.id === editingPoll.id ? pollData : p
-        ));
+        await updatePollMutation.mutateAsync({
+          pollId: editingPoll.id,
+          pollData: {
+            ...pollData,
+            event: event.id,
+          },
+        });
       } else {
-        // Add new poll
-        setPolls([...polls, pollData]);
+        // Create new poll
+        await createPollMutation.mutateAsync({
+          ...pollData,
+          event: event.id,
+        });
       }
-      
+
       setIsModalOpen(false);
       setEditingPoll(null);
+    } catch (error) {
+      console.error("Error saving poll:", error);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleDeletePoll = (pollId) => {
     if (confirm("Are you sure you want to delete this poll?")) {
-      setPolls(polls.filter(p => p.id !== pollId));
+      setPolls(polls.filter((p) => p.id !== pollId));
     }
   };
 
   const handleToggleStatus = (pollId, newStatus) => {
-    setPolls(polls.map(p => 
-      p.id === pollId ? { ...p, status: newStatus } : p
-    ));
+    setPolls(
+      polls.map((p) => (p.id === pollId ? { ...p, status: newStatus } : p))
+    );
   };
 
-  const handleToggleVisibility = (pollId, isPublic) => {
-    setPolls(polls.map(p => 
-      p.id === pollId ? { ...p, is_public: isPublic } : p
-    ));
+  const handleToggleVisibility = async (pollId, isPublic) => {
+    try {
+      // Find the poll to get all its data
+      const poll = polls.find((p) => p.id === pollId);
+      if (!poll) return;
+
+      // Call the update API
+      await updatePollMutation.mutateAsync({
+        pollId: pollId,
+        pollData: {
+          ...poll,
+          is_public: isPublic,
+          event: event.id,
+        },
+      });
+    } catch (error) {
+      console.error("Error updating poll visibility:", error);
+    }
   };
 
   const handleViewResults = (poll) => {
@@ -789,22 +822,26 @@ const PollsManagementTab = ({ event }) => {
   };
 
   const handleSharePoll = (poll) => {
-    const pollUrl = `${window.location.origin}/live/${event?.id || 'demo'}`;
-    
+    const pollUrl = `${window.location.origin}/live/${event?.id || "demo"}`;
+
     if (navigator.share) {
-      navigator.share({
-        title: `${poll.title} - Live Poll`,
-        text: `Participate in this live poll: ${poll.title}`,
-        url: pollUrl,
-      }).catch(console.error);
+      navigator
+        .share({
+          title: `${poll.title} - Live Poll`,
+          text: `Participate in this live poll: ${poll.title}`,
+          url: pollUrl,
+        })
+        .catch(console.error);
     } else {
       navigator.clipboard.writeText(pollUrl).then(() => {
-        alert('Poll link copied to clipboard! Share this link for live participation.');
+        alert(
+          "Poll link copied to clipboard! Share this link for live participation."
+        );
       });
     }
   };
 
-  const filteredPolls = polls.filter(poll => {
+  const filteredPolls = polls.filter((poll) => {
     const statusMatch = filterStatus === "all" || poll.status === filterStatus;
     const typeMatch = filterType === "all" || poll.type === filterType;
     return statusMatch && typeMatch;
@@ -814,9 +851,9 @@ const PollsManagementTab = ({ event }) => {
   const typeOptions = ["all", "multiple_choice", "yes_no", "rating", "text"];
 
   const totalPolls = polls.length;
-  const activePolls = polls.filter(p => p.status === "active").length;
+  const activePolls = polls.filter((p) => p.status === "active").length;
   const totalVotes = polls.reduce((sum, p) => sum + (p.total_votes || 0), 0);
-  const publicPolls = polls.filter(p => p.is_public).length;
+  const publicPolls = polls.filter((p) => p.is_public).length;
 
   return (
     <div className="space-y-6">
@@ -883,9 +920,11 @@ const PollsManagementTab = ({ event }) => {
               onChange={(e) => setFilterStatus(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
             >
-              {statusOptions.map(status => (
+              {statusOptions.map((status) => (
                 <option key={status} value={status}>
-                  {status === "all" ? "All Status" : status.charAt(0).toUpperCase() + status.slice(1)}
+                  {status === "all"
+                    ? "All Status"
+                    : status.charAt(0).toUpperCase() + status.slice(1)}
                 </option>
               ))}
             </select>
@@ -899,9 +938,13 @@ const PollsManagementTab = ({ event }) => {
               onChange={(e) => setFilterType(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
             >
-              {typeOptions.map(type => (
+              {typeOptions.map((type) => (
                 <option key={type} value={type}>
-                  {type === "all" ? "All Types" : type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  {type === "all"
+                    ? "All Types"
+                    : type
+                        .replace("_", " ")
+                        .replace(/\b\w/g, (l) => l.toUpperCase())}
                 </option>
               ))}
             </select>
@@ -922,13 +965,14 @@ const PollsManagementTab = ({ event }) => {
         <div className="text-center py-12 bg-white rounded-lg border">
           <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {polls.length === 0 ? "No polls yet" : "No polls match your filters"}
+            {polls.length === 0
+              ? "No polls yet"
+              : "No polls match your filters"}
           </h3>
           <p className="text-gray-500 mb-4">
-            {polls.length === 0 
+            {polls.length === 0
               ? "Create polls to engage with your event attendees and gather feedback."
-              : "Try adjusting your filters to see more polls."
-            }
+              : "Try adjusting your filters to see more polls."}
           </p>
           {polls.length === 0 && (
             <CustomButton

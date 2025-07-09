@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "44f107a4-6569-4435-8a2a-c68d2476a75a",
+		"_postman_id": "5e7671b4-2922-40c1-92e4-1aa6432d24f0",
 		"name": "Invitation app",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "17652468"
@@ -2435,6 +2435,746 @@
 										"event",
 										"delete",
 										"partners"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Registration from",
+					"item": [
+						{
+							"name": "Create form",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"event\": \"686b64a6424d054309978ae9\",\n    \"description\": \"Event registration\",\n    \"start_date\": \"2025-07-09\",\n    \"end_date\": \"2025-07-20\",\n    \"is_public\": true,\n    \"is_required\": true,\n    \"is_active\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/form",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"form"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get event forms",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/{{eventId}}/forms",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"{{eventId}}",
+										"forms"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/event/{{eventId}}/forms",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"event",
+												"{{eventId}}",
+												"forms"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "683"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"2ab-bkhi7y/vjKFeQuf8R97Xmljabb4\""
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 08 Jul 2025 16:46:31 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Forms fetched\",\n    \"data\": [\n        {\n            \"is_public\": true,\n            \"is_required\": true,\n            \"is_active\": true,\n            \"_id\": \"686d4883a99bc50a7a6feeed\",\n            \"user\": \"67602747c0fb825740339b3a\",\n            \"event\": \"686b64a6424d054309978ae9\",\n            \"description\": \"Event registration\",\n            \"start_date\": \"2025-07-09T00:00:00.000Z\",\n            \"end_date\": \"2025-07-20T00:00:00.000Z\",\n            \"form_fields\": [\n                {\n                    \"required\": false,\n                    \"_id\": \"686d4b46c5d8340dfc10bd00\",\n                    \"type\": \"text\",\n                    \"label\": \"Dietry Requirement\",\n                    \"placeholder\": \"placeholder\"\n                },\n                {\n                    \"required\": true,\n                    \"_id\": \"686d4b46c5d8340dfc10bd01\",\n                    \"type\": \"number\",\n                    \"label\": \"Age\",\n                    \"placeholder\": \"placeholder\"\n                }\n            ],\n            \"createdAt\": \"2025-07-08T16:34:11.907Z\",\n            \"updatedAt\": \"2025-07-08T16:45:58.250Z\",\n            \"id\": \"686d4883a99bc50a7a6feeed\"\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Get single form",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/forms/{{formId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"forms",
+										"{{formId}}"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/event/forms/{{formId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"event",
+												"forms",
+												"{{formId}}"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "449"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"1c1-nkiD+H9IpGgDM7KMa1oAEtZwHJI\""
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 08 Jul 2025 16:40:50 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Form fetched\",\n    \"data\": {\n        \"is_public\": true,\n        \"is_required\": true,\n        \"is_active\": true,\n        \"_id\": \"686d4883a99bc50a7a6feeed\",\n        \"user\": \"67602747c0fb825740339b3a\",\n        \"event\": \"686b64a6424d054309978ae9\",\n        \"description\": \"Event registration\",\n        \"start_date\": \"2025-07-09T00:00:00.000Z\",\n        \"end_date\": \"2025-07-20T00:00:00.000Z\",\n        \"form_fields\": [],\n        \"createdAt\": \"2025-07-08T16:34:11.907Z\",\n        \"updatedAt\": \"2025-07-08T16:34:11.907Z\",\n        \"id\": \"686d4883a99bc50a7a6feeed\"\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Add form fields",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n    {\n        \"type\": \"text\",\n        \"label\": \"Dietry Requirement\",\n        \"placeholder\": \"placeholder\",\n        \"required\": false\n    },\n    {\n        \"type\": \"number\",\n        \"label\": \"Age\",\n        \"placeholder\": \"placeholder\",\n        \"required\": true\n    },\n    {\n        \"type\": \"options\",\n        \"label\": \"Where did you hear about us\",\n        \"placeholder\": \"placeholder\",\n        \"options\": [\n            \"social media\",\n            \"friends\"\n        ],\n        \"required\": true\n    }\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/forms/{{formId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"forms",
+										"{{formId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create form submission",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Burby Siegel\",\n    \"responses\": [\n        {\n            \"type\": \"text\",\n            \"label\": \"Dietry Requirement\",\n            \"response\": \"Lactose intolerant\"\n        },\n        {\n            \"type\": \"mumber\",\n            \"label\": \"Age\",\n            \"response\": \"8\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/{{eventid}}/forms/{{formId}}/submission",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"{{eventid}}",
+										"forms",
+										"{{formId}}",
+										"submission"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get form submissions",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/{{eventid}}/forms/{{formId}}/submissions",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"{{eventid}}",
+										"forms",
+										"{{formId}}",
+										"submissions"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/event/{{eventid}}/forms/{{formId}}/submissions",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"event",
+												"{{eventid}}",
+												"forms",
+												"{{formId}}",
+												"submissions"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "570"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"23a-lrDCtadw/YUYB0qWC2OW7VsTaxY\""
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 08 Jul 2025 17:37:08 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"pagination\": {\n        \"prevPage\": null,\n        \"currentPage\": 1,\n        \"nextPage\": null,\n        \"pageTotal\": 0,\n        \"pageSize\": 0,\n        \"total\": 0\n    },\n    \"data\": [\n        {\n            \"_id\": \"686d567468911922ccee8a63\",\n            \"email\": \"chukwuka.ezeaka@gmail.com\",\n            \"name\": \"Burby Siegel\",\n            \"responses\": [\n                {\n                    \"_id\": \"686d567468911922ccee8a64\",\n                    \"type\": \"text\",\n                    \"label\": \"Dietry Requirement\",\n                    \"response\": \"Lactose intolerant\"\n                },\n                {\n                    \"_id\": \"686d567468911922ccee8a65\",\n                    \"type\": \"mumber\",\n                    \"label\": \"Age\",\n                    \"response\": \"8\"\n                }\n            ],\n            \"form\": \"686d4883a99bc50a7a6feeed\",\n            \"createdAt\": \"2025-07-08T17:33:40.902Z\",\n            \"updatedAt\": \"2025-07-08T17:33:40.902Z\",\n            \"id\": \"686d567468911922ccee8a63\"\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Get single submission",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/forms/{{formId}}/submission/{{submissionId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"forms",
+										"{{formId}}",
+										"submission",
+										"{{submissionId}}"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/event/forms/{{formId}}/submission/{{submissionId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"event",
+												"forms",
+												"{{formId}}",
+												"submission",
+												"{{submissionId}}"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "499"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"1f3-DVinawCTuWbYmvGkWhtnCMY6LCQ\""
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 08 Jul 2025 17:38:13 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Submission fetched\",\n    \"data\": {\n        \"_id\": \"686d567468911922ccee8a63\",\n        \"email\": \"chukwuka.ezeaka@gmail.com\",\n        \"name\": \"Burby Siegel\",\n        \"responses\": [\n            {\n                \"_id\": \"686d567468911922ccee8a64\",\n                \"type\": \"text\",\n                \"label\": \"Dietry Requirement\",\n                \"response\": \"Lactose intolerant\"\n            },\n            {\n                \"_id\": \"686d567468911922ccee8a65\",\n                \"type\": \"mumber\",\n                \"label\": \"Age\",\n                \"response\": \"8\"\n            }\n        ],\n        \"form\": \"686d4883a99bc50a7a6feeed\",\n        \"createdAt\": \"2025-07-08T17:33:40.902Z\",\n        \"updatedAt\": \"2025-07-08T17:33:40.902Z\",\n        \"id\": \"686d567468911922ccee8a63\"\n    }\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Poll",
+					"item": [
+						{
+							"name": "Create poll",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"event\": \"686b64a6424d054309978ae9\",\n    \"title\": \"Session Satisfaction Survey\",\n    \"type\": \"rating\",\n    \"description\": \"random descritpion\",\n    \"question\": \"How satisfied are you with the quality of sessions presented today?\",\n    \"options\": [1,2,3,4,5],\n    \"start_date\": \"2025-07-09\",\n    \"end_date\": \"2025-07-20\",\n    \"is_public\": true,\n    \"allow_multiple\": false,\n    \"show_voter_result\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/polls",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"polls"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get event polls",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/polls/event/{{eventId}}/polls",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"polls",
+										"event",
+										"{{eventId}}",
+										"polls"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/polls/event/{{eventId}}/polls",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"polls",
+												"event",
+												"{{eventId}}",
+												"polls"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "604"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"25c-XGFKFdfK81x7x4YefZazCoyj/As\""
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 09 Jul 2025 09:57:53 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Polls fetched\",\n    \"data\": [\n        {\n            \"options\": [\n                1,\n                2,\n                3,\n                4,\n                5\n            ],\n            \"is_public\": true,\n            \"allow_multiple\": false,\n            \"show_voter_result\": true,\n            \"_id\": \"686e3c2f4d21f856d4913be6\",\n            \"user\": \"67602747c0fb825740339b3a\",\n            \"event\": \"686b64a6424d054309978ae9\",\n            \"title\": \"Session Satisfaction Survey\",\n            \"type\": \"rating\",\n            \"description\": \"random descritpion\",\n            \"question\": \"How satisfied are you with the quality of sessions presented today?\",\n            \"start_date\": \"2025-07-09T00:00:00.000Z\",\n            \"end_date\": \"2025-07-20T00:00:00.000Z\",\n            \"createdAt\": \"2025-07-09T09:53:51.920Z\",\n            \"updatedAt\": \"2025-07-09T09:53:51.920Z\",\n            \"id\": \"686e3c2f4d21f856d4913be6\"\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Get single poll",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/polls/{{pollId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"polls",
+										"{{pollId}}"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/polls/{{pollId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"polls",
+												"{{pollId}}"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "601"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"259-ZoZRtH+gTxqDfH1qj7AhcSTp4K4\""
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 09 Jul 2025 09:59:09 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Poll fetched\",\n    \"data\": {\n        \"options\": [\n            1,\n            2,\n            3,\n            4,\n            5\n        ],\n        \"is_public\": true,\n        \"allow_multiple\": false,\n        \"show_voter_result\": true,\n        \"_id\": \"686e3c2f4d21f856d4913be6\",\n        \"user\": \"67602747c0fb825740339b3a\",\n        \"event\": \"686b64a6424d054309978ae9\",\n        \"title\": \"Session Satisfaction Survey\",\n        \"type\": \"rating\",\n        \"description\": \"random descritpion\",\n        \"question\": \"How satisfied are you with the quality of sessions presented today?\",\n        \"start_date\": \"2025-07-09T00:00:00.000Z\",\n        \"end_date\": \"2025-07-20T00:00:00.000Z\",\n        \"createdAt\": \"2025-07-09T09:53:51.920Z\",\n        \"updatedAt\": \"2025-07-09T09:53:51.920Z\",\n        \"id\": \"686e3c2f4d21f856d4913be6\"\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Edit poll",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/polls/{{pollId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"polls",
+										"{{pollId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create poll submission",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Burby Siegel\",\n    \"response\": 4\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/polls/event/{{eventid}}/{{pollId}}/submission",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"polls",
+										"event",
+										"{{eventid}}",
+										"{{pollId}}",
+										"submission"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get poll submissions",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/polls/event/{{eventid}}/{{formId}}/submissions",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"polls",
+										"event",
+										"{{eventid}}",
+										"{{formId}}",
+										"submissions"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/polls/event/{{eventid}}/{{formId}}/submissions",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"polls",
+												"event",
+												"{{eventid}}",
+												"{{formId}}",
+												"submissions"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "3210"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"c8a-EhufV2deDNgC5Moi9NHdF9V246E\""
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 09 Jul 2025 10:12:10 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"pagination\": {\n        \"prevPage\": null,\n        \"currentPage\": 1,\n        \"nextPage\": null,\n        \"pageTotal\": 1,\n        \"pageSize\": 4,\n        \"total\": 4\n    },\n    \"data\": [\n        {\n            \"_id\": \"686e403dc4e97f5a8daecf1d\",\n            \"email\": \"chukwuka.ezeaka@gmail.com\",\n            \"name\": \"Burby Siegel\",\n            \"response\": 4,\n            \"poll\": {\n                \"options\": [\n                    1,\n                    2,\n                    3,\n                    4,\n                    5\n                ],\n                \"is_public\": true,\n                \"allow_multiple\": false,\n                \"show_voter_result\": true,\n                \"_id\": \"686e3c2f4d21f856d4913be6\",\n                \"user\": \"67602747c0fb825740339b3a\",\n                \"event\": \"686b64a6424d054309978ae9\",\n                \"title\": \"Session Satisfaction Survey\",\n                \"type\": \"rating\",\n                \"description\": \"random descritpion\",\n                \"question\": \"How satisfied are you with the quality of sessions presented today?\",\n                \"start_date\": \"2025-07-09T00:00:00.000Z\",\n                \"end_date\": \"2025-07-20T00:00:00.000Z\",\n                \"createdAt\": \"2025-07-09T09:53:51.920Z\",\n                \"updatedAt\": \"2025-07-09T09:53:51.920Z\",\n                \"__v\": 0,\n                \"id\": \"686e3c2f4d21f856d4913be6\"\n            },\n            \"createdAt\": \"2025-07-09T10:11:09.349Z\",\n            \"updatedAt\": \"2025-07-09T10:11:09.349Z\",\n            \"id\": \"686e403dc4e97f5a8daecf1d\"\n        },\n        {\n            \"_id\": \"686e3ffe39ea0b5a2ced1b36\",\n            \"email\": \"chukwuka.ezeaka@gmail.com\",\n            \"name\": \"Burby Siegel\",\n            \"poll\": {\n                \"options\": [\n                    1,\n                    2,\n                    3,\n                    4,\n                    5\n                ],\n                \"is_public\": true,\n                \"allow_multiple\": false,\n                \"show_voter_result\": true,\n                \"_id\": \"686e3c2f4d21f856d4913be6\",\n                \"user\": \"67602747c0fb825740339b3a\",\n                \"event\": \"686b64a6424d054309978ae9\",\n                \"title\": \"Session Satisfaction Survey\",\n                \"type\": \"rating\",\n                \"description\": \"random descritpion\",\n                \"question\": \"How satisfied are you with the quality of sessions presented today?\",\n                \"start_date\": \"2025-07-09T00:00:00.000Z\",\n                \"end_date\": \"2025-07-20T00:00:00.000Z\",\n                \"createdAt\": \"2025-07-09T09:53:51.920Z\",\n                \"updatedAt\": \"2025-07-09T09:53:51.920Z\",\n                \"__v\": 0,\n                \"id\": \"686e3c2f4d21f856d4913be6\"\n            },\n            \"createdAt\": \"2025-07-09T10:10:06.868Z\",\n            \"updatedAt\": \"2025-07-09T10:10:06.868Z\",\n            \"id\": \"686e3ffe39ea0b5a2ced1b36\"\n        },\n        {\n            \"_id\": \"686e3fd4ff87695a0f96af99\",\n            \"email\": \"chukwuka.ezeaka@gmail.com\",\n            \"name\": \"Burby Siegel\",\n            \"poll\": {\n                \"options\": [\n                    1,\n                    2,\n                    3,\n                    4,\n                    5\n                ],\n                \"is_public\": true,\n                \"allow_multiple\": false,\n                \"show_voter_result\": true,\n                \"_id\": \"686e3c2f4d21f856d4913be6\",\n                \"user\": \"67602747c0fb825740339b3a\",\n                \"event\": \"686b64a6424d054309978ae9\",\n                \"title\": \"Session Satisfaction Survey\",\n                \"type\": \"rating\",\n                \"description\": \"random descritpion\",\n                \"question\": \"How satisfied are you with the quality of sessions presented today?\",\n                \"start_date\": \"2025-07-09T00:00:00.000Z\",\n                \"end_date\": \"2025-07-20T00:00:00.000Z\",\n                \"createdAt\": \"2025-07-09T09:53:51.920Z\",\n                \"updatedAt\": \"2025-07-09T09:53:51.920Z\",\n                \"__v\": 0,\n                \"id\": \"686e3c2f4d21f856d4913be6\"\n            },\n            \"createdAt\": \"2025-07-09T10:09:24.119Z\",\n            \"updatedAt\": \"2025-07-09T10:09:24.119Z\",\n            \"id\": \"686e3fd4ff87695a0f96af99\"\n        },\n        {\n            \"_id\": \"686e3f7105fb71594e79dc7d\",\n            \"email\": \"chukwuka.ezeaka@gmail.com\",\n            \"name\": \"Burby Siegel\",\n            \"poll\": {\n                \"options\": [\n                    1,\n                    2,\n                    3,\n                    4,\n                    5\n                ],\n                \"is_public\": true,\n                \"allow_multiple\": false,\n                \"show_voter_result\": true,\n                \"_id\": \"686e3c2f4d21f856d4913be6\",\n                \"user\": \"67602747c0fb825740339b3a\",\n                \"event\": \"686b64a6424d054309978ae9\",\n                \"title\": \"Session Satisfaction Survey\",\n                \"type\": \"rating\",\n                \"description\": \"random descritpion\",\n                \"question\": \"How satisfied are you with the quality of sessions presented today?\",\n                \"start_date\": \"2025-07-09T00:00:00.000Z\",\n                \"end_date\": \"2025-07-20T00:00:00.000Z\",\n                \"createdAt\": \"2025-07-09T09:53:51.920Z\",\n                \"updatedAt\": \"2025-07-09T09:53:51.920Z\",\n                \"__v\": 0,\n                \"id\": \"686e3c2f4d21f856d4913be6\"\n            },\n            \"createdAt\": \"2025-07-09T10:07:45.279Z\",\n            \"updatedAt\": \"2025-07-09T10:07:45.279Z\",\n            \"id\": \"686e3f7105fb71594e79dc7d\"\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Get single submission",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/polls/{{pollId}}/submission/{{submissionId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"polls",
+										"{{pollId}}",
+										"submission",
+										"{{submissionId}}"
 									]
 								}
 							},

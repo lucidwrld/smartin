@@ -21,6 +21,10 @@ import {
 } from "lucide-react";
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
+import useGetEventFormsManager from "@/app/events/controllers/forms/getEventFormsController";
+import useCreateFormManager from "@/app/events/controllers/forms/createFormController";
+import useUpdateFormFieldsManager from "@/app/events/controllers/forms/updateFormFieldsController";
+import useGetFormSubmissionsManager from "@/app/events/controllers/forms/getFormSubmissionsController";
 
 // Mock submission data - in real implementation, this would come from API
 const generateMockSubmissions = (form) => {
@@ -83,13 +87,22 @@ const FormSubmissionsView = ({ forms }) => {
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
 
-  // Load submissions when form is selected
+  // API hook for submissions
+  const { data: submissionsData, isLoading: submissionsLoading } = useGetFormSubmissionsManager({
+    formId: selectedForm?.id,
+    enabled: !!selectedForm?.id,
+  });
+
+  // Load submissions when form is selected or data changes
   React.useEffect(() => {
-    if (selectedForm) {
+    if (submissionsData?.data) {
+      setSubmissions(submissionsData.data);
+    } else if (selectedForm) {
+      // Fallback to mock data if API fails or no data
       const mockSubmissions = generateMockSubmissions(selectedForm);
       setSubmissions(mockSubmissions);
     }
-  }, [selectedForm]);
+  }, [selectedForm, submissionsData]);
 
   const filteredSubmissions = submissions.filter(submission => 
     submission.guest_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -302,80 +315,7 @@ const FormSubmissionsView = ({ forms }) => {
 };
 
 const FormsManagementTab = ({ event }) => {
-  const [forms, setForms] = useState([
-    {
-      id: "form_1",
-      name: "General Registration",
-      description: "Basic registration form for all attendees",
-      is_required: true,
-      is_active: true,
-      is_public: true,
-      registration_start_date: "2024-07-01",
-      registration_end_date: "2024-07-20",
-      submission_count: 245,
-      fields: [
-        {
-          id: "field_1",
-          type: "text",
-          label: "Dietary Requirements",
-          placeholder: "Any food allergies or preferences?",
-          required: false,
-          options: [],
-          validation: { min_length: null, max_length: 200, pattern: null }
-        },
-        {
-          id: "field_2",
-          type: "select",
-          label: "T-Shirt Size",
-          placeholder: "Select your size",
-          required: true,
-          options: ["XS", "S", "M", "L", "XL", "XXL"],
-          validation: {}
-        },
-        {
-          id: "field_3",
-          type: "checkbox",
-          label: "I agree to receive event updates",
-          required: false,
-          options: [],
-          validation: {}
-        }
-      ],
-      created_at: "2024-07-01T10:00:00"
-    },
-    {
-      id: "form_2",
-      name: "VIP Guest Information",
-      description: "Additional information for VIP attendees",
-      is_required: false,
-      is_active: true,
-      is_public: false,
-      registration_start_date: "2024-07-01",
-      registration_end_date: "2024-07-20",
-      submission_count: 42,
-      fields: [
-        {
-          id: "field_4",
-          type: "text",
-          label: "Special Accommodation Needs",
-          placeholder: "Any special requirements?",
-          required: false,
-          options: [],
-          validation: {}
-        },
-        {
-          id: "field_5",
-          type: "phone",
-          label: "Emergency Contact",
-          placeholder: "+1 (555) 123-4567",
-          required: true,
-          options: [],
-          validation: {}
-        }
-      ],
-      created_at: "2024-07-01T10:00:00"
-    }
-  ]);
+  const [forms, setForms] = useState([]);
 
   const [showModal, setShowModal] = useState(false);
   const [editingForm, setEditingForm] = useState(null);
@@ -384,6 +324,21 @@ const FormsManagementTab = ({ event }) => {
   const [currentFormId, setCurrentFormId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("forms");
+
+  // API hooks
+  const { data: formsData, isLoading: formsLoading, error: formsError } = useGetEventFormsManager({
+    eventId: event?.id,
+    enabled: !!event?.id,
+  });
+  const createFormMutation = useCreateFormManager();
+  const updateFormFieldsMutation = useUpdateFormFieldsManager();
+
+  // Load forms from API
+  React.useEffect(() => {
+    if (formsData?.data) {
+      setForms(formsData.data);
+    }
+  }, [formsData]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -426,13 +381,13 @@ const FormsManagementTab = ({ event }) => {
     
     if (form) {
       setFormData({
-        name: form.name || "",
+        name: form.description || "", // API uses 'description' field as name
         description: form.description || "",
         is_required: form.is_required !== undefined ? form.is_required : false,
         is_active: form.is_active !== undefined ? form.is_active : true,
         is_public: form.is_public !== undefined ? form.is_public : true,
-        registration_start_date: form.registration_start_date || "",
-        registration_end_date: form.registration_end_date || ""
+        registration_start_date: form.start_date ? form.start_date.split('T')[0] : "",
+        registration_end_date: form.end_date ? form.end_date.split('T')[0] : ""
       });
     } else {
       setFormData({
@@ -493,21 +448,26 @@ const FormsManagementTab = ({ event }) => {
     setIsLoading(true);
     
     try {
-      const newForm = {
-        id: editingForm?.id || `form_${Date.now()}`,
-        ...formData,
-        fields: editingForm?.fields || [],
-        submission_count: editingForm?.submission_count || 0,
-        created_at: editingForm?.created_at || new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-
       if (editingForm) {
+        // Update existing form - currently no API endpoint for this
+        // Using local state update for now
+        const updatedForm = {
+          ...editingForm,
+          ...formData,
+          updated_at: new Date().toISOString()
+        };
+        
         setForms(prev => 
-          prev.map(form => form.id === editingForm.id ? newForm : form)
+          prev.map(form => form.id === editingForm.id ? updatedForm : form)
         );
       } else {
-        setForms(prev => [...prev, newForm]);
+        // Create new form
+        await createFormMutation.mutateAsync({
+          ...formData,
+          event: event.id,
+          start_date: formData.registration_start_date,
+          end_date: formData.registration_end_date,
+        });
       }
 
       handleCloseModals();
@@ -528,23 +488,33 @@ const FormsManagementTab = ({ event }) => {
     setIsLoading(true);
     
     try {
+      const currentForm = forms.find(f => f.id === currentFormId);
+      if (!currentForm) return;
+
       const newField = {
-        id: editingField?.id || `field_${Date.now()}`,
-        ...fieldData
+        type: fieldData.type,
+        label: fieldData.label,
+        placeholder: fieldData.placeholder,
+        required: fieldData.required,
+        options: fieldData.options,
       };
 
-      setForms(prev => 
-        prev.map(form => {
-          if (form.id === currentFormId) {
-            const updatedFields = editingField
-              ? form.fields.map(field => field.id === editingField.id ? newField : field)
-              : [...form.fields, newField];
-            
-            return { ...form, fields: updatedFields };
-          }
-          return form;
-        })
-      );
+      let updatedFields;
+      if (editingField) {
+        // Update existing field
+        updatedFields = currentForm.form_fields.map(field => 
+          field._id === editingField.id ? { ...field, ...newField } : field
+        );
+      } else {
+        // Add new field
+        updatedFields = [...(currentForm.form_fields || []), newField];
+      }
+
+      // Call API to update form fields
+      await updateFormFieldsMutation.mutateAsync({
+        formId: currentFormId,
+        fields: updatedFields,
+      });
 
       handleCloseModals();
     } catch (error) {
@@ -622,12 +592,37 @@ const FormsManagementTab = ({ event }) => {
     const totalForms = forms.length;
     const activeForms = forms.filter(f => f.is_active).length;
     const totalSubmissions = forms.reduce((sum, form) => sum + form.submission_count, 0);
-    const totalFields = forms.reduce((sum, form) => sum + form.fields.length, 0);
+    const totalFields = forms.reduce((sum, form) => sum + (form.form_fields?.length || 0), 0);
 
     return { totalForms, activeForms, totalSubmissions, totalFields };
   };
 
   const stats = getTotalStats();
+
+  if (formsLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full mx-auto mb-2"></div>
+          <p className="text-gray-600">Loading forms...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (formsError) {
+    return (
+      <div className="text-center py-8">
+        <div className="text-red-600 mb-4">Error loading forms: {formsError.message}</div>
+        <CustomButton
+          buttonText="Retry"
+          onClick={() => window.location.reload()}
+          buttonColor="bg-purple-600"
+          radius="rounded-md"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -765,15 +760,15 @@ const FormsManagementTab = ({ event }) => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
-                      <span>Open: {new Date(form.registration_start_date).toLocaleDateString()}</span>
+                      <span>Open: {form.start_date ? new Date(form.start_date).toLocaleDateString() : 'Not set'}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
-                      <span>Close: {new Date(form.registration_end_date).toLocaleDateString()}</span>
+                      <span>Close: {form.end_date ? new Date(form.end_date).toLocaleDateString() : 'Not set'}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4" />
-                      <span>{form.submission_count} submissions</span>
+                      <span>{form.submission_count || 0} submissions</span>
                     </div>
                   </div>
                 </div>
@@ -816,7 +811,7 @@ const FormsManagementTab = ({ event }) => {
               {/* Form Fields */}
               <div className="border-t pt-4">
                 <div className="flex justify-between items-center mb-3">
-                  <h4 className="font-medium text-gray-700">Form Fields ({form.fields.length})</h4>
+                  <h4 className="font-medium text-gray-700">Form Fields ({form.form_fields?.length || 0})</h4>
                   <CustomButton
                     buttonText="Add Field"
                     prefixIcon={<Plus className="w-3 h-3" />}
@@ -826,13 +821,13 @@ const FormsManagementTab = ({ event }) => {
                   />
                 </div>
                 
-                {form.fields.length === 0 ? (
+                {(!form.form_fields || form.form_fields.length === 0) ? (
                   <p className="text-gray-500 text-sm italic">No fields added yet</p>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {form.fields.map((field) => (
+                    {form.form_fields.map((field) => (
                       <div
-                        key={field.id}
+                        key={field._id || field.id}
                         className="flex items-center justify-between p-3 bg-gray-50 rounded border"
                       >
                         <div className="flex items-center gap-3">
@@ -851,7 +846,7 @@ const FormsManagementTab = ({ event }) => {
                             <Edit2 className="w-3 h-3" />
                           </button>
                           <button
-                            onClick={() => handleDeleteField(form.id, field.id)}
+                            onClick={() => handleDeleteField(form.id, field._id || field.id)}
                             className="p-1 text-gray-500 hover:text-red-600 rounded"
                             title="Delete field"
                           >
