@@ -5,17 +5,9 @@ import BaseDashboardNavigation from "@/components/BaseDashboardNavigation";
 import StepProgress from "@/components/StepProgress";
 import { EventDetailsStep } from "@/components/events/EventDetailsStep";
 import { InvitationSettingsStep } from "@/components/events/InvitationStep";
-import { GalleryStep } from "@/components/events/GalleryStep";
-import { GiftRegistryStep } from "@/components/events/GiftRegistryStep";
-import { GuestListStep } from "@/components/events/GuestListStep";
+
 import PaymentStep from "@/components/events/PaymentStep";
-import { SessionsStep } from "@/components/events/SessionsStep";
-import { RegistrationFormsStep } from "@/components/events/RegistrationFormsStep";
-import { ResourcesStep } from "@/components/events/ResourcesStep";
-import { VendorsStep } from "@/components/events/VendorsStep";
-import { ProgramStep } from "@/components/events/ProgramStep";
-import { StakeholdersStep } from "@/components/events/StakeholdersStep";
-import { TicketingStep } from "@/components/events/TicketingStep";
+
 import { PaymentProofModal } from "@/components/events/PaymentProofModal";
 import { VerificationModal } from "@/components/events/VerificationModal";
 import { validateFormSubmission } from "@/utils/validateForm";
@@ -25,7 +17,7 @@ import useGetSingleEventManager from "../controllers/getSingleEventController";
 import { getQueryParams } from "@/utils/getQueryParams";
 import useFileUpload from "@/utils/fileUploadController";
 import GoBackButton from "@/components/GoBackButton";
-import { shouldChargeInNaira } from "@/utils/shouldChargeInNaira";
+
 import useGetUserDetailsManager from "@/app/profile-settings/controllers/get_UserDetails_controller";
 import { AddInviteesManager } from "../controllers/addInviteesController";
 import usePayForEventManager from "../controllers/payForEventController";
@@ -78,87 +70,93 @@ const EventPage = () => {
     eventId: id,
   });
 
-  // Enhanced form data state with new fields
+  // Form data state matching exact backend structure
   const [formData, setFormData] = useState({
-    // Existing fields - UNCHANGED
+    // From EventDetailsStep
     name: "",
     description: "",
-    host: "",
-    image: null,
     event_type: "",
-    payment_type: "",
     venue: "",
-    date: "",
-    time: "",
-    no_of_invitees: "",
-    items: [],
-    verification_type: "",
+    virtual_link: "",
     timezone: "Africa/Lagos",
-    path: "/events/",
+    no_of_invitees: "",
+    event_days: [
+      {
+        date: "",
+        time: "",
+      },
+    ],
+    image: null,
+    logo: null,
+    banner_image: null,
+    video: "",
+    colors: ["#6366f1", "#8b5cf6"],
+    isVirtual: false,
+
+    // From InvitationSettingsStep
+    host: "",
+    verification_type: "",
+    event_notifications: {
+      email: false,
+      sms: false,
+      whatsapp: false,
+      voice: false,
+    },
+    reminder_notifications: {
+      email: false,
+      sms: false,
+      whatsapp: false,
+      voice: false,
+    },
+    thank_you_notifications: {
+      email: false,
+      sms: false,
+      whatsapp: false,
+      voice: false,
+    },
+    enable_auto_reminder: false,
+    enable_auto_thank_you: false,
+
+    // From PaymentStep
+    payment_mode: "pay_per_event",
+    payment_type: "",
+    pay_later: false,
+
+    // From formData defaults/user context
+    currency: currency,
+    showFeedback: true,
     donation: {
       account_name: "",
       bank_name: "",
       account_number: "",
     },
-    gallery: [],
-    showFeedback: true,
-    pay_later: false,
-    currency: currency,
+    items: [],
     thank_you_message: {
       image: "",
       message: "",
     },
+    path: "/events/",
 
-    // NEW FIELDS for enhanced functionality
+    // From backend example
+    gallery: [],
+    speakers: [],
+    resources: [],
+  });
+
+  // UI-only state (not sent to backend)
+  const [uiState, setUiState] = useState({
     is_multi_day: false,
+    enable_invitations: false,
+    enable_reminders: false,
+    enable_thank_you: false,
+    // Temporary fields for date/time handling
+    date: "",
+    time: "",
     end_date: "",
     end_time: "",
-    video_url: "",
-    logo: null,
-    banner_image: null,
+    // Temporary fields for color handling
     primary_color: "#6366f1",
     secondary_color: "#8b5cf6",
-
-    // Session management
-    enable_sessions: false,
-    sessions: [],
-
-    // Registration forms
-    enable_registration: false,
-    registration_start_date: "",
-    registration_end_date: "",
-    registration_forms: [],
-
-    // NEW: Invitation Settings
-    enable_invitations: false,
-    invitation_methods: [], // ["email", "sms", "whatsapp", "voice"]
-    enable_reminders: false,
-
-    // NEW: Payment Mode
-    payment_mode: "pay_per_event", // "subscription" or "pay_per_event"
-
-    // Ticketing (for future steps)
-    enable_ticketing: false,
-    tickets: [],
-
-    // Vendors (for future steps)
-    vendors: [],
-
-    // Program/agenda (for future steps)
-    program: {
-      enabled: false,
-      is_public: true,
-      schedule: [],
-      speakers: [],
-    },
-
-    // Stakeholders (for future steps)
-    hosts: [],
-    sponsors: [],
-    partners: [],
-
-    // Resources (for future steps)
-    resources: [],
   });
 
   useEffect(() => {
@@ -192,20 +190,54 @@ const EventPage = () => {
       setFormData({
         ...formData,
         ...event?.data,
-        // Ensure new fields have defaults if not present in existing data
-        is_multi_day: event?.data?.is_multi_day || false,
-        enable_sessions: event?.data?.enable_sessions || false,
-        sessions: event?.data?.sessions || [],
-        enable_registration: event?.data?.enable_registration || false,
-        registration_forms: event?.data?.registration_forms || [],
-        primary_color: event?.data?.primary_color || "#6366f1",
-        secondary_color: event?.data?.secondary_color || "#8b5cf6",
-        // New invitation fields
-        enable_invitations: event?.data?.enable_invitations || false,
-        invitation_methods: event?.data?.invitation_methods || [],
-        enable_reminders: event?.data?.enable_reminders || false,
+        // Ensure notification objects have proper structure
+        event_notifications: event?.data?.event_notifications || {
+          email: false,
+          sms: false,
+          whatsapp: false,
+          voice: false,
+        },
+        reminder_notifications: event?.data?.reminder_notifications || {
+          email: false,
+          sms: false,
+          whatsapp: false,
+          voice: false,
+        },
+        thank_you_notifications: event?.data?.thank_you_notifications || {
+          email: false,
+          sms: false,
+          whatsapp: false,
+          voice: false,
+        },
+        // Ensure other fields have defaults
+        colors: event?.data?.colors || ["#6366f1", "#8b5cf6"],
         payment_mode: event?.data?.payment_mode || "pay_per_event",
       });
+
+      // Initialize UI state from event data
+      if (event?.data?.event_days?.length > 1) {
+        setUiState((prev) => ({
+          ...prev,
+          is_multi_day: true,
+          date: event.data.event_days[0].date,
+          time: event.data.event_days[0].time,
+          end_date:
+            event.data.event_days[event.data.event_days.length - 1].date,
+          end_time:
+            event.data.event_days[event.data.event_days.length - 1].time,
+          primary_color: event.data.colors?.[0] || "#6366f1",
+          secondary_color: event.data.colors?.[1] || "#8b5cf6",
+        }));
+      } else if (event?.data?.event_days?.length === 1) {
+        setUiState((prev) => ({
+          ...prev,
+          date: event.data.event_days[0].date,
+          time: event.data.event_days[0].time,
+          primary_color: event.data.colors?.[0] || "#6366f1",
+          secondary_color: event.data.colors?.[1] || "#8b5cf6",
+        }));
+      }
+
       if (section) {
         const stepIndex = steps.findIndex(
           (step) => step.title.toLowerCase() === section.toLowerCase()
@@ -217,7 +249,51 @@ const EventPage = () => {
     }
   }, [event, isEditMode, section]);
 
+  // Update event_days when date/time changes
+  useEffect(() => {
+    if (uiState.date && uiState.time) {
+      updateEventDays();
+    }
+  }, [
+    uiState.date,
+    uiState.time,
+    uiState.end_date,
+    uiState.end_time,
+    uiState.is_multi_day,
+  ]);
+
   const handleFormDataChange = (field, value) => {
+    // Handle UI-only state changes
+    if (
+      [
+        "date",
+        "time",
+        "end_date",
+        "end_time",
+        "is_multi_day",
+        "primary_color",
+        "secondary_color",
+        "enable_invitations",
+        "enable_reminders",
+        "enable_thank_you",
+      ].includes(field)
+    ) {
+      setUiState((prev) => ({ ...prev, [field]: value }));
+
+      // Update colors array when color changes
+      if (field === "primary_color" || field === "secondary_color") {
+        setFormData((prev) => ({
+          ...prev,
+          colors: [
+            field === "primary_color" ? value : uiState.primary_color,
+            field === "secondary_color" ? value : uiState.secondary_color,
+          ],
+        }));
+      }
+      return;
+    }
+
+    // Handle image files
     if (field === "image") {
       setCoverFile(value);
     } else if (field === "gallery") {
@@ -235,9 +311,75 @@ const EventPage = () => {
         payment_type: value,
         pay_later: value === "later" || value === "bank",
       }));
+    } else if (field.startsWith("event_notifications.")) {
+      const channel = field.split(".")[1];
+      setFormData((prev) => ({
+        ...prev,
+        event_notifications: { ...prev.event_notifications, [channel]: value },
+      }));
+    } else if (field.startsWith("reminder_notifications.")) {
+      const channel = field.split(".")[1];
+      setFormData((prev) => ({
+        ...prev,
+        reminder_notifications: {
+          ...prev.reminder_notifications,
+          [channel]: value,
+        },
+      }));
+    } else if (field.startsWith("thank_you_notifications.")) {
+      const channel = field.split(".")[1];
+      setFormData((prev) => ({
+        ...prev,
+        thank_you_notifications: {
+          ...prev.thank_you_notifications,
+          [channel]: value,
+        },
+      }));
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
+  };
+
+  // Helper function to update event_days based on UI state
+  const updateEventDays = () => {
+    setTimeout(() => {
+      const currentUiState = { ...uiState };
+
+      if (
+        currentUiState.is_multi_day &&
+        currentUiState.date &&
+        currentUiState.end_date
+      ) {
+        // Generate array of days for multi-day event
+        const days = [];
+        const startDate = new Date(currentUiState.date);
+        const endDate = new Date(currentUiState.end_date);
+
+        while (startDate <= endDate) {
+          days.push({
+            date: startDate.toISOString().split("T")[0],
+            time:
+              startDate.getTime() === new Date(currentUiState.date).getTime()
+                ? currentUiState.time
+                : currentUiState.end_time,
+          });
+          startDate.setDate(startDate.getDate() + 1);
+        }
+
+        setFormData((prev) => ({ ...prev, event_days: days }));
+      } else if (currentUiState.date && currentUiState.time) {
+        // Single day event
+        setFormData((prev) => ({
+          ...prev,
+          event_days: [
+            {
+              date: currentUiState.date,
+              time: currentUiState.time,
+            },
+          ],
+        }));
+      }
+    }, 0);
   };
 
   // Simplified steps array - only 3 essential steps
@@ -248,16 +390,19 @@ const EventPage = () => {
         <EventDetailsStep
           isEditMode={isEditMode}
           formData={formData}
+          uiState={uiState}
           onFormDataChange={handleFormDataChange}
         />
       ),
     },
     {
-      title: "Invitation Settings & Form",
+      title: "Invitation Settings",
       component: (
         <InvitationSettingsStep
           formData={formData}
+          uiState={uiState}
           onFormDataChange={handleFormDataChange}
+          isEditMode={isEditMode}
         />
       ),
     },
@@ -268,6 +413,7 @@ const EventPage = () => {
           event={event?.data}
           isEditMode={isEditMode}
           formData={formData}
+          uiState={uiState}
           onFormDataChange={handleFormDataChange}
           currency={currency}
         />
@@ -291,9 +437,13 @@ const EventPage = () => {
     : steps;
 
   const handleNext = () => {
-    if (!validateFormSubmission(formRef, formData)) {
-      return;
+    // In edit mode, skip validation when just navigating between steps
+    if (!isEditMode) {
+      if (!validateFormSubmission(formRef, formData)) {
+        return;
+      }
     }
+
     if (currentStep < visibleSteps.length - 1) {
       setCurrentStep((prev) => prev + 1);
     }
@@ -386,6 +536,11 @@ const EventPage = () => {
 
   const handleSubmit = async () => {
     try {
+      // Ensure event_days is properly set before submission
+      if (uiState.date && uiState.time && formData.event_days[0].date === "") {
+        updateEventDays();
+      }
+
       let updatedFormData = {
         ...formData,
         no_of_invitees: Number(formData.no_of_invitees),
@@ -412,6 +567,7 @@ const EventPage = () => {
           await updateEvent(updatedFormData);
         }
       } else {
+        // Send formData directly without transformation
         await createEvent(updatedFormData);
         const eventId = createdEvent?.data?.id || id;
       }
@@ -516,7 +672,36 @@ const EventPage = () => {
                 type="button"
                 disabled={isSubmitting}
                 onClick={() => {
-                  // For Event Details section in both modes
+                  // In edit mode with section-based editing
+                  if (isEditMode && section) {
+                    if (section?.toLowerCase() === "event details") {
+                      if (currentStep === 0) {
+                        // Just navigate to next step, don't submit
+                        handleNext();
+                      } else {
+                        // On last step of event details section, save
+                        handleSubmit();
+                      }
+                    } else {
+                      // For other sections in edit mode, always save
+                      handleSubmit();
+                    }
+                    return;
+                  }
+
+                  // In edit mode without section (full flow)
+                  if (isEditMode) {
+                    if (currentStep < visibleSteps.length - 1) {
+                      // Just navigate to next step, don't submit
+                      handleNext();
+                    } else {
+                      // Only submit on the last step
+                      handleSubmit();
+                    }
+                    return;
+                  }
+
+                  // For create mode - existing logic
                   if (section?.toLowerCase() === "event details") {
                     if (currentStep < visibleSteps.length - 1) {
                       handleNext();
@@ -526,11 +711,8 @@ const EventPage = () => {
                     return;
                   }
 
-                  // For other cases - Updated for new payment step position
-                  if (
-                    currentStep === visibleSteps.length - 1 ||
-                    (currentStep === 9 && !section) // Payment is now step 9
-                  ) {
+                  // For other cases in create mode
+                  if (currentStep === visibleSteps.length - 1) {
                     handleSubmit();
                   } else {
                     handleNext();

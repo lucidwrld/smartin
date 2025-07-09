@@ -4,6 +4,7 @@ import Dropdown from "../Dropdown";
 
 export const EventDetailsStep = ({
   formData,
+  uiState,
   onFormDataChange,
   isEditMode,
 }) => {
@@ -39,10 +40,10 @@ export const EventDetailsStep = ({
     onFormDataChange(field, value);
   };
 
-  const formattedDate = formData.date
-    ? new Date(formData.date).toISOString().split("T")[0]
+  const formattedDate = uiState.date
+    ? new Date(uiState.date).toISOString().split("T")[0]
     : "";
-  const formattedTime = formData.time ? formData.time.substring(0, 5) : "";
+  const formattedTime = uiState.time ? uiState.time.substring(0, 5) : "";
 
   return (
     <div className="flex flex-col w-full text-brandBlack">
@@ -146,7 +147,7 @@ export const EventDetailsStep = ({
                 id="date"
                 type="date"
                 isRequired={true}
-                value={formattedDate || formData.date}
+                value={formattedDate || uiState.date}
                 placeholder={"Select the date"}
                 onChange={(e) => handleInputChange("date", e.target.value)}
                 min={today}
@@ -159,7 +160,7 @@ export const EventDetailsStep = ({
                 type="time"
                 placeholder={"Select the time"}
                 isRequired={true}
-                value={formattedTime || formData.time}
+                value={formattedTime || uiState.time}
                 onChange={(e) => handleInputChange("time", e.target.value)}
               />
             </div>
@@ -171,7 +172,7 @@ export const EventDetailsStep = ({
               <input
                 type="checkbox"
                 id="is_multi_day"
-                checked={formData.is_multi_day || false}
+                checked={uiState.is_multi_day || false}
                 onChange={(e) =>
                   handleInputChange("is_multi_day", e.target.checked)
                 }
@@ -185,23 +186,23 @@ export const EventDetailsStep = ({
               </label>
             </div>
 
-            {formData.is_multi_day && (
+            {uiState.is_multi_day && (
               <div className="grid grid-cols-2 gap-4">
                 <InputWithFullBoarder
                   label="End Date"
                   id="end_date"
                   type="date"
-                  value={formData.end_date || ""}
+                  value={uiState.end_date || ""}
                   onChange={(e) =>
                     handleInputChange("end_date", e.target.value)
                   }
-                  min={formData.date || today}
+                  min={uiState.date || today}
                 />
                 <InputWithFullBoarder
                   label="End Time"
                   id="end_time"
                   type="time"
-                  value={formData.end_time || ""}
+                  value={uiState.end_time || ""}
                   onChange={(e) =>
                     handleInputChange("end_time", e.target.value)
                   }
@@ -280,9 +281,11 @@ export const EventDetailsStep = ({
                   { value: "virtual", label: "Virtual" },
                   { value: "hybrid", label: "Hybrid" },
                 ]}
-                onChange={(e) =>
-                  handleInputChange("event_format", e.target.value)
-                }
+                onChange={(e) => {
+                  handleInputChange("event_format", e.target.value);
+                  // Update isVirtual based on format
+                  handleInputChange("isVirtual", e.target.value === "virtual" || e.target.value === "hybrid");
+                }}
                 placeholder="Select event format..."
               />
             </div>
@@ -311,8 +314,8 @@ export const EventDetailsStep = ({
             <InputWithFullBoarder
               label="Event Video URL"
               id="video_url"
-              value={formData.video_url || ""}
-              onChange={(e) => handleInputChange("video_url", e.target.value)}
+              value={formData.video || ""}
+              onChange={(e) => handleInputChange("video", e.target.value)}
               placeholder="https://youtube.com/watch?v=..."
             />
 
@@ -405,7 +408,7 @@ export const EventDetailsStep = ({
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
-                    value={formData.primary_color || "#6366f1"}
+                    value={uiState.primary_color || "#6366f1"}
                     onChange={(e) =>
                       handleInputChange("primary_color", e.target.value)
                     }
@@ -413,7 +416,7 @@ export const EventDetailsStep = ({
                   />
                   <input
                     type="text"
-                    value={formData.primary_color || "#6366f1"}
+                    value={uiState.primary_color || "#6366f1"}
                     onChange={(e) =>
                       handleInputChange("primary_color", e.target.value)
                     }
@@ -430,7 +433,7 @@ export const EventDetailsStep = ({
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
-                    value={formData.secondary_color || "#8b5cf6"}
+                    value={uiState.secondary_color || "#8b5cf6"}
                     onChange={(e) =>
                       handleInputChange("secondary_color", e.target.value)
                     }
@@ -438,7 +441,7 @@ export const EventDetailsStep = ({
                   />
                   <input
                     type="text"
-                    value={formData.secondary_color || "#8b5cf6"}
+                    value={uiState.secondary_color || "#8b5cf6"}
                     onChange={(e) =>
                       handleInputChange("secondary_color", e.target.value)
                     }

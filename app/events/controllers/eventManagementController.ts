@@ -1,4 +1,5 @@
 import usePostManager from "@/constants/controller_templates/post_controller_template";
+import useUpdateManager from "@/constants/controller_templates/put_controller_template";
 import { Host, Sponsor, Partner, Vendor, Resource } from "../types";
 
 interface BaseResponse {
@@ -14,17 +15,14 @@ interface AddHostsPayload {
 }
 
 export const AddHostsManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<BaseResponse>(
-    `/event/add/host`,
-    ["hosts"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(`/event/add/host`, ["hosts"], true);
 
   const addHosts = async (eventId: string, hosts: Host[]) => {
     try {
       const payload: AddHostsPayload = {
         eventId,
-        data: hosts
+        data: hosts,
       };
       await postCaller(payload);
     } catch (error) {
@@ -42,17 +40,14 @@ export const AddHostsManager = () => {
 };
 
 export const UpdateHostsManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<BaseResponse>(
-    `/event/update/hosts`,
-    ["hosts"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(`/event/update/hosts`, ["hosts"], true);
 
   const updateHosts = async (eventId: string, hosts: Host[]) => {
     try {
       const payload: AddHostsPayload = {
         eventId,
-        data: hosts
+        data: hosts,
       };
       await postCaller(payload);
     } catch (error) {
@@ -70,17 +65,14 @@ export const UpdateHostsManager = () => {
 };
 
 export const DeleteHostsManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<BaseResponse>(
-    `/api/v1/event/delete/host`,
-    ["hosts"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(`/api/v1/event/delete/host`, ["hosts"], true);
 
   const deleteHosts = async (eventId: string, hostIds: string[]) => {
     try {
       const payload = {
         eventId,
-        hostIds
+        hostIds,
       };
       await postCaller(payload);
     } catch (error) {
@@ -104,17 +96,14 @@ interface AddSponsorsPayload {
 }
 
 export const AddSponsorsManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<BaseResponse>(
-    `/event/add/sponsors`,
-    ["sponsors"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(`/event/add/sponsors`, ["sponsors"], true);
 
   const addSponsors = async (eventId: string, sponsors: Sponsor[]) => {
     try {
       const payload: AddSponsorsPayload = {
         eventId,
-        data: sponsors
+        data: sponsors,
       };
       await postCaller(payload);
     } catch (error) {
@@ -132,17 +121,14 @@ export const AddSponsorsManager = () => {
 };
 
 export const UpdateSponsorsManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<BaseResponse>(
-    `/event/update/sponsors`,
-    ["sponsors"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(`/event/update/sponsors`, ["sponsors"], true);
 
   const updateSponsors = async (eventId: string, sponsors: Sponsor[]) => {
     try {
       const payload: AddSponsorsPayload = {
         eventId,
-        data: sponsors
+        data: sponsors,
       };
       await postCaller(payload);
     } catch (error) {
@@ -160,17 +146,18 @@ export const UpdateSponsorsManager = () => {
 };
 
 export const DeleteSponsorsManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<BaseResponse>(
-    `/api/v1/event/delete/sponsors`,
-    ["sponsors"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(
+      `/api/v1/event/delete/sponsors`,
+      ["sponsors"],
+      true
+    );
 
   const deleteSponsors = async (eventId: string, sponsorIds: string[]) => {
     try {
       const payload = {
         eventId,
-        sponsorIds
+        sponsorIds,
       };
       await postCaller(payload);
     } catch (error) {
@@ -194,17 +181,14 @@ interface AddPartnersPayload {
 }
 
 export const AddPartnersManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<BaseResponse>(
-    `/event/add/partners`,
-    ["partners"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(`/event/add/partners`, ["partners"], true);
 
   const addPartners = async (eventId: string, partners: Partner[]) => {
     try {
       const payload: AddPartnersPayload = {
         eventId,
-        data: partners
+        data: partners,
       };
       await postCaller(payload);
     } catch (error) {
@@ -222,17 +206,14 @@ export const AddPartnersManager = () => {
 };
 
 export const UpdatePartnersManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<BaseResponse>(
-    `/event/update/partners`,
-    ["partners"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(`/event/update/partners`, ["partners"], true);
 
   const updatePartners = async (eventId: string, partners: Partner[]) => {
     try {
       const payload: AddPartnersPayload = {
         eventId,
-        data: partners
+        data: partners,
       };
       await postCaller(payload);
     } catch (error) {
@@ -250,17 +231,18 @@ export const UpdatePartnersManager = () => {
 };
 
 export const DeletePartnersManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<BaseResponse>(
-    `/api/v1/event/delete/partners`,
-    ["partners"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(
+      `/api/v1/event/delete/partners`,
+      ["partners"],
+      true
+    );
 
   const deletePartners = async (eventId: string, partnerIds: string[]) => {
     try {
       const payload = {
         eventId,
-        partnerIds
+        partnerIds,
       };
       await postCaller(payload);
     } catch (error) {
@@ -285,18 +267,15 @@ interface AddVendorsPayload {
 }
 
 export const AddVendorsManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<BaseResponse>(
-    `/event/add/vendors`,
-    ["vendors"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(`/event/add/vendors`, ["vendors"], true);
 
   const addVendors = async (eventId: string, vendor: Vendor, id?: string) => {
     try {
       const payload: AddVendorsPayload = {
         eventId,
         data: vendor,
-        ...(id && { id })
+        ...(id && { id }),
       };
       await postCaller(payload);
     } catch (error) {
@@ -314,17 +293,18 @@ export const AddVendorsManager = () => {
 };
 
 export const UpdateVendorsManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<BaseResponse>(
-    `/api/v1/event/update/vendors`,
-    ["vendors"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(
+      `/api/v1/event/update/vendors`,
+      ["vendors"],
+      true
+    );
 
   const updateVendors = async (eventId: string, vendors: Vendor[]) => {
     try {
       const payload = {
         eventId,
-        data: vendors
+        data: vendors,
       };
       await postCaller(payload);
     } catch (error) {
@@ -342,17 +322,18 @@ export const UpdateVendorsManager = () => {
 };
 
 export const DeleteVendorsManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<BaseResponse>(
-    `/api/v1/event/delete/vendors`,
-    ["vendors"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(
+      `/api/v1/event/delete/vendors`,
+      ["vendors"],
+      true
+    );
 
   const deleteVendors = async (eventId: string, vendorIds: string[]) => {
     try {
       const payload = {
         eventId,
-        vendorIds
+        vendorIds,
       };
       await postCaller(payload);
     } catch (error) {
@@ -376,17 +357,14 @@ interface AddResourcesPayload {
 }
 
 export const AddResourcesManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<BaseResponse>(
-    `/event/add/resources`,
-    ["resources"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(`/event/add/resources`, ["event"], true);
 
   const addResources = async (eventId: string, resources: Resource[]) => {
     try {
       const payload: AddResourcesPayload = {
         eventId,
-        data: resources
+        data: resources,
       };
       await postCaller(payload);
     } catch (error) {
@@ -404,9 +382,9 @@ export const AddResourcesManager = () => {
 };
 
 export const UpdateResourcesManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<BaseResponse>(
+  const { updateCaller, isLoading, isSuccess, error, data } = useUpdateManager(
     `/event/update/resources`,
-    ["resources"],
+    ["event"],
     true
   );
 
@@ -414,9 +392,9 @@ export const UpdateResourcesManager = () => {
     try {
       const payload: AddResourcesPayload = {
         eventId,
-        data: resources
+        data: resources,
       };
-      await postCaller(payload);
+      await updateCaller(payload);
     } catch (error) {
       console.error("Error updating resources:", error);
     }
@@ -432,17 +410,14 @@ export const UpdateResourcesManager = () => {
 };
 
 export const DeleteResourcesManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<BaseResponse>(
-    `/event/delete/resources`,
-    ["resources"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(`/event/delete/resources`, ["event"], true);
 
   const deleteResources = async (eventId: string, resourceIds: string[]) => {
     try {
       const payload = {
         eventId,
-        resourceIds
+        resourceIds,
       };
       await postCaller(payload);
     } catch (error) {
@@ -476,17 +451,18 @@ interface AddSpeakersPayload {
 }
 
 export const AddSpeakersManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<BaseResponse>(
-    `/api/v1/event/add/speakers`,
-    ["speakers"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(
+      `/api/v1/event/add/speakers`,
+      ["speakers"],
+      true
+    );
 
   const addSpeakers = async (eventId: string, speakers: SpeakerPayload[]) => {
     try {
       const payload: AddSpeakersPayload = {
         eventId,
-        data: speakers
+        data: speakers,
       };
       await postCaller(payload);
     } catch (error) {
@@ -504,17 +480,21 @@ export const AddSpeakersManager = () => {
 };
 
 export const UpdateSpeakersManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<BaseResponse>(
-    `/api/v1/event/update/speakers`,
-    ["speakers"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(
+      `/api/v1/event/update/speakers`,
+      ["speakers"],
+      true
+    );
 
-  const updateSpeakers = async (eventId: string, speakers: SpeakerPayload[]) => {
+  const updateSpeakers = async (
+    eventId: string,
+    speakers: SpeakerPayload[]
+  ) => {
     try {
       const payload: AddSpeakersPayload = {
         eventId,
-        data: speakers
+        data: speakers,
       };
       await postCaller(payload);
     } catch (error) {
@@ -532,17 +512,18 @@ export const UpdateSpeakersManager = () => {
 };
 
 export const DeleteSpeakersManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<BaseResponse>(
-    `/api/v1/event/delete/speakers`,
-    ["speakers"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(
+      `/api/v1/event/delete/speakers`,
+      ["speakers"],
+      true
+    );
 
   const deleteSpeakers = async (eventId: string, speakerIds: string[]) => {
     try {
       const payload = {
         eventId,
-        speakerIds
+        speakerIds,
       };
       await postCaller(payload);
     } catch (error) {

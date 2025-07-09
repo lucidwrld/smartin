@@ -19,6 +19,7 @@ import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import Loader from "@/components/Loader";
 import { AddResourcesManager, UpdateResourcesManager, DeleteResourcesManager } from "@/app/events/controllers/eventManagementController";
+import useFileUpload from "@/utils/fileUploadController";
 
 const ResourceCard = ({ resource, onEdit, onDelete, isLoading }) => {
   const {
@@ -122,9 +123,9 @@ const ResourceCard = ({ resource, onEdit, onDelete, isLoading }) => {
                 </span>
               </div>
             )}
-            {tags && tags.length > 0 && (
+            {tags && (
               <div className="mt-2 flex flex-wrap gap-1">
-                {tags.map((tag, index) => (
+                {(Array.isArray(tags) ? tags : tags.split(",").map(t => t.trim())).map((tag, index) => (
                   <span
                     key={index}
                     className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
@@ -172,6 +173,7 @@ const ResourceCard = ({ resource, onEdit, onDelete, isLoading }) => {
 };
 
 const ResourceModal = ({ isOpen, onClose, resource, onSave, isLoading }) => {
+  const { handleFileUpload, isLoading: uploading, progress } = useFileUpload();
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -182,6 +184,8 @@ const ResourceModal = ({ isOpen, onClose, resource, onSave, isLoading }) => {
     is_public: true,
     file_size: null,
   });
+  const [resourceMode, setResourceMode] = useState("url"); // "url" or "upload"
+  const [selectedFile, setSelectedFile] = useState(null);
 
   React.useEffect(() => {
     if (resource) {
@@ -191,10 +195,13 @@ const ResourceModal = ({ isOpen, onClose, resource, onSave, isLoading }) => {
         type: resource.type || "document",
         url: resource.url || "",
         category: resource.category || "",
-        tags: resource.tags || [],
+        tags: Array.isArray(resource.tags) ? resource.tags : (resource.tags ? resource.tags.split(",").map(t => t.trim()) : []),
         is_public: resource.is_public !== undefined ? resource.is_public : true,
         file_size: resource.file_size || null,
       });
+      setResourceMode(resource.file ? "upload" : "url");
+      // Initialize tags input with existing tags as comma-separated string
+      setTagsInput(Array.isArray(resource.tags) ? resource.tags.join(", ") : (resource.tags || ""));
     } else {
       setFormData({
         name: "",
@@ -206,30 +213,78 @@ const ResourceModal = ({ isOpen, onClose, resource, onSave, isLoading }) => {
         is_public: true,
         file_size: null,
       });
+      setResourceMode("url");
+      setSelectedFile(null);
+      setTagsInput("");
     }
   }, [resource, isOpen]);
 
+  const [tagsInput, setTagsInput] = useState("");
+
   const handleTagsChange = (e) => {
-    const tagsString = e.target.value;
-    const tagsArray = tagsString
+    const value = e.target.value;
+    setTagsInput(value);
+    
+    // Convert to array for storage
+    const tagsArray = value
       .split(",")
       .map((tag) => tag.trim())
       .filter((tag) => tag.length > 0);
     setFormData({ ...formData, tags: tagsArray });
   };
 
-  const handleSubmit = (e) => {
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setFormData({ 
+        ...formData, 
+        name: !formData.name.trim() ? file.name : formData.name,
+        url: "" // Clear URL when file is selected
+      });
+      setResourceMode("upload");
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.url.trim()) {
-      alert("Please fill in all required fields");
+    
+    // Validation - must have name and either URL or file
+    if (!formData.name.trim()) {
+      alert("Please enter a resource name");
       return;
+    }
+    
+    if (!formData.url.trim() && !selectedFile) {
+      alert("Please either paste a URL or upload a file");
+      return;
+    }
+
+    let finalUrl = formData.url;
+    
+    // If file is selected, upload it to Backblaze first
+    if (selectedFile && resourceMode === "upload") {
+      try {
+        finalUrl = await handleFileUpload(selectedFile);
+        if (!finalUrl) {
+          alert("Failed to upload file. Please try again.");
+          return;
+        }
+      } catch (error) {
+        console.error("File upload error:", error);
+        alert("Failed to upload file. Please try again.");
+        return;
+      }
     }
 
     const resourceData = {
       ...formData,
+      url: finalUrl, // Use the uploaded URL or the provided URL
       id: resource?.id || `resource_${Date.now()}`,
       download_count: resource?.download_count || 0,
       createdAt: resource?.createdAt || new Date().toISOString(),
+      file_size: selectedFile?.size || formData.file_size,
+      mode: resourceMode,
     };
 
     onSave(resourceData);
@@ -304,15 +359,61 @@ const ResourceModal = ({ isOpen, onClose, resource, onSave, isLoading }) => {
               </div>
             </div>
 
-            <InputWithFullBoarder
-              label="URL/Link *"
-              value={formData.url}
-              onChange={(e) =>
-                setFormData({ ...formData, url: e.target.value })
-              }
-              placeholder="https://example.com/resource"
-              type="url"
-            />
+            {/* Unified Resource Input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Resource Source *
+              </label>
+              <div className="space-y-2">
+                {/* URL Input */}
+                <InputWithFullBoarder
+                  label=""
+                  value={formData.url}
+                  onChange={(e) => {
+                    setFormData({ ...formData, url: e.target.value });
+                    if (e.target.value) {
+                      setSelectedFile(null);
+                      setResourceMode("url");
+                    }
+                  }}
+                  placeholder="Paste URL here (e.g., https://example.com/resource)"
+                  type="url"
+                />
+                
+                {/* Divider */}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">OR</span>
+                  </div>
+                </div>
+
+                {/* File Upload */}
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <input
+                    type="file"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                    id="resourceFile"
+                    accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif,.mp4,.mp3,.zip,.rar"
+                  />
+                  <label
+                    htmlFor="resourceFile"
+                    className="cursor-pointer flex flex-col items-center"
+                  >
+                    <Upload size={32} className="text-gray-400 mb-2" />
+                    <span className="text-gray-600">
+                      {selectedFile ? selectedFile.name : "Click to upload file"}
+                    </span>
+                    <span className="text-xs text-gray-500 mt-1">
+                      PDF, DOC, PPT, XLS, images, videos, etc.
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
 
             <InputWithFullBoarder
               label="Description"
@@ -346,8 +447,8 @@ const ResourceModal = ({ isOpen, onClose, resource, onSave, isLoading }) => {
                 </select>
               </div>
               <InputWithFullBoarder
-                label="Tags (comma-separated)"
-                value={formData.tags.join(", ")}
+                label="Tags"
+                value={tagsInput}
                 onChange={handleTagsChange}
                 placeholder="tag1, tag2, tag3"
               />
@@ -368,11 +469,26 @@ const ResourceModal = ({ isOpen, onClose, resource, onSave, isLoading }) => {
               </label>
             </div>
 
+            {uploading && (
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-600">Uploading file...</span>
+                  <span className="text-sm text-gray-600">{progress}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-purple-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${progress}%` }}
+                  ></div>
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-3 pt-4">
               <CustomButton
                 buttonText={resource ? "Update Resource" : "Add Resource"}
                 type="submit"
-                isLoading={isLoading}
+                isLoading={isLoading || uploading}
                 buttonColor="bg-purple-600"
                 radius="rounded-md"
               />
@@ -441,21 +557,14 @@ const ResourcesManagementTab = ({ event }) => {
         file_size: resourceData.file_size, // File size in bytes
         download_count: resourceData.download_count || 0, // Download tracking
         createdAt: resourceData.createdAt, // Creation timestamp
-        tags_array: Array.isArray(resourceData.tags) ? resourceData.tags : [], // Tags as array format
       };
 
       if (editingResource) {
         // Update existing resource
-        const updatedResources = resources.map(r => 
-          r.id === editingResource.id ? resourceData : r
-        );
-        await updateResources(event.id, updatedResources);
-        setResources(updatedResources);
+        await updateResources(event.id, [resourcePayload]);
       } else {
         // Add new resource
-        const newResources = [...resources, { id: `resource_${Date.now()}`, ...resourceData }];
         await addResources(event.id, [resourcePayload]);
-        setResources(newResources);
       }
       
       setIsModalOpen(false);
@@ -470,7 +579,6 @@ const ResourcesManagementTab = ({ event }) => {
     if (confirm("Are you sure you want to delete this resource?")) {
       try {
         await deleteResources(event.id, [resourceId]);
-        setResources(resources.filter(r => r.id !== resourceId));
       } catch (error) {
         console.error("Error deleting resource:", error);
         alert("Error deleting resource. Please try again.");

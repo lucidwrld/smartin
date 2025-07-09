@@ -130,7 +130,7 @@ const invitationMethods = [
   {
     id: "email",
     icon: Mail,
-    title: "Email Invitation",
+    title: "Email",
     description: "Send beautiful email invitations",
     priceNGN: 25,
     priceUSD: 0.05,
@@ -138,7 +138,7 @@ const invitationMethods = [
   {
     id: "sms",
     icon: MessageSquare,
-    title: "SMS Invitation",
+    title: "SMS",
     description: "Send text message invitations",
     priceNGN: 45,
     priceUSD: 0.08,
@@ -146,7 +146,7 @@ const invitationMethods = [
   {
     id: "whatsapp",
     icon: Phone,
-    title: "WhatsApp Invitation",
+    title: "WhatsApp",
     description: "Send via WhatsApp with rich media",
     priceNGN: 35,
     priceUSD: 0.06,
@@ -154,19 +154,22 @@ const invitationMethods = [
   {
     id: "voice",
     icon: Volume2,
-    title: "Voice Call Invitation",
+    title: "Voice Call",
     description: "Automated voice call invitations",
     priceNGN: 150,
     priceUSD: 0.25,
   },
 ];
 
-export const InvitationSettingsStep = ({ formData, onFormDataChange }) => {
+// Notification pricing (50% of invitation cost for reminders, 75% for thank you)
+const REMINDER_MULTIPLIER = 0.5;
+const THANK_YOU_MULTIPLIER = 0.75;
+
+export const InvitationSettingsStep = ({ formData, uiState, onFormDataChange, isEditMode }) => {
   const currency = formData.currency || "USD";
-  const selectedMethods = formData.invitation_methods || [];
-  const enableInvitations = formData.enable_invitations || false;
-  const enableReminders = formData.enable_reminders || false;
-  const enableThankYou = formData.enable_thank_you || false;
+  const enableInvitations = uiState.enable_invitations || false;
+  const enableReminders = uiState.enable_reminders || false;
+  const enableThankYou = uiState.enable_thank_you || false;
 
   const handleInputChange = (field, value) => {
     onFormDataChange(field, value);
@@ -175,54 +178,101 @@ export const InvitationSettingsStep = ({ formData, onFormDataChange }) => {
   const handleInvitationToggle = (enabled) => {
     handleInputChange("enable_invitations", enabled);
     if (!enabled) {
-      // Clear invitation methods when disabled
-      handleInputChange("invitation_methods", []);
+      // Reset all notification channels when disabled
+      handleInputChange("event_notifications.email", false);
+      handleInputChange("event_notifications.sms", false);
+      handleInputChange("event_notifications.whatsapp", false);
+      handleInputChange("event_notifications.voice", false);
+      handleInputChange("reminder_notifications.email", false);
+      handleInputChange("reminder_notifications.sms", false);
+      handleInputChange("reminder_notifications.whatsapp", false);
+      handleInputChange("reminder_notifications.voice", false);
+      handleInputChange("thank_you_notifications.email", false);
+      handleInputChange("thank_you_notifications.sms", false);
+      handleInputChange("thank_you_notifications.whatsapp", false);
+      handleInputChange("thank_you_notifications.voice", false);
       handleInputChange("enable_reminders", false);
+      handleInputChange("enable_thank_you", false);
+      handleInputChange("enable_auto_reminder", false);
+      handleInputChange("enable_auto_thank_you", false);
     }
   };
 
-  const handleMethodToggle = (methodId) => {
-    const currentMethods = selectedMethods || [];
-    const isSelected = currentMethods.includes(methodId);
-
-    let newMethods;
-    if (isSelected) {
-      newMethods = currentMethods.filter((id) => id !== methodId);
-    } else {
-      newMethods = [...currentMethods, methodId];
-    }
-
-    handleInputChange("invitation_methods", newMethods);
+  const handleInvitationChannelToggle = (channel) => {
+    const currentValue = formData.event_notifications[channel];
+    handleInputChange(`event_notifications.${channel}`, !currentValue);
   };
 
-  const calculateInvitationCost = () => {
-    if (!enableInvitations || !selectedMethods.length) return 0;
+  const handleReminderToggle = (enabled) => {
+    handleInputChange("enable_reminders", enabled);
+    handleInputChange("enable_auto_reminder", enabled);
+    
+    if (!enabled) {
+      // Clear all reminder channels when disabled
+      handleInputChange("reminder_notifications.email", false);
+      handleInputChange("reminder_notifications.sms", false);
+      handleInputChange("reminder_notifications.whatsapp", false);
+      handleInputChange("reminder_notifications.voice", false);
+    }
+  };
 
+  const handleThankYouToggle = (enabled) => {
+    handleInputChange("enable_thank_you", enabled);
+    handleInputChange("enable_auto_thank_you", enabled);
+    
+    if (!enabled) {
+      // Clear all thank you channels when disabled
+      handleInputChange("thank_you_notifications.email", false);
+      handleInputChange("thank_you_notifications.sms", false);
+      handleInputChange("thank_you_notifications.whatsapp", false);
+      handleInputChange("thank_you_notifications.voice", false);
+    }
+  };
+
+  const calculateChannelCost = (channel, multiplier = 1) => {
+    const method = invitationMethods.find(m => m.id === channel);
+    if (!method) return 0;
+    
     const guestCount = parseInt(formData.no_of_invitees) || 0;
-    let baseCost = 0;
+    const price = currency === "NGN" ? method.priceNGN : method.priceUSD;
+    return price * guestCount * multiplier;
+  };
 
-    selectedMethods.forEach((methodId) => {
-      const method = invitationMethods.find((m) => m.id === methodId);
-      if (method) {
-        const price = currency === "NGN" ? method.priceNGN : method.priceUSD;
-        baseCost += price * guestCount;
+  const calculateTotalCost = () => {
+    let total = 0;
+    const guestCount = parseInt(formData.no_of_invitees) || 0;
+    
+    if (!enableInvitations || guestCount === 0) return 0;
+    
+    // Calculate invitation costs
+    Object.keys(formData.event_notifications).forEach(channel => {
+      if (formData.event_notifications[channel]) {
+        total += calculateChannelCost(channel);
       }
     });
-
-    let totalCost = baseCost;
-
-    // Add reminder cost (50% of base invitation cost)
+    
+    // Calculate reminder costs (50% of base cost)
     if (enableReminders) {
-      totalCost += baseCost * 0.5;
+      Object.keys(formData.reminder_notifications).forEach(channel => {
+        if (formData.reminder_notifications[channel]) {
+          total += calculateChannelCost(channel, REMINDER_MULTIPLIER);
+        }
+      });
     }
-
-    // Add thank you message cost (75% of base invitation cost)
+    
+    // Calculate thank you costs (75% of base cost)
     if (enableThankYou) {
-      totalCost += baseCost * 0.75;
+      Object.keys(formData.thank_you_notifications).forEach(channel => {
+        if (formData.thank_you_notifications[channel]) {
+          total += calculateChannelCost(channel, THANK_YOU_MULTIPLIER);
+        }
+      });
     }
-
-    return totalCost;
+    
+    return total;
   };
+
+  const hasSelectedChannels = Object.values(formData.event_notifications).some(v => v);
 
   return (
     <div className="space-y-8 w-full max-w-4xl">
@@ -259,15 +309,16 @@ export const InvitationSettingsStep = ({ formData, onFormDataChange }) => {
         </div>
       </div>
 
-      {/* Event Invitations Section */}
-      <div className="border-t pt-8">
-        <div className="mb-6">
-          <h2 className="text-2xl font-semibold mb-2">Event Invitations</h2>
-          <p className="text-gray-600">
-            Choose whether to send digital invitations and select your preferred
-            methods.
-          </p>
-        </div>
+      {/* Event Invitations Section - Only show in create mode */}
+      {!isEditMode && (
+        <div className="border-t pt-8">
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold mb-2">Event Invitations</h2>
+            <p className="text-gray-600">
+              Choose whether to send digital invitations and select your preferred
+              channels. Additional charges apply.
+            </p>
+          </div>
 
         {/* Enable Invitations Toggle */}
         <div className="mb-6 p-6 bg-blue-50 rounded-lg">
@@ -276,29 +327,9 @@ export const InvitationSettingsStep = ({ formData, onFormDataChange }) => {
               <h3 className="font-medium text-gray-900 mb-2">
                 Enable Event Invitations
               </h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Send digital invitations to your guests through multiple
-                channels. If disabled, guests will need to be informed about the
-                event through other means.
+              <p className="text-sm text-gray-600">
+                Send digital invitations to your guests. If disabled, you'll need to invite guests manually.
               </p>
-
-              {enableInvitations && (
-                <div className="bg-white p-4 rounded-lg border">
-                  <h4 className="font-medium text-gray-900 mb-2">
-                    Notification Credits Estimate
-                  </h4>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <p>Guests: {formData.no_of_invitees || 0}</p>
-                    <p>Selected methods: {selectedMethods.length}</p>
-                    <p>Reminders: {enableReminders ? "Enabled (+50%)" : "Disabled"}</p>
-                    <p>Thank you messages: {enableThankYou ? "Enabled (+75%)" : "Disabled"}</p>
-                    <p className="font-medium text-lg text-brandPurple">
-                      Total: {currency === "NGN" ? "₦" : "$"}
-                      {calculateInvitationCost().toFixed(2)}
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
 
             <div className="ml-4">
@@ -318,13 +349,17 @@ export const InvitationSettingsStep = ({ formData, onFormDataChange }) => {
           </div>
         </div>
 
-        {/* Invitation Methods */}
+        {/* Invitation Methods and Cost Breakdown */}
         {enableInvitations && (
           <div className="space-y-6">
-            <div>
+            {/* Invitation Channels */}
+            <div className="bg-white p-6 rounded-lg border">
               <h3 className="font-medium text-gray-900 mb-4">
-                Select Invitation Methods
+                Invitation Channels
               </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Select channels for sending invitations to {formData.no_of_invitees || 0} guests
+              </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {invitationMethods.map((method) => (
                   <InvitationMethodOption
@@ -336,115 +371,218 @@ export const InvitationSettingsStep = ({ formData, onFormDataChange }) => {
                       currency === "NGN" ? method.priceNGN : method.priceUSD
                     }
                     currency={currency}
-                    selected={selectedMethods.includes(method.id)}
-                    onClick={() => handleMethodToggle(method.id)}
+                    selected={formData.event_notifications[method.id]}
+                    onClick={() => handleInvitationChannelToggle(method.id)}
                   />
                 ))}
               </div>
 
-              {selectedMethods.length === 0 && (
+              {!hasSelectedChannels && (
                 <p className="text-amber-600 text-sm mt-4">
-                  Please select at least one invitation method.
+                  Please select at least one invitation channel.
                 </p>
               )}
             </div>
 
             {/* Additional Notification Options */}
-            <div className="border-t pt-6 space-y-4">
-              <h3 className="font-medium text-gray-900 mb-4">
-                Additional Notification Options
+            <div className="space-y-4">
+              <h3 className="font-medium text-gray-900">
+                Additional Notifications
               </h3>
               
               {/* Reminder Messages */}
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 mb-1">
-                    Enable Reminder Messages
-                  </h4>
-                  <p className="text-sm text-gray-600">
-                    Send automatic reminder messages 24 hours before the event.
-                    This adds 50% to your invitation costs.
-                  </p>
-                </div>
+              <div className="bg-white p-6 rounded-lg border">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-900 mb-1">
+                      Reminder Messages
+                    </h4>
+                    <p className="text-sm text-gray-600">
+                      Send automatic reminders 24 hours before the event
+                    </p>
+                  </div>
 
-                <div className="ml-4">
-                  <button
-                    onClick={() =>
-                      handleInputChange("enable_reminders", !enableReminders)
-                    }
-                    disabled={
-                      !enableInvitations || selectedMethods.length === 0
-                    }
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brandPurple focus:ring-offset-2 ${
-                      enableReminders ? "bg-brandPurple" : "bg-gray-200"
-                    } ${
-                      !enableInvitations || selectedMethods.length === 0
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        enableReminders ? "translate-x-6" : "translate-x-1"
+                  <div className="ml-4">
+                    <button
+                      onClick={() => handleReminderToggle(!enableReminders)}
+                      disabled={!enableInvitations}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brandPurple focus:ring-offset-2 ${
+                        enableReminders ? "bg-brandPurple" : "bg-gray-200"
+                      } ${
+                        !enableInvitations
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
                       }`}
-                    />
-                  </button>
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          enableReminders ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
                 </div>
+                
+                {enableReminders && (
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-2">
+                      Select reminder channels (50% of invitation cost):
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {invitationMethods.map(method => {
+                        return (
+                          <label key={method.id} className="flex items-center gap-2 text-sm">
+                            <input
+                              type="checkbox"
+                              checked={formData.reminder_notifications[method.id]}
+                              onChange={(e) => handleInputChange(`reminder_notifications.${method.id}`, e.target.checked)}
+                              className="rounded text-brandPurple"
+                            />
+                            <span>{method.title}</span>
+                            <span className="text-gray-500">
+                              ({currency === "NGN" ? "₦" : "$"}
+                              {calculateChannelCost(method.id, REMINDER_MULTIPLIER).toFixed(2)})
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Thank You Messages */}
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 mb-1">
-                    Enable Thank You Messages
-                  </h4>
-                  <p className="text-sm text-gray-600">
-                    Send thank you messages to guests after the event.
-                    This adds 75% to your invitation costs.
-                  </p>
-                </div>
+              <div className="bg-white p-6 rounded-lg border">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-900 mb-1">
+                      Thank You Messages
+                    </h4>
+                    <p className="text-sm text-gray-600">
+                      Send thank you messages to guests after the event
+                    </p>
+                  </div>
 
-                <div className="ml-4">
-                  <button
-                    onClick={() =>
-                      handleInputChange("enable_thank_you", !enableThankYou)
-                    }
-                    disabled={
-                      !enableInvitations || selectedMethods.length === 0
-                    }
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brandPurple focus:ring-offset-2 ${
-                      enableThankYou ? "bg-brandPurple" : "bg-gray-200"
-                    } ${
-                      !enableInvitations || selectedMethods.length === 0
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        enableThankYou ? "translate-x-6" : "translate-x-1"
+                  <div className="ml-4">
+                    <button
+                      onClick={() => handleThankYouToggle(!enableThankYou)}
+                      disabled={!enableInvitations}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brandPurple focus:ring-offset-2 ${
+                        enableThankYou ? "bg-brandPurple" : "bg-gray-200"
+                      } ${
+                        !enableInvitations
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
                       }`}
-                    />
-                  </button>
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          enableThankYou ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
                 </div>
+                
+                {enableThankYou && (
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-2">
+                      Select thank you channels (75% of invitation cost):
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {invitationMethods.map(method => {
+                        return (
+                          <label key={method.id} className="flex items-center gap-2 text-sm">
+                            <input
+                              type="checkbox"
+                              checked={formData.thank_you_notifications[method.id]}
+                              onChange={(e) => handleInputChange(`thank_you_notifications.${method.id}`, e.target.checked)}
+                              className="rounded text-brandPurple"
+                            />
+                            <span>{method.title}</span>
+                            <span className="text-gray-500">
+                              ({currency === "NGN" ? "₦" : "$"}
+                              {calculateChannelCost(method.id, THANK_YOU_MULTIPLIER).toFixed(2)})
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
+
+            {/* Cost Summary */}
+            {hasSelectedChannels && (
+              <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
+                <h3 className="font-medium text-gray-900 mb-4">
+                  Notification Cost Summary
+                </h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>Invitations ({formData.no_of_invitees || 0} guests)</span>
+                    <span className="font-medium">
+                      {currency === "NGN" ? "₦" : "$"}
+                      {Object.keys(formData.event_notifications)
+                        .filter(channel => formData.event_notifications[channel])
+                        .reduce((sum, channel) => sum + calculateChannelCost(channel), 0)
+                        .toFixed(2)}
+                    </span>
+                  </div>
+                  
+                  {enableReminders && (
+                    <div className="flex justify-between">
+                      <span>Reminders (50% of invitation cost)</span>
+                      <span className="font-medium">
+                        {currency === "NGN" ? "₦" : "$"}
+                        {Object.keys(formData.reminder_notifications)
+                          .filter(channel => formData.reminder_notifications[channel])
+                          .reduce((sum, channel) => sum + calculateChannelCost(channel, REMINDER_MULTIPLIER), 0)
+                          .toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {enableThankYou && (
+                    <div className="flex justify-between">
+                      <span>Thank You Messages (75% of invitation cost)</span>
+                      <span className="font-medium">
+                        {currency === "NGN" ? "₦" : "$"}
+                        {Object.keys(formData.thank_you_notifications)
+                          .filter(channel => formData.thank_you_notifications[channel])
+                          .reduce((sum, channel) => sum + calculateChannelCost(channel, THANK_YOU_MULTIPLIER), 0)
+                          .toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                  
+                  <div className="border-t pt-2 mt-2">
+                    <div className="flex justify-between font-medium text-lg">
+                      <span>Total Notification Cost</span>
+                      <span className="text-brandPurple">
+                        {currency === "NGN" ? "₦" : "$"}
+                        {calculateTotalCost().toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Information Note */}
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-          <p className="text-sm text-gray-600 mb-2">
-            <strong>Notification Credits:</strong> Your selected notification options will determine 
-            how many credits you need. Credits will be added to your event creation fee.
-          </p>
-          <p className="text-sm text-gray-600">
-            <strong>Recharge Anytime:</strong> You can always purchase additional notification 
-            credits later from your event dashboard to send more invitations, reminders, 
-            or thank you messages as needed.
-          </p>
+          {/* Information Note */}
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-600 mb-2">
+              <strong>Note:</strong> Notification costs are separate from your event creation fee and will be added to your total payment.
+            </p>
+            <p className="text-sm text-gray-600">
+              You can purchase additional credits anytime from your event dashboard to send more notifications.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
     </div>
   );
