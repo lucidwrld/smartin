@@ -106,9 +106,7 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
     },
     {
       title: "Invitation Management",
-      items: [
-        { id: 18, name: "Invitation Management", icon: Mail },
-      ],
+      items: [{ id: 18, name: "Invitation Management", icon: Mail }],
     },
     {
       title: "Experience",
@@ -173,9 +171,7 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
                       </h3>
                       <div className="space-y-1">
                         {section.items.map((item) => {
-                          const isDisabled =
-                            !event?.data?.isPaid &&
-                            [1, 2, 3, 4].includes(item.id);
+                          const isDisabled = !event?.data?.isPaid;
                           const IconComponent = item.icon;
                           return (
                             <button
