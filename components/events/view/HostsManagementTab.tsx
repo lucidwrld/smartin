@@ -21,7 +21,9 @@ import {
 } from "lucide-react";
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
+import ImageUploader from "@/components/ImageUploader";
 import { AddHostsManager, UpdateHostsManager, DeleteHostsManager } from "@/app/events/controllers/eventManagementController";
+import useFileUpload from "@/utils/fileUploadController";
 
 interface HostsManagementTabProps {
   event: Event;
@@ -40,6 +42,7 @@ interface HostFormData {
   linkedin: string;
   twitter: string;
   instagram: string;
+  role: string;
 }
 
 const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event }) => {
@@ -53,7 +56,18 @@ const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event }) => {
   const { updateHosts, isLoading: updating, isSuccess: updateSuccess } = UpdateHostsManager();
   const { deleteHosts, isLoading: deleting, isSuccess: deleteSuccess } = DeleteHostsManager();
 
-  const isLoading = adding || updating || deleting;
+  // File upload hook for profile image uploads
+  const {
+    handleFileUpload: uploadFile,
+    isLoading: uploadingFile,
+    progress: uploadProgress,
+    error: uploadError,
+  } = useFileUpload();
+
+  const [imageUploadMode, setImageUploadMode] = useState<"url" | "upload">("url");
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+
+  const isLoading = adding || updating || deleting || uploadingFile;
 
   const [formData, setFormData] = useState<HostFormData>({
     name: "",
@@ -68,7 +82,17 @@ const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event }) => {
     linkedin: "",
     twitter: "",
     instagram: "",
+    role: "host",
   });
+
+  const roleTypes = [
+    { value: "host", label: "Host" },
+    { value: "co-host", label: "Co-Host" },
+    { value: "special_guest", label: "Special Guest" },
+    { value: "keynote_speaker", label: "Keynote Speaker" },
+    { value: "moderator", label: "Moderator" },
+    { value: "organizer", label: "Organizer" }
+  ];
 
   const handleOpenModal = (host: Host | null = null): void => {
     setEditingHost(host);
@@ -87,6 +111,7 @@ const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event }) => {
         linkedin: host.linkedin || "",
         twitter: host.twitter || "",
         instagram: host.instagram || "",
+        role: host.role || "host",
       });
     } else {
       setFormData({
@@ -102,15 +127,34 @@ const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event }) => {
         linkedin: "",
         twitter: "",
         instagram: "",
+        role: "host",
       });
     }
     
     setShowModal(true);
   };
 
+  const handleImageFileSelect = (file: File | null): void => {
+    if (!file) {
+      // Handle image removal
+      setSelectedImageFile(null);
+      setFormData(prev => ({ ...prev, profile_image: "" }));
+      return;
+    }
+
+    // Just capture the file, don't upload yet
+    setSelectedImageFile(file);
+    
+    // Create preview URL for display
+    const previewUrl = URL.createObjectURL(file);
+    setFormData(prev => ({ ...prev, profile_image: previewUrl }));
+  };
+
   const handleCloseModal = (): void => {
     setShowModal(false);
     setEditingHost(null);
+    setImageUploadMode("url");
+    setSelectedImageFile(null);
     setFormData({
       name: "",
       title: "",
@@ -124,6 +168,7 @@ const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event }) => {
       linkedin: "",
       twitter: "",
       instagram: "",
+      role: "host",
     });
   };
 
@@ -141,6 +186,13 @@ const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event }) => {
     }
     
     try {
+      let imageUrl = formData.profile_image;
+
+      // If there's a selected file and we're in upload mode, upload it first
+      if (selectedImageFile && imageUploadMode === "upload") {
+        imageUrl = await uploadFile(selectedImageFile);
+      }
+
       // Use exact backend payload structure
       const hostData = {
         name: formData.name,
@@ -148,13 +200,14 @@ const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event }) => {
         organization: formData.organization,
         email: formData.email,
         phone: formData.phone,
-        profile_image: formData.profile_image,
+        profile_image: imageUrl,
         description: formData.description,
         areas_of_expertise: formData.areas_of_expertise,
         website: formData.website,
         linkedin: formData.linkedin,
         twitter: formData.twitter,
         instagram: formData.instagram,
+        role: formData.role,
       };
 
       if (editingHost) {
@@ -182,6 +235,28 @@ const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event }) => {
     } catch (error) {
       console.error("Error deleting host:", error);
       alert("Error deleting host. Please try again.");
+    }
+  };
+
+  const getRoleColor = (roleType: string): string => {
+    const colors: Record<string, string> = {
+      host: "bg-purple-100 text-purple-800",
+      "co-host": "bg-blue-100 text-blue-800",
+      special_guest: "bg-yellow-100 text-yellow-800",
+      keynote_speaker: "bg-green-100 text-green-800",
+      moderator: "bg-gray-100 text-gray-800",
+      organizer: "bg-pink-100 text-pink-800"
+    };
+    return colors[roleType] || "bg-gray-100 text-gray-800";
+  };
+
+  const getRoleIcon = (roleType: string): JSX.Element => {
+    switch (roleType) {
+      case "keynote_speaker":
+      case "special_guest":
+        return <Crown className="w-4 h-4" />;
+      default:
+        return <User className="w-4 h-4" />;
     }
   };
 
@@ -284,6 +359,13 @@ const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event }) => {
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
+                </div>
+
+                <div className="mb-3">
+                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(host.role)}`}>
+                    {getRoleIcon(host.role)}
+                    {roleTypes.find(r => r.value === host.role)?.label || host.role}
+                  </span>
                 </div>
 
                 {host.description && (
@@ -391,15 +473,34 @@ const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event }) => {
                   />
                 </div>
 
-                <InputWithFullBoarder
-                  label="Organization"
-                  placeholder="Company or organization name"
-                  value={formData.organization}
-                  onChange={(e) => handleInputChange("organization", e.target.value)}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <InputWithFullBoarder
+                    label="Organization"
+                    placeholder="Company or organization name"
+                    value={formData.organization}
+                    onChange={(e) => handleInputChange("organization", e.target.value)}
+                  />
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Role Type
+                    </label>
+                    <select
+                      value={formData.role}
+                      onChange={(e) => handleInputChange("role", e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                    >
+                      {roleTypes.map((role) => (
+                        <option key={role.value} value={role.value}>
+                          {role.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
                 <InputWithFullBoarder
-                  label="Bio/Description"
+                  label="Description"
                   placeholder="Brief description about this person"
                   isTextArea={true}
                   rows={3}
@@ -424,16 +525,79 @@ const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event }) => {
                   />
                 </div>
 
-                <InputWithFullBoarder
-                  label="Profile Image URL"
-                  placeholder="https://example.com/image.jpg"
-                  value={formData.profile_image}
-                  onChange={(e) => handleInputChange("profile_image", e.target.value)}
-                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Profile Image
+                  </label>
+                  
+                  {/* Upload Mode Toggle */}
+                  <div className="flex gap-2 mb-3">
+                    <button
+                      type="button"
+                      onClick={() => setImageUploadMode("url")}
+                      className={`px-3 py-1 text-xs rounded ${
+                        imageUploadMode === "url"
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-200 text-gray-700"
+                      }`}
+                    >
+                      <Link className="w-3 h-3 inline mr-1" />
+                      URL
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setImageUploadMode("upload")}
+                      className={`px-3 py-1 text-xs rounded ${
+                        imageUploadMode === "upload"
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-200 text-gray-700"
+                      }`}
+                    >
+                      <Upload className="w-3 h-3 inline mr-1" />
+                      Upload
+                    </button>
+                  </div>
+
+                  {imageUploadMode === "url" ? (
+                    <InputWithFullBoarder
+                      placeholder="https://example.com/image.jpg"
+                      value={formData.profile_image}
+                      onChange={(e) => handleInputChange("profile_image", e.target.value)}
+                    />
+                  ) : (
+                    <div>
+                      <ImageUploader
+                        onImageChange={handleImageFileSelect}
+                        currentImage={formData.profile_image}
+                        height="h-32"
+                        label="Drop profile image here or click to browse"
+                        acceptedFormats="PNG, JPG, GIF or SVG"
+                      />
+                      {uploadingFile && (
+                        <div className="mt-2">
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${uploadProgress}%` }}
+                            ></div>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Uploading... {uploadProgress}%
+                          </p>
+                        </div>
+                      )}
+                      {uploadError && (
+                        <p className="text-xs text-red-500 mt-1">
+                          {uploadError}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
 
                 <InputWithFullBoarder
                   label="Areas of Expertise"
-                  placeholder="Event Management, Public Speaking, Technology (Comma Separated)"
+                  placeholder="Event Management, Public Speaking, Technology"
                   value={formData.areas_of_expertise}
                   onChange={(e) => handleInputChange("areas_of_expertise", e.target.value)}
                 />

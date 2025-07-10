@@ -1,5 +1,7 @@
 import usePostManager from "@/constants/controller_templates/post_controller_template";
 import { Stakeholder } from "../types";
+import useUpdateManager from "@/constants/controller_templates/put_controller_template";
+import useDeleteManager from "@/constants/controller_templates/delete_controller_template";
 
 interface AddStakeholdersPayload {
   eventId: string;
@@ -13,17 +15,21 @@ interface AddStakeholdersResponse {
 }
 
 export const AddStakeholdersManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<AddStakeholdersResponse>(
-    `/event/add/stakeholders`,
-    ["stakeholders"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<AddStakeholdersResponse>(
+      `/event/add/stakeholders`,
+      ["event"],
+      true
+    );
 
-  const addStakeholders = async (eventId: string, stakeholders: Stakeholder[]) => {
+  const addStakeholders = async (
+    eventId: string,
+    stakeholders: Stakeholder[]
+  ) => {
     try {
       const payload: AddStakeholdersPayload = {
         eventId,
-        data: stakeholders
+        data: stakeholders,
       };
       await postCaller(payload);
     } catch (error) {
@@ -42,19 +48,23 @@ export const AddStakeholdersManager = () => {
 
 // Update Stakeholders Controller
 export const UpdateStakeholdersManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<AddStakeholdersResponse>(
-    `/event/update/stakeholders`,
-    ["stakeholders"],
-    true
-  );
+  const { updateCaller, isLoading, isSuccess, error, data } =
+    useUpdateManager<AddStakeholdersResponse>(
+      `/event/update/stakeholders`,
+      ["event"],
+      true
+    );
 
-  const updateStakeholders = async (eventId: string, stakeholders: Stakeholder[]) => {
+  const updateStakeholders = async (
+    eventId: string,
+    stakeholders: Stakeholder[]
+  ) => {
     try {
       const payload: AddStakeholdersPayload = {
         eventId,
-        data: stakeholders
+        data: stakeholders,
       };
-      await postCaller(payload);
+      await updateCaller(payload);
     } catch (error) {
       console.error("Error updating stakeholders:", error);
     }
@@ -69,21 +79,25 @@ export const UpdateStakeholdersManager = () => {
   };
 };
 
-// Delete Stakeholders Controller  
+// Delete Stakeholders Controller
 export const DeleteStakeholdersManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<AddStakeholdersResponse>(
-    `/api/v1/event/delete/stakeholders`,
-    ["stakeholders"],
-    true
-  );
+  const { deleteCaller, isLoading, isSuccess, error, data } =
+    useDeleteManager<AddStakeholdersResponse>(
+      `/api/v1/event/delete/stakeholders`,
+      ["stakeholders"],
+      true
+    );
 
-  const deleteStakeholders = async (eventId: string, stakeholderIds: string[]) => {
+  const deleteStakeholders = async (
+    eventId: string,
+    stakeholderIds: string[]
+  ) => {
     try {
       const payload = {
         eventId,
-        stakeholderIds
+        stakeholderIds,
       };
-      await postCaller(payload);
+      await deleteCaller(payload);
     } catch (error) {
       console.error("Error deleting stakeholders:", error);
     }

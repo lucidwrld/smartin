@@ -140,6 +140,8 @@ export interface Vendor {
 }
 
 export interface Host {
+  _id?: string;
+  id?: string;
   name: string;
   title: string;
   organization: string;
@@ -152,9 +154,16 @@ export interface Host {
   linkedin: string;
   twitter: string;
   instagram: string;
+  role: string;
+  event?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
 }
 
 export interface Sponsor {
+  _id?: string;
+  id?: string;
   name: string;
   logo: string;
   website: string;
@@ -163,20 +172,32 @@ export interface Sponsor {
   contact_person: string;
   contact_email: string;
   contribution_benefits: string;
+  event?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
 }
 
 export interface Partner {
+  _id?: string;
+  id?: string;
   name: string;
-  description: string;
+  descritpion: string; // Backend typo
   logo: string;
   website: string;
   contact_person: string;
   contact_email: string;
   partnership_type: string;
   details: string;
+  event?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
 }
 
 export interface Stakeholder {
+  _id: string;
+  id: string;
   name: string;
   title: string;
   organization: string;
@@ -192,6 +213,12 @@ export interface Stakeholder {
   responsibilities: string;
   expertise: string;
   notes: string;
+  event: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  // Frontend-only fields
+  last_contact?: string;
 }
 
 // Main Event Interface

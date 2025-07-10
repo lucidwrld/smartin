@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { Event, Stakeholder } from "@/app/events/types";
 import {
   Plus,
   Trash2,
@@ -24,28 +25,49 @@ import {
 } from "lucide-react";
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
-import { AddStakeholdersManager, UpdateStakeholdersManager, DeleteStakeholdersManager } from "@/app/events/controllers/stakeholdersController";
+import {
+  AddStakeholdersManager,
+  UpdateStakeholdersManager,
+  DeleteStakeholdersManager,
+} from "@/app/events/controllers/stakeholdersController";
 
-const StakeholderCard = ({ stakeholder, onEdit, onDelete, onToggleStatus, isLoading }) => {
+interface StakeholderCardProps {
+  stakeholder: Stakeholder;
+  onEdit: (stakeholder: Stakeholder) => void;
+  onDelete: (stakeholderId: string) => void;
+  onToggleStatus: (stakeholderId: string, newStatus: string) => void;
+  isLoading: boolean;
+}
+
+const StakeholderCard: React.FC<StakeholderCardProps> = ({
+  stakeholder,
+  onEdit,
+  onDelete,
+  onToggleStatus,
+  isLoading,
+}) => {
   const {
     id,
     name,
     title,
     organization,
     role,
-    contact_info,
     involvement_level,
     status,
     notes,
     responsibilities,
-    expertise_areas,
+    expertise,
     availability,
     priority,
-    last_contact,
-    created_at,
+    email,
+    phone,
+    address,
+    website,
+    createdAt,
+    updatedAt,
   } = stakeholder;
 
-  const getRoleIcon = (role) => {
+  const getRoleIcon = (role: string): JSX.Element => {
     switch (role) {
       case "sponsor":
         return <Crown className="w-5 h-5 text-yellow-600" />;
@@ -64,7 +86,7 @@ const StakeholderCard = ({ stakeholder, onEdit, onDelete, onToggleStatus, isLoad
     }
   };
 
-  const getRoleColor = (role) => {
+  const getRoleColor = (role: string): string => {
     switch (role) {
       case "sponsor":
         return "bg-yellow-100 text-yellow-800";
@@ -83,7 +105,7 @@ const StakeholderCard = ({ stakeholder, onEdit, onDelete, onToggleStatus, isLoad
     }
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string): string => {
     switch (status) {
       case "active":
         return "bg-green-100 text-green-800";
@@ -98,7 +120,7 @@ const StakeholderCard = ({ stakeholder, onEdit, onDelete, onToggleStatus, isLoad
     }
   };
 
-  const getPriorityColor = (priority) => {
+  const getPriorityColor = (priority: string): string => {
     switch (priority) {
       case "high":
         return "bg-red-100 text-red-800";
@@ -111,7 +133,7 @@ const StakeholderCard = ({ stakeholder, onEdit, onDelete, onToggleStatus, isLoad
     }
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string): string => {
     try {
       return new Date(dateString).toLocaleDateString();
     } catch (e) {
@@ -119,14 +141,16 @@ const StakeholderCard = ({ stakeholder, onEdit, onDelete, onToggleStatus, isLoad
     }
   };
 
-  const renderStars = (level) => {
+  const renderStars = (level: number): JSX.Element[] => {
     const starCount = Math.min(parseInt(level) || 0, 5);
     return Array.from({ length: 5 }, (_, index) => (
       <Star
         key={index}
         size={12}
         className={`${
-          index < starCount ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
+          index < starCount
+            ? "text-yellow-400 fill-yellow-400"
+            : "text-gray-300"
         }`}
       />
     ));
@@ -142,19 +166,29 @@ const StakeholderCard = ({ stakeholder, onEdit, onDelete, onToggleStatus, isLoad
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h4 className="font-medium text-gray-900 truncate">{name}</h4>
-              <span className={`px-2 py-1 text-xs rounded ${getRoleColor(role)}`}>
+              <span
+                className={`px-2 py-1 text-xs rounded ${getRoleColor(role)}`}
+              >
                 {role}
               </span>
-              <span className={`px-2 py-1 text-xs rounded ${getStatusColor(status)}`}>
+              <span
+                className={`px-2 py-1 text-xs rounded ${getStatusColor(
+                  status
+                )}`}
+              >
                 {status}
               </span>
               {priority && (
-                <span className={`px-2 py-1 text-xs rounded ${getPriorityColor(priority)}`}>
+                <span
+                  className={`px-2 py-1 text-xs rounded ${getPriorityColor(
+                    priority
+                  )}`}
+                >
                   {priority} priority
                 </span>
               )}
             </div>
-            
+
             <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
               {title && (
                 <span className="flex items-center gap-1">
@@ -171,28 +205,30 @@ const StakeholderCard = ({ stakeholder, onEdit, onDelete, onToggleStatus, isLoad
               {involvement_level && (
                 <div className="flex items-center gap-1">
                   <span className="text-xs">Involvement:</span>
-                  <div className="flex gap-1">{renderStars(involvement_level)}</div>
+                  <div className="flex gap-1">
+                    {renderStars(involvement_level)}
+                  </div>
                 </div>
               )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600 mb-2">
-              {contact_info?.email && (
+              {email && (
                 <span className="flex items-center gap-1">
                   <Mail className="w-3 h-3" />
-                  {contact_info.email}
+                  {email}
                 </span>
               )}
-              {contact_info?.phone && (
+              {phone && (
                 <span className="flex items-center gap-1">
                   <Phone className="w-3 h-3" />
-                  {contact_info.phone}
+                  {phone}
                 </span>
               )}
-              {contact_info?.address && (
+              {address && (
                 <span className="flex items-center gap-1">
                   <MapPin className="w-3 h-3" />
-                  {contact_info.address}
+                  {address}
                 </span>
               )}
               {availability && (
@@ -203,31 +239,41 @@ const StakeholderCard = ({ stakeholder, onEdit, onDelete, onToggleStatus, isLoad
               )}
             </div>
 
-            {expertise_areas && expertise_areas.length > 0 && (
+            {expertise && (
               <div className="mb-2 flex flex-wrap gap-1">
-                {expertise_areas.slice(0, 3).map((area, index) => (
-                  <span
-                    key={index}
-                    className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
-                  >
-                    {area}
+                {expertise
+                  .split(", ")
+                  .slice(0, 3)
+                  .map((area, index) => (
+                    <span
+                      key={index}
+                      className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
+                    >
+                      {area}
+                    </span>
+                  ))}
+                {expertise.split(", ").length > 3 && (
+                  <span className="text-xs text-gray-500">
+                    +{expertise.split(", ").length - 3} more
                   </span>
-                ))}
-                {expertise_areas.length > 3 && (
-                  <span className="text-xs text-gray-500">+{expertise_areas.length - 3} more</span>
                 )}
               </div>
             )}
 
-            {responsibilities && responsibilities.length > 0 && (
+            {responsibilities && (
               <div className="mb-2">
-                <h5 className="text-xs font-medium text-gray-700 mb-1">Responsibilities:</h5>
+                <h5 className="text-xs font-medium text-gray-700 mb-1">
+                  Responsibilities:
+                </h5>
                 <ul className="text-xs text-gray-600 list-disc list-inside">
-                  {responsibilities.slice(0, 2).map((resp, index) => (
-                    <li key={index}>{resp}</li>
-                  ))}
-                  {responsibilities.length > 2 && (
-                    <li>+{responsibilities.length - 2} more...</li>
+                  {responsibilities
+                    .split(", ")
+                    .slice(0, 2)
+                    .map((resp, index) => (
+                      <li key={index}>{resp}</li>
+                    ))}
+                  {responsibilities.split(", ").length > 2 && (
+                    <li>+{responsibilities.split(", ").length - 2} more...</li>
                   )}
                 </ul>
               </div>
@@ -238,24 +284,18 @@ const StakeholderCard = ({ stakeholder, onEdit, onDelete, onToggleStatus, isLoad
             )}
 
             <div className="flex items-center gap-4 text-xs text-gray-500 mt-2">
-              {last_contact && (
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  Last contact: {formatDate(last_contact)}
-                </span>
-              )}
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
-                Added: {formatDate(created_at)}
+                Added: {formatDate(createdAt)}
               </span>
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-2 ml-2">
-          {contact_info?.website && (
+          {website && (
             <a
-              href={contact_info.website}
+              href={website}
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 text-blue-500 hover:bg-blue-50 rounded-full transition-colors"
@@ -299,23 +339,54 @@ const StakeholderCard = ({ stakeholder, onEdit, onDelete, onToggleStatus, isLoad
   );
 };
 
-const StakeholderModal = ({ isOpen, onClose, stakeholder, onSave, isLoading }) => {
-  const [formData, setFormData] = useState({
+interface StakeholderModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  stakeholder: Stakeholder | null;
+  onSave: (stakeholderData: any) => void;
+  isLoading: boolean;
+}
+
+interface StakeholderFormData {
+  name: string;
+  title: string;
+  organization: string;
+  role: string;
+  email: string;
+  phone: string;
+  address: string;
+  website: string;
+  involvement_level: string;
+  status: string;
+  notes: string;
+  responsibilities: string;
+  expertise: string;
+  availability: string;
+  priority: string;
+  last_contact: string;
+}
+
+const StakeholderModal: React.FC<StakeholderModalProps> = ({
+  isOpen,
+  onClose,
+  stakeholder,
+  onSave,
+  isLoading,
+}) => {
+  const [formData, setFormData] = useState<StakeholderFormData>({
     name: "",
     title: "",
     organization: "",
     role: "organizer",
-    contact_info: {
-      email: "",
-      phone: "",
-      address: "",
-      website: "",
-    },
+    email: "",
+    phone: "",
+    address: "",
+    website: "",
     involvement_level: "3",
     status: "pending",
     notes: "",
-    responsibilities: [],
-    expertise_areas: [],
+    responsibilities: "",
+    expertise: "",
     availability: "",
     priority: "medium",
     last_contact: "",
@@ -327,18 +398,18 @@ const StakeholderModal = ({ isOpen, onClose, stakeholder, onSave, isLoading }) =
         name: stakeholder.name || "",
         title: stakeholder.title || "",
         organization: stakeholder.organization || "",
-        role: stakeholder.role || "organizer",
-        contact_info: stakeholder.contact_info || {
-          email: "",
-          phone: "",
-          address: "",
-          website: "",
-        },
-        involvement_level: stakeholder.involvement_level || "3",
+        role: stakeholder.role?.toLowerCase() || "organizer",
+        email: stakeholder.email || "",
+        phone: stakeholder.phone || "",
+        address: stakeholder.address || "",
+        website: stakeholder.website || "",
+        involvement_level: String(stakeholder.involvement_level || "3"),
         status: stakeholder.status || "pending",
         notes: stakeholder.notes || "",
-        responsibilities: stakeholder.responsibilities || [],
-        expertise_areas: stakeholder.expertise_areas || [],
+        responsibilities: stakeholder.responsibilities
+          ? stakeholder.responsibilities.split(", ").join("\n")
+          : "",
+        expertise: stakeholder.expertise || "",
         availability: stakeholder.availability || "",
         priority: stakeholder.priority || "medium",
         last_contact: stakeholder.last_contact || "",
@@ -349,17 +420,15 @@ const StakeholderModal = ({ isOpen, onClose, stakeholder, onSave, isLoading }) =
         title: "",
         organization: "",
         role: "organizer",
-        contact_info: {
-          email: "",
-          phone: "",
-          address: "",
-          website: "",
-        },
+        email: "",
+        phone: "",
+        address: "",
+        website: "",
         involvement_level: "3",
         status: "pending",
         notes: "",
-        responsibilities: [],
-        expertise_areas: [],
+        responsibilities: "",
+        expertise: "",
         availability: "",
         priority: "medium",
         last_contact: "",
@@ -368,43 +437,31 @@ const StakeholderModal = ({ isOpen, onClose, stakeholder, onSave, isLoading }) =
   }, [stakeholder, isOpen]);
 
   const handleArrayFieldChange = (field, value) => {
-    const arrayValue = value
-      .split("\n")
-      .map(item => item.trim())
-      .filter(item => item.length > 0);
-    setFormData({ ...formData, [field]: arrayValue });
+    // Just store the raw value - we'll convert when submitting
+    setFormData({ ...formData, [field]: value });
   };
 
   const handleExpertiseChange = (value) => {
-    const expertiseArray = value
-      .split(",")
-      .map(area => area.trim())
-      .filter(area => area.length > 0);
-    setFormData({ ...formData, expertise_areas: expertiseArray });
+    // Store as string for backend - allow commas and spaces
+    setFormData({ ...formData, expertise: value });
   };
 
-  const handleContactInfoChange = (field, value) => {
-    setFormData({
-      ...formData,
-      contact_info: {
-        ...formData.contact_info,
-        [field]: value
-      }
-    });
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.role) {
       alert("Please fill in all required fields");
       return;
     }
 
+    // Convert responsibilities from lines to comma-separated
     const stakeholderData = {
       ...formData,
-      id: stakeholder?.id || `stakeholder_${Date.now()}`,
+      id: stakeholder?.id,
       involvement_level: parseInt(formData.involvement_level),
-      created_at: stakeholder?.created_at || new Date().toISOString(),
+      responsibilities: formData.responsibilities
+        .split("\n")
+        .filter((line) => line.trim())
+        .join(", "),
     };
 
     onSave(stakeholderData);
@@ -505,19 +562,25 @@ const StakeholderModal = ({ isOpen, onClose, stakeholder, onSave, isLoading }) =
 
             {/* Contact Information */}
             <div className="border-t pt-4">
-              <h4 className="font-medium text-gray-900 mb-3">Contact Information</h4>
+              <h4 className="font-medium text-gray-900 mb-3">
+                Contact Information
+              </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <InputWithFullBoarder
                   label="Email"
-                  value={formData.contact_info.email}
-                  onChange={(e) => handleContactInfoChange("email", e.target.value)}
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   placeholder="email@example.com"
                   type="email"
                 />
                 <InputWithFullBoarder
                   label="Phone"
-                  value={formData.contact_info.phone}
-                  onChange={(e) => handleContactInfoChange("phone", e.target.value)}
+                  value={formData.phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
                   placeholder="+1 (555) 123-4567"
                   type="tel"
                 />
@@ -525,14 +588,18 @@ const StakeholderModal = ({ isOpen, onClose, stakeholder, onSave, isLoading }) =
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <InputWithFullBoarder
                   label="Address"
-                  value={formData.contact_info.address}
-                  onChange={(e) => handleContactInfoChange("address", e.target.value)}
+                  value={formData.address}
+                  onChange={(e) =>
+                    setFormData({ ...formData, address: e.target.value })
+                  }
                   placeholder="Business address"
                 />
                 <InputWithFullBoarder
                   label="Website"
-                  value={formData.contact_info.website}
-                  onChange={(e) => handleContactInfoChange("website", e.target.value)}
+                  value={formData.website}
+                  onChange={(e) =>
+                    setFormData({ ...formData, website: e.target.value })
+                  }
                   placeholder="https://example.com"
                   type="url"
                 />
@@ -583,7 +650,10 @@ const StakeholderModal = ({ isOpen, onClose, stakeholder, onSave, isLoading }) =
                 <select
                   value={formData.involvement_level}
                   onChange={(e) =>
-                    setFormData({ ...formData, involvement_level: e.target.value })
+                    setFormData({
+                      ...formData,
+                      involvement_level: e.target.value,
+                    })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                 >
@@ -605,33 +675,42 @@ const StakeholderModal = ({ isOpen, onClose, stakeholder, onSave, isLoading }) =
                 }
                 placeholder="e.g., Weekdays 9-5, Weekends only"
               />
-              <InputWithFullBoarder
-                label="Last Contact Date"
-                value={formData.last_contact}
-                onChange={(e) =>
-                  setFormData({ ...formData, last_contact: e.target.value })
-                }
-                type="date"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Last Contact Date
+                </label>
+                <input
+                  type="date"
+                  value={formData.last_contact}
+                  onChange={(e) =>
+                    setFormData({ ...formData, last_contact: e.target.value })
+                  }
+                  max={new Date().toISOString().split("T")[0]}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Select when you last contacted this person (today or earlier)
+                </p>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Responsibilities (one per line)
-                </label>
-                <textarea
-                  value={formData.responsibilities.join("\n")}
-                  onChange={(e) => handleArrayFieldChange("responsibilities", e.target.value)}
-                  placeholder="Event coordination&#10;Budget management&#10;Vendor relations"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                  rows={3}
-                />
-              </div>
+              <InputWithFullBoarder
+                label="Responsibilities (one per line)"
+                value={formData.responsibilities}
+                onChange={(e) =>
+                  setFormData({ ...formData, responsibilities: e.target.value })
+                }
+                className={"h-[100px]"}
+                isTextArea={true}
+                placeholder="Event coordination&#10;Budget management&#10;Vendor relations"
+              />
               <InputWithFullBoarder
                 label="Expertise Areas (comma-separated)"
-                value={formData.expertise_areas.join(", ")}
-                onChange={(e) => handleExpertiseChange(e.target.value)}
+                value={formData.expertise}
+                onChange={(e) =>
+                  setFormData({ ...formData, expertise: e.target.value })
+                }
                 placeholder="marketing, event planning, logistics"
               />
             </div>
@@ -649,7 +728,9 @@ const StakeholderModal = ({ isOpen, onClose, stakeholder, onSave, isLoading }) =
 
             <div className="flex gap-3 pt-4">
               <CustomButton
-                buttonText={stakeholder ? "Update Stakeholder" : "Add Stakeholder"}
+                buttonText={
+                  stakeholder ? "Update Stakeholder" : "Add Stakeholder"
+                }
                 type="submit"
                 isLoading={isLoading}
                 buttonColor="bg-purple-600"
@@ -670,85 +751,88 @@ const StakeholderModal = ({ isOpen, onClose, stakeholder, onSave, isLoading }) =
   );
 };
 
-const StakeholdersManagementTab = ({ event }) => {
-  const [stakeholders, setStakeholders] = useState([]);
+interface StakeholdersManagementTabProps {
+  event: Event;
+}
+
+const StakeholdersManagementTab: React.FC<StakeholdersManagementTabProps> = ({
+  event,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStakeholder, setEditingStakeholder] = useState(null);
-  const [filterRole, setFilterRole] = useState("all");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [filterPriority, setFilterPriority] = useState("all");
 
   // Controllers
-  const { addStakeholders, isLoading: adding, isSuccess: addSuccess } = AddStakeholdersManager();
-  const { updateStakeholders, isLoading: updating, isSuccess: updateSuccess } = UpdateStakeholdersManager();
-  const { deleteStakeholders, isLoading: deleting, isSuccess: deleteSuccess } = DeleteStakeholdersManager();
+  const {
+    addStakeholders,
+    isLoading: adding,
+    isSuccess: addSuccess,
+  } = AddStakeholdersManager();
+  const {
+    updateStakeholders,
+    isLoading: updating,
+    isSuccess: updateSuccess,
+  } = UpdateStakeholdersManager();
+  const {
+    deleteStakeholders,
+    isLoading: deleting,
+    isSuccess: deleteSuccess,
+  } = DeleteStakeholdersManager();
 
   const isLoading = adding || updating || deleting;
 
-  // Initialize with real data from event
-  React.useEffect(() => {
-    if (event?.stakeholders && Array.isArray(event.stakeholders)) {
-      setStakeholders(event.stakeholders);
-    } else {
-      setStakeholders([]);
-    }
-  }, [event]);
+  // Get stakeholders directly from event prop - no local storage
+  const stakeholders =
+    event?.stakeholders && Array.isArray(event.stakeholders)
+      ? event.stakeholders
+      : [];
 
-  const handleAddStakeholder = () => {
+  const handleAddStakeholder = (): void => {
     setEditingStakeholder(null);
     setIsModalOpen(true);
   };
 
-  const handleEditStakeholder = (stakeholder) => {
+  const handleEditStakeholder = (stakeholder: Stakeholder): void => {
     setEditingStakeholder(stakeholder);
     setIsModalOpen(true);
   };
 
-  const handleSaveStakeholder = async (stakeholderData) => {
+  const handleSaveStakeholder = async (stakeholderData: any): Promise<void> => {
     try {
-      // Include ALL frontend data points, even if backend doesn't support them yet
+      // Format data to match backend expectations
       const completeStakeholderData = {
-        // Basic backend-supported fields
         name: stakeholderData.name,
         title: stakeholderData.title,
         organization: stakeholderData.organization,
-        role: stakeholderData.role,
-        email: stakeholderData.contact_info?.email || "",
-        phone: stakeholderData.contact_info?.phone || "",
-        address: stakeholderData.contact_info?.address || "",
-        website: stakeholderData.contact_info?.website || "",
+        role:
+          stakeholderData.role.charAt(0).toUpperCase() +
+          stakeholderData.role.slice(1), // Capitalize role
+        email: stakeholderData.email || "",
+        phone: stakeholderData.phone || "",
+        address: stakeholderData.address || "",
+        website: stakeholderData.website || "",
         status: stakeholderData.status,
         priority: stakeholderData.priority,
-        involvement_level: stakeholderData.involvement_level,
+        involvement_level: parseInt(stakeholderData.involvement_level),
         availability: stakeholderData.availability,
         responsibilities: stakeholderData.responsibilities,
-        expertise: Array.isArray(stakeholderData.expertise_areas) 
-          ? stakeholderData.expertise_areas.join(", ") 
-          : stakeholderData.expertise_areas,
+        expertise: stakeholderData.expertise,
         notes: stakeholderData.notes,
-
-        // ADDITIONAL frontend data points backend should support
-        contact_info: stakeholderData.contact_info, // Full contact structure
-        expertise_areas: stakeholderData.expertise_areas, // Array format
-        last_contact: stakeholderData.last_contact,
-        created_at: stakeholderData.created_at,
-        id: stakeholderData.id
+        last_contact: stakeholderData.last_contact || "",
       };
 
       if (editingStakeholder) {
-        // Update existing stakeholder
-        const updatedStakeholders = stakeholders.map(s => 
-          s.id === editingStakeholder.id ? stakeholderData : s
-        );
-        await updateStakeholders(event.id, [completeStakeholderData]);
-        setStakeholders(updatedStakeholders);
+        // Update existing stakeholder - include ID for update
+        await updateStakeholders(event.id, [
+          {
+            ...completeStakeholderData,
+            id: stakeholderData.id,
+          },
+        ]);
       } else {
         // Add new stakeholder
-        const newStakeholders = [...stakeholders, stakeholderData];
         await addStakeholders(event.id, [completeStakeholderData]);
-        setStakeholders(newStakeholders);
       }
-      
+
       setIsModalOpen(false);
       setEditingStakeholder(null);
     } catch (error) {
@@ -757,11 +841,12 @@ const StakeholdersManagementTab = ({ event }) => {
     }
   };
 
-  const handleDeleteStakeholder = async (stakeholderId) => {
+  const handleDeleteStakeholder = async (
+    stakeholderId: string
+  ): Promise<void> => {
     if (confirm("Are you sure you want to delete this stakeholder?")) {
       try {
         await deleteStakeholders(event.id, [stakeholderId]);
-        setStakeholders(stakeholders.filter(s => s.id !== stakeholderId));
       } catch (error) {
         console.error("Error deleting stakeholder:", error);
         alert("Error deleting stakeholder. Please try again.");
@@ -769,33 +854,45 @@ const StakeholdersManagementTab = ({ event }) => {
     }
   };
 
-  const handleToggleStatus = async (stakeholderId, newStatus) => {
+  const handleToggleStatus = async (
+    stakeholderId: string,
+    newStatus: string
+  ): Promise<void> => {
     try {
-      const updatedStakeholders = stakeholders.map(s => 
+      // Update stakeholder status
+      const updatedStakeholders = stakeholders.map((s) =>
         s.id === stakeholderId ? { ...s, status: newStatus } : s
       );
       await updateStakeholders(event.id, updatedStakeholders);
-      setStakeholders(updatedStakeholders);
     } catch (error) {
       console.error("Error updating stakeholder status:", error);
       alert("Error updating stakeholder status. Please try again.");
     }
   };
 
-  const filteredStakeholders = stakeholders.filter(stakeholder => {
-    const roleMatch = filterRole === "all" || stakeholder.role === filterRole;
-    const statusMatch = filterStatus === "all" || stakeholder.status === filterStatus;
-    const priorityMatch = filterPriority === "all" || stakeholder.priority === filterPriority;
-    return roleMatch && statusMatch && priorityMatch;
-  });
-
-  const roleOptions = ["all", ...new Set(stakeholders.map(s => s.role).filter(Boolean))];
+  // No local filtering - data comes pre-filtered from backend
+  const roleOptions = [
+    "all",
+    "sponsor",
+    "partner",
+    "speaker",
+    "organizer",
+    "volunteer",
+    "vendor",
+    "attendee",
+    "media",
+    "other",
+  ];
   const statusOptions = ["all", "active", "pending", "inactive", "declined"];
   const priorityOptions = ["all", "high", "medium", "low"];
 
   const totalStakeholders = stakeholders.length;
-  const activeStakeholders = stakeholders.filter(s => s.status === "active").length;
-  const highPriorityStakeholders = stakeholders.filter(s => s.priority === "high").length;
+  const activeStakeholders = stakeholders.filter(
+    (s) => s.status === "active"
+  ).length;
+  const highPriorityStakeholders = stakeholders.filter(
+    (s) => s.priority === "high"
+  ).length;
   const roleDistribution = stakeholders.reduce((acc, s) => {
     acc[s.role] = (acc[s.role] || 0) + 1;
     return acc;
@@ -846,10 +943,11 @@ const StakeholdersManagementTab = ({ event }) => {
             <div>
               <p className="text-sm text-gray-500">Top Role</p>
               <p className="text-2xl font-semibold text-purple-600">
-                {Object.keys(roleDistribution).length > 0 
-                  ? Object.entries(roleDistribution).reduce((a, b) => roleDistribution[a[0]] > roleDistribution[b[0]] ? a : b)[0]
-                  : "N/A"
-                }
+                {Object.keys(roleDistribution).length > 0
+                  ? Object.entries(roleDistribution).reduce((a, b) =>
+                      roleDistribution[a[0]] > roleDistribution[b[0]] ? a : b
+                    )[0]
+                  : "N/A"}
               </p>
             </div>
             <Award className="w-8 h-8 text-purple-500" />
@@ -857,59 +955,8 @@ const StakeholdersManagementTab = ({ event }) => {
         </div>
       </div>
 
-      {/* Controls */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex flex-wrap gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Filter by Role
-            </label>
-            <select
-              value={filterRole}
-              onChange={(e) => setFilterRole(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-            >
-              {roleOptions.map(role => (
-                <option key={role} value={role}>
-                  {role === "all" ? "All Roles" : role.charAt(0).toUpperCase() + role.slice(1)}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Filter by Status
-            </label>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-            >
-              {statusOptions.map(status => (
-                <option key={status} value={status}>
-                  {status === "all" ? "All Status" : status.charAt(0).toUpperCase() + status.slice(1)}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Filter by Priority
-            </label>
-            <select
-              value={filterPriority}
-              onChange={(e) => setFilterPriority(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-            >
-              {priorityOptions.map(priority => (
-                <option key={priority} value={priority}>
-                  {priority === "all" ? "All Priorities" : priority.charAt(0).toUpperCase() + priority.slice(1)}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
+      {/* Add Button */}
+      <div className="flex justify-end">
         <CustomButton
           buttonText="Add Stakeholder"
           onClick={handleAddStakeholder}
@@ -920,17 +967,18 @@ const StakeholdersManagementTab = ({ event }) => {
       </div>
 
       {/* Stakeholders List */}
-      {filteredStakeholders.length === 0 ? (
+      {stakeholders.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg border">
           <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {stakeholders.length === 0 ? "No stakeholders yet" : "No stakeholders match your filters"}
+            {stakeholders.length === 0
+              ? "No stakeholders yet"
+              : "No stakeholders match your filters"}
           </h3>
           <p className="text-gray-500 mb-4">
-            {stakeholders.length === 0 
+            {stakeholders.length === 0
               ? "Start by adding stakeholders for your event."
-              : "Try adjusting your filters to see more stakeholders."
-            }
+              : "Try adjusting your filters to see more stakeholders."}
           </p>
           {stakeholders.length === 0 && (
             <CustomButton
@@ -944,7 +992,7 @@ const StakeholdersManagementTab = ({ event }) => {
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredStakeholders.map((stakeholder) => (
+          {stakeholders.map((stakeholder) => (
             <StakeholderCard
               key={stakeholder.id}
               stakeholder={stakeholder}
