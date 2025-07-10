@@ -23,11 +23,11 @@ const EventsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [event, setEvent] = useState(null);
   const router = useRouter();
-  const { data, isLoading } = useGetAllEventsManager({ 
+  const { data, isLoading } = useGetAllEventsManager({
     page: currentPage,
     user: null,
     status: null,
-    date: null
+    date: null,
   });
   const { suspendEvent, isLoading: suspending } = SuspendEventManager({
     eventId: event,
@@ -118,7 +118,7 @@ const EventsPage = () => {
               selectedRows={[]}
               popUpFunction={(option, inx, val) => {
                 if (inx === 0) {
-                  router.push(`/admin/events/event?id=${val?.id}`);
+                  router.push(`/admin/events/${val?.id}`);
                 }
                 if (inx === 1) {
                   setEvent(val?.id);
