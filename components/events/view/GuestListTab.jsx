@@ -26,6 +26,9 @@ import { GuestEditModal, GuestViewModal } from "../GuestViewAndEditComponent";
 import useGetUserDetailsManager from "@/app/profile-settings/controllers/get_UserDetails_controller";
 import { SendNotificationManager } from "@/app/notifications/controllers/sendNotificationController";
 import { MarkAttendanceManager } from "@/app/events/controllers/markAttendanceController";
+import GuestListStep from "@/components/events/GuestListStep";
+import { ArrowLeft } from "lucide-react";
+import { AddInviteesManager } from "@/app/events/controllers/addInviteesController";
 
 const StatCard = ({ icon: Icon, label, value }) => (
   <div className="bg-white rounded-lg shadow p-3 md:p-4 w-full md:w-auto">
@@ -48,6 +51,52 @@ const GuestListTab = ({ eventId, analytics, event }) => {
   const [modalToOpen, setModalToOpen] = useState(null);
   const [selectedSession, setSelectedSession] = useState("all");
   const [showSessionModal, setShowSessionModal] = useState(false);
+  const [showAddGuest, setShowAddGuest] = useState(false);
+  const [guestFormData, setGuestFormData] = useState({ 
+    guestList: [{ name: "", email: "", phone: "" }] 
+  });
+
+  const handleGuestFormDataChange = (field, value) => {
+    setGuestFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const { addInvitees, isLoading: addingGuests, isSuccess: guestsAdded } = AddInviteesManager();
+
+  // Handle successful guest addition
+  useEffect(() => {
+    if (guestsAdded) {
+      // Reset form and go back to guest list
+      setGuestFormData({ guestList: [{ name: "", email: "", phone: "" }] });
+      setShowAddGuest(false);
+    }
+  }, [guestsAdded]);
+
+  const handleSubmitGuests = async () => {
+    try {
+      // Filter out empty guests and format the payload
+      const validGuests = guestFormData.guestList.filter(guest => 
+        guest.name && guest.name.trim() !== ""
+      );
+
+      if (validGuests.length === 0) {
+        alert("Please add at least one guest with a name");
+        return;
+      }
+
+      const payload = {
+        eventId: eventId,
+        invitees: validGuests.map(guest => ({
+          name: guest.name,
+          phone: guest.phone || "",
+          email: guest.email || ""
+        }))
+      };
+
+      await addInvitees(payload);
+    } catch (error) {
+      console.error("Error adding guests:", error);
+    }
+  };
   const [sessionForAttendance, setSessionForAttendance] = useState(null);
   const [guestForAttendance, setGuestForAttendance] = useState(null);
   const { data: userDetails } = useGetUserDetailsManager();
@@ -329,13 +378,53 @@ const GuestListTab = ({ eventId, analytics, event }) => {
           prefixIcon={<PlusIcon className="w-3 h-3 md:w-4 md:h-4" />}
           radius="rounded-full"
           className="text-xs md:text-sm w-full md:w-auto"
-          onClick={() =>
-            route.push(`/events/create-event?id=${eventId}&section=Guest List`)
-          }
+          onClick={() => setShowAddGuest(true)}
         />
       </div>
     );
   };
+
+  // Show Add Guest component if showAddGuest is true
+  if (showAddGuest) {
+    return (
+      <div className="mt-4 md:mt-6 flex flex-col w-full gap-3 md:gap-4 text-brandBlack p-2 md:p-0">
+        <div className="mb-6">
+          <CustomButton
+            buttonText="Back to Guest List"
+            prefixIcon={<ArrowLeft className="w-4 h-4" />}
+            onClick={() => setShowAddGuest(false)}
+            buttonColor="bg-gray-600"
+            radius="rounded-full"
+            className="text-sm"
+          />
+        </div>
+        <GuestListStep 
+          formData={guestFormData}
+          onFormDataChange={handleGuestFormDataChange}
+        />
+        
+        {/* Submit Button */}
+        <div className="mt-6 flex gap-3">
+          <CustomButton
+            buttonText="Add Guests"
+            onClick={handleSubmitGuests}
+            isLoading={addingGuests}
+            buttonColor="bg-purple-600"
+            radius="rounded-full"
+            className="text-sm"
+          />
+          <CustomButton
+            buttonText="Cancel"
+            onClick={() => setShowAddGuest(false)}
+            buttonColor="bg-gray-300"
+            textColor="text-gray-700"
+            radius="rounded-full"
+            className="text-sm"
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-4 md:mt-6 flex flex-col w-full gap-3 md:gap-4 text-brandBlack p-2 md:p-0">

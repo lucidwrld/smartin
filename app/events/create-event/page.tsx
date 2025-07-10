@@ -19,7 +19,6 @@ import useFileUpload from "@/utils/fileUploadController";
 import GoBackButton from "@/components/GoBackButton";
 
 import useGetUserDetailsManager from "@/app/profile-settings/controllers/get_UserDetails_controller";
-import { AddInviteesManager } from "../controllers/addInviteesController";
 import usePayForEventManager from "../controllers/payForEventController";
 
 const EventPage = () => {
@@ -36,11 +35,6 @@ const EventPage = () => {
   const [mediaFiles, setMediaFiles] = useState([]);
 
   const { data: userDetails } = useGetUserDetailsManager();
-  const {
-    addInvitees,
-    isLoading: adding,
-    isSuccess: added,
-  } = AddInviteesManager();
   const currency = userDetails?.data?.user?.currency || "USD";
 
   // Custom hooks
@@ -176,7 +170,7 @@ const EventPage = () => {
     }
   }, [isSuccess, createdEvent, formData.payment_type]);
 
-  const isSuccessful = updated || added;
+  const isSuccessful = updated;
 
   useEffect(() => {
     if (isSuccessful) {
@@ -558,10 +552,7 @@ const EventPage = () => {
       const isPaymentSection = section?.toLowerCase() === "payment";
 
       if (isEditMode) {
-        if (section?.toLowerCase() === "guest list") {
-          const details = { eventId: id, invitees: formData.guestList };
-          await addInvitees(details);
-        } else if (isPaymentSection) {
+        if (isPaymentSection) {
           await handlePayment(id);
         } else {
           await updateEvent(updatedFormData);
@@ -626,7 +617,7 @@ const EventPage = () => {
     );
   }
 
-  const isSubmitting = creating || updating || uploadingFile || adding;
+  const isSubmitting = creating || updating || uploadingFile;
 
   return (
     <BaseDashboardNavigation title={isEditMode ? "Edit Event" : "Create Event"}>

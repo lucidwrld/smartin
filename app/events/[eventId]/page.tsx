@@ -25,6 +25,7 @@ import {
   Folder,
   Speaker,
   Mail,
+  Camera,
 } from "lucide-react";
 import StatusCard from "@/components/StatusCard";
 import TabManager from "@/components/TabManager";
@@ -48,6 +49,7 @@ import HostsManagementTab from "@/components/events/view/HostsManagementTab";
 import BroadcastManagementTab from "@/components/events/view/BroadcastManagementTab";
 import SubscriptionManagementTab from "@/components/events/view/SubscriptionManagementTab";
 import SessionsManagementTab from "@/components/events/view/SessionsManagementTab";
+import GalleryManagementTab from "@/components/events/view/GalleryManagementTab";
 import FormsManagementTab from "@/components/events/view/FormsManagementTab";
 import InvitationManagementTab from "@/components/events/view/InvitationManagementTab";
 
@@ -85,6 +87,7 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
       title: "Event Management",
       items: [
         { id: 7, name: "Resources", icon: Folder },
+        { id: 19, name: "Gallery", icon: Camera },
         { id: 17, name: "Registration Form", icon: FileText },
         { id: 8, name: "Vendors", icon: Building },
         { id: 9, name: "Program", icon: FileText },
@@ -92,8 +95,8 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
         { id: 11, name: "Ticketing", icon: Ticket },
         { id: 13, name: "Sponsors & Partners", icon: Handshake },
         { id: 14, name: "Hosts & Figures", icon: Crown },
-        { id: 15, name: "Broadcast", icon: Speaker },
-        { id: 16, name: "Sessions", icon: Timer },
+        { id: 15, name: "Broadcast", icon: Speaker, comingSoon: true },
+        { id: 16, name: "Sessions", icon: Timer, comingSoon: true },
       ],
     },
     {
@@ -106,7 +109,7 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
     },
     {
       title: "Invitation Management",
-      items: [{ id: 18, name: "Invitation Management", icon: Mail }],
+      items: [{ id: 18, name: "Invitation Management", icon: Mail, comingSoon: true }],
     },
     {
       title: "Experience",
@@ -171,7 +174,7 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
                       </h3>
                       <div className="space-y-1">
                         {section.items.map((item) => {
-                          const isDisabled = !event?.data?.isPaid;
+                          const isDisabled = !event?.data?.isPaid || item.comingSoon;
                           const IconComponent = item.icon;
                           return (
                             <button
@@ -199,9 +202,14 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
                               <span className="flex-1 text-left">
                                 {item.name}
                               </span>
-                              {isDisabled && (
+                              {!event?.data?.isPaid && (
                                 <span className="ml-2 text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">
                                   Pro
+                                </span>
+                              )}
+                              {item.comingSoon && (
+                                <span className="ml-2 text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full">
+                                  Coming Soon
                                 </span>
                               )}
                             </button>
@@ -263,8 +271,9 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
             )}
             {currentView === 17 && <FormsManagementTab event={event?.data} />}
             {currentView === 18 && (
-              <InvitationManagementTab event={event?.data} eventId={eventId} />
+              <InvitationManagementTab event={event?.data} eventId={eventId} comingSoon={true} />
             )}
+            {currentView === 19 && <GalleryManagementTab event={event?.data} />}
           </div>
         </div>
       </div>
