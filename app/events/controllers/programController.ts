@@ -1,4 +1,6 @@
+import useDeleteManager from "@/constants/controller_templates/delete_controller_template";
 import usePostManager from "@/constants/controller_templates/post_controller_template";
+import useUpdateManager from "@/constants/controller_templates/put_controller_template";
 
 interface ProgramItem {
   description: string;
@@ -23,17 +25,14 @@ interface ProgramResponse {
 }
 
 export const AddProgramManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<ProgramResponse>(
-    `/event/add/program`,
-    ["program"],
-    true
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<ProgramResponse>(`/event/add/program`, ["event"], true);
 
   const addProgram = async (eventId: string, programItems: ProgramItem[]) => {
     try {
       const payload: AddProgramPayload = {
         eventId,
-        data: programItems
+        data: programItems,
       };
       await postCaller(payload);
     } catch (error) {
@@ -52,19 +51,19 @@ export const AddProgramManager = () => {
 
 // Update Program Controller
 export const UpdateProgramManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<ProgramResponse>(
-    `/event/update/program`,
-    ["program"],
-    true
-  );
+  const { updateCaller, isLoading, isSuccess, error, data } =
+    useUpdateManager<ProgramResponse>(`/event/update/program`, ["event"], true);
 
-  const updateProgram = async (eventId: string, programItems: ProgramItem[]) => {
+  const updateProgram = async (
+    eventId: string,
+    programItems: ProgramItem[]
+  ) => {
     try {
       const payload: AddProgramPayload = {
         eventId,
-        data: programItems
+        data: programItems,
       };
-      await postCaller(payload);
+      await updateCaller(payload);
     } catch (error) {
       console.error("Error updating program:", error);
     }
@@ -79,21 +78,22 @@ export const UpdateProgramManager = () => {
   };
 };
 
-// Delete Program Controller  
+// Delete Program Controller
 export const DeleteProgramManager = () => {
-  const { postCaller, isLoading, isSuccess, error, data } = usePostManager<ProgramResponse>(
-    `/api/v1/event/delete/program`,
-    ["program"],
-    true
-  );
+  const { deleteCaller, isLoading, isSuccess, error, data } =
+    useDeleteManager<ProgramResponse>(
+      `/api/v1/event/delete/program`,
+      ["event"],
+      true
+    );
 
   const deleteProgram = async (eventId: string, programIds: string[]) => {
     try {
       const payload = {
         eventId,
-        programIds
+        programIds,
       };
-      await postCaller(payload);
+      await deleteCaller(payload);
     } catch (error) {
       console.error("Error deleting program:", error);
     }

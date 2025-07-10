@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { Event, ProgramItem } from "@/app/events/types";
+import jsPDF from "jspdf";
 import {
   Plus,
   Trash2,
@@ -25,12 +27,32 @@ import {
 } from "lucide-react";
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
-import { AddProgramManager, UpdateProgramManager, DeleteProgramManager } from "@/app/events/controllers/programController";
+import {
+  AddProgramManager,
+  UpdateProgramManager,
+  DeleteProgramManager,
+} from "@/app/events/controllers/programController";
 
-const AgendaItem = ({ item, onEdit, onDelete, onToggleVisibility, isLoading }) => {
+interface AgendaItemProps {
+  item: ProgramItem;
+  onEdit: (item: ProgramItem) => void;
+  onDelete: (itemId: string) => void;
+  onToggleVisibility: (itemId: string, isPublic: boolean) => void;
+  isLoading: boolean;
+  formatDate: (dateString: string) => string;
+}
+
+const AgendaItem: React.FC<AgendaItemProps> = ({
+  item,
+  onEdit,
+  onDelete,
+  onToggleVisibility,
+  isLoading,
+  formatDate,
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const getItemTypeIcon = (type) => {
+  const getItemTypeIcon = (type: string) => {
     switch (type) {
       case "keynote":
         return <Mic className="w-5 h-5 text-purple-600" />;
@@ -51,7 +73,7 @@ const AgendaItem = ({ item, onEdit, onDelete, onToggleVisibility, isLoading }) =
     }
   };
 
-  const getItemTypeColor = (type) => {
+  const getItemTypeColor = (type: string) => {
     switch (type) {
       case "keynote":
         return "bg-purple-100 text-purple-800";
@@ -72,16 +94,11 @@ const AgendaItem = ({ item, onEdit, onDelete, onToggleVisibility, isLoading }) =
     }
   };
 
-  const formatTime = (timeString) => {
-    try {
-      return new Date(`2000-01-01T${timeString}`).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch (e) {
-      return timeString;
-    }
+  const formatTime = (timeString: string) => {
+    // Time is already in 12-hour format from API (e.g., "8:02 am")
+    return timeString;
   };
+
 
   const getDuration = () => {
     if (!item.startTime || !item.endTime) return "";
@@ -91,7 +108,7 @@ const AgendaItem = ({ item, onEdit, onDelete, onToggleVisibility, isLoading }) =
       const diffMs = end - start;
       const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
       const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-      
+
       if (diffHrs > 0) {
         return `${diffHrs}h ${diffMins}m`;
       }
@@ -110,8 +127,14 @@ const AgendaItem = ({ item, onEdit, onDelete, onToggleVisibility, isLoading }) =
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <h4 className="font-medium text-gray-900 truncate">{item.title}</h4>
-              <span className={`px-2 py-1 text-xs rounded ${getItemTypeColor(item.type)}`}>
+              <h4 className="font-medium text-gray-900 truncate">
+                {item.title}
+              </h4>
+              <span
+                className={`px-2 py-1 text-xs rounded ${getItemTypeColor(
+                  item.type
+                )}`}
+              >
                 {item.type}
               </span>
               {!item.isPublic && (
@@ -120,12 +143,15 @@ const AgendaItem = ({ item, onEdit, onDelete, onToggleVisibility, isLoading }) =
                 </span>
               )}
             </div>
-            
+
             <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
               <span className="flex items-center gap-1">
+                <Calendar className="w-4 h-4" />
+                {formatDate(item.date)}
+              </span>
+              <span className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />
-                {formatTime(item.startTime)} - {formatTime(item.endTime)}
-                {getDuration() && <span className="text-xs">({getDuration()})</span>}
+                {formatTime(item.start_time)} - {formatTime(item.end_time)}
               </span>
               {item.location && (
                 <span className="flex items-center gap-1">
@@ -139,12 +165,16 @@ const AgendaItem = ({ item, onEdit, onDelete, onToggleVisibility, isLoading }) =
               <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
                 <Mic className="w-4 h-4" />
                 <span>{item.speaker}</span>
-                {item.speakerTitle && <span className="text-xs">- {item.speakerTitle}</span>}
+                {item.speakerTitle && (
+                  <span className="text-xs">- {item.speakerTitle}</span>
+                )}
               </div>
             )}
 
             {!isExpanded && item.description && (
-              <p className="text-sm text-gray-600 mt-2 line-clamp-2">{item.description}</p>
+              <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                {item.description}
+              </p>
             )}
           </div>
         </div>
@@ -155,14 +185,22 @@ const AgendaItem = ({ item, onEdit, onDelete, onToggleVisibility, isLoading }) =
             className="p-2 text-gray-500 hover:bg-gray-50 rounded-full transition-colors"
             title={isExpanded ? "Show less" : "Show more"}
           >
-            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            {isExpanded ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
           </button>
           <button
             onClick={() => onToggleVisibility(item.id, !item.isPublic)}
             className="p-2 text-gray-500 hover:bg-gray-50 rounded-full transition-colors"
             title={item.isPublic ? "Make private" : "Make public"}
           >
-            {item.isPublic ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            {item.isPublic ? (
+              <Eye className="w-4 h-4" />
+            ) : (
+              <EyeOff className="w-4 h-4" />
+            )}
           </button>
           <button
             onClick={() => onEdit(item)}
@@ -195,7 +233,9 @@ const AgendaItem = ({ item, onEdit, onDelete, onToggleVisibility, isLoading }) =
 
           {item.objectives && item.objectives.length > 0 && (
             <div>
-              <h5 className="font-medium text-gray-900 mb-1">Learning Objectives</h5>
+              <h5 className="font-medium text-gray-900 mb-1">
+                Learning Objectives
+              </h5>
               <ul className="text-sm text-gray-600 list-disc list-inside">
                 {item.objectives.map((objective, index) => (
                   <li key={index}>{objective}</li>
@@ -228,8 +268,30 @@ const AgendaItem = ({ item, onEdit, onDelete, onToggleVisibility, isLoading }) =
   );
 };
 
-const AgendaModal = ({ isOpen, onClose, item, onSave, isLoading }) => {
-  const [formData, setFormData] = useState({
+interface AgendaModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  item: ProgramItem | null;
+  onSave: (itemData: any) => void;
+  isLoading: boolean;
+}
+
+const AgendaModal: React.FC<AgendaModalProps> = ({ isOpen, onClose, item, onSave, isLoading }) => {
+  interface FormData {
+    title: string;
+    description: string;
+    type: string;
+    startTime: string;
+    endTime: string;
+    location: string;
+    speaker: string;
+    speakerTitle: string;
+    isPublic: boolean;
+    objectives: string[];
+    materials: Array<{name: string; url: string}>;
+  }
+
+  const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",
     type: "presentation",
@@ -246,15 +308,15 @@ const AgendaModal = ({ isOpen, onClose, item, onSave, isLoading }) => {
   React.useEffect(() => {
     if (item) {
       setFormData({
-        title: item.title || "",
+        title: item.title || item.description || "",
         description: item.description || "",
         type: item.type || "presentation",
-        startTime: item.startTime || "",
-        endTime: item.endTime || "",
+        startTime: item.start_time || "",
+        endTime: item.end_time || "",
         location: item.location || "",
         speaker: item.speaker || "",
-        speakerTitle: item.speakerTitle || "",
-        isPublic: item.isPublic !== undefined ? item.isPublic : true,
+        speakerTitle: item.speaker_title || "",
+        isPublic: item.is_public !== undefined ? item.is_public : true,
         objectives: item.objectives || [],
         materials: item.materials || [],
       });
@@ -275,7 +337,7 @@ const AgendaModal = ({ isOpen, onClose, item, onSave, isLoading }) => {
     }
   }, [item, isOpen]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title.trim() || !formData.startTime) {
       alert("Please fill in all required fields");
@@ -284,7 +346,7 @@ const AgendaModal = ({ isOpen, onClose, item, onSave, isLoading }) => {
 
     const agendaData = {
       ...formData,
-      id: item?.id || `agenda_${Date.now()}`,
+      id: item?.id,
       createdAt: item?.createdAt || new Date().toISOString(),
     };
 
@@ -446,48 +508,81 @@ const AgendaModal = ({ isOpen, onClose, item, onSave, isLoading }) => {
   );
 };
 
-const ProgramManagementTab = ({ event }) => {
-  const [agendaItems, setAgendaItems] = useState([]);
+interface ProgramManagementTabProps {
+  event: Event;
+}
+
+const ProgramManagementTab: React.FC<ProgramManagementTabProps> = ({ event }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [filterType, setFilterType] = useState("all");
   const [sortBy, setSortBy] = useState("time");
 
+  // Helper function to convert 24-hour time to 12-hour format with am/pm
+  const convertTo12HourFormat = (time24: string): string => {
+    if (!time24) return "";
+    const [hours, minutes] = time24.split(":");
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? "pm" : "am";
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minutes} ${ampm}`;
+  };
+
+  // Helper function to format date
+  const formatDate = (dateString: string): string => {
+    try {
+      return new Date(dateString).toLocaleDateString([], {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch (e) {
+      return dateString;
+    }
+  };
+
   // Controllers
-  const { addProgram, isLoading: adding, isSuccess: addSuccess } = AddProgramManager();
-  const { updateProgram, isLoading: updating, isSuccess: updateSuccess } = UpdateProgramManager();
-  const { deleteProgram, isLoading: deleting, isSuccess: deleteSuccess } = DeleteProgramManager();
+  const {
+    addProgram,
+    isLoading: adding,
+    isSuccess: addSuccess,
+  } = AddProgramManager();
+  const {
+    updateProgram,
+    isLoading: updating,
+    isSuccess: updateSuccess,
+  } = UpdateProgramManager();
+  const {
+    deleteProgram,
+    isLoading: deleting,
+    isSuccess: deleteSuccess,
+  } = DeleteProgramManager();
 
   const isLoading = adding || updating || deleting;
 
-  // Initialize with real data from event
-  React.useEffect(() => {
-    if (event?.program && Array.isArray(event.program)) {
-      setAgendaItems(event.program);
-    } else {
-      setAgendaItems([]);
-    }
-  }, [event]);
+  // Get agenda items directly from event prop - no local storage
+  const agendaItems: ProgramItem[] = event?.program && Array.isArray(event.program) ? event.program : [];
 
-  const handleAddItem = () => {
+  const handleAddItem = (): void => {
     setEditingItem(null);
     setIsModalOpen(true);
   };
 
-  const handleEditItem = (item) => {
+  const handleEditItem = (item: ProgramItem): void => {
     setEditingItem(item);
     setIsModalOpen(true);
   };
 
-  const handleSaveItem = async (itemData) => {
+  const handleSaveItem = async (itemData: any): Promise<void> => {
     try {
       // Include ALL frontend data points, even if backend doesn't support them yet
       const completeProgramItem = {
         // Backend-supported fields
         description: itemData.title, // Backend uses description for title
-        date: event?.date || new Date().toISOString().split('T')[0],
-        start_time: itemData.startTime,
-        end_time: itemData.endTime,
+        date: event?.date || new Date().toISOString().split("T")[0],
+        start_time: convertTo12HourFormat(itemData.startTime),
+        end_time: convertTo12HourFormat(itemData.endTime),
         location: itemData.location,
         speaker: itemData.speaker,
         speaker_title: itemData.speakerTitle,
@@ -498,39 +593,34 @@ const ProgramManagementTab = ({ event }) => {
         type: itemData.type, // keynote, workshop, panel, break, lunch, etc.
         objectives: itemData.objectives || [], // Learning objectives array
         materials: itemData.materials || [], // Materials array with name/url
-        id: itemData.id
+        id: itemData.id,
       };
 
       if (editingItem) {
         // Update existing item
-        const updatedItems = agendaItems.map(item => 
-          item.id === editingItem.id ? itemData : item
+        // Map through current items and update the edited one
+        const updatedItems = agendaItems.map((item) =>
+          item.id === editingItem.id ? { ...item, ...itemData } : item
         );
-        await updateProgram(event.id, updatedItems.map(item => ({
-          // Backend format
-          description: item.title,
-          date: event?.date || new Date().toISOString().split('T')[0],
-          start_time: item.startTime,
-          end_time: item.endTime,
-          location: item.location,
-          speaker: item.speaker,
-          speaker_title: item.speakerTitle,
-          is_public: item.isPublic,
-          // Additional data
-          title: item.title,
-          type: item.type,
-          objectives: item.objectives || [],
-          materials: item.materials || [],
-          id: item.id
-        })));
-        setAgendaItems(updatedItems);
+        await updateProgram(
+          event.id,
+          updatedItems.map((item) => ({
+            // Backend format
+            description: item.title || item.description,
+            date: event?.date || new Date().toISOString().split("T")[0],
+            start_time: convertTo12HourFormat(item.startTime || item.start_time),
+            end_time: convertTo12HourFormat(item.endTime || item.end_time),
+            location: item.location,
+            speaker: item.speaker,
+            speaker_title: item.speakerTitle || item.speaker_title,
+            is_public: item.isPublic !== undefined ? item.isPublic : item.is_public,
+          }))
+        );
       } else {
         // Add new item
-        const newItems = [...agendaItems, itemData];
         await addProgram(event.id, [completeProgramItem]);
-        setAgendaItems(newItems);
       }
-      
+
       setIsModalOpen(false);
       setEditingItem(null);
     } catch (error) {
@@ -539,11 +629,10 @@ const ProgramManagementTab = ({ event }) => {
     }
   };
 
-  const handleDeleteItem = async (itemId) => {
+  const handleDeleteItem = async (itemId: string): Promise<void> => {
     if (confirm("Are you sure you want to delete this agenda item?")) {
       try {
         await deleteProgram(event.id, [itemId]);
-        setAgendaItems(agendaItems.filter(item => item.id !== itemId));
       } catch (error) {
         console.error("Error deleting program item:", error);
         alert("Error deleting program item. Please try again.");
@@ -551,96 +640,139 @@ const ProgramManagementTab = ({ event }) => {
     }
   };
 
-  const handleToggleVisibility = async (itemId, isPublic) => {
+  const handleToggleVisibility = async (itemId: string, isPublic: boolean): Promise<void> => {
     try {
-      const updatedItems = agendaItems.map(item => 
-        item.id === itemId ? { ...item, isPublic } : item
+      // Update visibility for specific item
+      const updatedItems = agendaItems.map((item) =>
+        item.id === itemId ? { ...item, is_public: isPublic } : item
       );
-      await updateProgram(event.id, updatedItems.map(item => ({
-        description: item.title,
-        date: event?.date || new Date().toISOString().split('T')[0],
-        start_time: item.startTime,
-        end_time: item.endTime,
-        location: item.location,
-        speaker: item.speaker,
-        speaker_title: item.speakerTitle,
-        is_public: item.isPublic
-      })));
-      setAgendaItems(updatedItems);
+      await updateProgram(
+        event.id,
+        updatedItems.map((item) => ({
+          description: item.title || item.description,
+          date: event?.date || new Date().toISOString().split("T")[0],
+          start_time: convertTo12HourFormat(item.start_time),
+          end_time: convertTo12HourFormat(item.end_time),
+          location: item.location,
+          speaker: item.speaker,
+          speaker_title: item.speaker_title,
+          is_public: item.is_public,
+        }))
+      );
     } catch (error) {
       console.error("Error updating program visibility:", error);
       alert("Error updating program visibility. Please try again.");
     }
   };
 
-  const handleGeneratePDF = () => {
-    // Generate PDF functionality
-    const printContent = `
-      <html>
-        <head>
-          <title>Event Program - ${event?.eventName || 'Event'}</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 40px; }
-            .header { text-align: center; margin-bottom: 30px; }
-            .agenda-item { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
-            .time { font-weight: bold; color: #7c3aed; }
-            .title { font-size: 18px; font-weight: bold; margin: 8px 0; }
-            .speaker { color: #666; font-style: italic; }
-            .description { margin-top: 8px; }
-            .type-badge { background: #f3f4f6; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>Event Program</h1>
-            <h2>${event?.eventName || 'Event Name'}</h2>
-            <p>${event?.date ? new Date(event.date).toLocaleDateString() : ''}</p>
-          </div>
-          ${filteredAndSortedItems.map(item => `
-            <div class="agenda-item">
-              <div class="time">${item.startTime} - ${item.endTime}</div>
-              <div class="title">${item.title}</div>
-              ${item.speaker ? `<div class="speaker">${item.speaker}${item.speakerTitle ? ` - ${item.speakerTitle}` : ''}</div>` : ''}
-              ${item.location ? `<div><strong>Location:</strong> ${item.location}</div>` : ''}
-              <span class="type-badge">${item.type}</span>
-              ${item.description ? `<div class="description">${item.description}</div>` : ''}
-            </div>
-          `).join('')}
-        </body>
-      </html>
-    `;
-
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(printContent);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
+  const handleGeneratePDF = (): void => {
+    const doc = new jsPDF();
+    
+    // Set font
+    doc.setFont('helvetica');
+    
+    // Header
+    doc.setFontSize(20);
+    doc.setTextColor(45, 27, 105); // Purple color
+    doc.text('EVENT PROGRAM', 105, 30, { align: 'center' });
+    
+    doc.setFontSize(16);
+    doc.setTextColor(74, 85, 104);
+    doc.text(event?.name || 'Event Name', 105, 45, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.setTextColor(113, 128, 150);
+    doc.text(`Date: ${event?.date ? formatDate(event.date) : ''}`, 105, 55, { align: 'center' });
+    doc.text(`Venue: ${event?.venue || ''}`, 105, 65, { align: 'center' });
+    
+    // Line under header
+    doc.setDrawColor(124, 58, 237);
+    doc.setLineWidth(1);
+    doc.line(20, 75, 190, 75);
+    
+    let yPosition = 90;
+    
+    // Program items
+    agendaItems.forEach((item, index) => {
+      // Check if we need a new page
+      if (yPosition > 250) {
+        doc.addPage();
+        yPosition = 30;
+      }
+      
+      // Date and time
+      doc.setFontSize(10);
+      doc.setTextColor(124, 58, 237);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${formatDate(item.date)} | ${item.start_time} - ${item.end_time}`, 20, yPosition);
+      yPosition += 10;
+      
+      // Title
+      doc.setFontSize(14);
+      doc.setTextColor(45, 55, 72);
+      doc.setFont('helvetica', 'bold');
+      const titleLines = doc.splitTextToSize(item.title || item.description, 170);
+      doc.text(titleLines, 20, yPosition);
+      yPosition += titleLines.length * 7;
+      
+      // Speaker
+      if (item.speaker) {
+        doc.setFontSize(10);
+        doc.setTextColor(74, 85, 104);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Speaker: ${item.speaker}${item.speaker_title ? ` - ${item.speaker_title}` : ''}`, 20, yPosition);
+        yPosition += 8;
+      }
+      
+      // Location
+      if (item.location) {
+        doc.setFontSize(10);
+        doc.setTextColor(74, 85, 104);
+        doc.text(`Location: ${item.location}`, 20, yPosition);
+        yPosition += 8;
+      }
+      
+      // Type
+      doc.setFontSize(9);
+      doc.setTextColor(74, 85, 104);
+      doc.setFont('helvetica', 'bold');
+      doc.text((item.type || 'presentation').toUpperCase(), 20, yPosition);
+      yPosition += 8;
+      
+      // Description
+      if (item.description && item.description !== (item.title || item.description)) {
+        doc.setFontSize(9);
+        doc.setTextColor(74, 85, 104);
+        doc.setFont('helvetica', 'normal');
+        const descLines = doc.splitTextToSize(item.description, 170);
+        doc.text(descLines, 20, yPosition);
+        yPosition += descLines.length * 5;
+      }
+      
+      yPosition += 10; // Space between items
+    });
+    
+    // Save the PDF
+    const fileName = `${event?.name || 'Event'}_Program_${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(fileName);
   };
 
-  const filteredAndSortedItems = agendaItems
-    .filter(item => filterType === "all" || item.type === filterType)
-    .sort((a, b) => {
-      if (sortBy === "time") {
-        return a.startTime.localeCompare(b.startTime);
-      } else if (sortBy === "type") {
-        return a.type.localeCompare(b.type);
-      }
-      return a.title.localeCompare(b.title);
-    });
-
-  const itemTypes = ["all", ...new Set(agendaItems.map(item => item.type))];
+  // No local filtering - data comes pre-filtered from endpoint
+  const itemTypes = ["all", "presentation", "keynote", "workshop", "panel", "break", "lunch", "networking", "award"];
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-semibold mb-2">Event Program & Agenda</h2>
+          <h2 className="text-2xl font-semibold mb-2">
+            Event Program & Agenda
+          </h2>
           <p className="text-gray-600">
             Manage your event's program, schedule, and agenda items
           </p>
         </div>
-        
+
         <div className="flex gap-3">
           <CustomButton
             buttonText="Download PDF"
@@ -670,9 +802,11 @@ const ProgramManagementTab = ({ event }) => {
             onChange={(e) => setFilterType(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
           >
-            {itemTypes.map(type => (
+            {itemTypes.map((type) => (
               <option key={type} value={type}>
-                {type === "all" ? "All Types" : type.charAt(0).toUpperCase() + type.slice(1)}
+                {type === "all"
+                  ? "All Types"
+                  : type.charAt(0).toUpperCase() + type.slice(1)}
               </option>
             ))}
           </select>
@@ -694,17 +828,18 @@ const ProgramManagementTab = ({ event }) => {
       </div>
 
       {/* Agenda Items */}
-      {filteredAndSortedItems.length === 0 ? (
+      {agendaItems.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg border">
           <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {agendaItems.length === 0 ? "No program items yet" : "No items match your filters"}
+            {agendaItems.length === 0
+              ? "No program items yet"
+              : "No items match your filters"}
           </h3>
           <p className="text-gray-500 mb-4">
-            {agendaItems.length === 0 
+            {agendaItems.length === 0
               ? "Start by adding items to your event program."
-              : "Try adjusting your filters to see more items."
-            }
+              : "Try adjusting your filters to see more items."}
           </p>
           {agendaItems.length === 0 && (
             <CustomButton
@@ -718,7 +853,7 @@ const ProgramManagementTab = ({ event }) => {
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredAndSortedItems.map((item) => (
+          {agendaItems.map((item) => (
             <AgendaItem
               key={item.id}
               item={item}
@@ -726,6 +861,7 @@ const ProgramManagementTab = ({ event }) => {
               onDelete={handleDeleteItem}
               onToggleVisibility={handleToggleVisibility}
               isLoading={isLoading}
+              formatDate={formatDate}
             />
           ))}
         </div>

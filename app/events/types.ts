@@ -51,6 +51,8 @@ export interface Speaker {
 }
 
 export interface Resource {
+  _id: string;
+  id: string;
   name: string;
   type: string;
   url: string;
@@ -58,6 +60,10 @@ export interface Resource {
   category: string;
   tags: string;
   is_public: boolean;
+  event: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
 
 export interface Session {
@@ -69,6 +75,28 @@ export interface Session {
   location: string;
   speaker: string;
   is_public: boolean;
+}
+
+export interface ProgramItem {
+  _id: string;
+  id: string;
+  description: string;
+  date: string;
+  start_time: string;
+  end_time: string;
+  location: string;
+  speaker: string;
+  speaker_title: string;
+  is_public: boolean;
+  event: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  // Frontend-only fields
+  title?: string;
+  type?: string;
+  objectives?: string[];
+  materials?: Array<{name: string; url: string}>;
 }
 
 export interface RegistrationForm {
@@ -87,6 +115,8 @@ export interface Ticket {
 }
 
 export interface Vendor {
+  _id?: string;
+  id?: string;
   name: string;
   company: string;
   contact_person: string;
@@ -94,13 +124,19 @@ export interface Vendor {
   phone: string;
   address: string;
   website: string;
-  job_description: string;
+  job_description: string; // This is service_type in frontend
   status: string;
   payment_status: string;
   contract_amount: number;
   contract_date: string;
-  services_provided: string;
+  services_provided: string; // Comma-separated string
   notes: string;
+  event?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
+  // Frontend-only fields
+  rating?: number;
 }
 
 export interface Host {
@@ -178,34 +214,39 @@ export interface Event {
   status: string;
   type: string;
   currency: string;
-  
+
   // Financial & Status
   donation: DonationInfo;
   isSuspended: boolean;
   isPaid: boolean;
   isPending: boolean;
   paid_amount: number;
-  
+
   // Media & Content
   gallery: string[];
   video: string;
   logo: string;
   colors: string[]; // [primary, secondary]
-  
+
   // Features
   isActive: boolean;
   isVirtual: boolean;
   showFeedback: boolean;
   thank_you_message: ThankYouMessage;
   event_notification: EventNotification;
-  
+
   // Multi-day support
   event_days: EventDay[];
-  
+
   // Event components
+  vendors: Vendor[];
+  hosts: Host[];
+  sponsors: Sponsor[];
   speakers: Speaker[];
+  program: ProgramItem[];
   resources: Resource[];
-  
+  stakeholders: Stakeholder[];
+
   // User & Metadata
   user: User;
   createdAt: string;
@@ -226,34 +267,34 @@ export interface CreateEventPayload {
   timezone: string;
   no_of_invitees: number;
   currency: string;
-  
+
   // Multi-day support
   event_days: EventDay[];
-  
+
   // Media
   gallery: string[];
   video: string;
   logo: string;
   colors: string[]; // [primary, secondary]
-  
+
   // Features
   isVirtual: boolean;
   showFeedback: boolean;
   verification_type: string;
-  
+
   // Financial
   donation: DonationInfo;
   payment_mode: string; // "subscription" | "pay_per_event"
-  
+
   // Content
   items: GiftItem[];
   thank_you_message: ThankYouMessage;
-  
+
   // Notifications & Reminders
   event_notification: EventNotification;
   enable_auto_reminder: boolean;
   enable_auto_thank_you: boolean;
-  
+
   // Optional Enhanced Features (for future updates)
   sessions?: Session[];
   registration_forms?: RegistrationForm[];
@@ -284,42 +325,42 @@ export interface EventFormData {
   timezone: string;
   no_of_invitees: string;
   currency: string;
-  
+
   // Multi-day
   is_multi_day: boolean;
-  
+
   // Media
   gallery: (File | string)[];
   video_url: string;
   logo: File | string | null;
   banner_image: File | string | null;
-  
+
   // Theming
   primary_color: string;
   secondary_color: string;
-  
+
   // Features
   isVirtual: boolean;
   showFeedback: boolean;
   verification_type: string;
-  
+
   // Financial
   donation: DonationInfo;
   payment_mode: string;
   pay_later: boolean;
-  
+
   // Content
   items: GiftItem[];
   thank_you_message: ThankYouMessage;
-  
+
   // Notifications
   invitation_methods: string[]; // ["email", "sms", "whatsapp", "voice"]
   enable_auto_reminder: boolean;
   enable_auto_thank_you: boolean;
-  
+
   // Path for navigation
   path: string;
-  
+
   // Enhanced Features (simplified creation)
   sessions: Session[];
   registration_forms: RegistrationForm[];

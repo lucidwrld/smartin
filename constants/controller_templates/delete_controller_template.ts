@@ -8,12 +8,13 @@ const useDeleteManager = (endpoint, queryKey) => {
 
   const deleteController = async (details) => {
     try {
-      const [response] = [await AxiosWithToken.delete(endpoint, details)];
+      // For DELETE requests with body, axios requires data in config object
+      const [response] = [await AxiosWithToken.delete(endpoint, { data: details })];
        
 
       return response.data;
     } catch (error) { 
-      throw new Error(`Sorry: ${error.response.data.message}`);
+      throw new Error(`Sorry: ${error.response?.data?.message || error.message}`);
     }
   };
 

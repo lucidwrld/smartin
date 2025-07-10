@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import {
   Plus,
   Trash2,
@@ -21,14 +21,34 @@ import {
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import StatusButton from "@/components/StatusButton";
-import { AddVendorsManager, UpdateVendorsManager, DeleteVendorsManager } from "@/app/events/controllers/eventManagementController";
+import {
+  AddVendorsManager,
+  UpdateVendorsManager,
+  DeleteVendorsManager,
+} from "@/app/events/controllers/eventManagementController";
+import { Event, Vendor } from "@/app/events/types";
 
-const VendorCard = ({ vendor, onEdit, onDelete, onUpdateStatus, isLoading }) => {
+interface VendorCardProps {
+  vendor: Vendor;
+  onEdit: (vendor: Vendor) => void;
+  onDelete: (vendorId: string) => void;
+  onUpdateStatus: (vendorId: string, status: string) => void;
+  isLoading: boolean;
+}
+
+const VendorCard: React.FC<VendorCardProps> = ({
+  vendor,
+  onEdit,
+  onDelete,
+  onUpdateStatus,
+  isLoading,
+}) => {
   const {
     id,
+    _id,
     name,
     company,
-    service_type,
+    job_description,
     contact_person,
     email,
     phone,
@@ -44,7 +64,9 @@ const VendorCard = ({ vendor, onEdit, onDelete, onUpdateStatus, isLoading }) => 
     createdAt,
   } = vendor;
 
-  const getStatusColor = (status) => {
+  const vendorId = id || _id || "";
+
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "confirmed":
         return "bg-green-100 text-green-800";
@@ -59,7 +81,7 @@ const VendorCard = ({ vendor, onEdit, onDelete, onUpdateStatus, isLoading }) => 
     }
   };
 
-  const getPaymentStatusColor = (status) => {
+  const getPaymentStatusColor = (status: string) => {
     switch (status) {
       case "paid":
         return "bg-green-100 text-green-800";
@@ -74,7 +96,7 @@ const VendorCard = ({ vendor, onEdit, onDelete, onUpdateStatus, isLoading }) => 
     }
   };
 
-  const renderStars = (rating) => {
+  const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, index) => (
       <Star
         key={index}
@@ -86,7 +108,7 @@ const VendorCard = ({ vendor, onEdit, onDelete, onUpdateStatus, isLoading }) => 
     ));
   };
 
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: number | null | undefined) => {
     if (!amount) return "";
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -94,8 +116,9 @@ const VendorCard = ({ vendor, onEdit, onDelete, onUpdateStatus, isLoading }) => 
     }).format(amount);
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string | undefined) => {
     try {
+      if (!dateString) return "N/A";
       return new Date(dateString).toLocaleDateString();
     } catch (e) {
       return "N/A";
@@ -129,7 +152,7 @@ const VendorCard = ({ vendor, onEdit, onDelete, onUpdateStatus, isLoading }) => 
               </span>
               <span className="flex items-center gap-1">
                 <User className="w-4 h-4" />
-                {service_type}
+                {job_description}
               </span>
               {rating && (
                 <div className="flex items-center gap-1">
@@ -166,14 +189,14 @@ const VendorCard = ({ vendor, onEdit, onDelete, onUpdateStatus, isLoading }) => 
               )}
             </div>
 
-            {services_provided && services_provided.length > 0 && (
+            {services_provided && services_provided.trim() && (
               <div className="mt-2 flex flex-wrap gap-1">
-                {services_provided.map((service, index) => (
+                {services_provided.split(',').map((service, index) => (
                   <span
                     key={index}
                     className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
                   >
-                    {service}
+                    {service.trim()}
                   </span>
                 ))}
               </div>
@@ -213,7 +236,7 @@ const VendorCard = ({ vendor, onEdit, onDelete, onUpdateStatus, isLoading }) => 
           <div className="relative">
             <select
               value={status}
-              onChange={(e) => onUpdateStatus(id, e.target.value)}
+              onChange={(e) => onUpdateStatus(vendorId, e.target.value)}
               className="text-xs px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
               disabled={isLoading}
             >
@@ -232,7 +255,7 @@ const VendorCard = ({ vendor, onEdit, onDelete, onUpdateStatus, isLoading }) => 
             <Edit2 className="w-4 h-4" />
           </button>
           <button
-            onClick={() => onDelete(id)}
+            onClick={() => onDelete(vendorId)}
             disabled={isLoading}
             className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
             title="Delete vendor"
@@ -245,8 +268,40 @@ const VendorCard = ({ vendor, onEdit, onDelete, onUpdateStatus, isLoading }) => 
   );
 };
 
-const VendorModal = ({ isOpen, onClose, vendor, onSave, isLoading }) => {
-  const [formData, setFormData] = useState({
+interface VendorFormData {
+  name: string;
+  company: string;
+  service_type: string;
+  contact_person: string;
+  email: string;
+  phone: string;
+  address: string;
+  website: string;
+  rating: number;
+  status: string;
+  contract_amount: string;
+  payment_status: string;
+  notes: string;
+  services_provided: string;
+  contract_date: string;
+}
+
+interface VendorModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  vendor: Vendor | null;
+  onSave: (vendor: Vendor) => void;
+  isLoading: boolean;
+}
+
+const VendorModal: React.FC<VendorModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  vendor, 
+  onSave, 
+  isLoading 
+}) => {
+  const [formData, setFormData] = useState<VendorFormData>({
     name: "",
     company: "",
     service_type: "",
@@ -260,16 +315,16 @@ const VendorModal = ({ isOpen, onClose, vendor, onSave, isLoading }) => {
     contract_amount: "",
     payment_status: "pending",
     notes: "",
-    services_provided: [],
+    services_provided: "",
     contract_date: "",
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (vendor) {
       setFormData({
         name: vendor.name || "",
         company: vendor.company || "",
-        service_type: vendor.service_type || "",
+        service_type: vendor.job_description || "",
         contact_person: vendor.contact_person || "",
         email: vendor.email || "",
         phone: vendor.phone || "",
@@ -277,10 +332,10 @@ const VendorModal = ({ isOpen, onClose, vendor, onSave, isLoading }) => {
         website: vendor.website || "",
         rating: vendor.rating || 0,
         status: vendor.status || "pending",
-        contract_amount: vendor.contract_amount || "",
+        contract_amount: vendor.contract_amount?.toString() || "",
         payment_status: vendor.payment_status || "pending",
         notes: vendor.notes || "",
-        services_provided: vendor.services_provided || [],
+        services_provided: vendor.services_provided || "",
         contract_date: vendor.contract_date || "",
       });
     } else {
@@ -298,34 +353,41 @@ const VendorModal = ({ isOpen, onClose, vendor, onSave, isLoading }) => {
         contract_amount: "",
         payment_status: "pending",
         notes: "",
-        services_provided: [],
+        services_provided: "",
         contract_date: "",
       });
     }
   }, [vendor, isOpen]);
 
-  const handleServicesChange = (e) => {
-    const servicesString = e.target.value;
-    const servicesArray = servicesString
-      .split(",")
-      .map((service) => service.trim())
-      .filter((service) => service.length > 0);
-    setFormData({ ...formData, services_provided: servicesArray });
+  const handleServicesChange = (e: ChangeEvent<HTMLInputElement>) => {
+    // Keep as comma-separated string
+    setFormData({ ...formData, services_provided: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.company.trim()) {
       alert("Please fill in all required fields");
       return;
     }
 
-    const vendorData = {
-      ...formData,
-      id: vendor?.id || `vendor_${Date.now()}`,
-      contract_amount: formData.contract_amount ? parseFloat(formData.contract_amount) : null,
-      rating: parseInt(formData.rating),
-      createdAt: vendor?.createdAt || new Date().toISOString(),
+    const vendorData: Vendor = {
+      ...vendor,
+      name: formData.name,
+      company: formData.company,
+      job_description: formData.service_type,
+      contact_person: formData.contact_person,
+      email: formData.email,
+      phone: formData.phone,
+      address: formData.address,
+      website: formData.website,
+      status: formData.status,
+      payment_status: formData.payment_status,
+      contract_amount: formData.contract_amount ? parseFloat(formData.contract_amount) : 0,
+      contract_date: formData.contract_date,
+      services_provided: formData.services_provided,
+      notes: formData.notes,
+      rating: formData.rating,
     };
 
     onSave(vendorData);
@@ -551,7 +613,7 @@ const VendorModal = ({ isOpen, onClose, vendor, onSave, isLoading }) => {
 
             <InputWithFullBoarder
               label="Services Provided (comma-separated)"
-              value={formData.services_provided.join(", ")}
+              value={formData.services_provided}
               onChange={handleServicesChange}
               placeholder="service1, service2, service3"
             />
@@ -590,10 +652,17 @@ const VendorModal = ({ isOpen, onClose, vendor, onSave, isLoading }) => {
   );
 };
 
-const VendorsManagementTab = ({ event }) => {
+interface VendorsManagementTabProps {
+  event: Event;
+  onFilterChange?: (filters: { status: string; service: string }) => void;
+}
+
+const VendorsManagementTab: React.FC<VendorsManagementTabProps> = ({ 
+  event, 
+  onFilterChange 
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingVendor, setEditingVendor] = useState(null);
-  const [vendors, setVendors] = useState([]);
+  const [editingVendor, setEditingVendor] = useState<Vendor | null>(null);
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterService, setFilterService] = useState("all");
 
@@ -604,29 +673,23 @@ const VendorsManagementTab = ({ event }) => {
 
   const isLoading = adding || updating || deleting;
 
-  // Initialize with real data from event
-  React.useEffect(() => {
-    if (event?.vendors && Array.isArray(event.vendors)) {
-      setVendors(event.vendors);
-    } else {
-      setVendors([]);
-    }
-  }, [event]);
+  // Get vendors directly from props (already filtered by backend)
+  const vendors = event?.vendors && Array.isArray(event.vendors) ? event.vendors : [];
 
   const handleAddVendor = () => {
     setEditingVendor(null);
     setIsModalOpen(true);
   };
 
-  const handleEditVendor = (vendor) => {
+  const handleEditVendor = (vendor: Vendor) => {
     setEditingVendor(vendor);
     setIsModalOpen(true);
   };
 
-  const handleSaveVendor = async (vendorData) => {
+  const handleSaveVendor = async (vendorData: Vendor) => {
     try {
       // Include ALL frontend data points, even if backend doesn't support them yet
-      const vendorPayload = {
+      const vendorPayload: Vendor = {
         // Backend-supported fields
         name: vendorData.name,
         company: vendorData.company,
@@ -635,18 +698,16 @@ const VendorsManagementTab = ({ event }) => {
         phone: vendorData.phone,
         address: vendorData.address,
         website: vendorData.website,
-        job_description: vendorData.service_type,
+        job_description: vendorData.job_description,
         status: vendorData.status,
         payment_status: vendorData.payment_status,
         contract_amount: vendorData.contract_amount,
         contract_date: vendorData.contract_date,
-        services_provided: Array.isArray(vendorData.services_provided) 
-          ? vendorData.services_provided.join(", ") 
-          : vendorData.services_provided,
+        services_provided: vendorData.services_provided,
         notes: vendorData.notes,
 
         // ADDITIONAL frontend data points backend should support
-        service_type: vendorData.service_type, // Alternative job_description field name
+        service_type: vendorData.job_description, // Alternative job_description field name
         rating: vendorData.rating, // Vendor rating (1-5 stars)
         createdAt: vendorData.createdAt, // Creation timestamp
       };
@@ -654,15 +715,12 @@ const VendorsManagementTab = ({ event }) => {
       if (editingVendor) {
         // Update existing vendor
         const updatedVendors = vendors.map(v => 
-          v.id === editingVendor.id ? vendorData : v
+          (v.id === editingVendor.id || v._id === editingVendor._id) ? vendorData : v
         );
-        await updateVendors(event.id, updatedVendors);
-        setVendors(updatedVendors);
+        await updateVendors(event.id || event._id, updatedVendors);
       } else {
         // Add new vendor
-        const newVendors = [...vendors, { id: `vendor_${Date.now()}`, ...vendorData }];
-        await addVendors(event.id, vendorPayload, vendorData.id);
-        setVendors(newVendors);
+        await addVendors(event.id || event._id, vendorPayload);
       }
       
       setIsModalOpen(false);
@@ -673,24 +731,22 @@ const VendorsManagementTab = ({ event }) => {
     }
   };
 
-  const handleUpdateStatus = async (vendorId, newStatus) => {
+  const handleUpdateStatus = async (vendorId: string, newStatus: string) => {
     try {
       const updatedVendors = vendors.map(v => 
-        v.id === vendorId ? { ...v, status: newStatus } : v
+        (v.id === vendorId || v._id === vendorId) ? { ...v, status: newStatus } : v
       );
-      await updateVendors(event.id, updatedVendors);
-      setVendors(updatedVendors);
+      await updateVendors(event.id || event._id, updatedVendors);
     } catch (error) {
       console.error("Error updating vendor status:", error);
       alert("Error updating vendor status. Please try again.");
     }
   };
 
-  const handleDeleteVendor = async (vendorId) => {
+  const handleDeleteVendor = async (vendorId: string) => {
     if (confirm("Are you sure you want to delete this vendor?")) {
       try {
-        await deleteVendors(event.id, [vendorId]);
-        setVendors(vendors.filter(v => v.id !== vendorId));
+        await deleteVendors(event.id || event._id, [vendorId]);
       } catch (error) {
         console.error("Error deleting vendor:", error);
         alert("Error deleting vendor. Please try again.");
@@ -698,21 +754,18 @@ const VendorsManagementTab = ({ event }) => {
     }
   };
 
-  const filteredVendors = vendors.filter(vendor => {
-    const statusMatch = filterStatus === "all" || vendor.status === filterStatus;
-    const serviceMatch = filterService === "all" || vendor.service_type === filterService;
-    return statusMatch && serviceMatch;
-  });
-
+  // All data should come from backend based on filters
+  const filteredVendors = vendors; // Backend should return filtered data
+  
   const statusOptions = ["all", "pending", "confirmed", "contracted", "cancelled"];
-  const serviceTypes = ["all", ...new Set(vendors.map(v => v.service_type).filter(Boolean))];
+  const serviceTypes = ["all"]; // TODO: Backend should provide available service types
 
+  // Stats - backend doesn't provide these yet, so display 0
+  // TODO: Backend should provide vendor statistics
   const totalVendors = vendors.length;
-  const confirmedVendors = vendors.filter(v => v.status === "confirmed" || v.status === "contracted").length;
-  const totalBudget = vendors.reduce((sum, v) => sum + (v.contract_amount || 0), 0);
-  const paidAmount = vendors
-    .filter(v => v.payment_status === "paid")
-    .reduce((sum, v) => sum + (v.contract_amount || 0), 0);
+  const confirmedVendors = 0;
+  const totalBudget = 0;
+  const paidAmount = 0;
 
   return (
     <div className="space-y-6">
@@ -776,7 +829,10 @@ const VendorsManagementTab = ({ event }) => {
             </label>
             <select
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
+              onChange={(e) => {
+                setFilterStatus(e.target.value);
+                onFilterChange?.({ status: e.target.value, service: filterService });
+              }}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
             >
               {statusOptions.map(status => (
@@ -792,7 +848,10 @@ const VendorsManagementTab = ({ event }) => {
             </label>
             <select
               value={filterService}
-              onChange={(e) => setFilterService(e.target.value)}
+              onChange={(e) => {
+                setFilterService(e.target.value);
+                onFilterChange?.({ status: filterStatus, service: e.target.value });
+              }}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
             >
               {serviceTypes.map(service => (
@@ -840,7 +899,7 @@ const VendorsManagementTab = ({ event }) => {
         <div className="space-y-4">
           {filteredVendors.map((vendor) => (
             <VendorCard
-              key={vendor.id}
+              key={vendor.id || vendor._id}
               vendor={vendor}
               onEdit={handleEditVendor}
               onDelete={handleDeleteVendor}
