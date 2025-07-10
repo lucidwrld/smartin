@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import CouponSystem from "@/components/tickets/CouponSystem";
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
+import { toast } from "react-toastify";
 import {
   Plus,
   Trash2,
@@ -26,15 +28,24 @@ import {
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import StatusButton from "@/components/StatusButton";
-import { 
-  CreateTicketManager, 
-  useGetEventTicketsManager, 
-  UpdateTicketManager, 
-  DeleteTicketManager 
+import {
+  CreateTicketManager,
+  useGetEventTicketsManager,
+  UpdateTicketManager,
+  DeleteTicketManager,
 } from "@/app/tickets/controllers/ticketController";
-import { useGetTicketCategoriesManager } from "@/app/tickets/controllers/ticketCategoryController";
+import {
+  useGetTicketCategoriesManager,
+  CreateTicketCategoryManager,
+} from "@/app/tickets/controllers/ticketCategoryController";
 
-const TicketCard = ({ ticket, onEdit, onDelete, onToggleStatus, isLoading }) => {
+const TicketCard = ({
+  ticket,
+  onEdit,
+  onDelete,
+  onToggleStatus,
+  isLoading,
+}) => {
   const {
     id,
     name,
@@ -341,13 +352,16 @@ const OrderCard = ({ order, onViewDetails, onUpdateStatus, isLoading }) => {
 
 const TicketingManagementTab = ({ event }) => {
   const [activeTab, setActiveTab] = useState("overview");
-  const [tickets, setTickets] = useState([]);
-  const [orders, setOrders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [showTicketModal, setShowTicketModal] = useState(false);
   const [editingTicket, setEditingTicket] = useState(null);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [categoryFormData, setCategoryFormData] = useState({
+    name: "",
+  });
   const [formData, setFormData] = useState({
+    event: event?.id,
     name: "",
     category: "",
     price: 0,
@@ -364,90 +378,58 @@ const TicketingManagementTab = ({ event }) => {
   });
 
   // API Integrations
-  const { data: ticketsData, isLoading: loadingTickets, refetch: refetchTickets } = useGetEventTicketsManager(event?.id || event?._id);
-  const { data: categoriesData } = useGetTicketCategoriesManager();
+  const {
+    data: ticketsData,
+    isLoading: loadingTickets,
+    refetch: refetchTickets,
+  } = useGetEventTicketsManager(event?.id || event?._id);
+  const { data: categoriesData, refetch: refetchCategories } =
+    useGetTicketCategoriesManager();
   const { createTicket, isLoading: creatingTicket } = CreateTicketManager();
-  const { updateTicket, isLoading: updatingTicket } = UpdateTicketManager();
-  const { deleteTicket, isLoading: deletingTicket } = DeleteTicketManager();
+  const { updateTicket, isLoading: updatingTicket } = UpdateTicketManager({
+    ticketId: editingTicket?._id,
+  });
+  const { deleteTicket, isLoading: deletingTicket } = DeleteTicketManager({
+    ticketId: editingTicket?._id,
+  });
+  const { createCategory, isLoading: creatingCategory } =
+    CreateTicketCategoryManager();
 
-  const isLoading = creatingTicket || updatingTicket || deletingTicket;
-
-  // Map API data to component format
-  React.useEffect(() => {
-    if (ticketsData?.data && Array.isArray(ticketsData.data)) {
-      const mappedTickets = ticketsData.data.map(ticket => ({
-        // Backend fields
-        id: ticket._id,
-        name: ticket.name,
-        description: ticket.description || "",
-        price: ticket.price,
-        currency: ticket.currency,
-        quantity: ticket.quantity,
-        sale_start_date: ticket.sale_start_date,
-        sale_end_date: ticket.sale_end_date,
-        is_free: ticket.is_free,
-        category: typeof ticket.category === 'object' ? ticket.category.name : ticket.category,
-        categoryId: typeof ticket.category === 'object' ? ticket.category._id : ticket.category,
-        min_per_order: ticket.min_per_order,
-        max_per_order: ticket.max_per_order,
-        requires_approval: ticket.requires_approval,
-        is_active: ticket.is_active,
-        sold_out: ticket.sold_out,
-        quantity_remaining: ticket.quantity_remaining,
-        
-        // Calculated/Frontend fields
-        sold: ticket.quantity - (ticket.quantity_remaining || ticket.quantity),
-        status: ticket.is_active ? (ticket.sold_out ? "sold_out" : "active") : "paused",
-        revenue: (ticket.quantity - (ticket.quantity_remaining || ticket.quantity)) * ticket.price,
-      }));
-      setTickets(mappedTickets);
-    }
-  }, [ticketsData]);
-
-  // Initialize with empty orders (no endpoint available yet)
-  React.useEffect(() => {
-    // Orders endpoint not available yet, keeping empty
-    setOrders([]);
-  }, []);
+  const isLoading =
+    creatingTicket || updatingTicket || deletingTicket || creatingCategory;
 
   const handleToggleTicketStatus = async (ticketId, newStatus) => {
     try {
-      const ticket = tickets.find(t => t.id === ticketId);
+      const ticket = ticketsData?.data.find((t) => t._id === ticketId);
       if (!ticket) return;
-      
-      // Include ALL frontend data points
+
       const updateData = {
         name: ticket.name,
-        category: ticket.categoryId,
+        category:
+          typeof ticket.category === "object"
+            ? ticket.category._id
+            : ticket.category,
         price: ticket.price,
         description: ticket.description,
         quantity: ticket.quantity,
         currency: ticket.currency,
-        sale_start_date: ticket.sale_start_date.split('T')[0],
-        sale_end_date: ticket.sale_end_date.split('T')[0],
+        sale_start_date: ticket.sale_start_date.split("T")[0],
+        sale_end_date: ticket.sale_end_date.split("T")[0],
         min_per_order: ticket.min_per_order,
         max_per_order: ticket.max_per_order,
         is_active: newStatus === "active",
         requires_approval: ticket.requires_approval,
         is_free: ticket.is_free,
-        
-        // Additional frontend fields
-        status: newStatus,
-        sale_start_time: ticket.sale_start_time,
-        sale_end_time: ticket.sale_end_time,
-        visible_quantity: ticket.visible_quantity,
-        benefits: ticket.benefits,
       };
-      
-      await updateTicket({ 
-        ticketId, 
+
+      await updateTicket({
+        ticketId,
         data: updateData,
-        eventId: event?.id || event?._id 
+        eventId: event?.id || event?._id,
       });
       await refetchTickets();
     } catch (error) {
       console.error("Error updating ticket status:", error);
-      alert("Error updating ticket status. Please try again.");
     }
   };
 
@@ -461,8 +443,43 @@ const TicketingManagementTab = ({ event }) => {
 
   const handleSaveTicket = async () => {
     try {
+      // Validation
       if (!formData.name || !formData.category) {
-        alert("Please fill in all required fields");
+        toast.error("Please fill in all required fields");
+        return;
+      }
+
+      if (!formData.sale_start_date || !formData.sale_end_date) {
+        toast.error("Please set sale start and end dates");
+        return;
+      }
+
+      if (
+        new Date(formData.sale_end_date) <= new Date(formData.sale_start_date)
+      ) {
+        toast.error("Sale end date must be after sale start date");
+        return;
+      }
+
+      if (formData.quantity < 1) {
+        toast.error("Quantity must be at least 1");
+        return;
+      }
+
+      if (!formData.is_free && formData.price <= 0) {
+        toast.error("Price must be greater than 0 for paid tickets");
+        return;
+      }
+
+      if (formData.min_per_order < 1) {
+        toast.error("Minimum per order must be at least 1");
+        return;
+      }
+
+      if (formData.max_per_order < formData.min_per_order) {
+        toast.error(
+          "Maximum per order must be greater than or equal to minimum per order"
+        );
         return;
       }
 
@@ -491,11 +508,7 @@ const TicketingManagementTab = ({ event }) => {
       };
 
       if (editingTicket) {
-        await updateTicket({
-          ticketId: editingTicket.id,
-          data: ticketData,
-          eventId: event?.id || event?._id,
-        });
+        await updateTicket(ticketData);
       } else {
         await createTicket(ticketData);
       }
@@ -505,48 +518,34 @@ const TicketingManagementTab = ({ event }) => {
       setEditingTicket(null);
     } catch (error) {
       console.error("Error saving ticket:", error);
-      alert("Error saving ticket. Please try again.");
     }
   };
 
-  const handleDeleteTicket = async (ticketId) => {
-    if (!confirm("Are you sure you want to delete this ticket?")) {
-      return;
-    }
-
+  const handleDeleteTicket = async () => {
     try {
-      await deleteTicket({ 
-        ticketId, 
-        eventId: event?.id || event?._id 
-      });
+      await deleteTicket();
       await refetchTickets();
+      document.getElementById("delete-ticket").close();
     } catch (error) {
       console.error("Error deleting ticket:", error);
-      alert("Error deleting ticket. Please try again.");
     }
   };
 
-  const filteredOrders = orders.filter((order) => {
-    const matchesSearch =
-      order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.order_number.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      filterStatus === "all" || order.status === filterStatus;
-    return matchesSearch && matchesStatus;
-  });
+  const handleSaveCategory = async () => {
+    try {
+      if (!categoryFormData.name) {
+        toast.error("Please enter a category name");
+        return;
+      }
 
-  // Calculate stats
-  const totalRevenue = tickets.reduce(
-    (sum, ticket) => sum + (ticket.revenue || 0),
-    0
-  );
-  const totalSold = tickets.reduce((sum, ticket) => sum + ticket.sold, 0);
-  const totalAvailable = tickets.reduce(
-    (sum, ticket) => sum + (ticket.quantity - ticket.sold),
-    0
-  );
-  const activeTickets = tickets.filter((t) => t.status === "active").length;
+      await createCategory(categoryFormData);
+      await refetchCategories();
+      setShowCategoryModal(false);
+      setCategoryFormData({ name: "" });
+    } catch (error) {
+      console.error("Error creating category:", error);
+    }
+  };
 
   const tabs = [
     { id: "overview", label: "Overview", icon: BarChart3 },
@@ -564,9 +563,7 @@ const TicketingManagementTab = ({ event }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Total Revenue</p>
-              <p className="text-2xl font-semibold text-green-600">
-                ${totalRevenue.toLocaleString()}
-              </p>
+              <p className="text-2xl font-semibold text-green-600">${0}</p>
             </div>
             <DollarSign className="w-8 h-8 text-green-500" />
           </div>
@@ -576,9 +573,7 @@ const TicketingManagementTab = ({ event }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Tickets Sold</p>
-              <p className="text-2xl font-semibold text-blue-600">
-                {totalSold.toLocaleString()}
-              </p>
+              <p className="text-2xl font-semibold text-blue-600">{0}</p>
             </div>
             <Ticket className="w-8 h-8 text-blue-500" />
           </div>
@@ -588,9 +583,7 @@ const TicketingManagementTab = ({ event }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Available</p>
-              <p className="text-2xl font-semibold text-purple-600">
-                {totalAvailable.toLocaleString()}
-              </p>
+              <p className="text-2xl font-semibold text-purple-600">{0}</p>
             </div>
             <Users className="w-8 h-8 text-purple-500" />
           </div>
@@ -600,9 +593,7 @@ const TicketingManagementTab = ({ event }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Active Types</p>
-              <p className="text-2xl font-semibold text-gray-900">
-                {activeTickets}
-              </p>
+              <p className="text-2xl font-semibold text-gray-900">{0}</p>
             </div>
             <CheckCircle className="w-8 h-8 text-green-500" />
           </div>
@@ -634,7 +625,7 @@ const TicketingManagementTab = ({ event }) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white p-6 rounded-lg border">
             <h3 className="text-lg font-semibold mb-4">Sales Overview</h3>
-            <div className="space-y-3">
+            {/* <div className="space-y-3">
               {tickets.map((ticket) => {
                 const soldPercentage = (ticket.sold / ticket.quantity) * 100;
                 return (
@@ -655,13 +646,13 @@ const TicketingManagementTab = ({ event }) => {
                   </div>
                 );
               })}
-            </div>
+            </div> */}
           </div>
 
           <div className="bg-white p-6 rounded-lg border">
             <h3 className="text-lg font-semibold mb-4">Recent Orders</h3>
             <div className="space-y-3">
-              {orders.slice(0, 5).map((order) => (
+              {/* {orders.slice(0, 5).map((order) => (
                 <div
                   key={order.id}
                   className="flex justify-between items-center py-2 border-b last:border-b-0"
@@ -677,7 +668,7 @@ const TicketingManagementTab = ({ event }) => {
                     <StatusButton status={order.status} />
                   </div>
                 </div>
-              ))}
+              ))} */}
             </div>
           </div>
         </div>
@@ -687,31 +678,43 @@ const TicketingManagementTab = ({ event }) => {
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Ticket Types</h3>
-            <CustomButton
-              buttonText="Add Ticket Type"
-              prefixIcon={<Plus size={16} />}
-              buttonColor="bg-purple-600"
-              radius="rounded-full"
-              onClick={() => {
-                setEditingTicket(null);
-                setFormData({
-                  name: "",
-                  category: "",
-                  price: 0,
-                  description: "",
-                  quantity: 100,
-                  currency: "USD",
-                  sale_start_date: "",
-                  sale_end_date: "",
-                  min_per_order: 1,
-                  max_per_order: 10,
-                  is_active: true,
-                  requires_approval: false,
-                  is_free: false,
-                });
-                setShowTicketModal(true);
-              }}
-            />
+            <div className="flex gap-3">
+              <CustomButton
+                buttonText="Add Category"
+                prefixIcon={<Plus size={16} />}
+                buttonColor="bg-gray-600"
+                radius="rounded-full"
+                onClick={() => {
+                  setCategoryFormData({ name: "" });
+                  setShowCategoryModal(true);
+                }}
+              />
+              <CustomButton
+                buttonText="Add Ticket"
+                prefixIcon={<Plus size={16} />}
+                buttonColor="bg-purple-600"
+                radius="rounded-full"
+                onClick={() => {
+                  setEditingTicket(null);
+                  setFormData({
+                    name: "",
+                    category: "",
+                    price: 0,
+                    description: "",
+                    quantity: 100,
+                    currency: "USD",
+                    sale_start_date: "",
+                    sale_end_date: "",
+                    min_per_order: 1,
+                    max_per_order: 10,
+                    is_active: true,
+                    requires_approval: false,
+                    is_free: false,
+                  });
+                  setShowTicketModal(true);
+                }}
+              />
+            </div>
           </div>
 
           {loadingTickets ? (
@@ -719,7 +722,7 @@ const TicketingManagementTab = ({ event }) => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
               <p className="mt-4 text-gray-600">Loading tickets...</p>
             </div>
-          ) : tickets.length === 0 ? (
+          ) : ticketsData?.data?.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-lg border">
               <Ticket className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -756,33 +759,59 @@ const TicketingManagementTab = ({ event }) => {
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {tickets.map((ticket) => (
-              <TicketCard
-                key={ticket.id}
-                ticket={ticket}
-                onEdit={() => {
-                  setEditingTicket(ticket);
-                  setFormData({
-                    name: ticket.name,
-                    category: ticket.categoryId || "",
-                    price: ticket.price,
-                    description: ticket.description || "",
-                    quantity: ticket.quantity,
-                    currency: ticket.currency,
-                    sale_start_date: ticket.sale_start_date?.split('T')[0] || "",
-                    sale_end_date: ticket.sale_end_date?.split('T')[0] || "",
-                    min_per_order: ticket.min_per_order,
-                    max_per_order: ticket.max_per_order,
-                    is_active: ticket.is_active,
-                    requires_approval: ticket.requires_approval,
-                    is_free: ticket.is_free,
-                  });
-                  setShowTicketModal(true);
-                }}
-                onDelete={handleDeleteTicket}
-                onToggleStatus={handleToggleTicketStatus}
-                isLoading={isLoading}
-              />
+              {ticketsData?.data?.map((ticket) => (
+                <TicketCard
+                  key={ticket._id}
+                  ticket={{
+                    ...ticket,
+                    id: ticket._id,
+                    sold: ticket.quantity - ticket.quantity_remaining,
+                    status: ticket.is_active
+                      ? ticket.sold_out
+                        ? "sold_out"
+                        : "active"
+                      : "paused",
+                    category:
+                      typeof ticket.category === "object"
+                        ? ticket.category.name
+                        : ticket.category,
+                    revenue: 0, // Hardcoded as requested
+                  }}
+                  onEdit={() => {
+                    setEditingTicket(ticket);
+                    setFormData({
+                      name: ticket.name,
+                      category:
+                        typeof ticket.category === "object"
+                          ? ticket.category._id
+                          : ticket.category,
+                      price: ticket.price,
+                      description: ticket.description || "",
+                      quantity: ticket.quantity,
+                      currency: ticket.currency,
+                      sale_start_date:
+                        ticket.sale_start_date?.split("T")[0] || "",
+                      sale_end_date: ticket.sale_end_date?.split("T")[0] || "",
+                      min_per_order: ticket.min_per_order,
+                      max_per_order: ticket.max_per_order,
+                      is_active: ticket.is_active,
+                      requires_approval: ticket.requires_approval,
+                      is_free: ticket.is_free,
+                    });
+                    setShowTicketModal(true);
+                  }}
+                  onDelete={() => {
+                    setEditingTicket(ticket);
+                    document.getElementById("delete-ticket").showModal();
+                  }}
+                  onToggleStatus={() =>
+                    handleToggleTicketStatus(
+                      ticket._id,
+                      ticket.is_active ? "paused" : "active"
+                    )
+                  }
+                  isLoading={isLoading}
+                />
               ))}
             </div>
           )}
@@ -819,7 +848,7 @@ const TicketingManagementTab = ({ event }) => {
           </div>
 
           <div className="space-y-3">
-            {filteredOrders.map((order) => (
+            {[].map((order) => (
               <OrderCard
                 key={order.id}
                 order={order}
@@ -830,7 +859,7 @@ const TicketingManagementTab = ({ event }) => {
             ))}
           </div>
 
-          {filteredOrders.length === 0 && (
+          {[].length === 0 && (
             <div className="text-center py-12 bg-white rounded-lg border">
               <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -858,6 +887,62 @@ const TicketingManagementTab = ({ event }) => {
               <p className="text-sm">
                 Integration with charting library required.
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Category Modal */}
+      {showCategoryModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Add New Category</h3>
+                <button
+                  onClick={() => {
+                    setShowCategoryModal(false);
+                    setCategoryFormData({ name: "" });
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  ×
+                </button>
+              </div>
+
+              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+                <InputWithFullBoarder
+                  label="Category Name *"
+                  placeholder="Enter category name"
+                  value={categoryFormData.name}
+                  onChange={(e) =>
+                    setCategoryFormData({
+                      ...categoryFormData,
+                      name: e.target.value,
+                    })
+                  }
+                />
+
+                <div className="flex gap-3 pt-4">
+                  <CustomButton
+                    buttonText="Create Category"
+                    buttonColor="bg-gray-600"
+                    radius="rounded-md"
+                    isLoading={isLoading}
+                    onClick={handleSaveCategory}
+                  />
+                  <CustomButton
+                    buttonText="Cancel"
+                    onClick={() => {
+                      setShowCategoryModal(false);
+                      setCategoryFormData({ name: "" });
+                    }}
+                    buttonColor="bg-gray-300"
+                    textColor="text-gray-700"
+                    radius="rounded-md"
+                  />
+                </div>
+              </form>
             </div>
           </div>
         </div>
@@ -904,7 +989,9 @@ const TicketingManagementTab = ({ event }) => {
                     label="Ticket Name *"
                     placeholder="Enter ticket name"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                   />
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -912,7 +999,9 @@ const TicketingManagementTab = ({ event }) => {
                     </label>
                     <select
                       value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, category: e.target.value })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                     >
                       <option value="">Select category</option>
@@ -931,7 +1020,9 @@ const TicketingManagementTab = ({ event }) => {
                   isTextArea={true}
                   rows={2}
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -941,14 +1032,24 @@ const TicketingManagementTab = ({ event }) => {
                     step="0.01"
                     placeholder="0.00"
                     value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        price: parseFloat(e.target.value) || 0,
+                      })
+                    }
                   />
                   <InputWithFullBoarder
                     label="Quantity"
                     type="number"
                     placeholder="100"
                     value={formData.quantity}
-                    onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        quantity: parseInt(e.target.value) || 0,
+                      })
+                    }
                   />
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -956,7 +1057,9 @@ const TicketingManagementTab = ({ event }) => {
                     </label>
                     <select
                       value={formData.currency}
-                      onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, currency: e.target.value })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                     >
                       <option value="USD">USD</option>
@@ -972,13 +1075,23 @@ const TicketingManagementTab = ({ event }) => {
                     label="Sale Start Date"
                     type="date"
                     value={formData.sale_start_date}
-                    onChange={(e) => setFormData({ ...formData, sale_start_date: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        sale_start_date: e.target.value,
+                      })
+                    }
                   />
                   <InputWithFullBoarder
                     label="Sale End Date"
                     type="date"
                     value={formData.sale_end_date}
-                    onChange={(e) => setFormData({ ...formData, sale_end_date: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        sale_end_date: e.target.value,
+                      })
+                    }
                   />
                 </div>
 
@@ -988,14 +1101,24 @@ const TicketingManagementTab = ({ event }) => {
                     type="number"
                     placeholder="1"
                     value={formData.min_per_order}
-                    onChange={(e) => setFormData({ ...formData, min_per_order: parseInt(e.target.value) || 1 })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        min_per_order: parseInt(e.target.value) || 1,
+                      })
+                    }
                   />
                   <InputWithFullBoarder
                     label="Max per Order"
                     type="number"
                     placeholder="10"
                     value={formData.max_per_order}
-                    onChange={(e) => setFormData({ ...formData, max_per_order: parseInt(e.target.value) || 10 })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        max_per_order: parseInt(e.target.value) || 10,
+                      })
+                    }
                   />
                 </div>
 
@@ -1004,7 +1127,9 @@ const TicketingManagementTab = ({ event }) => {
                     <input
                       type="checkbox"
                       checked={formData.is_free}
-                      onChange={(e) => setFormData({ ...formData, is_free: e.target.checked })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, is_free: e.target.checked })
+                      }
                       className="mr-2"
                     />
                     Free Ticket
@@ -1013,7 +1138,12 @@ const TicketingManagementTab = ({ event }) => {
                     <input
                       type="checkbox"
                       checked={formData.requires_approval}
-                      onChange={(e) => setFormData({ ...formData, requires_approval: e.target.checked })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          requires_approval: e.target.checked,
+                        })
+                      }
                       className="mr-2"
                     />
                     Requires Approval
@@ -1046,6 +1176,17 @@ const TicketingManagementTab = ({ event }) => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        title="Delete Ticket"
+        body={`Are you sure you want to delete the ticket "${editingTicket?.name}"? This action cannot be undone.`}
+        buttonText="Delete Ticket"
+        isLoading={deletingTicket}
+        onClick={handleDeleteTicket}
+        id="delete-ticket"
+        // buttonColor="red"
+      />
     </div>
   );
 };

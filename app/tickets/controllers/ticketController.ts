@@ -1,35 +1,42 @@
+import usePostManager from "@/constants/controller_templates/post_controller_template";
+import useUpdateManager from "@/constants/controller_templates/put_controller_template";
+import useDeleteManager from "@/constants/controller_templates/delete_controller_template";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
-import { useMutation, useQuery, useQueryClient } from "react-query";
-import { 
-  Ticket, 
-  CreateTicketPayload, 
-  UpdateTicketPayload, 
-  BuyTicketPayload, 
-  BuyTicketResponse, 
-  TicketResponse 
+import { useQuery } from "react-query";
+import {
+  Ticket,
+  CreateTicketPayload,
+  UpdateTicketPayload,
+  BuyTicketPayload,
+  BuyTicketResponse,
+  TicketResponse,
 } from "../types";
 
-// Create Ticket
+interface BaseResponse {
+  status: string;
+  message: string;
+  data: any;
+}
+
 export const CreateTicketManager = () => {
-  const queryClient = useQueryClient();
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(`/ticket/`, ["eventTickets"], true);
 
-  const { mutateAsync: createTicket, isLoading, isSuccess, error, data } = useMutation<
-    TicketResponse,
-    Error,
-    CreateTicketPayload
-  >(
-    async (ticketData) => {
-      const response = await AxiosWithToken.post(`/ticket/`, ticketData);
-      return response.data;
-    },
-    {
-      onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(["eventTickets", variables.event]);
-      },
+  const createTicket = async (ticketData: CreateTicketPayload) => {
+    try {
+      await postCaller(ticketData);
+    } catch (error) {
+      console.error("Error creating ticket:", error);
     }
-  );
+  };
 
-  return { createTicket, isLoading, isSuccess, error, data };
+  return {
+    createTicket,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
 };
 
 // Get Tickets for Event
@@ -48,79 +55,101 @@ export const useGetEventTicketsManager = (eventId: string, enabled = true) => {
   );
 };
 
-// Update Ticket
-export const UpdateTicketManager = () => {
-  const queryClient = useQueryClient();
+export const UpdateTicketManager = ({ ticketId }) => {
+  const { updateCaller, isLoading, isSuccess, error, data } =
+    useUpdateManager<BaseResponse>(
+      `/ticket/${ticketId}`,
+      ["eventTickets"],
+      true
+    );
 
-  const { mutateAsync: updateTicket, isLoading, isSuccess, error, data } = useMutation<
-    TicketResponse,
-    Error,
-    { ticketId: string; data: UpdateTicketPayload; eventId: string }
-  >(
-    async ({ ticketId, data }) => {
-      const response = await AxiosWithToken.put(`/ticket/${ticketId}`, data);
-      return response.data;
-    },
-    {
-      onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(["eventTickets", variables.eventId]);
-      },
+  const updateTicket = async (ticketData: UpdateTicketPayload) => {
+    try {
+      await updateCaller(ticketData);
+    } catch (error) {
+      console.error("Error updating ticket:", error);
     }
-  );
+  };
 
-  return { updateTicket, isLoading, isSuccess, error, data };
+  return {
+    updateTicket,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
 };
 
-// Delete Ticket
-export const DeleteTicketManager = () => {
-  const queryClient = useQueryClient();
+export const DeleteTicketManager = ({ ticketId }) => {
+  const { deleteCaller, isLoading, isSuccess, error, data } =
+    useDeleteManager<BaseResponse>(
+      `/ticket/${ticketId}`,
+      ["eventTickets"],
+      true
+    );
 
-  const { mutateAsync: deleteTicket, isLoading, isSuccess, error } = useMutation<
-    void,
-    Error,
-    { ticketId: string; eventId: string }
-  >(
-    async ({ ticketId }) => {
-      await AxiosWithToken.delete(`/ticket/${ticketId}`);
-    },
-    {
-      onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(["eventTickets", variables.eventId]);
-      },
+  const deleteTicket = async () => {
+    try {
+      await deleteCaller(undefined);
+    } catch (error) {
+      console.error("Error deleting ticket:", error);
     }
-  );
+  };
 
-  return { deleteTicket, isLoading, isSuccess, error };
+  return {
+    deleteTicket,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
 };
 
-// Buy Ticket
 export const BuyTicketManager = () => {
-  const { mutateAsync: buyTicket, isLoading, isSuccess, error, data } = useMutation<
-    BuyTicketResponse,
-    Error,
-    { eventId: string; data: BuyTicketPayload }
-  >(
-    async ({ eventId, data }) => {
-      const response = await AxiosWithToken.post(`/ticket/event/${eventId}/buy`, data);
-      return response.data;
-    }
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BuyTicketResponse>(`/ticket/event/buy`, ["tickets"], true);
 
-  return { buyTicket, isLoading, isSuccess, error, data };
+  const buyTicket = async (eventId: string, buyData: BuyTicketPayload) => {
+    try {
+      await postCaller({ eventId, data: buyData });
+    } catch (error) {
+      console.error("Error buying ticket:", error);
+    }
+  };
+
+  return {
+    buyTicket,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
 };
 
-// Buy Ticket Mobile
 export const BuyTicketMobileManager = () => {
-  const { mutateAsync: buyTicketMobile, isLoading, isSuccess, error, data } = useMutation<
-    BuyTicketResponse,
-    Error,
-    { eventId: string; data: BuyTicketPayload }
-  >(
-    async ({ eventId, data }) => {
-      const response = await AxiosWithToken.post(`/ticket/event/${eventId}/buy/mobile`, data);
-      return response.data;
-    }
-  );
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BuyTicketResponse>(
+      `/ticket/event/buy/mobile`,
+      ["tickets"],
+      true
+    );
 
-  return { buyTicketMobile, isLoading, isSuccess, error, data };
+  const buyTicketMobile = async (
+    eventId: string,
+    buyData: BuyTicketPayload
+  ) => {
+    try {
+      await postCaller({ eventId, data: buyData });
+    } catch (error) {
+      console.error("Error buying ticket mobile:", error);
+    }
+  };
+
+  return {
+    buyTicketMobile,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
 };
