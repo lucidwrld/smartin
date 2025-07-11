@@ -1,14 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { MoreVertical, Copy } from "lucide-react";
 import HeaderWithEdit from "@/components/HeaderWithEdit";
 import Link from "next/link";
 import { copyToClipboard } from "@/utils/copyToClipboard";
 import Loader from "@/components/Loader";
 import { formatAmount } from "@/utils/formatAmount";
+import { GiftRegistryStep } from "@/components/events/GiftRegistryStep";
+import { EditEventManager } from "@/app/events/controllers/editEventController";
 
 const GiftItem = ({ name, price, link, currency }) => (
   <Link
-    href={link}
+    href={link || "#"}
     target="_blank"
     rel="noopener noreferrer"
     className="flex items-center justify-between p-4 border border-grey3 rounded-lg bg-whiteColor"
@@ -69,12 +71,81 @@ const AccountDetails = ({ accountInfo, isLoading }) => {
 };
 
 const GiftRegistryTab = ({ event, isViewOnly = false }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    items: event?.items || [],
+    donation: event?.donation || {}
+  });
+
+  const { updateEvent, isLoading: isSaving } = EditEventManager({ eventId: event?.id });
+
+  const handleFormDataChange = (field, value) => {
+    if (field.includes('.')) {
+      const [parent, child] = field.split('.');
+      setFormData(prev => ({
+        ...prev,
+        [parent]: { ...prev[parent], [child]: value }
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      await updateEvent({
+        items: formData.items,
+        donation: formData.donation
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error saving gift registry:', error);
+    }
+  };
+
+  const handleCancel = () => {
+    setFormData({
+      items: event?.items || [],
+      donation: event?.donation || {}
+    });
+    setIsEditing(false);
+  };
+
+  if (isEditing) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold">Edit Gift Registry</h2>
+          <div className="flex gap-2">
+            <button
+              onClick={handleCancel}
+              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="px-4 py-2 bg-brandPurple text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+            >
+              {isSaving ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </div>
+        <GiftRegistryStep
+          formData={formData}
+          onFormDataChange={handleFormDataChange}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {!isViewOnly && (
         <HeaderWithEdit
           title="Gift Registry"
-          href={`/events/create-event?id=${event?.id}&section=gift registry`}
+          onClick={() => setIsEditing(true)}
         />
       )}
       <p className="text-gray-600">
