@@ -12,6 +12,26 @@ import useGetUserDetailsManager from "../profile-settings/controllers/get_UserDe
 import useGetAllUserInvitedEventsManager from "./controllers/getAllUserInvitedEventsController";
 import useDebounce from "@/utils/UseDebounce";
 import SearchComponent from "@/components/SearchComponent";
+import { Clock, Users, ChevronRight } from "lucide-react";
+import { formatDateToLongString } from "@/utils/formatDateToLongString";
+
+const UpcomingEvent = ({ name, date, no_of_invitees }) => (
+  <div className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors text-brandBlack">
+    <div>
+      <p className="font-medium text-sm">{name}</p>
+      <div className="flex items-center gap-2 mt-1">
+        <Clock size={14} className="text-gray-400" />
+        <span className="text-sm text-gray-600">
+          {formatDateToLongString(date)}
+        </span>
+        <span className="text-gray-400">•</span>
+        <Users size={14} className="text-gray-400" />
+        <span className="text-sm text-gray-600">{no_of_invitees} guests</span>
+      </div>
+    </div>
+    <ChevronRight size={16} className="text-gray-400" />
+  </div>
+);
 
 const AllEventsPage = () => {
   const [currentView, setCurrentView] = useState(0);
