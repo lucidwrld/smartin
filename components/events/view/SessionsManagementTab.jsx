@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Plus,
   Edit2,
@@ -21,74 +21,35 @@ import {
 } from "lucide-react";
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
+import Loader from "@/components/Loader";
+import { toast } from "react-toastify";
+
+// Import session controllers
+import useGetAllSessionsManager from "@/app/events/controllers/sessions/controllers/getAllSessionsController";
+import CreateSessionManager from "@/app/events/controllers/sessions/controllers/createSessionController";
+import UpdateSessionManager from "@/app/events/controllers/sessions/controllers/updateSessionController";
+import DeleteSessionManager from "@/app/events/controllers/sessions/controllers/deleteSessionController";
 
 const SessionsManagementTab = ({ event }) => {
-  const [sessions, setSessions] = useState([
-    {
-      id: "session_1",
-      name: "Day 1 - Opening Ceremony",
-      description: "Welcome address, keynote presentations, and networking",
-      date: "2024-07-22",
-      start_time: "09:00",
-      end_time: "17:00",
-      location: "Main Hall",
-      max_capacity: 300,
-      is_attendance_required: true,
-      is_public: true,
-      session_type: "main_event",
-      speakers: ["Dr. Sarah Johnson", "Michael Chen"],
-      requirements: ["Valid ID", "Event Badge"],
-      status: "upcoming",
-      registered_count: 245,
-      attended_count: 0,
-      created_at: "2024-07-01T10:00:00"
-    },
-    {
-      id: "session_2",
-      name: "Day 2 - Workshop Sessions",
-      description: "Interactive workshops and breakout sessions",
-      date: "2024-07-23",
-      start_time: "08:00",
-      end_time: "16:00",
-      location: "Conference Rooms A-D",
-      max_capacity: 200,
-      is_attendance_required: true,
-      is_public: true,
-      session_type: "workshop",
-      speakers: ["Emily Rodriguez", "Mark Wilson"],
-      requirements: ["Laptop Required", "Pre-registered"],
-      status: "active",
-      registered_count: 180,
-      attended_count: 165,
-      created_at: "2024-07-01T10:00:00"
-    },
-    {
-      id: "session_3",
-      name: "Day 3 - Networking & Closing",
-      description: "Final networking session and closing ceremony",
-      date: "2024-07-24",
-      start_time: "10:00",
-      end_time: "15:00",
-      location: "Garden Pavilion",
-      max_capacity: 250,
-      is_attendance_required: false,
-      is_public: true,
-      session_type: "networking",
-      speakers: [],
-      requirements: [],
-      status: "upcoming",
-      registered_count: 190,
-      attended_count: 0,
-      created_at: "2024-07-01T10:00:00"
-    }
-  ]);
-
   const [showModal, setShowModal] = useState(false);
   const [editingSession, setEditingSession] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("sessions");
+
+  // Session controllers
+  const { data: sessionsData, isLoading: loadingSessions, refetch: refetchSessions } = useGetAllSessionsManager({
+    eventId: event?.id,
+    enabled: Boolean(event?.id)
+  });
+
+  const { createSession, isLoading: creating, isSuccess: createSuccess } = CreateSessionManager();
+  const { updateSession, isLoading: updating, isSuccess: updateSuccess } = UpdateSessionManager(editingSession?._id);
+  const [sessionToDelete, setSessionToDelete] = useState(null);
+  const { deleteSession, isLoading: deleting, isSuccess: deleteSuccess } = DeleteSessionManager(sessionToDelete?._id);
+
+  // Get sessions from backend data
+  const sessions = sessionsData?.data || [];
 
   const [formData, setFormData] = useState({
+    event: event?.id || "",
     name: "",
     description: "",
     date: "",
@@ -109,14 +70,38 @@ const SessionsManagementTab = ({ event }) => {
     { value: "networking", label: "Networking" },
     { value: "break", label: "Break/Lunch" },
     { value: "ceremony", label: "Ceremony" },
-    { value: "presentation", label: "Presentation" }
+    { value: "presentation", label: "Presentation" },
+    { value: "other", label: "Other" }
   ];
+
+  // Handle success states
+  useEffect(() => {
+    if (createSuccess) {
+      handleCloseModal();
+      refetchSessions();
+    }
+  }, [createSuccess]);
+
+  useEffect(() => {
+    if (updateSuccess) {
+      handleCloseModal();
+      refetchSessions();
+    }
+  }, [updateSuccess]);
+
+  useEffect(() => {
+    if (deleteSuccess) {
+      setSessionToDelete(null);
+      refetchSessions();
+    }
+  }, [deleteSuccess]);
 
   const handleOpenModal = (session = null) => {
     setEditingSession(session);
     
     if (session) {
       setFormData({
+        event: event?.id || "",
         name: session.name || "",
         description: session.description || "",
         date: session.date || "",
@@ -132,6 +117,7 @@ const SessionsManagementTab = ({ event }) => {
       });
     } else {
       setFormData({
+        event: event?.id || "",
         name: "",
         description: "",
         date: "",
@@ -154,6 +140,7 @@ const SessionsManagementTab = ({ event }) => {
     setShowModal(false);
     setEditingSession(null);
     setFormData({
+      event: event?.id || "",
       name: "",
       description: "",
       date: "",
@@ -202,74 +189,92 @@ const SessionsManagementTab = ({ event }) => {
 
   const handleSave = async () => {
     if (!formData.name.trim() || !formData.date || !formData.start_time) {
-      alert("Please enter session name, date, and start time");
+      toast.error("Please enter session name, date, and start time");
       return;
     }
 
-    setIsLoading(true);
-    
+    if (!event?.id) {
+      toast.error("Event ID is required");
+      return;
+    }
+
     try {
-      const newSession = {
-        id: editingSession?.id || `session_${Date.now()}`,
-        ...formData,
+      const sessionData = {
+        event: event.id,
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        date: formData.date,
+        start_time: formData.start_time,
+        end_time: formData.end_time,
+        location: formData.location.trim(),
         max_capacity: parseInt(formData.max_capacity) || 0,
+        is_attendance_required: formData.is_attendance_required,
+        is_public: formData.is_public,
+        session_type: formData.session_type,
         speakers: formData.speakers.filter(s => s.trim()),
-        requirements: formData.requirements.filter(r => r.trim()),
-        status: editingSession?.status || "upcoming",
-        registered_count: editingSession?.registered_count || 0,
-        attended_count: editingSession?.attended_count || 0,
-        created_at: editingSession?.created_at || new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        requirements: formData.requirements.filter(r => r.trim())
       };
 
       if (editingSession) {
-        setSessions(prev => 
-          prev.map(session => session.id === editingSession.id ? newSession : session)
-        );
+        await updateSession({ ...sessionData, _id: editingSession._id });
       } else {
-        setSessions(prev => [...prev, newSession]);
+        await createSession(sessionData);
       }
-
-      // Here you would typically save to backend
-      // await updateEventSessions({ eventId: event.id, sessions: [...] });
-
-      handleCloseModal();
     } catch (error) {
       console.error("Error saving session:", error);
-      alert("Error saving session. Please try again.");
-    } finally {
-      setIsLoading(false);
+      toast.error("Error saving session. Please try again.");
     }
   };
 
-  const handleDelete = async (sessionId) => {
+  const handleDelete = async (session) => {
     if (!confirm("Are you sure you want to delete this session?")) {
       return;
     }
 
     try {
-      setSessions(prev => prev.filter(session => session.id !== sessionId));
-      // await deleteEventSession({ eventId: event.id, sessionId });
+      setSessionToDelete(session);
+      // Pass the session data as the request body for the delete endpoint
+      await deleteSession({
+        event: session.event,
+        name: session.name,
+        description: session.description,
+        date: session.date,
+        start_time: session.start_time,
+        end_time: session.end_time,
+        location: session.location,
+        max_capacity: session.max_capacity,
+        is_attendance_required: session.is_attendance_required,
+        is_public: session.is_public,
+        session_type: session.session_type,
+        speakers: session.speakers,
+        requirements: session.requirements
+      });
     } catch (error) {
       console.error("Error deleting session:", error);
-      alert("Error deleting session. Please try again.");
+      toast.error("Error deleting session. Please try again.");
     }
   };
 
-  const toggleSessionVisibility = (sessionId) => {
-    setSessions(prev => 
-      prev.map(session => 
-        session.id === sessionId 
-          ? { ...session, is_public: !session.is_public }
-          : session
-      )
-    );
+  const toggleSessionVisibility = async (session) => {
+    try {
+      setEditingSession(session);
+      const updateManager = UpdateSessionManager(session._id);
+      await updateManager.updateSession({
+        ...session,
+        is_public: !session.is_public
+      });
+      refetchSessions();
+    } catch (error) {
+      console.error("Error updating session visibility:", error);
+      toast.error("Error updating session visibility. Please try again.");
+    }
   };
 
   const getStatusColor = (status) => {
     const colors = {
       upcoming: "bg-blue-100 text-blue-800",
       active: "bg-green-100 text-green-800",
+      ongoing: "bg-green-100 text-green-800",
       completed: "bg-gray-100 text-gray-800",
       cancelled: "bg-red-100 text-red-800"
     };
@@ -283,7 +288,8 @@ const SessionsManagementTab = ({ event }) => {
       networking: Users,
       break: Clock,
       ceremony: CheckCircle,
-      presentation: BarChart3
+      presentation: BarChart3,
+      other: AlertCircle
     };
     return icons[type] || Calendar;
   };
@@ -293,8 +299,8 @@ const SessionsManagementTab = ({ event }) => {
   };
 
   const getTotalStats = () => {
-    const totalRegistered = sessions.reduce((sum, session) => sum + session.registered_count, 0);
-    const totalAttended = sessions.reduce((sum, session) => sum + session.attended_count, 0);
+    const totalRegistered = sessions.reduce((sum, session) => sum + (session.registered_count || 0), 0);
+    const totalAttended = sessions.reduce((sum, session) => sum + (session.attended_count || 0), 0);
     const averageAttendance = totalRegistered > 0 ? Math.round((totalAttended / totalRegistered) * 100) : 0;
 
     return {
@@ -306,6 +312,10 @@ const SessionsManagementTab = ({ event }) => {
   };
 
   const stats = getTotalStats();
+
+  if (loadingSessions) {
+    return <Loader />;
+  }
 
   return (
     <div className="space-y-6">
@@ -389,7 +399,7 @@ const SessionsManagementTab = ({ event }) => {
             const TypeIcon = getTypeIcon(session.session_type);
             return (
               <div
-                key={session.id}
+                key={session._id}
                 className="bg-white border rounded-lg p-6 hover:shadow-md transition-shadow"
               >
                 <div className="flex justify-between items-start mb-4">
@@ -401,7 +411,7 @@ const SessionsManagementTab = ({ event }) => {
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-lg font-semibold">{session.name}</h3>
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(session.status)}`}>
-                          {session.status.charAt(0).toUpperCase() + session.status.slice(1)}
+                          {session.status?.charAt(0).toUpperCase() + session.status?.slice(1)}
                         </span>
                         {session.is_attendance_required && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
@@ -427,7 +437,7 @@ const SessionsManagementTab = ({ event }) => {
                         </div>
                       </div>
 
-                      {session.speakers.length > 0 && (
+                      {session.speakers && session.speakers.length > 0 && (
                         <div className="mt-3">
                           <span className="text-sm text-gray-500">Speakers: </span>
                           <span className="text-sm text-gray-700">{session.speakers.join(", ")}</span>
@@ -438,7 +448,7 @@ const SessionsManagementTab = ({ event }) => {
                   
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => toggleSessionVisibility(session.id)}
+                      onClick={() => toggleSessionVisibility(session)}
                       className={`p-2 rounded ${session.is_public ? 'text-green-600 bg-green-50' : 'text-gray-400 bg-gray-50'}`}
                       title={session.is_public ? "Public" : "Private"}
                     >
@@ -452,9 +462,10 @@ const SessionsManagementTab = ({ event }) => {
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleDelete(session.id)}
+                      onClick={() => handleDelete(session)}
                       className="p-2 text-gray-500 hover:text-red-600 rounded"
                       title="Delete session"
+                      disabled={deleting}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -466,21 +477,21 @@ const SessionsManagementTab = ({ event }) => {
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Attendance Progress</span>
                     <span className="font-medium">
-                      {session.attended_count} / {session.registered_count} 
-                      ({Math.round((session.attended_count / session.registered_count) * 100) || 0}%)
+                      {session.attended_count || 0} / {session.registered_count || 0} 
+                      ({Math.round(((session.attended_count || 0) / (session.registered_count || 1)) * 100)}%)
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div 
                       className="bg-purple-600 h-2 rounded-full transition-all duration-300"
                       style={{ 
-                        width: `${session.registered_count > 0 ? (session.attended_count / session.registered_count) * 100 : 0}%` 
+                        width: `${(session.registered_count || 0) > 0 ? ((session.attended_count || 0) / (session.registered_count || 1)) * 100 : 0}%` 
                       }}
                     ></div>
                   </div>
                   <div className="flex justify-between text-xs text-gray-500">
-                    <span>Capacity: {session.max_capacity}</span>
-                    <span>Registered: {session.registered_count}</span>
+                    <span>Capacity: {session.max_capacity || 0}</span>
+                    <span>Registered: {session.registered_count || 0}</span>
                   </div>
                 </div>
               </div>
@@ -682,7 +693,7 @@ const SessionsManagementTab = ({ event }) => {
                     prefixIcon={<Save className="w-4 h-4" />}
                     buttonColor="bg-purple-600"
                     radius="rounded-md"
-                    isLoading={isLoading}
+                    isLoading={creating || updating}
                     onClick={handleSave}
                   />
                   <CustomButton

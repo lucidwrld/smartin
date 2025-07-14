@@ -39,7 +39,7 @@ const EventTile = ({ event }) => {
             <img src={purpleTime.src} alt="" />
 
             <p className="text-16px leading-[24px] font-medium uppercase ">
-              {convertToAmPm(event?.time)}
+              {convertToAmPm(event?.event_days?.[0]?.time || event?.time)}
             </p>
           </div>
         </div>

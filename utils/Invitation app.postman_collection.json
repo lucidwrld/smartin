@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "5e7671b4-2922-40c1-92e4-1aa6432d24f0",
+		"_postman_id": "9651cc8e-1bd8-4fe0-8606-9de9d4eb7ea1",
 		"name": "Invitation app",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "17652468"
@@ -3175,6 +3175,403 @@
 										"{{pollId}}",
 										"submission",
 										"{{submissionId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Session",
+					"item": [
+						{
+							"name": "Create session",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"event\": \"686b64a6424d054309978ae9\",\n    \"name\": \"Day 1 - Opening Ceremony\",\n    \"description\": \"Welcome address, keynote presentations, and networking\",\n    \"date\": \"2025-07-22\",\n    \"start_time\": \"10:00 am\",\n    \"end_time\": \"11:00 am\",\n    \"location\": \"Main Hall\",\n    \"max_capacity\": 50,\n    \"is_attendance_required\": true,\n    \"is_public\": false,\n    \"session_type\": \"main_event | workshop | networking | break | ceremony | presentation | other\",\n    \"speakers\": [\n        \"Funke williams\"\n    ],\n    \"requirements\": [\n        \"notepad\",\n        \"laptop\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/sessions/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"sessions",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get all sessions for an event",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"event\": \"686b64a6424d054309978ae9\",\n    \"name\": \"Day 1 - Opening Ceremony\",\n    \"description\": \"Welcome address, keynote presentations, and networking\",\n    \"date\": \"2025-07-22\",\n    \"start_time\": \"10:00 am\",\n    \"end_time\": \"11:00 am\",\n    \"location\": \"Main Hall\",\n    \"max_capacity\": 50,\n    \"is_attendance_required\": true,\n    \"is_public\": false,\n    \"session_type\": \"main_event | workshop | networking | break | ceremony | presentation | other\",\n    \"speakers\": [\n        \"Funke williams\"\n    ],\n    \"requirements\": [\n        \"notepad\",\n        \"laptop\"\n    ]\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/sessions/event/{{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"sessions",
+										"event",
+										"{{eventId}}"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"event\": \"686b64a6424d054309978ae9\",\n    \"name\": \"Day 1 - Opening Ceremony\",\n    \"description\": \"Welcome address, keynote presentations, and networking\",\n    \"date\": \"2025-07-22\",\n    \"start_time\": \"10:00 am\",\n    \"end_time\": \"11:00 am\",\n    \"location\": \"Main Hall\",\n    \"max_capacity\": 50,\n    \"is_attendance_required\": true,\n    \"is_public\": false,\n    \"session_type\": \"main_event | workshop | networking | break | ceremony | presentation | other\",\n    \"speakers\": [\n        \"Funke williams\"\n    ],\n    \"requirements\": [\n        \"notepad\",\n        \"laptop\"\n    ]\n}"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/sessions/event/{{eventId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"sessions",
+												"event",
+												"{{eventId}}"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "671"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"29f-/piY0WbhN+TDc/PsJ1UGFrxF3oQ\""
+										},
+										{
+											"key": "Date",
+											"value": "Fri, 11 Jul 2025 07:25:47 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Event sessions fetched successfully\",\n    \"data\": [\n        {\n            \"max_capacity\": 50,\n            \"is_attendance_required\": true,\n            \"is_public\": false,\n            \"session_type\": \"main_event\",\n            \"speakers\": [\n                \"Funke williams\"\n            ],\n            \"requirements\": [\n                \"notepad\",\n                \"laptop\"\n            ],\n            \"status\": \"upcoming\",\n            \"registered_count\": 0,\n            \"attended_count\": 0,\n            \"_id\": \"6870baa92776d75accc9c3b0\",\n            \"event\": \"686b64a6424d054309978ae9\",\n            \"name\": \"Day 1 - Opening Ceremony\",\n            \"description\": \"Welcome address, keynote presentations, and networking\",\n            \"date\": \"2025-07-22\",\n            \"start_time\": \"10:00 am\",\n            \"end_time\": \"11:00 am\",\n            \"location\": \"Main Hall\",\n            \"createdAt\": \"2025-07-11T07:18:01.845Z\",\n            \"updatedAt\": \"2025-07-11T07:18:01.845Z\",\n            \"id\": \"6870baa92776d75accc9c3b0\"\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Get single session",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"event\": \"686b64a6424d054309978ae9\",\n    \"name\": \"Day 1 - Opening Ceremony\",\n    \"description\": \"Welcome address, keynote presentations, and networking\",\n    \"date\": \"2025-07-22\",\n    \"start_time\": \"10:00 am\",\n    \"end_time\": \"11:00 am\",\n    \"location\": \"Main Hall\",\n    \"max_capacity\": 50,\n    \"is_attendance_required\": true,\n    \"is_public\": false,\n    \"session_type\": \"main_event | workshop | networking | break | ceremony | presentation | other\",\n    \"speakers\": [\n        \"Funke williams\"\n    ],\n    \"requirements\": [\n        \"notepad\",\n        \"laptop\"\n    ]\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/sessions/{{sessionId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"sessions",
+										"{{sessionId}}"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"event\": \"686b64a6424d054309978ae9\",\n    \"name\": \"Day 1 - Opening Ceremony\",\n    \"description\": \"Welcome address, keynote presentations, and networking\",\n    \"date\": \"2025-07-22\",\n    \"start_time\": \"10:00 am\",\n    \"end_time\": \"11:00 am\",\n    \"location\": \"Main Hall\",\n    \"max_capacity\": 50,\n    \"is_attendance_required\": true,\n    \"is_public\": false,\n    \"session_type\": \"main_event | workshop | networking | break | ceremony | presentation | other\",\n    \"speakers\": [\n        \"Funke williams\"\n    ],\n    \"requirements\": [\n        \"notepad\",\n        \"laptop\"\n    ]\n}"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/sessions/{{sessionId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"sessions",
+												"{{sessionId}}"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "640"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"280-d9OzcIRledf1REc64SODtohSDs0\""
+										},
+										{
+											"key": "Date",
+											"value": "Fri, 11 Jul 2025 07:30:29 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Session fetched successfully\",\n    \"data\": {\n        \"max_capacity\": 50,\n        \"is_attendance_required\": true,\n        \"is_public\": false,\n        \"session_type\": \"main_event\",\n        \"speakers\": [\n            \"Funke williams\"\n        ],\n        \"requirements\": [\n            \"notepad\",\n            \"laptop\"\n        ],\n        \"status\": \"upcoming\",\n        \"registered_count\": 0,\n        \"attended_count\": 0,\n        \"_id\": \"6870baa92776d75accc9c3b0\",\n        \"event\": null,\n        \"name\": \"Day 1 - Opening Ceremony\",\n        \"description\": \"Welcome address, keynote presentations, and networking\",\n        \"date\": \"2025-07-22\",\n        \"start_time\": \"10:00 am\",\n        \"end_time\": \"11:00 am\",\n        \"location\": \"Main Hall\",\n        \"createdAt\": \"2025-07-11T07:18:01.845Z\",\n        \"updatedAt\": \"2025-07-11T07:18:01.845Z\",\n        \"id\": \"6870baa92776d75accc9c3b0\"\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Delete session",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"event\": \"686b64a6424d054309978ae9\",\n    \"name\": \"Day 1 - Opening Ceremony\",\n    \"description\": \"Welcome address, keynote presentations, and networking\",\n    \"date\": \"2025-07-22\",\n    \"start_time\": \"10:00 am\",\n    \"end_time\": \"11:00 am\",\n    \"location\": \"Main Hall\",\n    \"max_capacity\": 50,\n    \"is_attendance_required\": true,\n    \"is_public\": false,\n    \"session_type\": \"main_event | workshop | networking | break | ceremony | presentation | other\",\n    \"speakers\": [\n        \"Funke williams\"\n    ],\n    \"requirements\": [\n        \"notepad\",\n        \"laptop\"\n    ]\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/sessions/{{sessionId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"sessions",
+										"{{sessionId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Register for event",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n   \"invitee_code\": \"abc234\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/sessions/{{sessionId}}/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"sessions",
+										"{{sessionId}}",
+										"register"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "400",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n   \"invitee_code\": \"abc234\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/sessions/{{sessionId}}/register",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"sessions",
+												"{{sessionId}}",
+												"register"
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "80"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"50-OY0vEd5c5gPVf07Ch/vZSauGW7s\""
+										},
+										{
+											"key": "Date",
+											"value": "Fri, 11 Jul 2025 07:50:59 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"error\",\n    \"message\": \"Only invited guests can register for this session\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Mark attendance",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n   \"invitee_code\": \"abc234\",\n   \"marking_method\": \"manual | qr_code | facial_recognition | auto\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/sessions/{{sessionId}}/attendance/mark",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"sessions",
+										"{{sessionId}}",
+										"attendance",
+										"mark"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get session registrations",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/sessions/{{sessionId}}/registrations",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"sessions",
+										"{{sessionId}}",
+										"registrations"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get session attendance",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n   \"invitee_code\": \"abc234\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/sessions/{{sessionId}}/attendance",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"sessions",
+										"{{sessionId}}",
+										"attendance"
 									]
 								}
 							},

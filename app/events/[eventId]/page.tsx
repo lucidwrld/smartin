@@ -96,7 +96,7 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
         { id: 13, name: "Sponsors & Partners", icon: Handshake },
         { id: 14, name: "Hosts & Figures", icon: Crown },
         { id: 15, name: "Broadcast", icon: Speaker, comingSoon: true },
-        { id: 16, name: "Sessions", icon: Timer, comingSoon: true },
+        { id: 16, name: "Sessions", icon: Timer },
       ],
     },
     {

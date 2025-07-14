@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import InputWithFullBoarder from "../InputWithFullBoarder";
 import Dropdown from "../Dropdown";
+import { timezones } from "../../utils/timezones";
 
 export const EventDetailsStep = ({
   formData,
@@ -287,6 +288,24 @@ export const EventDetailsStep = ({
                   handleInputChange("isVirtual", e.target.value === "virtual" || e.target.value === "hybrid");
                 }}
                 placeholder="Select event format..."
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="w-1/2">
+              <Dropdown
+                label="Timezone"
+                id="timezone"
+                isRequired={true}
+                type="select"
+                value={formData.timezone || "Africa/Lagos"}
+                options={timezones.map(tz => ({
+                  value: tz.value,
+                  label: tz.label
+                }))}
+                onChange={(e) => handleInputChange("timezone", e.target.value)}
+                placeholder="Select timezone..."
               />
             </div>
             {!isEditMode && (

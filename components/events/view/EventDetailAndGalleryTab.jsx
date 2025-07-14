@@ -114,7 +114,7 @@ const EventDetailAndGalleryTab = ({ event, isLoading, analytics, analyticsCards 
                 {formatDateToLongString(event?.date)}
               </span>
               <Clock size={16} className="ml-2" />
-              <span className="text-sm">{convertToAmPm(event?.time)}</span>
+              <span className="text-sm">{convertToAmPm(event?.event_days?.[0]?.time || event?.time)}</span>
             </div>
             <div className="flex items-center gap-2 text-gray-600">
               <MapPin size={16} />
