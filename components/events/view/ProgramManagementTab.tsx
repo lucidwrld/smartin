@@ -137,7 +137,7 @@ const AgendaItem: React.FC<AgendaItemProps> = ({
               >
                 {item.type}
               </span>
-              {!item.isPublic && (
+              {item.is_public === false && (
                 <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded">
                   Private
                 </span>
@@ -192,11 +192,11 @@ const AgendaItem: React.FC<AgendaItemProps> = ({
             )}
           </button>
           <button
-            onClick={() => onToggleVisibility(item.id, !item.isPublic)}
+            onClick={() => onToggleVisibility(item.id, !item.is_public)}
             className="p-2 text-gray-500 hover:bg-gray-50 rounded-full transition-colors"
-            title={item.isPublic ? "Make private" : "Make public"}
+            title={item.is_public ? "Make private" : "Make public"}
           >
-            {item.isPublic ? (
+            {item.is_public ? (
               <Eye className="w-4 h-4" />
             ) : (
               <EyeOff className="w-4 h-4" />

@@ -46,11 +46,132 @@ export const EventDetailsStep = ({
     : "";
   const formattedTime = uiState.time ? uiState.time.substring(0, 5) : "";
 
+  // Helper function to format date display (handles event_days array)
+  const formatDateDisplay = (date, endDate, eventDays) => {
+    // If event_days array exists, use that for date display
+    if (eventDays && Array.isArray(eventDays) && eventDays.length > 0) {
+      const validDays = eventDays.filter((day) => day.date);
+
+      if (validDays.length === 0) return "Not set";
+
+      if (validDays.length === 1) {
+        const startDate = new Date(validDays[0].date);
+        return startDate.toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+      }
+
+      // Multiple days - show range
+      const startDate = new Date(validDays[0].date);
+      const endDate = new Date(validDays[validDays.length - 1].date);
+
+      const formattedStart = startDate.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+
+      const formattedEnd = endDate.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+
+      return validDays.length > 2
+        ? `${formattedStart} - ${formattedEnd} (${validDays.length} days)`
+        : `${formattedStart} - ${formattedEnd}`;
+    }
+
+    // Fallback to single date/endDate
+    if (!date) return "Not set";
+
+    const startDate = new Date(date);
+    const formattedStart = startDate.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    if (endDate && endDate !== date) {
+      const endDateObj = new Date(endDate);
+      const formattedEnd = endDateObj.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      return `${formattedStart} - ${formattedEnd}`;
+    }
+
+    return formattedStart;
+  };
+
+  // Helper function to format time display (handles event_days array)
+  const formatTimeDisplay = (time, endTime, eventDays) => {
+    // If event_days array exists, use that for time display
+    if (eventDays && Array.isArray(eventDays) && eventDays.length > 0) {
+      const validDays = eventDays.filter((day) => day.time);
+
+      if (validDays.length === 0) return "Not set";
+
+      const formatTime = (timeStr) => {
+        if (!timeStr) return "";
+        const [hours, minutes] = timeStr.split(":");
+        const hour = parseInt(hours);
+        const ampm = hour >= 12 ? "PM" : "AM";
+        const displayHour = hour % 12 || 12;
+        return `${displayHour}:${minutes} ${ampm}`;
+      };
+
+      if (validDays.length === 1) {
+        return formatTime(validDays[0].time);
+      }
+
+      // Multiple days - show time range if different, or single time if same
+      const times = [...new Set(validDays.map((day) => day.time))];
+      if (times.length === 1) {
+        return formatTime(times[0]);
+      }
+
+      // Different times - show range
+      const startTime = formatTime(validDays[0].time);
+      const endTime = formatTime(validDays[validDays.length - 1].time);
+      return `${startTime} - ${endTime}`;
+    }
+
+    // Fallback to single time/endTime
+    if (!time) return "Not set";
+
+    const formatTime = (timeStr) => {
+      const [hours, minutes] = timeStr.split(":");
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? "PM" : "AM";
+      const displayHour = hour % 12 || 12;
+      return `${displayHour}:${minutes} ${ampm}`;
+    };
+
+    const formattedStart = formatTime(time);
+
+    if (endTime && endTime !== time) {
+      const formattedEnd = formatTime(endTime);
+      return `${formattedStart} - ${formattedEnd}`;
+    }
+
+    return formattedStart;
+  };
+
   return (
     <div className="flex flex-col w-full text-brandBlack">
       <p className="text-16px leading-[28px] mb-5 text-textGrey2">
         Kindly provide the details for your event
       </p>
+
       <div className="w-full flex flex-col md:flex-row gap-8 bg-whiteColor p-3 md:p-10">
         {/* EXISTING IMAGE UPLOAD SECTION - UNCHANGED */}
         <div className="w-full md:w-1/2">
@@ -237,7 +358,9 @@ export const EventDetailsStep = ({
                 id="virtual_link"
                 isRequired={true}
                 value={formData.virtual_link}
-                onChange={(e) => handleInputChange("virtual_link", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("virtual_link", e.target.value)
+                }
                 placeholder={"Enter the meeting link for virtual attendees"}
               />
             </div>
@@ -285,7 +408,10 @@ export const EventDetailsStep = ({
                 onChange={(e) => {
                   handleInputChange("event_format", e.target.value);
                   // Update isVirtual based on format
-                  handleInputChange("isVirtual", e.target.value === "virtual" || e.target.value === "hybrid");
+                  handleInputChange(
+                    "isVirtual",
+                    e.target.value === "virtual" || e.target.value === "hybrid"
+                  );
                 }}
                 placeholder="Select event format..."
               />
@@ -300,9 +426,9 @@ export const EventDetailsStep = ({
                 isRequired={true}
                 type="select"
                 value={formData.timezone || "Africa/Lagos"}
-                options={timezones.map(tz => ({
+                options={timezones.map((tz) => ({
                   value: tz.value,
-                  label: tz.label
+                  label: tz.label,
                 }))}
                 onChange={(e) => handleInputChange("timezone", e.target.value)}
                 placeholder="Select timezone..."
@@ -471,7 +597,6 @@ export const EventDetailsStep = ({
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>

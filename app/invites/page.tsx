@@ -4,6 +4,7 @@ import Gallery from "@/components/Gallery";
 import TabManager from "@/components/TabManager";
 import React, { useState } from "react";
 import useGetInviteByCodeManager from "../events/controllers/getInviteByCodeController";
+import GetEventFormsMetadataManager from "../events/controllers/forms/getEventFormsMetadataController";
 import { getQueryParams } from "@/utils/getQueryParams";
 import Loader from "@/components/Loader";
 import StatusButton from "@/components/StatusButton";
@@ -21,14 +22,26 @@ import { useRouter } from "next/navigation";
 import { addToGoogleCalendar } from "@/utils/addtoGoogleCalendar";
 import { openInMaps } from "@/utils/openInMaps";
 import Link from "next/link";
+import { toast } from "react-toastify";
+import RegistrationFormView from "@/components/forms/RegistrationFormView";
 
 const InvitePage = ({}) => {
   const router = useRouter();
   const [currentView, setCurrentView] = useState(0);
+  const [viewMode, setViewMode] = useState("invitation"); // "invitation" or "forms"
+  const [currentFormIndex, setCurrentFormIndex] = useState(0);
+  
   const { code } = getQueryParams(["code"]);
   const { data, isLoading } = useGetInviteByCodeManager({
     code: code,
   });
+
+  // Fetch forms metadata to check if registration requires forms
+  const { data: formsMetadata, isLoading: isFormsMetadataLoading } =
+    GetEventFormsMetadataManager({
+      eventId: data?.event?.id || data?.event?._id,
+      enabled: Boolean(data?.event?.id || data?.event?._id),
+    });
   const { sendResponse, isLoading: sending } = RespondToInviteManager();
   const [isaccepting, setIsAccepting] = useState();
 
@@ -68,9 +81,47 @@ const InvitePage = ({}) => {
 
   // Update your JSX
   const availableTabs = getAvailableTabs();
+
+  // Check if event has required forms for registration
+  const hasRequiredForms = formsMetadata?.data?.hasRequiredForms || false;
+  const requiredForms = formsMetadata?.data?.requiredForms || [];
+  
+  // Handle accept invitation with forms
+  const handleAcceptWithForms = () => {
+    if (hasRequiredForms && requiredForms.length > 0) {
+      setViewMode("forms");
+    } else {
+      // No forms required, directly accept
+      setIsAccepting(true);
+      const detail = {
+        code: code,
+        response: "accepted",
+      };
+      sendResponse(detail);
+    }
+  };
+
+  // Handle form submission completion
+  const handleFormSubmissionComplete = () => {
+    // All forms completed, now accept the invitation
+    setViewMode("invitation");
+    setCurrentFormIndex(0);
+    
+    // Accept the invitation
+    const detail = {
+      code: code,
+      response: "accepted",
+    };
+    sendResponse(detail);
+  };
+
+  // Handle back to invitation
+  const handleBackToInvitation = () => {
+    setViewMode("invitation");
+  };
   return isLoading ? (
     <Loader />
-  ) : (
+  ) : viewMode === "invitation" ? (
     <div className="min-h-screen flex flex-col text-brandBlack">
       {/* Header */}
       <header className="w-full bg-white shadow-sm py-4 px-6">
@@ -161,6 +212,29 @@ const InvitePage = ({}) => {
                 </div>
               )}
 
+              {/* Required Forms Notice - Show before acceptance */}
+              {hasRequiredForms && requiredForms.length > 0 && data?.response !== "accepted" && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <h3 className="font-semibold text-amber-900 mb-2">
+                    Registration Forms Required
+                  </h3>
+                  <p className="text-amber-800 text-sm mb-3">
+                    This event requires you to complete additional registration forms after accepting your invitation:
+                  </p>
+                  <div className="space-y-2">
+                    {requiredForms.map((form, index) => (
+                      <div key={form.id} className="flex items-center justify-between bg-white rounded-md p-3 border border-amber-200">
+                        <div>
+                          <span className="font-medium text-gray-900">{form.name}</span>
+                          <span className="text-xs text-red-600 ml-2">* Required</span>
+                        </div>
+                        <span className="text-xs text-amber-600">Complete after acceptance</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Calendar Button */}
               {data?.response !== "accepted" ? (
                 <div className="flex items-center justify-center gap-5 w-full">
@@ -174,13 +248,7 @@ const InvitePage = ({}) => {
                         // Redirect to ticketed acceptance flow
                         router.push(`/invites/ticketed-accept?code=${code}`);
                       } else if (event?.verification_type === "accessCode") {
-                        setIsAccepting(true);
-                        //accept invitation
-                        const detail = {
-                          code: code,
-                          response: "accepted",
-                        };
-                        sendResponse(detail);
+                        handleAcceptWithForms();
                       } else {
                         router.push(`/invites/accept-invite?code=${code}`);
                       }
@@ -203,21 +271,24 @@ const InvitePage = ({}) => {
                   />
                 </div>
               ) : (
-                <button
-                  onClick={() =>
-                    addToGoogleCalendar({
-                      date: event?.date,
-                      time: event?.time,
-                      eventName: event?.name,
-                      location: event?.location,
-                      durationHours: 2,
-                    })
-                  }
-                  className="font-semibold  w-full max-w-max px-5 flex items-center justify-center gap-2 border rounded-[12px] py-4 hover:bg-gray-50 bg-white"
-                >
-                  <img src={googleCalendar.src} />
-                  Add Event to Calendar
-                </button>
+                <div className="space-y-4">
+                  <button
+                    onClick={() =>
+                      addToGoogleCalendar({
+                        date: event?.date,
+                        time: event?.time,
+                        eventName: event?.name,
+                        location: event?.location,
+                        durationHours: 2,
+                      })
+                    }
+                    className="font-semibold  w-full max-w-max px-5 flex items-center justify-center gap-2 border rounded-[12px] py-4 hover:bg-gray-50 bg-white"
+                  >
+                    <img src={googleCalendar.src} />
+                    Add Event to Calendar
+                  </button>
+
+                </div>
               )}
             </div>
           </div>
@@ -280,6 +351,19 @@ const InvitePage = ({}) => {
         </div>
       </footer>
     </div>
+  ) : (
+    <RegistrationFormView
+      eventId={event?.id || event?._id || ""}
+      requiredForms={requiredForms}
+      currentFormIndex={currentFormIndex}
+      setCurrentFormIndex={setCurrentFormIndex}
+      onBackToInvitation={handleBackToInvitation}
+      onFormSubmissionComplete={handleFormSubmissionComplete}
+      initialFormData={{
+        name: data?.name || "",
+        email: data?.email || "",
+      }}
+    />
   );
 };
 

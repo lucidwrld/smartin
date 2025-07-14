@@ -18,16 +18,23 @@ interface CreateFormSubmissionPayload {
   responses: FormResponse[];
 }
 
-export const CreateFormSubmissionManager = () => {
+export const CreateFormSubmissionManager = (
+  eventId: string,
+  formId: string
+) => {
   const { postCaller, isLoading, isSuccess, error, data } =
-    usePostManager<BaseResponse>(`/event/forms/submission`, ["form-submissions"], true);
+    usePostManager<BaseResponse>(
+      `/event/${eventId}/forms/${formId}/submission`,
+      ["form-submissions"],
+      false
+    );
 
-  const createFormSubmission = async (eventId: string, formId: string, submissionData: CreateFormSubmissionPayload) => {
+  const createFormSubmission = async (
+    submissionData: CreateFormSubmissionPayload
+  ) => {
     try {
       const payload = {
-        ...submissionData,
-        eventId,
-        formId,
+        data: submissionData,
       };
       await postCaller(payload);
     } catch (error) {

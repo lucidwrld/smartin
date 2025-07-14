@@ -26,11 +26,15 @@ import {
 import useGetSingleEventPublicManager from "@/app/events/controllers/getSingleEventPublicController";
 import useGetPublicFeedbacksManager from "@/app/events/controllers/feedbacks/getPublicFeedbacksController";
 import useGetInviteByCodeManager from "@/app/events/controllers/getInviteByCodeController";
+import GetEventFormsMetadataManager from "@/app/events/controllers/forms/getEventFormsMetadataController";
+import GetPublicFormManager from "@/app/events/controllers/forms/getPublicFormController";
+
 import { useParams, useRouter } from "next/navigation";
 import Loader from "@/components/Loader";
 import FeedbackModal from "@/components/events/publicComponents/FeedbackModal";
 import useDebounce from "@/utils/UseDebounce";
 import { toast } from "react-toastify";
+import CreateFormSubmissionManager from "@/app/events/controllers/forms/createFormSubmissionController";
 
 export default function ConferenceWebsite() {
   const resolvedParams = useParams();
@@ -45,6 +49,13 @@ export default function ConferenceWebsite() {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showMediaModal, setShowMediaModal] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState(null);
+  const [showGalleryModal, setShowGalleryModal] = useState(false);
+  const [selectedGalleryItem, setSelectedGalleryItem] = useState(null);
+  const [galleryCurrentIndex, setGalleryCurrentIndex] = useState(0);
+  const [showRegistrationForms, setShowRegistrationForms] = useState(false);
+  const [currentFormIndex, setCurrentFormIndex] = useState(0);
+  const [formData, setFormData] = useState({});
+  const [submittedForms, setSubmittedForms] = useState(new Set());
 
   // Debounce the access token to avoid excessive API calls
   const debouncedAccessToken = useDebounce(accessToken, 500);
@@ -79,6 +90,13 @@ export default function ConferenceWebsite() {
       enabled: Boolean(eventId && eventInfo?.data?.showFeedback),
     });
 
+  // Fetch forms metadata to check if registration is required
+  const { data: formsMetadata, isLoading: isFormsMetadataLoading } =
+    GetEventFormsMetadataManager({
+      eventId: eventId,
+      enabled: Boolean(eventId),
+    });
+
   const [timeLeft, setTimeLeft] = useState({
     days: 5,
     hours: 12,
@@ -104,7 +122,10 @@ export default function ConferenceWebsite() {
         `https://smartinvites.xyz/invites/?code=${debouncedAccessToken}`
       );
     } else if (debouncedAccessToken && isError) {
-      toast.error(error?.message || "Invalid invitation code. Please check your code and try again.");
+      toast.error(
+        error?.message ||
+          "Invalid invitation code. Please check your code and try again."
+      );
     }
   }, [debouncedAccessToken, isSuccess, inviteData, isError, error, router]);
 
@@ -192,6 +213,272 @@ export default function ConferenceWebsite() {
   const publicPrograms =
     eventInfo?.data?.program?.filter((program) => program.is_public === true) ||
     [];
+
+  // Gallery functions
+  const openGalleryModal = (item, index) => {
+    setSelectedGalleryItem(item);
+    setGalleryCurrentIndex(index);
+    setShowGalleryModal(true);
+  };
+
+  const closeGalleryModal = () => {
+    setShowGalleryModal(false);
+    setSelectedGalleryItem(null);
+  };
+
+  const goToPreviousGalleryItem = () => {
+    const gallery = eventInfo?.data?.gallery || [];
+    const newIndex =
+      galleryCurrentIndex > 0 ? galleryCurrentIndex - 1 : gallery.length - 1;
+    setGalleryCurrentIndex(newIndex);
+    setSelectedGalleryItem(gallery[newIndex]);
+  };
+
+  const goToNextGalleryItem = () => {
+    const gallery = eventInfo?.data?.gallery || [];
+    const newIndex =
+      galleryCurrentIndex < gallery.length - 1 ? galleryCurrentIndex + 1 : 0;
+    setGalleryCurrentIndex(newIndex);
+    setSelectedGalleryItem(gallery[newIndex]);
+  };
+
+  const isVideo = (url) =>
+    url?.includes("video") || url?.endsWith(".mp4") || url?.includes(".mp4");
+
+  // Check if event has required forms for registration
+  const hasRequiredForms = formsMetadata?.data?.hasRequiredForms || false;
+  const requiredForms = formsMetadata?.data?.requiredForms || [];
+
+  // Handle registration button click
+  const handleRegisterClick = () => {
+    if (hasRequiredForms && requiredForms.length > 0) {
+      setShowRegistrationForms(true);
+      setCurrentFormIndex(0);
+    }
+  };
+
+  // Get current form data
+  const currentForm = requiredForms[currentFormIndex];
+  const { data: currentFormData, isLoading: isFormLoading } =
+    GetPublicFormManager({
+      formId: currentForm?.id,
+      enabled: Boolean(currentForm?.id && showRegistrationForms),
+    });
+
+  // Form submission
+  const { createFormSubmission, isLoading: isSubmitting } =
+    CreateFormSubmissionManager(eventId as string, currentForm?.id || "");
+
+  // Handle form field changes
+  const handleFormFieldChange = (fieldId, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [fieldId]: value,
+    }));
+  };
+
+  // Handle form submission
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    if (!currentFormData?.data) return;
+
+    const form = currentFormData.data;
+    const responses = form.form_fields.map((field) => ({
+      type: field.type,
+      label: field.label,
+      response: formData[field._id] || "",
+    }));
+
+    // Validate required fields
+    if (!formData.name || !formData.name.trim()) {
+      toast.error("Please enter your full name");
+      return;
+    }
+    
+    if (!formData.email || !formData.email.trim()) {
+      toast.error("Please enter your email address");
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    try {
+      await createFormSubmission({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        responses,
+      });
+
+      // Mark form as submitted
+      setSubmittedForms((prev) => new Set([...prev, form._id]));
+
+      // Move to next form or close if last form
+      if (currentFormIndex < requiredForms.length - 1) {
+        setCurrentFormIndex((prev) => prev + 1);
+        setFormData({});
+      } else {
+        setShowRegistrationForms(false);
+        setCurrentFormIndex(0);
+        setFormData({});
+        toast.success("Registration completed successfully!");
+      }
+    } catch (error) {
+      toast.error("Failed to submit form. Please try again.");
+    }
+  };
+
+  // Handle form navigation
+  const handlePreviousForm = () => {
+    if (currentFormIndex > 0) {
+      setCurrentFormIndex((prev) => prev - 1);
+    }
+  };
+
+  const handleNextForm = () => {
+    if (currentFormIndex < requiredForms.length - 1) {
+      setCurrentFormIndex((prev) => prev + 1);
+    }
+  };
+
+  // Close registration forms
+  const handleCloseRegistration = () => {
+    setShowRegistrationForms(false);
+    setCurrentFormIndex(0);
+    setFormData({});
+  };
+
+  // Render form field based on type
+  const renderFormField = (field) => {
+    const isRequired = currentFormData?.data?.is_required && field.required;
+    const fieldValue = formData[field._id] || "";
+
+    switch (field.type) {
+      case "text":
+      case "email":
+      case "phone":
+        return (
+          <input
+            type={field.type}
+            id={field._id}
+            value={fieldValue}
+            onChange={(e) => handleFormFieldChange(field._id, e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+            placeholder={field.placeholder}
+            required={isRequired}
+          />
+        );
+      case "textarea":
+        return (
+          <textarea
+            id={field._id}
+            value={fieldValue}
+            onChange={(e) => handleFormFieldChange(field._id, e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+            placeholder={field.placeholder}
+            rows={4}
+            required={isRequired}
+          />
+        );
+      case "select":
+        return (
+          <select
+            id={field._id}
+            value={fieldValue}
+            onChange={(e) => handleFormFieldChange(field._id, e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+            required={isRequired}
+          >
+            <option value="">{field.placeholder || "Select an option"}</option>
+            {field.options.map((option, idx) => (
+              <option key={idx} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        );
+      case "radio":
+        return (
+          <div className="space-y-2">
+            {field.options.map((option, idx) => (
+              <label key={idx} className="flex items-center">
+                <input
+                  type="radio"
+                  name={field._id}
+                  value={option}
+                  checked={fieldValue === option}
+                  onChange={(e) =>
+                    handleFormFieldChange(field._id, e.target.value)
+                  }
+                  className="mr-2 text-orange-500 focus:ring-orange-500"
+                  required={isRequired}
+                />
+                <span className="text-gray-700">{option}</span>
+              </label>
+            ))}
+          </div>
+        );
+      case "checkbox":
+        return (
+          <div className="space-y-2">
+            {field.options.map((option, idx) => (
+              <label key={idx} className="flex items-center">
+                <input
+                  type="checkbox"
+                  value={option}
+                  checked={(fieldValue || []).includes(option)}
+                  onChange={(e) => {
+                    const currentValues = fieldValue || [];
+                    if (e.target.checked) {
+                      handleFormFieldChange(field._id, [
+                        ...currentValues,
+                        option,
+                      ]);
+                    } else {
+                      handleFormFieldChange(
+                        field._id,
+                        currentValues.filter((v) => v !== option)
+                      );
+                    }
+                  }}
+                  className="mr-2 text-orange-500 focus:ring-orange-500"
+                />
+                <span className="text-gray-700">{option}</span>
+              </label>
+            ))}
+          </div>
+        );
+      case "date":
+        return (
+          <input
+            type="date"
+            id={field._id}
+            value={fieldValue}
+            onChange={(e) => handleFormFieldChange(field._id, e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+            required={isRequired}
+          />
+        );
+      case "number":
+        return (
+          <input
+            type="number"
+            id={field._id}
+            value={fieldValue}
+            onChange={(e) => handleFormFieldChange(field._id, e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+            placeholder={field.placeholder}
+            required={isRequired}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   if (isEventInfoLoading) {
     return (
@@ -282,21 +569,24 @@ export default function ConferenceWebsite() {
               >
                 {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
               </button>
-              <button
-                className="px-4 py-2 rounded-md font-medium transition-colors text-white"
-                style={{
-                  backgroundColor: brandColors.primary,
-                  "&:hover": { backgroundColor: brandColors.secondary },
-                }}
-                onMouseEnter={(e) =>
-                  (e.target.style.backgroundColor = brandColors.secondary)
-                }
-                onMouseLeave={(e) =>
-                  (e.target.style.backgroundColor = brandColors.primary)
-                }
-              >
-                Register Now
-              </button>
+              {hasRequiredForms && (
+                <button
+                  onClick={handleRegisterClick}
+                  className="px-4 py-2 rounded-md font-medium transition-colors text-white"
+                  style={{
+                    backgroundColor: brandColors.primary,
+                    "&:hover": { backgroundColor: brandColors.secondary },
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.target.style.backgroundColor = brandColors.secondary)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.backgroundColor = brandColors.primary)
+                  }
+                >
+                  Register Now
+                </button>
+              )}
             </div>
 
             {/* Mobile menu button and theme toggle */}
@@ -362,23 +652,26 @@ export default function ConferenceWebsite() {
                 </div>
               </div>
               <div className="flex items-center space-x-4">
-                <button
-                  className="px-8 py-3 rounded-md font-medium text-lg transition-all text-white"
-                  style={{
-                    backgroundColor: brandColors.primary,
-                    boxShadow: `0 10px 25px ${brandColors.primary}25`,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = brandColors.secondary;
-                    e.target.style.boxShadow = `0 15px 35px ${brandColors.secondary}25`;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = brandColors.primary;
-                    e.target.style.boxShadow = `0 10px 25px ${brandColors.primary}25`;
-                  }}
-                >
-                  Register Now
-                </button>
+                {hasRequiredForms && (
+                  <button
+                    onClick={handleRegisterClick}
+                    className="px-8 py-3 rounded-md font-medium text-lg transition-all text-white"
+                    style={{
+                      backgroundColor: brandColors.primary,
+                      boxShadow: `0 10px 25px ${brandColors.primary}25`,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.backgroundColor = brandColors.secondary;
+                      e.target.style.boxShadow = `0 15px 35px ${brandColors.secondary}25`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.backgroundColor = brandColors.primary;
+                      e.target.style.boxShadow = `0 10px 25px ${brandColors.primary}25`;
+                    }}
+                  >
+                    Register Now
+                  </button>
+                )}
                 {eventInfo?.data?.video && (
                   <button
                     className="flex items-center space-x-2 px-6 py-3 border rounded-md transition-colors"
@@ -1088,12 +1381,15 @@ export default function ConferenceWebsite() {
                   key={vendor._id || idx}
                   className="bg-[#0d1129] border border-slate-800 rounded-lg overflow-hidden hover:border-slate-700 transition-colors group"
                 >
+                  {/* Vendor logo section commented out - vendors don't have pictures */}
+                  {/* 
                   <div className="h-48 overflow-hidden bg-slate-800 flex items-center justify-center">
                     <div className="text-slate-400 text-center">
                       <Users size={48} className="mx-auto mb-2" />
                       <p className="text-sm">{vendor?.job_description}</p>
                     </div>
                   </div>
+                  */}
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="text-xl font-semibold">{vendor?.name}</h3>
@@ -1104,9 +1400,21 @@ export default function ConferenceWebsite() {
                     <p className="text-orange-500 text-sm mb-2">
                       {vendor?.job_description}
                     </p>
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-slate-400 text-sm mb-4">
                       {vendor?.services_provided}
                     </p>
+                    {/* Website link - clickable if vendor has website */}
+                    {vendor?.website && (
+                      <a
+                        href={vendor.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-orange-500 hover:text-orange-400 transition-colors text-sm"
+                      >
+                        <ArrowUpRight className="w-4 h-4" />
+                        Visit Website
+                      </a>
+                    )}
                   </div>
                 </div>
               ))}
@@ -1158,22 +1466,44 @@ export default function ConferenceWebsite() {
               Highlights from previous events and behind-the-scenes moments
             </p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {eventInfo.data.gallery.map((image, idx) => (
+              {eventInfo.data.gallery.map((item, idx) => (
                 <div
                   key={idx}
                   className="relative group cursor-pointer overflow-hidden rounded-lg"
+                  onClick={() => openGalleryModal(item, idx)}
                 >
-                  <img
-                    src={image}
-                    alt={`Gallery ${idx + 1}`}
-                    className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center">
-                    <Camera
-                      className="text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                      size={32}
-                    />
-                  </div>
+                  {isVideo(item) ? (
+                    <div className="relative">
+                      <video
+                        src={item}
+                        className="w-full h-64 object-cover"
+                        muted
+                        playsInline
+                      />
+                      <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex items-center justify-center">
+                        <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
+                          <Play
+                            className="w-8 h-8 text-white"
+                            fill="currentColor"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <img
+                        src={item}
+                        alt={`Gallery ${idx + 1}`}
+                        className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center">
+                        <Camera
+                          className="text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                          size={32}
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>
@@ -1934,6 +2264,241 @@ export default function ConferenceWebsite() {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Gallery Modal */}
+      {showGalleryModal && selectedGalleryItem && (
+        <div
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={closeGalleryModal}
+        >
+          {/* Close Button */}
+          <button
+            onClick={closeGalleryModal}
+            className="absolute top-4 right-4 z-60 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+          >
+            <X size={24} />
+          </button>
+
+          {/* Previous Button */}
+          {eventInfo?.data?.gallery?.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                goToPreviousGalleryItem();
+              }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-60 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 transition-colors"
+            >
+              <ChevronLeft size={24} />
+            </button>
+          )}
+
+          {/* Next Button */}
+          {eventInfo?.data?.gallery?.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                goToNextGalleryItem();
+              }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-60 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 transition-colors"
+            >
+              <ChevronRight size={24} />
+            </button>
+          )}
+
+          {/* Media Content */}
+          <div className="max-w-4xl w-full max-h-[90vh] flex items-center justify-center">
+            {isVideo(selectedGalleryItem) ? (
+              <video
+                src={selectedGalleryItem}
+                className="w-full max-h-[80vh] object-contain"
+                controls
+                autoPlay
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <img
+                src={selectedGalleryItem}
+                alt="Gallery view"
+                className="w-full max-h-[80vh] object-contain"
+                onClick={(e) => e.stopPropagation()}
+              />
+            )}
+          </div>
+
+          {/* Image Counter */}
+          {eventInfo?.data?.gallery?.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-full text-sm">
+              {galleryCurrentIndex + 1} / {eventInfo.data.gallery.length}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Registration Forms Modal */}
+      {showRegistrationForms && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Event Registration
+                  </h2>
+                  <p className="text-gray-600 mt-1">
+                    Form {currentFormIndex + 1} of {requiredForms.length}
+                  </p>
+                </div>
+                <button
+                  onClick={handleCloseRegistration}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="mb-6">
+                <div className="flex justify-between text-sm text-gray-600 mb-2">
+                  <span>Progress</span>
+                  <span>
+                    {Math.round(
+                      ((currentFormIndex + 1) / requiredForms.length) * 100
+                    )}
+                    %
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-orange-500 h-2 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${
+                        ((currentFormIndex + 1) / requiredForms.length) * 100
+                      }%`,
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Form Content */}
+              {isFormLoading ? (
+                <div className="flex justify-center items-center py-8">
+                  <div className="animate-spin w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full"></div>
+                  <span className="ml-2 text-gray-600">Loading form...</span>
+                </div>
+              ) : currentFormData?.data ? (
+                <form onSubmit={handleFormSubmit} className="space-y-6">
+                  {/* Form Title */}
+                  <div className="text-center">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      {currentFormData.data.description}
+                    </h3>
+                    {currentFormData.data.is_required && (
+                      <span className="inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm">
+                        Required
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Basic Fields */}
+                  {currentFormIndex === 0 && (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Full Name *
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.name || ""}
+                          onChange={(e) =>
+                            handleFormFieldChange("name", e.target.value)
+                          }
+                          className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                          placeholder="Enter your full name"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Email Address *
+                        </label>
+                        <input
+                          type="email"
+                          value={formData.email || ""}
+                          onChange={(e) =>
+                            handleFormFieldChange("email", e.target.value)
+                          }
+                          className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                          placeholder="Enter your email address"
+                          required
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Form Fields */}
+                  <div className="space-y-4">
+                    {currentFormData.data.form_fields?.map((field) => (
+                      <div key={field._id}>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          {field.label}
+                          {currentFormData.data.is_required &&
+                            field.required && (
+                              <span className="text-red-500 ml-1">*</span>
+                            )}
+                        </label>
+                        {renderFormField(field)}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Navigation Buttons */}
+                  <div className="flex justify-between items-center pt-6">
+                    <div>
+                      {currentFormIndex > 0 && (
+                        <button
+                          type="button"
+                          onClick={handlePreviousForm}
+                          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                        >
+                          Previous
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={handleCloseRegistration}
+                        className="px-6 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="px-6 py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {isSubmitting
+                          ? "Submitting..."
+                          : currentFormIndex === requiredForms.length - 1
+                          ? "Complete Registration"
+                          : "Next"}
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-600">
+                    Unable to load form. Please try again.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

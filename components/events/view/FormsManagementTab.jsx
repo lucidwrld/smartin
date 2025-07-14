@@ -11,7 +11,7 @@ import {
   Save,
   X,
   Settings,
-  Copy,
+  Share2,
   BarChart3,
   Users,
   CheckCircle,
@@ -276,6 +276,7 @@ const FormsManagementTab = ({ event }) => {
   const [showFieldModal, setShowFieldModal] = useState(false);
   const [editingField, setEditingField] = useState(null);
   const [activeFormId, setActiveFormId] = useState(null);
+  const [currentFormId, setCurrentFormId] = useState(null);
   const [activeTab, setActiveTab] = useState("forms");
 
   // API hooks
@@ -299,7 +300,6 @@ const FormsManagementTab = ({ event }) => {
 
   const [formData, setFormData] = useState({
     name: "",
-    description: "",
     is_required: false,
     is_active: true,
     is_public: true,
@@ -352,7 +352,6 @@ const FormsManagementTab = ({ event }) => {
     if (form) {
       setFormData({
         name: form.description || "", // API uses 'description' field as name
-        description: form.description || "",
         is_required: form.is_required !== undefined ? form.is_required : false,
         is_active: form.is_active !== undefined ? form.is_active : true,
         is_public: form.is_public !== undefined ? form.is_public : true,
@@ -364,7 +363,6 @@ const FormsManagementTab = ({ event }) => {
     } else {
       setFormData({
         name: "",
-        description: "",
         is_required: false,
         is_active: true,
         is_public: true,
@@ -435,18 +433,26 @@ const FormsManagementTab = ({ event }) => {
     try {
       if (editingForm) {
         // Update existing form using form update endpoint
-        await updateFormFields({
-          ...formData,
+        const updatePayload = {
           description: formData.name, // API uses description field as name
           start_date: formData.registration_start_date,
           end_date: formData.registration_end_date,
-          form_fields: editingForm.form_fields || [], // Keep existing fields
-        });
+          is_public: formData.is_public,
+          is_required: formData.is_required,
+          is_active: formData.is_active,
+        };
+        
+        // Only include form_fields if they exist in the editing form
+        if (editingForm.form_fields && editingForm.form_fields.length > 0) {
+          updatePayload.form_fields = editingForm.form_fields;
+        }
+        
+        await updateFormFields(updatePayload);
       } else {
         // Create new form
         await createForm({
           event: event.id,
-          description: formData.description,
+          description: formData.name, // Send name as description to backend
           start_date: formData.registration_start_date,
           end_date: formData.registration_end_date,
           is_public: formData.is_public,
@@ -458,7 +464,8 @@ const FormsManagementTab = ({ event }) => {
       handleCloseModals();
     } catch (error) {
       console.error("Error saving form:", error);
-      alert("Error saving form. Please try again.");
+      console.error("Error details:", error.message);
+      alert(`Error saving form: ${error.message || 'Please try again.'}`);
     }
   };
 
@@ -518,6 +525,43 @@ const FormsManagementTab = ({ event }) => {
     } catch (error) {
       console.error("Error deleting form:", error);
       alert("Error deleting form. Please try again.");
+    }
+  };
+
+  const handleShareForm = async (form) => {
+    const shareUrl = `${window.location.origin}/forms/${event.id}/${form.id}`;
+    
+    try {
+      // Try to use the modern clipboard API
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        alert(`Form link copied to clipboard!\n\n${shareUrl}`);
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = shareUrl;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+          document.execCommand('copy');
+          alert(`Form link copied to clipboard!\n\n${shareUrl}`);
+        } catch (err) {
+          console.error('Unable to copy to clipboard:', err);
+          // Show the URL in a prompt so user can copy manually
+          prompt('Copy this form link:', shareUrl);
+        } finally {
+          document.body.removeChild(textArea);
+        }
+      }
+    } catch (error) {
+      console.error('Error copying to clipboard:', error);
+      // Show the URL in a prompt as final fallback
+      prompt('Copy this form link:', shareUrl);
     }
   };
 
@@ -625,10 +669,10 @@ const FormsManagementTab = ({ event }) => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-semibold mb-2">Forms Management</h2>
-          <p className="text-gray-600">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-2">Forms Management</h2>
+          <p className="text-gray-600 text-sm sm:text-base">
             Create and manage dynamic registration forms for your event
             attendees
           </p>
@@ -644,7 +688,7 @@ const FormsManagementTab = ({ event }) => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg border">
           <div className="flex items-center gap-2">
             <FileText className="w-5 h-5 text-blue-600" />
@@ -711,40 +755,42 @@ const FormsManagementTab = ({ event }) => {
                 key={form.id}
                 className="bg-white border rounded-lg p-6 hover:shadow-md transition-shadow"
               >
-                <div className="flex justify-between items-start mb-4">
+                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
                       <h3 className="text-lg font-semibold">{form.name}</h3>
-                      {form.is_required && (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                          Required
+                      <div className="flex flex-wrap items-center gap-2">
+                        {form.is_required && (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            Required
+                          </span>
+                        )}
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            form.is_active
+                              ? "bg-green-100 text-green-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {form.is_active ? "Active" : "Inactive"}
                         </span>
-                      )}
-                      <span
-                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          form.is_active
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {form.is_active ? "Active" : "Inactive"}
-                      </span>
-                      <span
-                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          form.is_public
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {form.is_public ? "Public" : "Private"}
-                      </span>
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            form.is_public
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {form.is_public ? "Public" : "Private"}
+                        </span>
+                      </div>
                     </div>
 
                     <p className="text-gray-600 text-sm mb-3">
                       {form.description}
                     </p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-600">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4" />
                         <span>
@@ -770,44 +816,55 @@ const FormsManagementTab = ({ event }) => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <CustomButton
-                      buttonText={`Submissions (${form.submission_count || 0})`}
-                      prefixIcon={<BarChart3 className="w-4 h-4" />}
-                      buttonColor="bg-purple-600"
-                      radius="rounded-md"
-                      onClick={() => handleViewSubmissions(form)}
-                      size="sm"
-                    />
-                    <button
-                      onClick={() => toggleFormStatus(form.id, "is_active")}
-                      className={`p-2 rounded ${
-                        form.is_active
-                          ? "text-green-600 bg-green-50"
-                          : "text-gray-400 bg-gray-50"
-                      }`}
-                      title={form.is_active ? "Active" : "Inactive"}
-                    >
-                      {form.is_active ? (
-                        <Eye className="w-4 h-4" />
-                      ) : (
-                        <EyeOff className="w-4 h-4" />
-                      )}
-                    </button>
-                    <button
-                      onClick={() => handleOpenFormModal(form)}
-                      className="p-2 text-gray-500 hover:text-blue-600 rounded"
-                      title="Edit form"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteForm(form.id)}
-                      className="p-2 text-gray-500 hover:text-red-600 rounded"
-                      title="Delete form"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                    <div className="w-full sm:w-auto">
+                      <CustomButton
+                        buttonText={`Submissions (${form.submission_count || 0})`}
+                        prefixIcon={<BarChart3 className="w-4 h-4" />}
+                        buttonColor="bg-purple-600"
+                        radius="rounded-md"
+                        onClick={() => handleViewSubmissions(form)}
+                        size="sm"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => toggleFormStatus(form.id, "is_active")}
+                        className={`p-2 rounded ${
+                          form.is_active
+                            ? "text-green-600 bg-green-50"
+                            : "text-gray-400 bg-gray-50"
+                        }`}
+                        title={form.is_active ? "Active" : "Inactive"}
+                      >
+                        {form.is_active ? (
+                          <Eye className="w-4 h-4" />
+                        ) : (
+                          <EyeOff className="w-4 h-4" />
+                        )}
+                      </button>
+                      <button
+                        onClick={() => handleShareForm(form)}
+                        className="p-2 text-gray-500 hover:text-green-600 rounded"
+                        title="Share form"
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleOpenFormModal(form)}
+                        className="p-2 text-gray-500 hover:text-blue-600 rounded"
+                        title="Edit form"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteForm(form.id)}
+                        className="p-2 text-gray-500 hover:text-red-600 rounded"
+                        title="Delete form"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -907,8 +964,8 @@ const FormsManagementTab = ({ event }) => {
       {/* Form Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto mx-4">
+            <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <FileText className="w-5 h-5 text-purple-600" />
@@ -933,21 +990,8 @@ const FormsManagementTab = ({ event }) => {
                   isRequired={true}
                 />
 
-                <InputWithFullBoarder
-                  label="Description"
-                  placeholder="Brief description of this form"
-                  isTextArea={true}
-                  rows={3}
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <InputWithFullBoarder
                     label="Registration Start Date"
                     type="date"
@@ -972,7 +1016,7 @@ const FormsManagementTab = ({ event }) => {
                   />
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
@@ -1025,7 +1069,7 @@ const FormsManagementTab = ({ event }) => {
                   </label>
                 </div>
 
-                <div className="flex gap-3 pt-4">
+                <div className="flex flex-col sm:flex-row gap-3 pt-4">
                   <CustomButton
                     buttonText={editingForm ? "Update Form" : "Create Form"}
                     prefixIcon={<Save className="w-4 h-4" />}
@@ -1051,8 +1095,8 @@ const FormsManagementTab = ({ event }) => {
       {/* Field Modal */}
       {showFieldModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto mx-4">
+            <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold">
                   {editingField ? "Edit Field" : "Add New Field"}
