@@ -232,14 +232,14 @@ const BankDetails = ({ onCopy }) => (
   <div className="mt-6 space-y-4 bg-whiteColor p-6 rounded-lg">
     <div>
       <h4 className="text-gray-700 text-sm mb-1">Bank</h4>
-      <p className="text-gray-900 font-medium">Sterling bank</p>
+      <p className="text-gray-900 font-medium">Kuda bank</p>
     </div>
     <div>
       <h4 className="text-gray-700 text-sm mb-1">Account Number</h4>
       <div className="flex items-center justify-between">
-        <p className="text-gray-900 font-medium">2345678905</p>
+        <p className="text-gray-900 font-medium">3002444421</p>
         <button
-          onClick={() => onCopy("2345678905")}
+          onClick={() => onCopy("3002444421")}
           className="text-purple-600 flex items-center gap-1 text-sm hover:text-purple-700"
         >
           Copy

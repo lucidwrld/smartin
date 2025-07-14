@@ -17,7 +17,11 @@ import {
   CheckCircle,
   AlertCircle,
   BarChart3,
-  Settings
+  Settings,
+  UserCheck,
+  UserPlus,
+  List,
+  QrCode
 } from "lucide-react";
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
@@ -29,10 +33,16 @@ import useGetAllSessionsManager from "@/app/events/controllers/sessions/controll
 import CreateSessionManager from "@/app/events/controllers/sessions/controllers/createSessionController";
 import UpdateSessionManager from "@/app/events/controllers/sessions/controllers/updateSessionController";
 import DeleteSessionManager from "@/app/events/controllers/sessions/controllers/deleteSessionController";
+import SessionAttendanceManager from "@/app/events/controllers/sessions/controllers/sessionAttendanceController";
+import useGetSessionRegistrationsManager from "@/app/events/controllers/sessions/controllers/getSessionRegistrationsController";
+import useGetSessionAttendanceManager from "@/app/events/controllers/sessions/controllers/getSessionAttendanceController";
 
 const SessionsManagementTab = ({ event }) => {
   const [showModal, setShowModal] = useState(false);
   const [editingSession, setEditingSession] = useState(null);
+  const [viewingSession, setViewingSession] = useState(null);
+  const [activeView, setActiveView] = useState("overview"); // "overview", "registrations", "attendance"
+  const [attendanceCode, setAttendanceCode] = useState("");
 
   // Session controllers
   const { data: sessionsData, isLoading: loadingSessions, refetch: refetchSessions } = useGetAllSessionsManager({
@@ -44,6 +54,17 @@ const SessionsManagementTab = ({ event }) => {
   const { updateSession, isLoading: updating, isSuccess: updateSuccess } = UpdateSessionManager(editingSession?._id);
   const [sessionToDelete, setSessionToDelete] = useState(null);
   const { deleteSession, isLoading: deleting, isSuccess: deleteSuccess } = DeleteSessionManager(sessionToDelete?._id);
+  
+  // Session attendance and registration controllers
+  const sessionAttendanceManager = SessionAttendanceManager(viewingSession?._id);
+  const { data: registrationsData, isLoading: loadingRegistrations, refetch: refetchRegistrations } = useGetSessionRegistrationsManager({
+    sessionId: viewingSession?._id,
+    enabled: Boolean(viewingSession?._id && activeView === "registrations")
+  });
+  const { data: attendanceData, isLoading: loadingAttendance, refetch: refetchAttendance } = useGetSessionAttendanceManager({
+    sessionId: viewingSession?._id,
+    enabled: Boolean(viewingSession?._id && activeView === "attendance")
+  });
 
   // Get sessions from backend data
   const sessions = sessionsData?.data || [];
@@ -313,8 +334,256 @@ const SessionsManagementTab = ({ event }) => {
 
   const stats = getTotalStats();
 
+  // Handle marking attendance for session
+  const handleMarkAttendance = async () => {
+    if (!attendanceCode.trim() || !viewingSession) {
+      toast.error("Please enter an invitee code");
+      return;
+    }
+
+    try {
+      await sessionAttendanceManager.markAttendance({
+        invitee_code: attendanceCode.trim(),
+        marking_method: "manual"
+      });
+      setAttendanceCode("");
+      refetchAttendance();
+      toast.success("Attendance marked successfully");
+    } catch (error) {
+      console.error("Error marking attendance:", error);
+      toast.error("Failed to mark attendance");
+    }
+  };
+
+  // Handle viewing session details
+  const handleViewSession = (session, view = "overview") => {
+    setViewingSession(session);
+    setActiveView(view);
+  };
+
+  // Close session view
+  const handleCloseSessionView = () => {
+    setViewingSession(null);
+    setActiveView("overview");
+    setAttendanceCode("");
+  };
+
   if (loadingSessions) {
     return <Loader />;
+  }
+
+  // If viewing a specific session, show session detail view
+  if (viewingSession) {
+    return (
+      <div className="space-y-6">
+        {/* Session View Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handleCloseSessionView}
+              className="p-2 text-gray-500 hover:text-gray-700 rounded"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div>
+              <h2 className="text-2xl font-semibold">{viewingSession.name}</h2>
+              <p className="text-gray-600">{viewingSession.description}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Session View Tabs */}
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8">
+            <button
+              onClick={() => setActiveView("overview")}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeView === "overview"
+                  ? "border-purple-500 text-purple-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setActiveView("registrations")}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeView === "registrations"
+                  ? "border-purple-500 text-purple-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Registrations ({viewingSession.registered_count || 0})
+            </button>
+            <button
+              onClick={() => setActiveView("attendance")}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeView === "attendance"
+                  ? "border-purple-500 text-purple-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Attendance ({viewingSession.attended_count || 0})
+            </button>
+          </nav>
+        </div>
+
+        {/* Session View Content */}
+        <div className="bg-white rounded-lg shadow p-6">
+          {activeView === "overview" && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-medium mb-4">Session Details</h3>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-gray-400" />
+                      <span>{new Date(viewingSession.date).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-gray-400" />
+                      <span>{viewingSession.start_time} - {viewingSession.end_time}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-gray-400" />
+                      <span>{viewingSession.location}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-gray-400" />
+                      <span>Capacity: {viewingSession.max_capacity}</span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-medium mb-4">Quick Stats</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-3 bg-blue-50 rounded">
+                      <div className="text-2xl font-bold text-blue-600">
+                        {viewingSession.registered_count || 0}
+                      </div>
+                      <div className="text-xs text-blue-600">Registered</div>
+                    </div>
+                    <div className="text-center p-3 bg-green-50 rounded">
+                      <div className="text-2xl font-bold text-green-600">
+                        {viewingSession.attended_count || 0}
+                      </div>
+                      <div className="text-xs text-green-600">Attended</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Attendance Marking for Required Sessions */}
+              {viewingSession.is_attendance_required && (
+                <div className="border-t pt-6">
+                  <h3 className="font-medium mb-4">Mark Attendance</h3>
+                  <div className="flex gap-4">
+                    <input
+                      type="text"
+                      value={attendanceCode}
+                      onChange={(e) => setAttendanceCode(e.target.value)}
+                      placeholder="Enter invitee code"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
+                    />
+                    <CustomButton
+                      buttonText="Mark Present"
+                      prefixIcon={<UserCheck className="w-4 h-4" />}
+                      buttonColor="bg-green-600"
+                      radius="rounded-md"
+                      onClick={handleMarkAttendance}
+                      isLoading={sessionAttendanceManager.isLoading}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeView === "registrations" && (
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-medium">Session Registrations</h3>
+                <button
+                  onClick={refetchRegistrations}
+                  className="text-purple-600 hover:text-purple-700 text-sm"
+                >
+                  Refresh
+                </button>
+              </div>
+              {loadingRegistrations ? (
+                <div className="text-center py-8">
+                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-purple-600 border-r-transparent"></div>
+                  <p className="mt-2 text-gray-600">Loading registrations...</p>
+                </div>
+              ) : registrationsData?.data?.length > 0 ? (
+                <div className="space-y-3">
+                  {registrationsData.data.map((registration) => (
+                    <div key={registration._id} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                      <div>
+                        <div className="font-medium">{registration.name}</div>
+                        <div className="text-sm text-gray-600">{registration.email}</div>
+                        <div className="text-xs text-gray-500">Code: {registration.invitee_code}</div>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {new Date(registration.registered_at).toLocaleString()}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  No registrations found for this session
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeView === "attendance" && (
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-medium">Session Attendance</h3>
+                <button
+                  onClick={refetchAttendance}
+                  className="text-purple-600 hover:text-purple-700 text-sm"
+                >
+                  Refresh
+                </button>
+              </div>
+              {loadingAttendance ? (
+                <div className="text-center py-8">
+                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-purple-600 border-r-transparent"></div>
+                  <p className="mt-2 text-gray-600">Loading attendance...</p>
+                </div>
+              ) : attendanceData?.data?.length > 0 ? (
+                <div className="space-y-3">
+                  {attendanceData.data.map((attendance) => (
+                    <div key={attendance._id} className="flex items-center justify-between p-3 bg-green-50 rounded">
+                      <div>
+                        <div className="font-medium">{attendance.name}</div>
+                        <div className="text-sm text-gray-600">{attendance.email}</div>
+                        <div className="text-xs text-gray-500">Code: {attendance.invitee_code}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-green-600 font-medium">
+                          {attendance.marking_method}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {new Date(attendance.marked_at).toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  No attendance records found for this session
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -447,6 +716,29 @@ const SessionsManagementTab = ({ event }) => {
                   </div>
                   
                   <div className="flex items-center gap-2">
+                    {session.is_attendance_required && (
+                      <button
+                        onClick={() => handleViewSession(session, "overview")}
+                        className="p-2 text-gray-500 hover:text-purple-600 rounded"
+                        title="Manage attendance"
+                      >
+                        <UserCheck className="w-4 h-4" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleViewSession(session, "registrations")}
+                      className="p-2 text-gray-500 hover:text-blue-600 rounded"
+                      title="View registrations"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleViewSession(session, "attendance")}
+                      className="p-2 text-gray-500 hover:text-green-600 rounded"
+                      title="View attendance"
+                    >
+                      <List className="w-4 h-4" />
+                    </button>
                     <button
                       onClick={() => toggleSessionVisibility(session)}
                       className={`p-2 rounded ${session.is_public ? 'text-green-600 bg-green-50' : 'text-gray-400 bg-gray-50'}`}
