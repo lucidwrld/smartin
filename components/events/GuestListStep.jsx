@@ -139,20 +139,29 @@ export const GuestListStep = ({ formData, onFormDataChange }) => {
 
   const validateUploadedGuest = (guest, index) => {
     const errors = [];
+    const guestName = guest.name?.trim() || `Row ${index + 1}`;
+    
     if (!guest.name?.trim()) {
-      errors.push(`Row ${index + 2}: Name is required`); // +2 because of header row and 0-based index
+      errors.push(`Row ${index + 1}: Name is required`);
     }
     if (guest.email && !validateEmail(guest.email)) {
-      errors.push(`Row ${index + 2}: Invalid email format`);
+      errors.push(`${guestName}: Invalid email format (${guest.email})`);
     }
     if (!guest.phone?.trim()) {
-      errors.push(`Row ${index + 2}: Phone number is required`);
-    } else if (!validatePhoneNumber(guest.phone)) {
-      errors.push(
-        `Row ${
-          index + 2
-        }: Invalid phone number format. Must include country code and valid number`
-      );
+      errors.push(`${guestName}: Phone number is required`);
+    } else {
+      // Check for + in the middle of the phone number
+      const phoneStr = guest.phone.toString();
+      const firstPlusIndex = phoneStr.indexOf('+');
+      const hasMiddlePlus = firstPlusIndex !== -1 && phoneStr.indexOf('+', firstPlusIndex + 1) !== -1;
+      
+      if (hasMiddlePlus) {
+        errors.push(`${guestName}: Phone number contains invalid '+' character in the middle (${guest.phone}). Only country code should start with '+'`);
+      } else if (!validatePhoneNumber(guest.phone)) {
+        errors.push(
+          `${guestName}: Invalid phone number format (${guest.phone}). Must include country code and valid number`
+        );
+      }
     }
     return errors;
   };
@@ -209,17 +218,25 @@ export const GuestListStep = ({ formData, onFormDataChange }) => {
         const text = await file.text();
         const rows = text
           .split("\n")
-          .map((row) => row.split(",").map((cell) => cell.trim()));
+          .map((row) => row.split(",").map((cell) => cell.trim()))
+          .filter(row => row.some(cell => cell && cell.trim())); // Filter out empty rows first
 
-        // Skip header row and filter out empty rows
-        const guests = rows
-          .slice(1)
-          .filter(row => row.some(cell => cell && cell.trim())) // Filter out empty rows
-          .map(([name, email, phone]) => ({
-            name: name || "",
-            email: email || "",
-            phone: parsePhoneNumber(phone) || "",
-          }));
+        // Check if first row looks like a header (contains "Name", "Email", "Phone")
+        const firstRow = rows[0] || [];
+        const hasHeader = firstRow.some(cell => 
+          cell.toLowerCase().includes('name') || 
+          cell.toLowerCase().includes('email') || 
+          cell.toLowerCase().includes('phone')
+        );
+
+        // Skip header row only if it exists, otherwise process all rows
+        const dataRows = hasHeader ? rows.slice(1) : rows;
+        
+        const guests = dataRows.map(([name, email, phone]) => ({
+          name: name || "",
+          email: email || "",
+          phone: parsePhoneNumber(phone) || "",
+        }));
 
         const allErrors = [];
         guests.forEach((guest, index) => {
@@ -230,10 +247,8 @@ export const GuestListStep = ({ formData, onFormDataChange }) => {
         if (allErrors.length > 0) {
           setUploadErrors(allErrors);
         } else {
-          onFormDataChange("guestList", [
-            ...(formData.guestList || []),
-            ...guests,
-          ]);
+          // Replace the entire guest list with CSV data, starting from the first row
+          onFormDataChange("guestList", guests);
           setUploadErrors([]);
           e.target.value = ""; // Reset file input
         }

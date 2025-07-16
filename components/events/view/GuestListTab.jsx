@@ -415,7 +415,10 @@ const GuestListTab = ({ eventId, analytics, event }) => {
           />
           <CustomButton
             buttonText="Cancel"
-            onClick={() => setShowAddGuest(false)}
+            onClick={() => {
+              setGuestFormData({ guestList: [{ name: "", email: "", phone: "" }] });
+              setShowAddGuest(false);
+            }}
             buttonColor="bg-gray-300"
             textColor="text-gray-700"
             radius="rounded-full"
