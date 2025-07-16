@@ -11,6 +11,7 @@ import {
   Share2,
   Wallet,
   MessageSquare,
+  X,
 } from "lucide-react";
 import Gallery from "@/components/Gallery";
 import { convertToAmPm } from "@/utils/timeStringToAMPM";
@@ -32,6 +33,7 @@ const EventDetailAndGalleryTab = ({ event, isLoading, analytics, analyticsCards 
   const [showFeedbackToggle, setShowFeedbackToggle] = useState(
     event?.showFeedback || false
   );
+  const [showFullScreenImage, setShowFullScreenImage] = useState(false);
 
   const { suspendEvent, isLoading: suspending } = SuspendEventManager({
     eventId: event?.id,
@@ -90,8 +92,9 @@ const EventDetailAndGalleryTab = ({ event, isLoading, analytics, analyticsCards 
         <div className="w-full md:w-1/2 relative max-h-[60vh] h-full">
           <img
             src={event?.image}
-            className="object-cover w-full max-h-[60vh] h-full"
+            className="object-cover w-full max-h-[60vh] h-full cursor-pointer hover:opacity-90 transition-opacity"
             alt="event-image"
+            onClick={() => setShowFullScreenImage(true)}
           />
         </div>
         <div className="w-full md:w-1/2 flex flex-col items-start gap-7 p-3">
@@ -282,6 +285,32 @@ const EventDetailAndGalleryTab = ({ event, isLoading, analytics, analyticsCards 
         <h3 className="text-lg font-semibold">Gallery</h3>
       </div>
       <Gallery files={event?.gallery} />
+
+      {/* Full Screen Image Modal */}
+      {showFullScreenImage && event?.image && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowFullScreenImage(false)}
+        >
+          {/* Close Button */}
+          <button
+            onClick={() => setShowFullScreenImage(false)}
+            className="absolute top-4 right-4 z-60 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+
+          {/* Full Screen Image */}
+          <div className="max-w-4xl w-full max-h-[90vh] flex items-center justify-center">
+            <img
+              src={event?.image}
+              alt="Event image - full screen"
+              className="w-full max-h-[80vh] object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
