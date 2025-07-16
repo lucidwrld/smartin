@@ -1,23 +1,27 @@
-import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
-import { useMutation, useQueryClient } from "react-query";
+import useUpdateManager from "@/constants/controller_templates/put_controller_template";
 
-const useUpdatePollManager = () => {
-  const queryClient = useQueryClient();
+export const UpdatePollManager = ({ pollId }) => {
+  const { updateCaller, isLoading, isSuccess, error, data } = useUpdateManager(
+    `/polls/${pollId}`,
+    ["event-polls"],
+    true
+  );
 
-  return useMutation({
-    mutationFn: async ({ pollId, pollData }) => {
-      try {
-        const response = await AxiosWithToken.put(`/polls/${pollId}`, pollData);
-        return response.data;
-      } catch (error) {
-        throw new Error(`Sorry: ${error.response?.data?.message || error.message}`);
-      }
-    },
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries(["poll", variables.pollId]);
-      queryClient.invalidateQueries(["event-polls"]);
-    },
-  });
+  const updatePoll = async (pollData) => {
+    try {
+      await updateCaller(pollData);
+    } catch (error) {
+      console.error("error:", error);
+    }
+  };
+
+  return {
+    updatePoll,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
 };
 
-export default useUpdatePollManager;
+export default UpdatePollManager;

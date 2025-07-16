@@ -1,22 +1,27 @@
-import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
-import { useMutation, useQueryClient } from "react-query";
+import usePostManager from "@/constants/controller_templates/post_controller_template";
 
-const useCreatePollManager = () => {
-  const queryClient = useQueryClient();
+export const CreatePollManager = () => {
+  const { postCaller, isLoading, isSuccess, error, data } = usePostManager(
+    `/polls`,
+    ["event-polls"],
+    true
+  );
 
-  return useMutation({
-    mutationFn: async (pollData) => {
-      try {
-        const response = await AxiosWithToken.post(`/polls`, pollData);
-        return response.data;
-      } catch (error) {
-        throw new Error(`Sorry: ${error.response?.data?.message || error.message}`);
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(["event-polls"]);
-    },
-  });
+  const createPoll = async (pollData) => {
+    try {
+      await postCaller(pollData);
+    } catch (error) {
+      console.error("error:", error);
+    }
+  };
+
+  return {
+    createPoll,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
 };
 
-export default useCreatePollManager;
+export default CreatePollManager;

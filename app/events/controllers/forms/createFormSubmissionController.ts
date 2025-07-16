@@ -33,10 +33,7 @@ export const CreateFormSubmissionManager = (
     submissionData: CreateFormSubmissionPayload
   ) => {
     try {
-      const payload = {
-        data: submissionData,
-      };
-      await postCaller(payload);
+      await postCaller(submissionData);
     } catch (error) {
       console.error("Error creating form submission:", error);
     }

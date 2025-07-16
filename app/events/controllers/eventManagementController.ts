@@ -44,11 +44,12 @@ export const UpdateHostsManager = () => {
   const { updateCaller, isLoading, isSuccess, error, data } =
     useUpdateManager<BaseResponse>(`/event/update/hosts`, ["event"], true);
 
-  const updateHosts = async (eventId: string, hosts: Host[]) => {
+  const updateHosts = async (eventId: string, hostId: string, hostData: Partial<Host>) => {
     try {
-      const payload: AddHostsPayload = {
+      const payload = {
         eventId,
-        data: hosts,
+        id: hostId,
+        data: hostData,
       };
       await updateCaller(payload);
     } catch (error) {
@@ -129,11 +130,12 @@ export const UpdateSponsorsManager = () => {
   const { updateCaller, isLoading, isSuccess, error, data } =
     useUpdateManager<BaseResponse>(`/event/update/sponsors`, ["event"], true);
 
-  const updateSponsors = async (eventId: string, sponsors: Sponsor[]) => {
+  const updateSponsors = async (eventId: string, sponsorId: string, sponsorData: Partial<Sponsor>) => {
     try {
-      const payload: AddSponsorsPayload = {
+      const payload = {
         eventId,
-        data: sponsors,
+        id: sponsorId,
+        data: sponsorData,
       };
       await updateCaller(payload);
     } catch (error) {
@@ -210,11 +212,12 @@ export const UpdatePartnersManager = () => {
   const { updateCaller, isLoading, isSuccess, error, data } =
     useUpdateManager<BaseResponse>(`/event/update/partners`, ["event"], true);
 
-  const updatePartners = async (eventId: string, partners: Partner[]) => {
+  const updatePartners = async (eventId: string, partnerId: string, partnerData: Partial<Partner>) => {
     try {
-      const payload: AddPartnersPayload = {
+      const payload = {
         eventId,
-        data: partners,
+        id: partnerId,
+        data: partnerData,
       };
       await updateCaller(payload);
     } catch (error) {
@@ -293,11 +296,16 @@ export const UpdateVendorsManager = () => {
   const { updateCaller, isLoading, isSuccess, error, data } =
     useUpdateManager<BaseResponse>(`/event/update/vendors`, ["event"], true);
 
-  const updateVendors = async (eventId: string, vendors: Vendor[]) => {
+  const updateVendors = async (
+    eventId: string,
+    vendorId: string,
+    vendor: Vendor
+  ) => {
     try {
       const payload = {
         eventId,
-        data: vendors,
+        id: vendorId,
+        data: vendor,
       };
       await updateCaller(payload);
     } catch (error) {
@@ -342,6 +350,7 @@ export const DeleteVendorsManager = () => {
 // ===================== RESOURCES MANAGEMENT =====================
 interface AddResourcesPayload {
   eventId: string;
+  id?: string;
   data: Resource[];
 }
 
@@ -377,10 +386,15 @@ export const UpdateResourcesManager = () => {
     true
   );
 
-  const updateResources = async (eventId: string, resources: Resource[]) => {
+  const updateResources = async (
+    eventId: string,
+    id: string,
+    resources: Resource[]
+  ) => {
     try {
       const payload: AddResourcesPayload = {
         eventId,
+        id,
         data: resources,
       };
       await updateCaller(payload);

@@ -57,12 +57,14 @@ export const UpdateStakeholdersManager = () => {
 
   const updateStakeholders = async (
     eventId: string,
-    stakeholders: Stakeholder[]
+    stakeholderId: string,
+    stakeholderData: Partial<Stakeholder>
   ) => {
     try {
-      const payload: AddStakeholdersPayload = {
+      const payload = {
         eventId,
-        data: stakeholders,
+        id: stakeholderId,
+        data: stakeholderData,
       };
       await updateCaller(payload);
     } catch (error) {

@@ -1,24 +1,27 @@
-import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
-import { useMutation, useQueryClient } from "react-query";
+import usePostManager from "@/constants/controller_templates/post_controller_template";
 
-const useCreatePollSubmissionManager = () => {
-  const queryClient = useQueryClient();
+export const CreatePollSubmissionManager = ({ eventId, pollId }) => {
+  const { postCaller, isLoading, isSuccess, error, data } = usePostManager(
+    `/polls/event/${eventId}/${pollId}/submission`,
+    ["event-polls"],
+    true
+  );
 
-  return useMutation({
-    mutationFn: async ({ eventId, pollId, submissionData }) => {
-      try {
-        const response = await AxiosWithToken.post(`/polls/event/${eventId}/${pollId}/submission`, submissionData);
-        return response.data;
-      } catch (error) {
-        throw new Error(`Sorry: ${error.response?.data?.message || error.message}`);
-      }
-    },
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries(["poll", variables.pollId]);
-      queryClient.invalidateQueries(["poll-submissions", variables.pollId]);
-      queryClient.invalidateQueries(["event-polls", variables.eventId]);
-    },
-  });
+  const createPollSubmission = async (submissionData) => {
+    try {
+      await postCaller(submissionData);
+    } catch (error) {
+      console.error("error:", error);
+    }
+  };
+
+  return {
+    createPollSubmission,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
 };
 
-export default useCreatePollSubmissionManager;
+export default CreatePollSubmissionManager;

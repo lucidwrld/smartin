@@ -56,12 +56,14 @@ export const UpdateProgramManager = () => {
 
   const updateProgram = async (
     eventId: string,
-    programItems: ProgramItem[]
+    programId: string,
+    programData: Partial<ProgramItem>
   ) => {
     try {
-      const payload: AddProgramPayload = {
+      const payload = {
         eventId,
-        data: programItems,
+        id: programId,
+        data: programData,
       };
       await updateCaller(payload);
     } catch (error) {

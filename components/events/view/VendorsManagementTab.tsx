@@ -110,9 +110,9 @@ const VendorCard: React.FC<VendorCardProps> = ({
 
   const formatCurrency = (amount: number | null | undefined) => {
     if (!amount) return "";
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount);
   };
 
@@ -135,16 +135,24 @@ const VendorCard: React.FC<VendorCardProps> = ({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h4 className="font-medium text-gray-900 truncate">{name}</h4>
-              <span className={`px-2 py-1 text-xs rounded ${getStatusColor(status)}`}>
+              <span
+                className={`px-2 py-1 text-xs rounded ${getStatusColor(
+                  status
+                )}`}
+              >
                 {status}
               </span>
               {payment_status && (
-                <span className={`px-2 py-1 text-xs rounded ${getPaymentStatusColor(payment_status)}`}>
+                <span
+                  className={`px-2 py-1 text-xs rounded ${getPaymentStatusColor(
+                    payment_status
+                  )}`}
+                >
                   {payment_status}
                 </span>
               )}
             </div>
-            
+
             <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
               <span className="flex items-center gap-1">
                 <Building2 className="w-4 h-4" />
@@ -191,7 +199,7 @@ const VendorCard: React.FC<VendorCardProps> = ({
 
             {services_provided && services_provided.trim() && (
               <div className="mt-2 flex flex-wrap gap-1">
-                {services_provided.split(',').map((service, index) => (
+                {services_provided.split(",").map((service, index) => (
                   <span
                     key={index}
                     className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
@@ -294,12 +302,12 @@ interface VendorModalProps {
   isLoading: boolean;
 }
 
-const VendorModal: React.FC<VendorModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  vendor, 
-  onSave, 
-  isLoading 
+const VendorModal: React.FC<VendorModalProps> = ({
+  isOpen,
+  onClose,
+  vendor,
+  onSave,
+  isLoading,
 }) => {
   const [formData, setFormData] = useState<VendorFormData>({
     name: "",
@@ -383,7 +391,9 @@ const VendorModal: React.FC<VendorModalProps> = ({
       website: formData.website,
       status: formData.status,
       payment_status: formData.payment_status,
-      contract_amount: formData.contract_amount ? parseFloat(formData.contract_amount) : 0,
+      contract_amount: formData.contract_amount
+        ? parseFloat(formData.contract_amount)
+        : 0,
       contract_date: formData.contract_date,
       services_provided: formData.services_provided,
       notes: formData.notes,
@@ -576,7 +586,10 @@ const VendorModal: React.FC<VendorModalProps> = ({
                 <select
                   value={formData.rating}
                   onChange={(e) =>
-                    setFormData({ ...formData, rating: parseInt(e.target.value) })
+                    setFormData({
+                      ...formData,
+                      rating: parseInt(e.target.value),
+                    })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                 >
@@ -657,9 +670,9 @@ interface VendorsManagementTabProps {
   onFilterChange?: (filters: { status: string; service: string }) => void;
 }
 
-const VendorsManagementTab: React.FC<VendorsManagementTabProps> = ({ 
-  event, 
-  onFilterChange 
+const VendorsManagementTab: React.FC<VendorsManagementTabProps> = ({
+  event,
+  onFilterChange,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVendor, setEditingVendor] = useState<Vendor | null>(null);
@@ -667,14 +680,27 @@ const VendorsManagementTab: React.FC<VendorsManagementTabProps> = ({
   const [filterService, setFilterService] = useState("all");
 
   // Controllers
-  const { addVendors, isLoading: adding, isSuccess: addSuccess } = AddVendorsManager();
-  const { updateVendors, isLoading: updating, isSuccess: updateSuccess } = UpdateVendorsManager();
-  const { deleteVendors, isLoading: deleting, isSuccess: deleteSuccess } = DeleteVendorsManager();
+  const {
+    addVendors,
+    isLoading: adding,
+    isSuccess: addSuccess,
+  } = AddVendorsManager();
+  const {
+    updateVendors,
+    isLoading: updating,
+    isSuccess: updateSuccess,
+  } = UpdateVendorsManager();
+  const {
+    deleteVendors,
+    isLoading: deleting,
+    isSuccess: deleteSuccess,
+  } = DeleteVendorsManager();
 
   const isLoading = adding || updating || deleting;
 
   // Get vendors directly from props (already filtered by backend)
-  const vendors = event?.vendors && Array.isArray(event.vendors) ? event.vendors : [];
+  const vendors =
+    event?.vendors && Array.isArray(event.vendors) ? event.vendors : [];
 
   const handleAddVendor = () => {
     setEditingVendor(null);
@@ -688,41 +714,47 @@ const VendorsManagementTab: React.FC<VendorsManagementTabProps> = ({
 
   const handleSaveVendor = async (vendorData: Vendor) => {
     try {
-      // Include ALL frontend data points, even if backend doesn't support them yet
-      const vendorPayload: Vendor = {
-        // Backend-supported fields
-        name: vendorData.name,
-        company: vendorData.company,
-        contact_person: vendorData.contact_person,
-        email: vendorData.email,
-        phone: vendorData.phone,
-        address: vendorData.address,
-        website: vendorData.website,
-        job_description: vendorData.job_description,
-        status: vendorData.status,
-        payment_status: vendorData.payment_status,
-        contract_amount: vendorData.contract_amount,
-        contract_date: vendorData.contract_date,
-        services_provided: vendorData.services_provided,
-        notes: vendorData.notes,
-
-        // ADDITIONAL frontend data points backend should support
-        service_type: vendorData.job_description, // Alternative job_description field name
-        rating: vendorData.rating, // Vendor rating (1-5 stars)
-        createdAt: vendorData.createdAt, // Creation timestamp
-      };
-
       if (editingVendor) {
-        // Update existing vendor
-        const updatedVendors = vendors.map(v => 
-          (v.id === editingVendor.id || v._id === editingVendor._id) ? vendorData : v
+        // For update, only send the changed fields
+        const changedFields: Partial<Vendor> = {};
+        
+        // Get all keys from vendorData and compare with editingVendor
+        Object.keys(vendorData).forEach((key) => {
+          const vendorKey = key as keyof Vendor;
+          if (vendorData[vendorKey] !== editingVendor[vendorKey]) {
+            (changedFields as any)[vendorKey] = vendorData[vendorKey];
+          }
+        });
+
+        // Update existing vendor with only changed fields
+        await updateVendors(
+          event.id || event._id,
+          editingVendor.id || editingVendor._id,
+          changedFields as Vendor
         );
-        await updateVendors(event.id || event._id, updatedVendors);
       } else {
-        // Add new vendor
+        // Add new vendor - send all fields
+        const vendorPayload: Vendor = {
+          name: vendorData.name,
+          company: vendorData.company,
+          contact_person: vendorData.contact_person,
+          email: vendorData.email,
+          phone: vendorData.phone,
+          address: vendorData.address,
+          website: vendorData.website,
+          job_description: vendorData.job_description,
+          status: vendorData.status,
+          payment_status: vendorData.payment_status,
+          contract_amount: vendorData.contract_amount,
+          contract_date: vendorData.contract_date,
+          services_provided: vendorData.services_provided,
+          notes: vendorData.notes,
+          rating: vendorData.rating,
+        };
+        
         await addVendors(event.id || event._id, vendorPayload);
       }
-      
+
       setIsModalOpen(false);
       setEditingVendor(null);
     } catch (error) {
@@ -733,10 +765,9 @@ const VendorsManagementTab: React.FC<VendorsManagementTabProps> = ({
 
   const handleUpdateStatus = async (vendorId: string, newStatus: string) => {
     try {
-      const updatedVendors = vendors.map(v => 
-        (v.id === vendorId || v._id === vendorId) ? { ...v, status: newStatus } : v
-      );
-      await updateVendors(event.id || event._id, updatedVendors);
+      // Only send the status field for update
+      const statusUpdate = { status: newStatus } as Vendor;
+      await updateVendors(event.id || event._id, vendorId, statusUpdate);
     } catch (error) {
       console.error("Error updating vendor status:", error);
       alert("Error updating vendor status. Please try again.");
@@ -756,8 +787,14 @@ const VendorsManagementTab: React.FC<VendorsManagementTabProps> = ({
 
   // All data should come from backend based on filters
   const filteredVendors = vendors; // Backend should return filtered data
-  
-  const statusOptions = ["all", "pending", "confirmed", "contracted", "cancelled"];
+
+  const statusOptions = [
+    "all",
+    "pending",
+    "confirmed",
+    "contracted",
+    "cancelled",
+  ];
   const serviceTypes = ["all"]; // TODO: Backend should provide available service types
 
   // Stats - backend doesn't provide these yet, so display 0
@@ -831,13 +868,18 @@ const VendorsManagementTab: React.FC<VendorsManagementTabProps> = ({
               value={filterStatus}
               onChange={(e) => {
                 setFilterStatus(e.target.value);
-                onFilterChange?.({ status: e.target.value, service: filterService });
+                onFilterChange?.({
+                  status: e.target.value,
+                  service: filterService,
+                });
               }}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
             >
-              {statusOptions.map(status => (
+              {statusOptions.map((status) => (
                 <option key={status} value={status}>
-                  {status === "all" ? "All Status" : status.charAt(0).toUpperCase() + status.slice(1)}
+                  {status === "all"
+                    ? "All Status"
+                    : status.charAt(0).toUpperCase() + status.slice(1)}
                 </option>
               ))}
             </select>
@@ -850,11 +892,14 @@ const VendorsManagementTab: React.FC<VendorsManagementTabProps> = ({
               value={filterService}
               onChange={(e) => {
                 setFilterService(e.target.value);
-                onFilterChange?.({ status: filterStatus, service: e.target.value });
+                onFilterChange?.({
+                  status: filterStatus,
+                  service: e.target.value,
+                });
               }}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
             >
-              {serviceTypes.map(service => (
+              {serviceTypes.map((service) => (
                 <option key={service} value={service}>
                   {service === "all" ? "All Services" : service}
                 </option>
@@ -877,13 +922,14 @@ const VendorsManagementTab: React.FC<VendorsManagementTabProps> = ({
         <div className="text-center py-12 bg-white rounded-lg border">
           <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {vendors.length === 0 ? "No vendors yet" : "No vendors match your filters"}
+            {vendors.length === 0
+              ? "No vendors yet"
+              : "No vendors match your filters"}
           </h3>
           <p className="text-gray-500 mb-4">
-            {vendors.length === 0 
+            {vendors.length === 0
               ? "Start by adding vendors for your event."
-              : "Try adjusting your filters to see more vendors."
-            }
+              : "Try adjusting your filters to see more vendors."}
           </p>
           {vendors.length === 0 && (
             <CustomButton

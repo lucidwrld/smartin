@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Plus,
   Edit2,
@@ -25,6 +25,7 @@ import useGetEventFormsManager from "@/app/events/controllers/forms/getEventForm
 import useCreateFormManager from "@/app/events/controllers/forms/createFormController";
 import useUpdateFormFieldsManager from "@/app/events/controllers/forms/updateFormFieldsController";
 import useGetFormSubmissionsManager from "@/app/events/controllers/forms/getFormSubmissionsController";
+import useDebounce from "@/utils/UseDebounce";
 
 const FormSubmissionsView = ({ forms, event }) => {
   const form = forms[0]; // Use the first (and only) form passed in
@@ -32,20 +33,20 @@ const FormSubmissionsView = ({ forms, event }) => {
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
 
-  // API hook for submissions
+  // Debounce search term with 1 second delay
+  const debouncedSearchTerm = useDebounce(searchTerm, 1000);
+
+  // API hook for submissions with search
   const { data: submissionsData, isLoading: submissionsLoading } =
     useGetFormSubmissionsManager({
       eventId: event?.id,
       formId: form?.id,
+      search: debouncedSearchTerm,
       enabled: !!form?.id && !!event?.id,
     });
 
-
-  const filteredSubmissions = (submissionsData?.data || []).filter(
-    (submission) =>
-      submission.guest_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      submission.guest_email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Use submissions directly from API (already filtered by backend)
+  const filteredSubmissions = submissionsData?.data || [];
 
   const viewSubmissionDetails = (submission) => {
     setSelectedSubmission(submission);
@@ -60,13 +61,16 @@ const FormSubmissionsView = ({ forms, event }) => {
       "Guest Name",
       "Email",
       "Submitted At",
-      ...form.fields.map((f) => f.label),
+      ...form.form_fields.map((f) => f.label),
     ];
     const rows = (submissionsData?.data || []).map((sub) => [
-      sub.guest_name,
-      sub.guest_email,
-      new Date(sub.submitted_at).toLocaleString(),
-      ...form.fields.map((field) => sub.responses[field.id] || ""),
+      sub.name,
+      sub.email,
+      new Date(sub.createdAt).toLocaleString(),
+      ...form.form_fields.map((field) => {
+        const response = sub.responses.find(r => r.label === field.label);
+        return response?.response || "";
+      }),
     ]);
 
     const csvContent = [headers, ...rows]
@@ -97,88 +101,93 @@ const FormSubmissionsView = ({ forms, event }) => {
             </div>
           ) : (
             <>
-          <div className="p-4 border-b">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div>
-                <h3 className="text-lg font-semibold">
-                  {form.name} Submissions
-                </h3>
-                <p className="text-gray-600">
-                  {filteredSubmissions.length} of {(submissionsData?.data || []).length}{" "}
-                  submissions
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search submissions..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-8 pr-4 py-2 border rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                  />
-                  <Search className="w-4 h-4 absolute left-2 top-3 text-gray-400" />
+              <div className="p-4 border-b">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      {form.name} Submissions
+                    </h3>
+                    <p className="text-gray-600">
+                      {filteredSubmissions.length} submissions{" "}
+                      {submissionsData?.pagination?.total && `(${submissionsData.pagination.total} total)`}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Search submissions..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-8 pr-4 py-2 border rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                      />
+                      <Search className="w-4 h-4 absolute left-2 top-3 text-gray-400" />
+                    </div>
+                    <CustomButton
+                      buttonText="Export CSV"
+                      prefixIcon={<Download className="w-4 h-4" />}
+                      buttonColor="bg-green-600"
+                      radius="rounded-md"
+                      onClick={exportSubmissions}
+                    />
+                  </div>
                 </div>
-                <CustomButton
-                  buttonText="Export CSV"
-                  prefixIcon={<Download className="w-4 h-4" />}
-                  buttonColor="bg-green-600"
-                  radius="rounded-md"
-                  onClick={exportSubmissions}
-                />
               </div>
-            </div>
-          </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="text-left p-3 font-medium text-gray-700">
-                    Guest
-                  </th>
-                  <th className="text-left p-3 font-medium text-gray-700">
-                    Email
-                  </th>
-                  <th className="text-left p-3 font-medium text-gray-700">
-                    Submitted
-                  </th>
-                  <th className="text-left p-3 font-medium text-gray-700">
-                    Responses
-                  </th>
-                  <th className="text-left p-3 font-medium text-gray-700">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredSubmissions.map((submission) => (
-                  <tr key={submission.id} className="border-t hover:bg-gray-50">
-                    <td className="p-3">{submission.guest_name}</td>
-                    <td className="p-3 text-gray-600">
-                      {submission.guest_email}
-                    </td>
-                    <td className="p-3 text-sm text-gray-500">
-                      {new Date(submission.submitted_at).toLocaleDateString()}
-                    </td>
-                    <td className="p-3">
-                      <span className="text-sm text-purple-600">
-                        {Object.keys(submission.responses).length} responses
-                      </span>
-                    </td>
-                    <td className="p-3">
-                      <button
-                        onClick={() => viewSubmissionDetails(submission)}
-                        className="text-purple-600 hover:text-purple-800 text-sm font-medium"
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="text-left p-3 font-medium text-gray-700">
+                        Guest
+                      </th>
+                      <th className="text-left p-3 font-medium text-gray-700">
+                        Email
+                      </th>
+                      <th className="text-left p-3 font-medium text-gray-700">
+                        Submitted
+                      </th>
+                      <th className="text-left p-3 font-medium text-gray-700">
+                        Responses
+                      </th>
+                      <th className="text-left p-3 font-medium text-gray-700">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredSubmissions.map((submission) => (
+                      <tr
+                        key={submission.id}
+                        className="border-t hover:bg-gray-50"
                       >
-                        View Details
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                        <td className="p-3">{submission.name}</td>
+                        <td className="p-3 text-gray-600">
+                          {submission.email}
+                        </td>
+                        <td className="p-3 text-sm text-gray-500">
+                          {new Date(
+                            submission.createdAt
+                          ).toLocaleDateString()}
+                        </td>
+                        <td className="p-3">
+                          <span className="text-sm text-purple-600">
+                            {submission.responses.length} responses
+                          </span>
+                        </td>
+                        <td className="p-3">
+                          <button
+                            onClick={() => viewSubmissionDetails(submission)}
+                            className="text-purple-600 hover:text-purple-800 text-sm font-medium"
+                          >
+                            View Details
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </>
           )}
         </div>
@@ -195,7 +204,7 @@ const FormSubmissionsView = ({ forms, event }) => {
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold">
-                  Submission Details - {selectedSubmission.guest_name}
+                  Submission Details - {selectedSubmission.name}
                 </h3>
                 <button
                   onClick={() => setShowSubmissionModal(false)}
@@ -210,20 +219,20 @@ const FormSubmissionsView = ({ forms, event }) => {
                   <div>
                     <span className="text-sm text-gray-600">Guest Name:</span>
                     <p className="font-medium">
-                      {selectedSubmission.guest_name}
+                      {selectedSubmission.name}
                     </p>
                   </div>
                   <div>
                     <span className="text-sm text-gray-600">Email:</span>
                     <p className="font-medium">
-                      {selectedSubmission.guest_email}
+                      {selectedSubmission.email}
                     </p>
                   </div>
                   <div>
                     <span className="text-sm text-gray-600">Submitted:</span>
                     <p className="font-medium">
                       {new Date(
-                        selectedSubmission.submitted_at
+                        selectedSubmission.createdAt
                       ).toLocaleString()}
                     </p>
                   </div>
@@ -236,26 +245,18 @@ const FormSubmissionsView = ({ forms, event }) => {
                 <div>
                   <h4 className="font-medium text-gray-700 mb-3">Responses:</h4>
                   <div className="space-y-3">
-                    {form.fields.map((field) => (
-                      <div key={field.id} className="border rounded p-3">
+                    {selectedSubmission.responses.map((response, index) => (
+                      <div key={index} className="border rounded p-3">
                         <div className="flex justify-between items-start mb-2">
                           <span className="font-medium text-sm">
-                            {field.label}
+                            {response.label}
                           </span>
                           <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-                            {field.type}
+                            {response.type}
                           </span>
                         </div>
                         <div className="text-gray-700">
-                          {selectedSubmission.responses[field.id] !== undefined
-                            ? typeof selectedSubmission.responses[field.id] ===
-                              "boolean"
-                              ? selectedSubmission.responses[field.id]
-                                ? "Yes"
-                                : "No"
-                              : selectedSubmission.responses[field.id] ||
-                                "No response"
-                            : "No response"}
+                          {response.response || "No response"}
                         </div>
                       </div>
                     ))}
@@ -441,12 +442,12 @@ const FormsManagementTab = ({ event }) => {
           is_required: formData.is_required,
           is_active: formData.is_active,
         };
-        
+
         // Only include form_fields if they exist in the editing form
         if (editingForm.form_fields && editingForm.form_fields.length > 0) {
           updatePayload.form_fields = editingForm.form_fields;
         }
-        
+
         await updateFormFields(updatePayload);
       } else {
         // Create new form
@@ -465,7 +466,7 @@ const FormsManagementTab = ({ event }) => {
     } catch (error) {
       console.error("Error saving form:", error);
       console.error("Error details:", error.message);
-      alert(`Error saving form: ${error.message || 'Please try again.'}`);
+      alert(`Error saving form: ${error.message || "Please try again."}`);
     }
   };
 
@@ -493,7 +494,7 @@ const FormsManagementTab = ({ event }) => {
       if (editingField) {
         // Update existing field
         updatedFields = currentForm.form_fields.map((field) =>
-          field._id === editingField.id ? { ...field, ...newField } : field
+          field._id === editingField._id ? { ...field, ...newField } : field
         );
       } else {
         // Add new field
@@ -530,7 +531,7 @@ const FormsManagementTab = ({ event }) => {
 
   const handleShareForm = async (form) => {
     const shareUrl = `${window.location.origin}/forms/${event.id}/${form.id}`;
-    
+
     try {
       // Try to use the modern clipboard API
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -538,30 +539,30 @@ const FormsManagementTab = ({ event }) => {
         alert(`Form link copied to clipboard!\n\n${shareUrl}`);
       } else {
         // Fallback for older browsers
-        const textArea = document.createElement('textarea');
+        const textArea = document.createElement("textarea");
         textArea.value = shareUrl;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        textArea.style.top = '-999999px';
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
-        
+
         try {
-          document.execCommand('copy');
+          document.execCommand("copy");
           alert(`Form link copied to clipboard!\n\n${shareUrl}`);
         } catch (err) {
-          console.error('Unable to copy to clipboard:', err);
+          console.error("Unable to copy to clipboard:", err);
           // Show the URL in a prompt so user can copy manually
-          prompt('Copy this form link:', shareUrl);
+          prompt("Copy this form link:", shareUrl);
         } finally {
           document.body.removeChild(textArea);
         }
       }
     } catch (error) {
-      console.error('Error copying to clipboard:', error);
+      console.error("Error copying to clipboard:", error);
       // Show the URL in a prompt as final fallback
-      prompt('Copy this form link:', shareUrl);
+      prompt("Copy this form link:", shareUrl);
     }
   };
 
@@ -592,8 +593,8 @@ const FormsManagementTab = ({ event }) => {
       if (!currentForm) return;
 
       // Update the form with the toggled status
-      const updateManager = useUpdateFormFieldsManager(formId);
-      await updateManager.updateFormFields({
+
+      await updateFormFields({
         ...currentForm,
         [field]: !currentForm[field],
         form_fields: currentForm.form_fields || [],
@@ -671,7 +672,9 @@ const FormsManagementTab = ({ event }) => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-semibold mb-2">Forms Management</h2>
+          <h2 className="text-xl sm:text-2xl font-semibold mb-2">
+            Forms Management
+          </h2>
           <p className="text-gray-600 text-sm sm:text-base">
             Create and manage dynamic registration forms for your event
             attendees
@@ -726,7 +729,6 @@ const FormsManagementTab = ({ event }) => {
           </div>
         </div>
       </div>
-
 
       {/* Forms List */}
       {activeTab === "forms" && (
@@ -819,7 +821,9 @@ const FormsManagementTab = ({ event }) => {
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                     <div className="w-full sm:w-auto">
                       <CustomButton
-                        buttonText={`Submissions (${form.submission_count || 0})`}
+                        buttonText={`Submissions (${
+                          form.submission_count || 0
+                        })`}
                         prefixIcon={<BarChart3 className="w-4 h-4" />}
                         buttonColor="bg-purple-600"
                         radius="rounded-md"
@@ -954,10 +958,17 @@ const FormsManagementTab = ({ event }) => {
               Back to Forms
             </button>
             <h3 className="text-lg font-semibold">
-              {(formsData?.data || []).find(f => f.id === activeFormId)?.description} - Submissions
+              {
+                (formsData?.data || []).find((f) => f.id === activeFormId)
+                  ?.description
+              }{" "}
+              - Submissions
             </h3>
           </div>
-          <FormSubmissionsView forms={[(formsData?.data || []).find(f => f.id === activeFormId)]} event={event} />
+          <FormSubmissionsView
+            forms={[(formsData?.data || []).find((f) => f.id === activeFormId)]}
+            event={event}
+          />
         </div>
       )}
 
@@ -989,7 +1000,6 @@ const FormsManagementTab = ({ event }) => {
                   }
                   isRequired={true}
                 />
-
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <InputWithFullBoarder

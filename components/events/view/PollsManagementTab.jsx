@@ -25,8 +25,8 @@ import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import StatusButton from "@/components/StatusButton";
 import useGetEventPollsManager from "@/app/events/controllers/polls/getEventPollsController";
-import useCreatePollManager from "@/app/events/controllers/polls/createPollController";
-import useUpdatePollManager from "@/app/events/controllers/polls/updatePollController";
+import { CreatePollManager } from "@/app/events/controllers/polls/createPollController";
+import { UpdatePollManager } from "@/app/events/controllers/polls/updatePollController";
 
 const PollCard = ({
   poll,
@@ -734,8 +734,11 @@ const PollsManagementTab = ({ event }) => {
     eventId: event?.id,
     enabled: !!event?.id,
   });
-  const createPollMutation = useCreatePollManager();
-  const updatePollMutation = useUpdatePollManager();
+  const { createPoll, isLoading: creating, isSuccess: createSuccess, error: createError } = CreatePollManager();
+  
+  // For updates, we need to manage the pollId state properly
+  const [updatePollId, setUpdatePollId] = useState("default");
+  const updatePollController = UpdatePollManager({ pollId: updatePollId });
 
   // Load polls from API
   React.useEffect(() => {
@@ -759,17 +762,19 @@ const PollsManagementTab = ({ event }) => {
       setIsLoading(true);
 
       if (editingPoll) {
-        // Update existing poll
-        await updatePollMutation.mutateAsync({
-          pollId: editingPoll.id,
-          pollData: {
-            ...pollData,
-            event: event.id,
-          },
+        // Update existing poll - set pollId first, then use controller
+        setUpdatePollId(editingPoll.id);
+        
+        // Wait for the controller to be ready
+        await new Promise(resolve => setTimeout(resolve, 0));
+        
+        await updatePollController.updatePoll({
+          ...pollData,
+          event: event.id,
         });
       } else {
         // Create new poll
-        await createPollMutation.mutateAsync({
+        await createPoll({
           ...pollData,
           event: event.id,
         });
@@ -777,6 +782,7 @@ const PollsManagementTab = ({ event }) => {
 
       setIsModalOpen(false);
       setEditingPoll(null);
+      setUpdatePollId("default");
     } catch (error) {
       console.error("Error saving poll:", error);
     } finally {
@@ -802,14 +808,16 @@ const PollsManagementTab = ({ event }) => {
       const poll = polls.find((p) => p.id === pollId);
       if (!poll) return;
 
-      // Call the update API
-      await updatePollMutation.mutateAsync({
-        pollId: pollId,
-        pollData: {
-          ...poll,
-          is_public: isPublic,
-          event: event.id,
-        },
+      // Set the pollId for the controller
+      setUpdatePollId(pollId);
+      
+      // Wait for the controller to be ready
+      await new Promise(resolve => setTimeout(resolve, 0));
+      
+      await updatePollController.updatePoll({
+        ...poll,
+        is_public: isPublic,
+        event: event.id,
       });
     } catch (error) {
       console.error("Error updating poll visibility:", error);

@@ -286,43 +286,69 @@ const SponsorsPartnersTab: React.FC<SponsorsPartnersTabProps> = ({ event }) => {
       }
 
       if (modalType === "sponsor") {
-        // Use exact sponsor payload structure
-        const sponsorData = {
-          name: sponsorFormData.name,
-          logo: logoUrl,
-          website: sponsorFormData.website,
-          description: sponsorFormData.description,
-          sponsorship_tier: sponsorFormData.sponsorship_tier,
-          contact_person: sponsorFormData.contact_person,
-          contact_email: sponsorFormData.contact_email,
-          contribution_benefits: sponsorFormData.contribution_benefits,
-        };
-
         if (editingItem) {
-          await updateSponsors(event.id, [
-            { ...sponsorData, id: editingItem.id },
-          ]);
+          // For update, only send the changed fields
+          const changedFields: any = {};
+          const editingSponsor = editingItem as Sponsor;
+          
+          // Create form data with logo URL for comparison
+          const currentSponsorData = { ...sponsorFormData, logo: logoUrl };
+          
+          // Compare each field and only include if changed
+          Object.keys(currentSponsorData).forEach((key) => {
+            if (currentSponsorData[key] !== editingSponsor[key]) {
+              changedFields[key] = currentSponsorData[key];
+            }
+          });
+
+          // Update existing sponsor with only changed fields
+          await updateSponsors(event.id, editingSponsor.id, changedFields);
         } else {
+          // Add new sponsor - send all fields
+          const sponsorData = {
+            name: sponsorFormData.name,
+            logo: logoUrl,
+            website: sponsorFormData.website,
+            description: sponsorFormData.description,
+            sponsorship_tier: sponsorFormData.sponsorship_tier,
+            contact_person: sponsorFormData.contact_person,
+            contact_email: sponsorFormData.contact_email,
+            contribution_benefits: sponsorFormData.contribution_benefits,
+          };
+          
           await addSponsors(event.id, [sponsorData]);
         }
       } else {
-        // Use exact partner payload structure (including typo)
-        const partnerData = {
-          name: partnerFormData.name,
-          descritpion: partnerFormData.descritpion,
-          logo: logoUrl,
-          website: partnerFormData.website,
-          contact_person: partnerFormData.contact_person,
-          contact_email: partnerFormData.contact_email,
-          partnership_type: partnerFormData.partnership_type,
-          details: partnerFormData.details,
-        };
-
         if (editingItem) {
-          await updatePartners(event.id, [
-            { ...partnerData, id: editingItem.id },
-          ]);
+          // For update, only send the changed fields
+          const changedFields: any = {};
+          const editingPartner = editingItem as Partner;
+          
+          // Create form data with logo URL for comparison
+          const currentPartnerData = { ...partnerFormData, logo: logoUrl };
+          
+          // Compare each field and only include if changed
+          Object.keys(currentPartnerData).forEach((key) => {
+            if (currentPartnerData[key] !== editingPartner[key]) {
+              changedFields[key] = currentPartnerData[key];
+            }
+          });
+
+          // Update existing partner with only changed fields
+          await updatePartners(event.id, editingPartner.id, changedFields);
         } else {
+          // Add new partner - send all fields
+          const partnerData = {
+            name: partnerFormData.name,
+            descritpion: partnerFormData.descritpion,
+            logo: logoUrl,
+            website: partnerFormData.website,
+            contact_person: partnerFormData.contact_person,
+            contact_email: partnerFormData.contact_email,
+            partnership_type: partnerFormData.partnership_type,
+            details: partnerFormData.details,
+          };
+          
           await addPartners(event.id, [partnerData]);
         }
       }

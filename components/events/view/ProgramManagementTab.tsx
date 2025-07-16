@@ -576,48 +576,70 @@ const ProgramManagementTab: React.FC<ProgramManagementTabProps> = ({ event }) =>
 
   const handleSaveItem = async (itemData: any): Promise<void> => {
     try {
-      // Include ALL frontend data points, even if backend doesn't support them yet
-      const completeProgramItem = {
-        // Backend-supported fields
-        description: itemData.title, // Backend uses description for title
-        date: event?.date || new Date().toISOString().split("T")[0],
-        start_time: convertTo12HourFormat(itemData.startTime),
-        end_time: convertTo12HourFormat(itemData.endTime),
-        location: itemData.location,
-        speaker: itemData.speaker,
-        speaker_title: itemData.speakerTitle,
-        is_public: itemData.isPublic,
-
-        // ADDITIONAL frontend data points backend should support
-        title: itemData.title, // Separate title field
-        type: itemData.type, // keynote, workshop, panel, break, lunch, etc.
-        objectives: itemData.objectives || [], // Learning objectives array
-        materials: itemData.materials || [], // Materials array with name/url
-        id: itemData.id,
-      };
-
       if (editingItem) {
-        // Update existing item
-        // Map through current items and update the edited one
-        const updatedItems = agendaItems.map((item) =>
-          item.id === editingItem.id ? { ...item, ...itemData } : item
-        );
+        // For update, only send the changed fields
+        const changedFields: any = {};
+        
+        // Create current item data in the same format as itemData for comparison
+        const currentItemData = {
+          title: editingItem.title || editingItem.description,
+          description: editingItem.description,
+          type: editingItem.type,
+          startTime: editingItem.start_time,
+          endTime: editingItem.end_time,
+          location: editingItem.location,
+          speaker: editingItem.speaker,
+          speakerTitle: editingItem.speaker_title,
+          isPublic: editingItem.is_public,
+          objectives: editingItem.objectives || [],
+          materials: editingItem.materials || [],
+        };
+
+        // Compare each field and only include if changed
+        Object.keys(itemData).forEach((key) => {
+          if (itemData[key] !== currentItemData[key]) {
+            // Convert frontend field names to backend format
+            switch (key) {
+              case 'title':
+                changedFields.description = itemData[key];
+                break;
+              case 'startTime':
+                changedFields.start_time = convertTo12HourFormat(itemData[key]);
+                break;
+              case 'endTime':
+                changedFields.end_time = convertTo12HourFormat(itemData[key]);
+                break;
+              case 'speakerTitle':
+                changedFields.speaker_title = itemData[key];
+                break;
+              case 'isPublic':
+                changedFields.is_public = itemData[key];
+                break;
+              default:
+                changedFields[key] = itemData[key];
+            }
+          }
+        });
+
+        // Update existing item with only changed fields
         await updateProgram(
           event.id,
-          updatedItems.map((item) => ({
-            // Backend format
-            description: item.title || item.description,
-            date: event?.date || new Date().toISOString().split("T")[0],
-            start_time: convertTo12HourFormat(item.startTime || item.start_time),
-            end_time: convertTo12HourFormat(item.endTime || item.end_time),
-            location: item.location,
-            speaker: item.speaker,
-            speaker_title: item.speakerTitle || item.speaker_title,
-            is_public: item.isPublic !== undefined ? item.isPublic : item.is_public,
-          }))
+          editingItem.id,
+          changedFields
         );
       } else {
-        // Add new item
+        // Add new item - send all fields
+        const completeProgramItem = {
+          description: itemData.title,
+          date: event?.date || new Date().toISOString().split("T")[0],
+          start_time: convertTo12HourFormat(itemData.startTime),
+          end_time: convertTo12HourFormat(itemData.endTime),
+          location: itemData.location,
+          speaker: itemData.speaker,
+          speaker_title: itemData.speakerTitle,
+          is_public: itemData.isPublic,
+        };
+        
         await addProgram(event.id, [completeProgramItem]);
       }
 
@@ -642,23 +664,9 @@ const ProgramManagementTab: React.FC<ProgramManagementTabProps> = ({ event }) =>
 
   const handleToggleVisibility = async (itemId: string, isPublic: boolean): Promise<void> => {
     try {
-      // Update visibility for specific item
-      const updatedItems = agendaItems.map((item) =>
-        item.id === itemId ? { ...item, is_public: isPublic } : item
-      );
-      await updateProgram(
-        event.id,
-        updatedItems.map((item) => ({
-          description: item.title || item.description,
-          date: event?.date || new Date().toISOString().split("T")[0],
-          start_time: convertTo12HourFormat(item.start_time),
-          end_time: convertTo12HourFormat(item.end_time),
-          location: item.location,
-          speaker: item.speaker,
-          speaker_title: item.speaker_title,
-          is_public: item.is_public,
-        }))
-      );
+      // Only send the visibility field for update
+      const visibilityUpdate = { is_public: isPublic };
+      await updateProgram(event.id, itemId, visibilityUpdate);
     } catch (error) {
       console.error("Error updating program visibility:", error);
       alert("Error updating program visibility. Please try again.");

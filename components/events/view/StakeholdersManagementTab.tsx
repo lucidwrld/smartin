@@ -798,38 +798,73 @@ const StakeholdersManagementTab: React.FC<StakeholdersManagementTabProps> = ({
 
   const handleSaveStakeholder = async (stakeholderData: any): Promise<void> => {
     try {
-      // Format data to match backend expectations
-      const completeStakeholderData = {
-        name: stakeholderData.name,
-        title: stakeholderData.title,
-        organization: stakeholderData.organization,
-        role:
-          stakeholderData.role.charAt(0).toUpperCase() +
-          stakeholderData.role.slice(1), // Capitalize role
-        email: stakeholderData.email || "",
-        phone: stakeholderData.phone || "",
-        address: stakeholderData.address || "",
-        website: stakeholderData.website || "",
-        status: stakeholderData.status,
-        priority: stakeholderData.priority,
-        involvement_level: parseInt(stakeholderData.involvement_level),
-        availability: stakeholderData.availability,
-        responsibilities: stakeholderData.responsibilities,
-        expertise: stakeholderData.expertise,
-        notes: stakeholderData.notes,
-        last_contact: stakeholderData.last_contact || "",
-      };
-
       if (editingStakeholder) {
-        // Update existing stakeholder - include ID for update
-        await updateStakeholders(event.id, [
-          {
-            ...completeStakeholderData,
-            id: stakeholderData.id,
-          },
-        ]);
+        // For update, only send the changed fields
+        const changedFields: any = {};
+        
+        // Format current data for comparison
+        const currentData = {
+          name: editingStakeholder.name,
+          title: editingStakeholder.title,
+          organization: editingStakeholder.organization,
+          role: editingStakeholder.role,
+          email: editingStakeholder.email || "",
+          phone: editingStakeholder.phone || "",
+          address: editingStakeholder.address || "",
+          website: editingStakeholder.website || "",
+          status: editingStakeholder.status,
+          priority: editingStakeholder.priority,
+          involvement_level: editingStakeholder.involvement_level,
+          availability: editingStakeholder.availability,
+          responsibilities: editingStakeholder.responsibilities,
+          expertise: editingStakeholder.expertise,
+          notes: editingStakeholder.notes,
+          last_contact: editingStakeholder.last_contact || "",
+        };
+
+        // Compare each field and only include if changed
+        Object.keys(stakeholderData).forEach((key) => {
+          let newValue = stakeholderData[key];
+          
+          // Apply transformations for specific fields
+          if (key === 'role') {
+            newValue = stakeholderData.role.charAt(0).toUpperCase() + stakeholderData.role.slice(1);
+          } else if (key === 'involvement_level') {
+            newValue = parseInt(stakeholderData.involvement_level);
+          } else if (key === 'email' || key === 'phone' || key === 'address' || key === 'website' || key === 'last_contact') {
+            newValue = stakeholderData[key] || "";
+          }
+          
+          if (newValue !== currentData[key]) {
+            changedFields[key] = newValue;
+          }
+        });
+
+        // Update existing stakeholder with only changed fields
+        await updateStakeholders(event.id, editingStakeholder.id, changedFields);
       } else {
-        // Add new stakeholder
+        // Add new stakeholder - send all fields
+        const completeStakeholderData = {
+          name: stakeholderData.name,
+          title: stakeholderData.title,
+          organization: stakeholderData.organization,
+          role:
+            stakeholderData.role.charAt(0).toUpperCase() +
+            stakeholderData.role.slice(1), // Capitalize role
+          email: stakeholderData.email || "",
+          phone: stakeholderData.phone || "",
+          address: stakeholderData.address || "",
+          website: stakeholderData.website || "",
+          status: stakeholderData.status,
+          priority: stakeholderData.priority,
+          involvement_level: parseInt(stakeholderData.involvement_level),
+          availability: stakeholderData.availability,
+          responsibilities: stakeholderData.responsibilities,
+          expertise: stakeholderData.expertise,
+          notes: stakeholderData.notes,
+          last_contact: stakeholderData.last_contact || "",
+        };
+        
         await addStakeholders(event.id, [completeStakeholderData]);
       }
 
@@ -859,11 +894,9 @@ const StakeholdersManagementTab: React.FC<StakeholdersManagementTabProps> = ({
     newStatus: string
   ): Promise<void> => {
     try {
-      // Update stakeholder status
-      const updatedStakeholders = stakeholders.map((s) =>
-        s.id === stakeholderId ? { ...s, status: newStatus } : s
-      );
-      await updateStakeholders(event.id, updatedStakeholders);
+      // Only send the status field for update
+      const statusUpdate = { status: newStatus };
+      await updateStakeholders(event.id, stakeholderId, statusUpdate);
     } catch (error) {
       console.error("Error updating stakeholder status:", error);
       alert("Error updating stakeholder status. Please try again.");

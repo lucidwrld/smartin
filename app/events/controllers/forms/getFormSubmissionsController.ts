@@ -12,6 +12,7 @@ interface GetFormSubmissionsParams {
   eventId: string;
   page?: number;
   pageSize?: number;
+  search?: string;
   enabled?: boolean;
 }
 
@@ -20,10 +21,11 @@ export const GetFormSubmissionsManager = ({
   eventId,
   page = 1,
   pageSize = 10,
+  search = "",
   enabled = true,
 }: GetFormSubmissionsParams) => {
   const { data, isLoading, isSuccess, error } = useQuery({
-    queryKey: ["form-submissions", formId, page, pageSize],
+    queryKey: ["form-submissions", formId, page, pageSize, search],
     queryFn: async (): Promise<BaseResponse> => {
       try {
         const response = await AxiosWithToken.get(
@@ -32,6 +34,7 @@ export const GetFormSubmissionsManager = ({
             params: {
               page,
               pageSize,
+              ...(search && { search }),
             },
           }
         );

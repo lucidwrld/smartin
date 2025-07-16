@@ -18,7 +18,11 @@ import {
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import Loader from "@/components/Loader";
-import { AddResourcesManager, UpdateResourcesManager, DeleteResourcesManager } from "@/app/events/controllers/eventManagementController";
+import {
+  AddResourcesManager,
+  UpdateResourcesManager,
+  DeleteResourcesManager,
+} from "@/app/events/controllers/eventManagementController";
 import useFileUpload from "@/utils/fileUploadController";
 
 const ResourceCard = ({ resource, onEdit, onDelete, isLoading }) => {
@@ -70,7 +74,7 @@ const ResourceCard = ({ resource, onEdit, onDelete, isLoading }) => {
     if (!bytes) return "";
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + " " + sizes[i];
+    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i];
   };
 
   const formatDate = (dateString) => {
@@ -91,7 +95,9 @@ const ResourceCard = ({ resource, onEdit, onDelete, isLoading }) => {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h4 className="font-medium text-gray-900 truncate">{name}</h4>
-              <span className={`px-2 py-1 text-xs rounded ${getTypeColor(type)}`}>
+              <span
+                className={`px-2 py-1 text-xs rounded ${getTypeColor(type)}`}
+              >
                 {type}
               </span>
               {!is_public && (
@@ -125,7 +131,10 @@ const ResourceCard = ({ resource, onEdit, onDelete, isLoading }) => {
             )}
             {tags && (
               <div className="mt-2 flex flex-wrap gap-1">
-                {(Array.isArray(tags) ? tags : tags.split(",").map(t => t.trim())).map((tag, index) => (
+                {(Array.isArray(tags)
+                  ? tags
+                  : tags.split(",").map((t) => t.trim())
+                ).map((tag, index) => (
                   <span
                     key={index}
                     className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
@@ -195,13 +204,21 @@ const ResourceModal = ({ isOpen, onClose, resource, onSave, isLoading }) => {
         type: resource.type || "document",
         url: resource.url || "",
         category: resource.category || "",
-        tags: Array.isArray(resource.tags) ? resource.tags : (resource.tags ? resource.tags.split(",").map(t => t.trim()) : []),
+        tags: Array.isArray(resource.tags)
+          ? resource.tags
+          : resource.tags
+          ? resource.tags.split(",").map((t) => t.trim())
+          : [],
         is_public: resource.is_public !== undefined ? resource.is_public : true,
         file_size: resource.file_size || null,
       });
       setResourceMode(resource.file ? "upload" : "url");
       // Initialize tags input with existing tags as comma-separated string
-      setTagsInput(Array.isArray(resource.tags) ? resource.tags.join(", ") : (resource.tags || ""));
+      setTagsInput(
+        Array.isArray(resource.tags)
+          ? resource.tags.join(", ")
+          : resource.tags || ""
+      );
     } else {
       setFormData({
         name: "",
@@ -224,7 +241,7 @@ const ResourceModal = ({ isOpen, onClose, resource, onSave, isLoading }) => {
   const handleTagsChange = (e) => {
     const value = e.target.value;
     setTagsInput(value);
-    
+
     // Convert to array for storage
     const tagsArray = value
       .split(",")
@@ -237,10 +254,10 @@ const ResourceModal = ({ isOpen, onClose, resource, onSave, isLoading }) => {
     const file = e.target.files[0];
     if (file) {
       setSelectedFile(file);
-      setFormData({ 
-        ...formData, 
+      setFormData({
+        ...formData,
         name: !formData.name.trim() ? file.name : formData.name,
-        url: "" // Clear URL when file is selected
+        url: "", // Clear URL when file is selected
       });
       setResourceMode("upload");
     }
@@ -248,20 +265,20 @@ const ResourceModal = ({ isOpen, onClose, resource, onSave, isLoading }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validation - must have name and either URL or file
     if (!formData.name.trim()) {
       alert("Please enter a resource name");
       return;
     }
-    
+
     if (!formData.url.trim() && !selectedFile) {
       alert("Please either paste a URL or upload a file");
       return;
     }
 
     let finalUrl = formData.url;
-    
+
     // If file is selected, upload it to Backblaze first
     if (selectedFile && resourceMode === "upload") {
       try {
@@ -379,7 +396,7 @@ const ResourceModal = ({ isOpen, onClose, resource, onSave, isLoading }) => {
                   placeholder="Paste URL here (e.g., https://example.com/resource)"
                   type="url"
                 />
-                
+
                 {/* Divider */}
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
@@ -405,7 +422,9 @@ const ResourceModal = ({ isOpen, onClose, resource, onSave, isLoading }) => {
                   >
                     <Upload size={32} className="text-gray-400 mb-2" />
                     <span className="text-gray-600">
-                      {selectedFile ? selectedFile.name : "Click to upload file"}
+                      {selectedFile
+                        ? selectedFile.name
+                        : "Click to upload file"}
                     </span>
                     <span className="text-xs text-gray-500 mt-1">
                       PDF, DOC, PPT, XLS, images, videos, etc.
@@ -472,11 +491,13 @@ const ResourceModal = ({ isOpen, onClose, resource, onSave, isLoading }) => {
             {uploading && (
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600">Uploading file...</span>
+                  <span className="text-sm text-gray-600">
+                    Uploading file...
+                  </span>
                   <span className="text-sm text-gray-600">{progress}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
+                  <div
                     className="bg-purple-600 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${progress}%` }}
                   ></div>
@@ -515,9 +536,21 @@ const ResourcesManagementTab = ({ event }) => {
   const [filterCategory, setFilterCategory] = useState("all");
 
   // Controllers
-  const { addResources, isLoading: adding, isSuccess: addSuccess } = AddResourcesManager();
-  const { updateResources, isLoading: updating, isSuccess: updateSuccess } = UpdateResourcesManager();
-  const { deleteResources, isLoading: deleting, isSuccess: deleteSuccess } = DeleteResourcesManager();
+  const {
+    addResources,
+    isLoading: adding,
+    isSuccess: addSuccess,
+  } = AddResourcesManager();
+  const {
+    updateResources,
+    isLoading: updating,
+    isSuccess: updateSuccess,
+  } = UpdateResourcesManager();
+  const {
+    deleteResources,
+    isLoading: deleting,
+    isSuccess: deleteSuccess,
+  } = DeleteResourcesManager();
 
   const isLoading = adding || updating || deleting;
 
@@ -550,7 +583,9 @@ const ResourcesManagementTab = ({ event }) => {
         url: resourceData.url,
         description: resourceData.description,
         category: resourceData.category,
-        tags: Array.isArray(resourceData.tags) ? resourceData.tags.join(", ") : resourceData.tags,
+        tags: Array.isArray(resourceData.tags)
+          ? resourceData.tags.join(", ")
+          : resourceData.tags,
         is_public: resourceData.is_public,
 
         // ADDITIONAL frontend data points backend should support
@@ -559,14 +594,16 @@ const ResourcesManagementTab = ({ event }) => {
         createdAt: resourceData.createdAt, // Creation timestamp
       };
 
+      console.log(`thi sis the resource id: ${resourceData?.id}`);
+
       if (editingResource) {
         // Update existing resource
-        await updateResources(event.id, [resourcePayload]);
+        await updateResources(event.id, resourceData?.id, [resourcePayload]);
       } else {
         // Add new resource
-        await addResources(event.id, [resourcePayload]);
+        await addResources(event.id, null, [resourcePayload]);
       }
-      
+
       setIsModalOpen(false);
       setEditingResource(null);
     } catch (error) {
@@ -586,18 +623,25 @@ const ResourcesManagementTab = ({ event }) => {
     }
   };
 
-  const filteredResources = resources.filter(resource => {
+  const filteredResources = resources.filter((resource) => {
     const typeMatch = filterType === "all" || resource.type === filterType;
-    const categoryMatch = filterCategory === "all" || resource.category === filterCategory;
+    const categoryMatch =
+      filterCategory === "all" || resource.category === filterCategory;
     return typeMatch && categoryMatch;
   });
 
   const resourceTypes = ["all", "document", "image", "video", "link"];
-  const categories = ["all", ...new Set(resources.map(r => r.category).filter(Boolean))];
+  const categories = [
+    "all",
+    ...new Set(resources.map((r) => r.category).filter(Boolean)),
+  ];
 
   const totalResources = resources.length;
-  const publicResources = resources.filter(r => r.is_public).length;
-  const totalDownloads = resources.reduce((sum, r) => sum + (r.download_count || 0), 0);
+  const publicResources = resources.filter((r) => r.is_public).length;
+  const totalDownloads = resources.reduce(
+    (sum, r) => sum + (r.download_count || 0),
+    0
+  );
 
   return (
     <div className="space-y-6">
@@ -652,9 +696,11 @@ const ResourcesManagementTab = ({ event }) => {
               onChange={(e) => setFilterType(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
             >
-              {resourceTypes.map(type => (
+              {resourceTypes.map((type) => (
                 <option key={type} value={type}>
-                  {type === "all" ? "All Types" : type.charAt(0).toUpperCase() + type.slice(1)}
+                  {type === "all"
+                    ? "All Types"
+                    : type.charAt(0).toUpperCase() + type.slice(1)}
                 </option>
               ))}
             </select>
@@ -668,7 +714,7 @@ const ResourcesManagementTab = ({ event }) => {
               onChange={(e) => setFilterCategory(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
             >
-              {categories.map(category => (
+              {categories.map((category) => (
                 <option key={category} value={category}>
                   {category === "all" ? "All Categories" : category}
                 </option>
@@ -691,13 +737,14 @@ const ResourcesManagementTab = ({ event }) => {
         <div className="text-center py-12 bg-white rounded-lg border">
           <FolderOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {resources.length === 0 ? "No resources yet" : "No resources match your filters"}
+            {resources.length === 0
+              ? "No resources yet"
+              : "No resources match your filters"}
           </h3>
           <p className="text-gray-500 mb-4">
-            {resources.length === 0 
+            {resources.length === 0
               ? "Start by adding some resources for your event attendees."
-              : "Try adjusting your filters to see more resources."
-            }
+              : "Try adjusting your filters to see more resources."}
           </p>
           {resources.length === 0 && (
             <CustomButton

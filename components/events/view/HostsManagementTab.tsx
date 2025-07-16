@@ -193,28 +193,39 @@ const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event }) => {
         imageUrl = await uploadFile(selectedImageFile);
       }
 
-      // Use exact backend payload structure
-      const hostData = {
-        name: formData.name,
-        title: formData.title,
-        organization: formData.organization,
-        email: formData.email,
-        phone: formData.phone,
-        profile_image: imageUrl,
-        description: formData.description,
-        areas_of_expertise: formData.areas_of_expertise,
-        website: formData.website,
-        linkedin: formData.linkedin,
-        twitter: formData.twitter,
-        instagram: formData.instagram,
-        role: formData.role,
-      };
-
       if (editingHost) {
-        // Update existing host
-        await updateHosts(event.id, [{ ...hostData, id: editingHost.id }]);
+        // For update, only send the changed fields
+        const changedFields: any = {};
+        
+        // Compare each field and only include if changed
+        Object.keys(formData).forEach((key) => {
+          const formKey = key as keyof HostFormData;
+          const newValue = formKey === 'profile_image' ? imageUrl : formData[formKey];
+          if (newValue !== editingHost[formKey]) {
+            changedFields[formKey] = newValue;
+          }
+        });
+
+        // Update existing host with only changed fields
+        await updateHosts(event.id, editingHost.id, changedFields);
       } else {
-        // Add new host
+        // Add new host - send all fields
+        const hostData = {
+          name: formData.name,
+          title: formData.title,
+          organization: formData.organization,
+          email: formData.email,
+          phone: formData.phone,
+          profile_image: imageUrl,
+          description: formData.description,
+          areas_of_expertise: formData.areas_of_expertise,
+          website: formData.website,
+          linkedin: formData.linkedin,
+          twitter: formData.twitter,
+          instagram: formData.instagram,
+          role: formData.role,
+        };
+        
         await addHosts(event.id, [hostData]);
       }
 
