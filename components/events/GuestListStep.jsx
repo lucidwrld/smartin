@@ -211,12 +211,15 @@ export const GuestListStep = ({ formData, onFormDataChange }) => {
           .split("\n")
           .map((row) => row.split(",").map((cell) => cell.trim()));
 
-        // Skip header row
-        const guests = rows.slice(1).map(([name, email, phone]) => ({
-          name: name || "",
-          email: email || "",
-          phone: parsePhoneNumber(phone) || "",
-        }));
+        // Skip header row and filter out empty rows
+        const guests = rows
+          .slice(1)
+          .filter(row => row.some(cell => cell && cell.trim())) // Filter out empty rows
+          .map(([name, email, phone]) => ({
+            name: name || "",
+            email: email || "",
+            phone: parsePhoneNumber(phone) || "",
+          }));
 
         const allErrors = [];
         guests.forEach((guest, index) => {
