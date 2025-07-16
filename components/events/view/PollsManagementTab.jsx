@@ -20,6 +20,10 @@ import {
   Share2,
   TrendingUp,
   PieChart,
+  ExternalLink,
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
@@ -27,6 +31,7 @@ import StatusButton from "@/components/StatusButton";
 import useGetEventPollsManager from "@/app/events/controllers/polls/getEventPollsController";
 import { CreatePollManager } from "@/app/events/controllers/polls/createPollController";
 import { UpdatePollManager } from "@/app/events/controllers/polls/updatePollController";
+import useGetPollSubmissionsManager from "@/app/events/controllers/polls/getPollSubmissionsController";
 
 const PollCard = ({
   poll,
@@ -35,7 +40,9 @@ const PollCard = ({
   onToggleStatus,
   onToggleVisibility,
   onViewResults,
+  onViewSubmissions,
   onShare,
+  onToggleActive,
   isLoading,
 }) => {
   const {
@@ -192,22 +199,33 @@ const PollCard = ({
             <BarChart3 className="w-4 h-4" />
           </button>
           <button
-            onClick={() => onShare(poll)}
-            className="p-2 text-purple-500 hover:bg-purple-50 rounded-full transition-colors"
-            title="Share poll publicly"
+            onClick={() => onViewSubmissions(poll)}
+            className="p-2 text-green-500 hover:bg-green-50 rounded-full transition-colors"
+            title="View submissions"
           >
-            <Share2 className="w-4 h-4" />
+            <Users className="w-4 h-4" />
           </button>
           <button
-            onClick={() => onToggleVisibility(id, !is_public)}
-            className="p-2 text-gray-500 hover:bg-gray-50 rounded-full transition-colors"
-            title={is_public ? "Make private" : "Make public"}
+            onClick={() => onToggleActive(id, !is_public)}
+            className={`p-2 rounded-full transition-colors ${
+              is_public
+                ? "text-green-500 hover:bg-green-50"
+                : "text-gray-500 hover:bg-gray-50"
+            }`}
+            title={is_public ? "Remove from live page" : "Add to live page"}
           >
             {is_public ? (
               <Eye className="w-4 h-4" />
             ) : (
               <EyeOff className="w-4 h-4" />
             )}
+          </button>
+          <button
+            onClick={() => onShare(poll)}
+            className="p-2 text-purple-500 hover:bg-purple-50 rounded-full transition-colors"
+            title="Share this question only"
+          >
+            <Share2 className="w-4 h-4" />
           </button>
           <button
             onClick={() =>
@@ -544,7 +562,7 @@ const PollModal = ({ isOpen, onClose, poll, onSave, isLoading }) => {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <label className="flex items-center">
                 <input
                   type="checkbox"
@@ -571,7 +589,7 @@ const PollModal = ({ isOpen, onClose, poll, onSave, isLoading }) => {
                   }
                   className="mr-2"
                 />
-                Make Public
+                Show on Live Page
               </label>
               <label className="flex items-center">
                 <input
@@ -585,7 +603,7 @@ const PollModal = ({ isOpen, onClose, poll, onSave, isLoading }) => {
                   }
                   className="mr-2"
                 />
-                Show Results to Voters
+                Show Results Immediately
               </label>
             </div>
 
@@ -715,15 +733,189 @@ const ResultsModal = ({ isOpen, onClose, poll }) => {
   );
 };
 
+const SubmissionsView = ({ poll, onBack, page, pageSize, onPageChange }) => {
+  const { data: submissionsData, isLoading } = useGetPollSubmissionsManager({
+    eventId: poll?.event || "demo",
+    pollId: poll?.id || "",
+    page: page,
+    pageSize: pageSize,
+    enabled: !!poll,
+  });
+
+  if (!poll) return null;
+
+  const submissions = submissionsData?.data || [];
+  const totalSubmissions = submissionsData?.total || 0;
+  const totalPages = Math.ceil(totalSubmissions / pageSize);
+
+  const handlePreviousPage = () => {
+    if (page > 1) {
+      onPageChange(page - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (page < totalPages) {
+      onPageChange(page + 1);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header with Back Button */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Questions
+          </button>
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Submissions: {poll.title}
+            </h2>
+            <p className="text-sm text-gray-500">
+              {totalSubmissions} total submissions
+            </p>
+          </div>
+        </div>
+        
+        <CustomButton
+          buttonText="Download CSV"
+          prefixIcon={<Download size={16} />}
+          buttonColor="bg-green-600"
+          radius="rounded-md"
+          onClick={() => {}}
+        />
+      </div>
+
+      {/* Question Display */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6">
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h4 className="font-medium text-gray-900 mb-2">Question</h4>
+            <p className="text-gray-700">{poll.question}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Submissions Table */}
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">All Submissions</h3>
+            <div className="flex items-center gap-4 text-sm text-gray-600">
+              <span className="flex items-center gap-1">
+                <Users className="w-4 h-4" />
+                Showing {submissions.length} of {totalSubmissions} submissions
+              </span>
+            </div>
+          </div>
+
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+              <p className="text-gray-500 mt-2">Loading submissions...</p>
+            </div>
+          ) : submissions.length > 0 ? (
+            <>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Name
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Email
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Response
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Submitted At
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {submissions.map((submission, index) => (
+                      <tr key={index} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {submission.name || "Anonymous"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {submission.email}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
+                            {submission.response}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(submission.createdAt || submission.created_at).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-6">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handlePreviousPage}
+                      disabled={page === 1}
+                      className="flex items-center gap-1 px-3 py-2 text-sm text-gray-500 hover:text-gray-700 disabled:text-gray-300 disabled:cursor-not-allowed"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      Previous
+                    </button>
+                    <span className="text-sm text-gray-700">
+                      Page {page} of {totalPages}
+                    </span>
+                    <button
+                      onClick={handleNextPage}
+                      disabled={page === totalPages}
+                      className="flex items-center gap-1 px-3 py-2 text-sm text-gray-500 hover:text-gray-700 disabled:text-gray-300 disabled:cursor-not-allowed"
+                    >
+                      Next
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    Showing {((page - 1) * pageSize) + 1} to {Math.min(page * pageSize, totalSubmissions)} of {totalSubmissions} results
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <p>No submissions yet</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const PollsManagementTab = ({ event }) => {
   const [polls, setPolls] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isResultsModalOpen, setIsResultsModalOpen] = useState(false);
+  const [currentView, setCurrentView] = useState('polls'); // 'polls' or 'submissions'
   const [editingPoll, setEditingPoll] = useState(null);
   const [selectedPoll, setSelectedPoll] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterType, setFilterType] = useState("all");
+  const [submissionsPage, setSubmissionsPage] = useState(1);
+  const [submissionsPageSize] = useState(10);
 
   // API hooks
   const {
@@ -802,7 +994,7 @@ const PollsManagementTab = ({ event }) => {
     );
   };
 
-  const handleToggleVisibility = async (pollId, isPublic) => {
+  const handleToggleActive = async (pollId, isActive) => {
     try {
       // Find the poll to get all its data
       const poll = polls.find((p) => p.id === pollId);
@@ -816,12 +1008,23 @@ const PollsManagementTab = ({ event }) => {
       
       await updatePollController.updatePoll({
         ...poll,
-        is_public: isPublic,
+        is_public: isActive,
         event: event.id,
       });
     } catch (error) {
       console.error("Error updating poll visibility:", error);
     }
+  };
+
+  const handleViewSubmissions = (poll) => {
+    setSelectedPoll(poll);
+    setSubmissionsPage(1);
+    setCurrentView('submissions');
+  };
+  
+  const handleBackToPolls = () => {
+    setCurrentView('polls');
+    setSelectedPoll(null);
   };
 
   const handleViewResults = (poll) => {
@@ -830,20 +1033,20 @@ const PollsManagementTab = ({ event }) => {
   };
 
   const handleSharePoll = (poll) => {
-    const pollUrl = `${window.location.origin}/live/${event?.id || "demo"}`;
+    const pollUrl = `${window.location.origin}/live/${event?.id || "demo"}?questionId=${poll.id}`;
 
     if (navigator.share) {
       navigator
         .share({
-          title: `${poll.title} - Live Poll`,
-          text: `Participate in this live poll: ${poll.title}`,
+          title: `${poll.title} - Live Question`,
+          text: `Answer this question: ${poll.title}`,
           url: pollUrl,
         })
         .catch(console.error);
     } else {
       navigator.clipboard.writeText(pollUrl).then(() => {
         alert(
-          "Poll link copied to clipboard! Share this link for live participation."
+          "Question link copied to clipboard! Share this link for people to answer this specific question."
         );
       });
     }
@@ -862,6 +1065,19 @@ const PollsManagementTab = ({ event }) => {
   const activePolls = polls.filter((p) => p.status === "active").length;
   const totalVotes = polls.reduce((sum, p) => sum + (p.total_votes || 0), 0);
   const publicPolls = polls.filter((p) => p.is_public).length;
+
+  // Handle view switching
+  if (currentView === 'submissions' && selectedPoll) {
+    return (
+      <SubmissionsView
+        poll={selectedPoll}
+        onBack={handleBackToPolls}
+        page={submissionsPage}
+        pageSize={submissionsPageSize}
+        onPageChange={setSubmissionsPage}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -959,13 +1175,22 @@ const PollsManagementTab = ({ event }) => {
           </div>
         </div>
 
-        <CustomButton
-          buttonText="Create Poll"
-          onClick={handleAddPoll}
-          prefixIcon={<Plus size={16} />}
-          buttonColor="bg-purple-600"
-          radius="rounded-full"
-        />
+        <div className="flex gap-3">
+          <CustomButton
+            buttonText="Open Live Page"
+            onClick={() => window.open(`/live/${event?.id}`, '_blank')}
+            prefixIcon={<ExternalLink size={16} />}
+            buttonColor="bg-green-600"
+            radius="rounded-full"
+          />
+          <CustomButton
+            buttonText="Create Poll"
+            onClick={handleAddPoll}
+            prefixIcon={<Plus size={16} />}
+            buttonColor="bg-purple-600"
+            radius="rounded-full"
+          />
+        </div>
       </div>
 
       {/* Polls List */}
@@ -1001,9 +1226,11 @@ const PollsManagementTab = ({ event }) => {
               onEdit={handleEditPoll}
               onDelete={handleDeletePoll}
               onToggleStatus={handleToggleStatus}
-              onToggleVisibility={handleToggleVisibility}
+              onToggleVisibility={handleToggleActive}
               onViewResults={handleViewResults}
+              onViewSubmissions={handleViewSubmissions}
               onShare={handleSharePoll}
+              onToggleActive={handleToggleActive}
               isLoading={isLoading}
             />
           ))}

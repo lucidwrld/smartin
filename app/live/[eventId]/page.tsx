@@ -2,135 +2,205 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { Vote, MessageSquare, Users, TrendingUp, Send, Check } from "lucide-react";
-import CustomButton from "@/components/Button";
+import { Users, Check, Loader2 } from "lucide-react";
+import useGetEventPollsManager from "@/app/events/controllers/polls/getEventPollsController";
+import { usePollSubmission } from "@/app/live/hooks/usePollSubmission";
 
-const LivePollsQA = () => {
+const LiveInteraction = () => {
   const { eventId } = useParams();
-  const [activeContent, setActiveContent] = useState(null);
-  const [userVote, setUserVote] = useState(null);
-  const [userName, setUserName] = useState("");
-  const [question, setQuestion] = useState("");
-  const [submittedQuestions, setSubmittedQuestions] = useState([]);
-
-  // Mock data - in real implementation, fetch from API
-  const [eventData, setEventData] = useState({
-    name: "Tech Conference 2024",
-    activePoll: {
-      id: "poll_1",
-      title: "Which session topic interests you most?",
-      description: "Help us prioritize upcoming sessions",
-      options: [
-        { id: "opt_1", text: "AI & Machine Learning", votes: 45, percentage: 42 },
-        { id: "opt_2", text: "Web Development", votes: 32, percentage: 30 },
-        { id: "opt_3", text: "Mobile Apps", votes: 20, percentage: 19 },
-        { id: "opt_4", text: "Cloud Computing", votes: 10, percentage: 9 }
-      ],
-      totalVotes: 107,
-      isActive: true,
-      allowMultiple: false
-    },
-    activeQA: {
-      id: "qa_1",
-      title: "Live Q&A Session",
-      description: "Ask questions to our speakers",
-      questions: [
-        {
-          id: "q_1",
-          text: "How do you handle scalability in microservices?",
-          author: "Anonymous",
-          likes: 23,
-          isAnswered: true,
-          answer: "Great question! We use Docker containers and Kubernetes for orchestration..."
-        },
-        {
-          id: "q_2", 
-          text: "What's the best way to learn React in 2024?",
-          author: "John D.",
-          likes: 15,
-          isAnswered: false
-        },
-        {
-          id: "q_3",
-          text: "Any recommendations for API testing tools?",
-          author: "Anonymous",
-          likes: 8,
-          isAnswered: false
-        }
-      ],
-      isActive: true,
-      allowAnonymous: true
+  const [userVotes, setUserVotes] = useState({}); // Track votes per poll
+  const [pollVoteData, setPollVoteData] = useState({});
+  
+  // User registration state
+  const [isUserRegistered, setIsUserRegistered] = useState(false);
+  const [userInfo, setUserInfo] = useState({ name: "", email: "" });
+  const [registrationForm, setRegistrationForm] = useState({ name: "", email: "" });
+  
+  // Check for specific question ID in URL
+  const [specificQuestionId, setSpecificQuestionId] = useState(null);
+  
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const questionId = urlParams.get('questionId');
+    if (questionId) {
+      setSpecificQuestionId(questionId);
     }
+  }, []);
+
+  // Fetch real polls from API
+  const { data: pollsData, isLoading: pollsLoading, refetch: refetchPolls } = useGetEventPollsManager({
+    eventId: eventId as string,
+    enabled: !!eventId,
   });
 
+  // Poll submission hook
+  const { submitVote, isSubmitting, error } = usePollSubmission();
+
   useEffect(() => {
-    // Check if there's an active poll or Q&A
-    if (eventData.activePoll?.isActive) {
-      setActiveContent('poll');
-    } else if (eventData.activeQA?.isActive) {
-      setActiveContent('qa');
+    // Check if there are polls available and user is registered
+    if (isUserRegistered && pollsData?.data && pollsData.data.length > 0) {
+      // Initialize vote data for polls
+      const voteData = {};
+      pollsData.data.forEach(poll => {
+        voteData[poll.id] = {
+          totalVotes: 0,
+          optionVotes: {}
+        };
+        poll.options.forEach(option => {
+          voteData[poll.id].optionVotes[option] = 0;
+        });
+      });
+      setPollVoteData(voteData);
     }
-  }, [eventData]);
+  }, [pollsData, isUserRegistered]);
 
-  const handleVote = async (optionId) => {
-    if (userVote && !eventData.activePoll?.allowMultiple) return;
+  const handleUserRegistration = (e) => {
+    e.preventDefault();
     
-    setUserVote(optionId);
-    // In real implementation: await submitVote({ pollId: eventData.activePoll.id, optionId });
+    if (!registrationForm.email.trim()) {
+      alert("Please enter your email address.");
+      return;
+    }
     
-    // Update vote counts (mock)
-    setEventData(prev => ({
-      ...prev,
-      activePoll: {
-        ...prev.activePoll,
-        options: prev.activePoll.options.map(opt => 
-          opt.id === optionId 
-            ? { ...opt, votes: opt.votes + 1 }
-            : opt
-        ),
-        totalVotes: prev.activePoll.totalVotes + 1
+    setUserInfo({
+      name: registrationForm.name.trim() || "Anonymous",
+      email: registrationForm.email.trim()
+    });
+    setIsUserRegistered(true);
+  };
+  
+  const handleVote = async (pollId, option) => {
+    const poll = pollsData?.data.find(p => p.id === pollId);
+    if (!poll) return;
+    
+    // Check if already voted for single-choice polls
+    if (userVotes[pollId] && !poll.allow_multiple) return;
+    
+    try {
+      // Submit vote to API using stored user info
+      const success = await submitVote(eventId, pollId, option, userInfo.name, userInfo.email);
+      
+      if (!success) {
+        alert("Failed to submit vote. Please try again.");
+        return;
       }
-    }));
-  };
-
-  const handleSubmitQuestion = async () => {
-    if (!question.trim()) return;
-    
-    const newQuestion = {
-      id: `q_${Date.now()}`,
-      text: question,
-      author: userName || "Anonymous", 
-      likes: 0,
-      isAnswered: false
-    };
-    
-    setSubmittedQuestions(prev => [newQuestion, ...prev]);
-    setQuestion("");
-    
-    // In real implementation: await submitQuestion({ qaId: eventData.activeQA.id, question: newQuestion });
-  };
-
-  const handleLikeQuestion = (questionId) => {
-    setEventData(prev => ({
-      ...prev,
-      activeQA: {
-        ...prev.activeQA,
-        questions: prev.activeQA.questions.map(q =>
-          q.id === questionId ? { ...q, likes: q.likes + 1 } : q
-        )
+      
+      // Update local state
+      setUserVotes(prev => ({
+        ...prev,
+        [pollId]: poll.allow_multiple 
+          ? [...(prev[pollId] || []), option]
+          : option
+      }));
+      
+      // Update vote counts locally
+      setPollVoteData(prev => ({
+        ...prev,
+        [pollId]: {
+          totalVotes: prev[pollId].totalVotes + 1,
+          optionVotes: {
+            ...prev[pollId].optionVotes,
+            [option]: prev[pollId].optionVotes[option] + 1
+          }
+        }
+      }));
+      
+      // Refetch polls to get updated data
+      setTimeout(() => refetchPolls(), 1000);
+      
+      // If poll shows results immediately, show a success message
+      if (poll.show_voter_result) {
+        // Results will be visible immediately
+      } else {
+        // Show a thank you message since results are hidden
+        setTimeout(() => {
+          alert("Thank you for your response! Results will be shared later.");
+        }, 500);
       }
-    }));
+    } catch (err) {
+      console.error("Error submitting vote:", err);
+      alert("Failed to submit vote. Please try again.");
+    }
   };
 
-  const allQuestions = [...(eventData.activeQA?.questions || []), ...submittedQuestions]
-    .sort((a, b) => b.likes - a.likes);
+  // Filter polls based on context
+  const activePolls = pollsData?.data ? 
+    specificQuestionId 
+      ? pollsData.data.filter(poll => poll.id === specificQuestionId) // Show only specific question
+      : pollsData.data.filter(poll => poll.is_public) // Show only public questions
+    : [];
 
-  if (!activeContent) {
+  if (pollsLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">{eventData.name}</h1>
-          <p className="text-gray-600">No active polls or Q&A sessions at the moment.</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading event data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show registration form if user is not registered
+  if (!isUserRegistered) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome to Live Event</h1>
+            <p className="text-gray-600">
+              {specificQuestionId 
+                ? "Please enter your details to answer this question" 
+                : "Please enter your details to participate in polls and Q&A"}
+            </p>
+          </div>
+          
+          <form onSubmit={handleUserRegistration} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email Address *
+              </label>
+              <input
+                type="email"
+                value={registrationForm.email}
+                onChange={(e) => setRegistrationForm({...registrationForm, email: e.target.value})}
+                placeholder="your.email@example.com"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                required
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Your Name (optional)
+              </label>
+              <input
+                type="text"
+                value={registrationForm.name}
+                onChange={(e) => setRegistrationForm({...registrationForm, name: e.target.value})}
+                placeholder="Your name"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+              />
+            </div>
+            
+            <button
+              type="submit"
+              className="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors"
+            >
+              Join Event
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+  
+  if (activePolls.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Live Event Interaction</h1>
+          <p className="text-gray-600">No active polls or questions at the moment.</p>
           <p className="text-sm text-gray-500 mt-2">Check back later!</p>
         </div>
       </div>
@@ -142,191 +212,131 @@ const LivePollsQA = () => {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-4xl mx-auto p-4">
-          <h1 className="text-xl font-bold text-gray-900">{eventData.name}</h1>
-          <div className="flex items-center gap-4 mt-2">
-            <div className="flex items-center gap-1 text-sm text-gray-600">
-              <Users className="w-4 h-4" />
-              <span>{eventData.activePoll?.totalVotes || 0} participants</span>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">Live Event Interaction</h1>
+              <div className="flex items-center gap-4 mt-2">
+                <div className="flex items-center gap-1 text-sm text-gray-600">
+                  <Users className="w-4 h-4" />
+                  <span>
+                    {activePolls.length > 0 ? `${activePolls.length} active question${activePolls.length > 1 ? 's' : ''}` : '0 questions'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 text-sm text-green-600">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>Live</span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-1 text-sm text-green-600">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span>Live</span>
+            
+            <div className="text-right">
+              <p className="text-sm text-gray-600">Participating as:</p>
+              <p className="font-medium text-gray-900">{userInfo.name}</p>
+              <p className="text-sm text-gray-500">{userInfo.email}</p>
+              <button
+                onClick={() => setIsUserRegistered(false)}
+                className="text-xs text-purple-600 hover:text-purple-700 mt-1"
+              >
+                Edit Info
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto p-4">
-        {/* Content Toggle */}
-        {eventData.activePoll?.isActive && eventData.activeQA?.isActive && (
-          <div className="flex bg-white rounded-lg p-1 mb-6">
-            <button
-              onClick={() => setActiveContent('poll')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md transition-colors ${
-                activeContent === 'poll' 
-                  ? 'bg-purple-600 text-white' 
-                  : 'text-gray-600 hover:text-purple-600'
-              }`}
-            >
-              <Vote className="w-4 h-4" />
-              Live Poll
-            </button>
-            <button
-              onClick={() => setActiveContent('qa')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md transition-colors ${
-                activeContent === 'qa' 
-                  ? 'bg-purple-600 text-white' 
-                  : 'text-gray-600 hover:text-purple-600'
-              }`}
-            >
-              <MessageSquare className="w-4 h-4" />
-              Q&A
-            </button>
-          </div>
-        )}
-
-        {/* Live Poll */}
-        {activeContent === 'poll' && eventData.activePoll && (
+        {/* Available Questions/Polls */}
+        <div className="space-y-6">
           <div className="bg-white rounded-lg p-6 shadow-sm">
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">{eventData.activePoll.title}</h2>
-              <p className="text-gray-600">{eventData.activePoll.description}</p>
-              <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
-                <span>{eventData.activePoll.totalVotes} votes</span>
-                {userVote && (
-                  <span className="flex items-center gap-1 text-green-600">
-                    <Check className="w-3 h-3" />
-                    You voted
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {eventData.activePoll.options.map((option) => {
-                const isSelected = userVote === option.id;
-                const percentage = eventData.activePoll.totalVotes > 0 
-                  ? Math.round((option.votes / eventData.activePoll.totalVotes) * 100)
-                  : 0;
-
+            <h2 className="text-xl font-semibold mb-6">
+              {specificQuestionId ? "Question" : "Available Questions"}
+            </h2>
+            
+            {/* All Questions Display */}
+            <div className="space-y-8">
+              {activePolls.map((poll) => {
+                const voteCount = pollVoteData[poll.id]?.totalVotes || 0;
+                const hasVoted = userVotes[poll.id];
+                
                 return (
-                  <button
-                    key={option.id}
-                    onClick={() => handleVote(option.id)}
-                    disabled={userVote && !eventData.activePoll.allowMultiple}
-                    className={`w-full relative p-4 rounded-lg border-2 transition-all ${
-                      isSelected
-                        ? 'border-purple-500 bg-purple-50'
-                        : userVote 
-                        ? 'border-gray-200 bg-gray-50 cursor-not-allowed'
-                        : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center relative z-10">
-                      <span className={`font-medium ${isSelected ? 'text-purple-700' : 'text-gray-900'}`}>
-                        {option.text}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-600">{option.votes} votes</span>
-                        <span className="text-sm font-medium">{percentage}%</span>
+                  <div key={poll.id} className="border-b border-gray-200 pb-8 last:border-b-0 last:pb-0">
+                    <div className="mb-4">
+                      <h3 className="text-lg font-semibold mb-2">{poll.title}</h3>
+                      <p className="text-gray-600 mb-2">{poll.description}</p>
+                      <p className="text-base font-medium text-gray-900 mb-3">{poll.question}</p>
+                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <span>{voteCount} responses</span>
+                        {hasVoted && (
+                          <span className="flex items-center gap-1 text-green-600">
+                            <Check className="w-3 h-3" />
+                            You responded
+                          </span>
+                        )}
+                        {poll.allow_multiple && (
+                          <span className="text-purple-600">Multiple selection allowed</span>
+                        )}
                       </div>
                     </div>
-                    
-                    {/* Progress Bar */}
-                    <div className="absolute inset-0 bg-purple-100 rounded-lg opacity-20" 
-                         style={{ width: `${percentage}%` }}></div>
-                  </button>
+
+                    <div className="space-y-3">
+                      {poll.options.map((option) => {
+                        const isSelected = poll.allow_multiple 
+                          ? userVotes[poll.id]?.includes(option)
+                          : userVotes[poll.id] === option;
+                        const optionVoteCount = pollVoteData[poll.id]?.optionVotes[option] || 0;
+                        const totalVotes = pollVoteData[poll.id]?.totalVotes || 0;
+                        const percentage = totalVotes > 0 
+                          ? Math.round((optionVoteCount / totalVotes) * 100)
+                          : 0;
+
+                        return (
+                          <button
+                            key={option}
+                            onClick={() => handleVote(poll.id, option)}
+                            disabled={isSubmitting || (userVotes[poll.id] && !poll.allow_multiple)}
+                            className={`w-full relative p-4 rounded-lg border-2 transition-all ${
+                              isSelected
+                                ? 'border-purple-500 bg-purple-50'
+                                : isSubmitting || (userVotes[poll.id] && !poll.allow_multiple)
+                                ? 'border-gray-200 bg-gray-50 cursor-not-allowed'
+                                : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'
+                            }`}
+                          >
+                            <div className="flex justify-between items-center relative z-10">
+                              <span className={`font-medium ${isSelected ? 'text-purple-700' : 'text-gray-900'}`}>
+                                {option}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                {isSubmitting && (
+                                  <Loader2 className="w-4 h-4 animate-spin text-purple-600" />
+                                )}
+                                {poll.show_voter_result && hasVoted && (
+                                  <>
+                                    <span className="text-sm text-gray-600">{optionVoteCount} votes</span>
+                                    <span className="text-sm font-medium">{percentage}%</span>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                            
+                            {/* Progress Bar */}
+                            {poll.show_voter_result && hasVoted && (
+                              <div className="absolute inset-0 bg-purple-100 rounded-lg opacity-20" 
+                                   style={{ width: `${percentage}%` }}></div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 );
               })}
             </div>
           </div>
-        )}
-
-        {/* Q&A Session */}
-        {activeContent === 'qa' && eventData.activeQA && (
-          <div className="space-y-6">
-            {/* Submit Question */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h2 className="text-xl font-semibold mb-4">{eventData.activeQA.title}</h2>
-              <p className="text-gray-600 mb-4">{eventData.activeQA.description}</p>
-              
-              <div className="space-y-3">
-                {eventData.activeQA.allowAnonymous && (
-                  <input
-                    type="text"
-                    placeholder="Your name (optional)"
-                    value={userName}
-                    onChange={(e) => setUserName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                  />
-                )}
-                
-                <textarea
-                  placeholder="Ask your question here..."
-                  value={question}
-                  onChange={(e) => setQuestion(e.target.value)}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                />
-                
-                <CustomButton
-                  buttonText="Submit Question"
-                  prefixIcon={<Send className="w-4 h-4" />}
-                  buttonColor="bg-purple-600"
-                  radius="rounded-md"
-                  onClick={handleSubmitQuestion}
-                  disabled={!question.trim()}
-                />
-              </div>
-            </div>
-
-            {/* Questions List */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4">Questions ({allQuestions.length})</h3>
-              
-              <div className="space-y-4">
-                {allQuestions.map((q) => (
-                  <div key={q.id} className="border-b border-gray-100 pb-4 last:border-b-0">
-                    <div className="flex justify-between items-start gap-4">
-                      <div className="flex-1">
-                        <p className="text-gray-900 mb-2">{q.text}</p>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <span>by {q.author}</span>
-                          {q.isAnswered && (
-                            <span className="inline-flex items-center gap-1 text-green-600">
-                              <Check className="w-3 h-3" />
-                              Answered
-                            </span>
-                          )}
-                        </div>
-                        {q.answer && (
-                          <div className="mt-3 p-3 bg-green-50 rounded-md">
-                            <p className="text-sm text-green-800">{q.answer}</p>
-                          </div>
-                        )}
-                      </div>
-                      
-                      <button
-                        onClick={() => handleLikeQuestion(q.id)}
-                        className="flex items-center gap-1 px-3 py-1 rounded-full hover:bg-gray-100 transition-colors"
-                      >
-                        <TrendingUp className="w-4 h-4 text-gray-600" />
-                        <span className="text-sm">{q.likes}</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                
-                {allQuestions.length === 0 && (
-                  <p className="text-center text-gray-500 py-8">No questions yet. Be the first to ask!</p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
 };
 
-export default LivePollsQA;
+export default LiveInteraction;
