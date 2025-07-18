@@ -21,7 +21,9 @@ import {
   UserCheck,
   UserPlus,
   List,
-  QrCode
+  QrCode,
+  Share,
+  Link
 } from "lucide-react";
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
@@ -30,6 +32,7 @@ import { toast } from "react-toastify";
 
 // Import session controllers
 import useGetAllSessionsManager from "@/app/events/controllers/sessions/controllers/getAllSessionsController";
+import useGetInfiniteSessionsManager from "@/app/events/controllers/sessions/controllers/getInfiniteSessionsController";
 import CreateSessionManager from "@/app/events/controllers/sessions/controllers/createSessionController";
 import UpdateSessionManager from "@/app/events/controllers/sessions/controllers/updateSessionController";
 import DeleteSessionManager from "@/app/events/controllers/sessions/controllers/deleteSessionController";
@@ -45,10 +48,18 @@ const SessionsManagementTab = ({ event }) => {
   const [activeView, setActiveView] = useState("overview"); // "overview", "registrations", "attendance"
   const [attendanceCode, setAttendanceCode] = useState("");
 
-  // Session controllers
-  const { data: sessionsData, isLoading: loadingSessions, refetch: refetchSessions } = useGetAllSessionsManager({
-    eventId: event?.id,
-    enabled: Boolean(event?.id)
+  // Session controllers - using infinite scroll
+  const { 
+    data: sessionsData, 
+    isLoading: loadingSessions, 
+    fetchNextPage, 
+    hasNextPage, 
+    isFetchingNextPage,
+    refetch: refetchSessions 
+  } = useGetInfiniteSessionsManager({
+    eventId: event?.id || "",
+    enabled: Boolean(event?.id),
+    pageSize: 20
   });
 
   // Forms controller
@@ -62,19 +73,19 @@ const SessionsManagementTab = ({ event }) => {
   const [sessionToDelete, setSessionToDelete] = useState(null);
   const { deleteSession, isLoading: deleting, isSuccess: deleteSuccess } = DeleteSessionManager(sessionToDelete?._id);
   
-  // Session attendance and registration controllers
-  const sessionAttendanceManager = SessionAttendanceManager(viewingSession?._id);
+  // Session attendance and registration controllers - only when viewing specific session
+  const sessionAttendanceManager = SessionAttendanceManager(viewingSession?._id || "");
   const { data: registrationsData, isLoading: loadingRegistrations, refetch: refetchRegistrations } = useGetSessionRegistrationsManager({
-    sessionId: viewingSession?._id,
+    sessionId: viewingSession?._id || "",
     enabled: Boolean(viewingSession?._id && activeView === "registrations")
   });
   const { data: attendanceData, isLoading: loadingAttendance, refetch: refetchAttendance } = useGetSessionAttendanceManager({
-    sessionId: viewingSession?._id,
+    sessionId: viewingSession?._id || "",
     enabled: Boolean(viewingSession?._id && activeView === "attendance")
   });
 
-  // Get sessions from backend data
-  const sessions = sessionsData?.data || [];
+  // Get sessions from backend data (flatten infinite query pages)
+  const sessions = sessionsData?.pages?.flatMap(page => page.data?.data || []) || [];
 
   const [formData, setFormData] = useState({
     event: event?.id || "",
@@ -331,6 +342,15 @@ const SessionsManagementTab = ({ event }) => {
   };
 
   const getTotalStats = () => {
+    if (!Array.isArray(sessions)) {
+      return {
+        totalSessions: 0,
+        totalRegistered: 0,
+        totalAttended: 0,
+        averageAttendance: 0
+      };
+    }
+
     const totalRegistered = sessions.reduce((sum, session) => sum + (session.registered_count || 0), 0);
     const totalAttended = sessions.reduce((sum, session) => sum + (session.attended_count || 0), 0);
     const averageAttendance = totalRegistered > 0 ? Math.round((totalAttended / totalRegistered) * 100) : 0;
@@ -379,6 +399,53 @@ const SessionsManagementTab = ({ event }) => {
     setAttendanceCode("");
   };
 
+  // Handle infinite scroll
+  const handleLoadMore = () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  };
+
+  // Copy to clipboard functionality
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("Link copied to clipboard!");
+    } catch (error) {
+      // Fallback for browsers that don't support clipboard API
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      toast.success("Link copied to clipboard!");
+    }
+  };
+
+  // Handle session registration link copy
+  const handleCopySessionLink = (session, accessCode = "") => {
+    const baseUrl = window.location.origin;
+    const link = `${baseUrl}/events/${event?.id}/sessions/${session._id}/register${accessCode ? `?accessCode=${accessCode}` : ''}`;
+    copyToClipboard(link);
+  };
+
+  // Handle session share
+  const handleShareSession = (session) => {
+    const baseUrl = window.location.origin;
+    const link = `${baseUrl}/events/${event?.id}/sessions/${session._id}/register`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: `Register for ${session.name}`,
+        text: `Join us for ${session.name} on ${new Date(session.date).toLocaleDateString()}`,
+        url: link,
+      });
+    } else {
+      copyToClipboard(link);
+    }
+  };
+
   if (loadingSessions) {
     return <Loader />;
   }
@@ -400,6 +467,26 @@ const SessionsManagementTab = ({ event }) => {
               <h2 className="text-2xl font-semibold">{viewingSession.name}</h2>
               <p className="text-gray-600">{viewingSession.description}</p>
             </div>
+          </div>
+          
+          {/* Share buttons for detailed view */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleCopySessionLink(viewingSession)}
+              className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-orange-600 border border-gray-300 rounded-md hover:bg-orange-50 transition-colors"
+              title="Copy registration link"
+            >
+              <Link className="w-4 h-4" />
+              <span className="text-sm">Copy Link</span>
+            </button>
+            <button
+              onClick={() => handleShareSession(viewingSession)}
+              className="flex items-center gap-2 px-3 py-2 text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-colors"
+              title="Share session"
+            >
+              <Share className="w-4 h-4" />
+              <span className="text-sm">Share</span>
+            </button>
           </div>
         </div>
 
@@ -751,6 +838,20 @@ const SessionsManagementTab = ({ event }) => {
                       <List className="w-4 h-4" />
                     </button>
                     <button
+                      onClick={() => handleCopySessionLink(session)}
+                      className="p-2 text-gray-500 hover:text-orange-600 rounded"
+                      title="Copy registration link"
+                    >
+                      <Link className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleShareSession(session)}
+                      className="p-2 text-gray-500 hover:text-blue-600 rounded"
+                      title="Share session"
+                    >
+                      <Share className="w-4 h-4" />
+                    </button>
+                    <button
                       onClick={() => toggleSessionVisibility(session)}
                       className={`p-2 rounded ${session.is_public ? 'text-green-600 bg-green-50' : 'text-gray-400 bg-gray-50'}`}
                       title={session.is_public ? "Public" : "Private"}
@@ -802,6 +903,19 @@ const SessionsManagementTab = ({ event }) => {
           })
         )}
       </div>
+
+      {/* Load More Button */}
+      {hasNextPage && (
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={handleLoadMore}
+            disabled={isFetchingNextPage}
+            className="px-6 py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isFetchingNextPage ? "Loading..." : "Load More Sessions"}
+          </button>
+        </div>
+      )}
 
       {/* Modal */}
       {showModal && (

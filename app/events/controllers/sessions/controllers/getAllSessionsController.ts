@@ -7,21 +7,21 @@ interface GetAllSessionsParams {
   eventId: string;
   enabled?: boolean;
   page?: number;
-  limit?: number;
+  pageSize?: number;
   code?: string;
 }
 
-const useGetAllSessionsManager = ({ eventId, enabled = true, page = 1, limit = 10, code }: GetAllSessionsParams) => {
+const useGetAllSessionsManager = ({ eventId, enabled = true, page = 1, pageSize = 10, code }: GetAllSessionsParams) => {
   const axiosInstance = code ? Axios : AxiosWithToken;
   
   return useQuery<SessionsResponse>({
-    queryKey: ["sessions", eventId, page, limit, code],
+    queryKey: ["sessions", eventId, page, pageSize, code],
     queryFn: async () => {
       try {
         const response = await axiosInstance.get(`/sessions/event/${eventId}`, {
           params: {
             page,
-            limit,
+            pageSize,
             ...(code && { accessCode: code }),
           },
         });
