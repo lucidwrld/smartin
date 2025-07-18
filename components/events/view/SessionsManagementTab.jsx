@@ -23,7 +23,7 @@ import {
   List,
   QrCode,
   Share,
-  Link
+  Link,
 } from "lucide-react";
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
@@ -49,43 +49,65 @@ const SessionsManagementTab = ({ event }) => {
   const [attendanceCode, setAttendanceCode] = useState("");
 
   // Session controllers - using infinite scroll
-  const { 
-    data: sessionsData, 
-    isLoading: loadingSessions, 
-    fetchNextPage, 
-    hasNextPage, 
+  const {
+    data: sessionsData,
+    isLoading: loadingSessions,
+    fetchNextPage,
+    hasNextPage,
     isFetchingNextPage,
-    refetch: refetchSessions 
+    refetch: refetchSessions,
   } = useGetInfiniteSessionsManager({
     eventId: event?.id || "",
     enabled: Boolean(event?.id),
-    pageSize: 20
+    pageSize: 20,
   });
 
   // Forms controller
   const { data: formsData, isLoading: loadingForms } = GetEventFormsManager({
     eventId: event?.id,
-    enabled: Boolean(event?.id)
+    enabled: Boolean(event?.id),
   });
 
-  const { createSession, isLoading: creating, isSuccess: createSuccess } = CreateSessionManager();
-  const { updateSession, isLoading: updating, isSuccess: updateSuccess } = UpdateSessionManager(editingSession?._id);
+  const {
+    createSession,
+    isLoading: creating,
+    isSuccess: createSuccess,
+  } = CreateSessionManager();
+  const {
+    updateSession,
+    isLoading: updating,
+    isSuccess: updateSuccess,
+  } = UpdateSessionManager(editingSession?._id);
   const [sessionToDelete, setSessionToDelete] = useState(null);
-  const { deleteSession, isLoading: deleting, isSuccess: deleteSuccess } = DeleteSessionManager(sessionToDelete?._id);
-  
+  const {
+    deleteSession,
+    isLoading: deleting,
+    isSuccess: deleteSuccess,
+  } = DeleteSessionManager(sessionToDelete?._id);
+
   // Session attendance and registration controllers - only when viewing specific session
-  const sessionAttendanceManager = SessionAttendanceManager(viewingSession?._id || "");
-  const { data: registrationsData, isLoading: loadingRegistrations, refetch: refetchRegistrations } = useGetSessionRegistrationsManager({
+  const { markAttendance, isLoading: markingAttendance } =
+    SessionAttendanceManager(viewingSession?._id || "");
+  const {
+    data: registrationsData,
+    isLoading: loadingRegistrations,
+    refetch: refetchRegistrations,
+  } = useGetSessionRegistrationsManager({
     sessionId: viewingSession?._id || "",
-    enabled: Boolean(viewingSession?._id && activeView === "registrations")
+    enabled: Boolean(viewingSession?._id && activeView === "registrations"),
   });
-  const { data: attendanceData, isLoading: loadingAttendance, refetch: refetchAttendance } = useGetSessionAttendanceManager({
+  const {
+    data: attendanceData,
+    isLoading: loadingAttendance,
+    refetch: refetchAttendance,
+  } = useGetSessionAttendanceManager({
     sessionId: viewingSession?._id || "",
-    enabled: Boolean(viewingSession?._id && activeView === "attendance")
+    enabled: Boolean(viewingSession?._id && activeView === "attendance"),
   });
 
   // Get sessions from backend data (flatten infinite query pages)
-  const sessions = sessionsData?.pages?.flatMap(page => page.data?.data || []) || [];
+  const sessions =
+    sessionsData?.pages?.flatMap((page) => page.data?.data || []) || [];
 
   const [formData, setFormData] = useState({
     event: event?.id || "",
@@ -101,7 +123,7 @@ const SessionsManagementTab = ({ event }) => {
     session_type: "main_event",
     speakers: [""],
     requirements: [""],
-    forms: []
+    forms: [],
   });
 
   const sessionTypes = [
@@ -111,7 +133,7 @@ const SessionsManagementTab = ({ event }) => {
     { value: "break", label: "Break/Lunch" },
     { value: "ceremony", label: "Ceremony" },
     { value: "presentation", label: "Presentation" },
-    { value: "other", label: "Other" }
+    { value: "other", label: "Other" },
   ];
 
   // Handle success states
@@ -138,7 +160,7 @@ const SessionsManagementTab = ({ event }) => {
 
   const handleOpenModal = (session = null) => {
     setEditingSession(session);
-    
+
     if (session) {
       setFormData({
         event: event?.id || "",
@@ -149,12 +171,16 @@ const SessionsManagementTab = ({ event }) => {
         end_time: session.end_time || "",
         location: session.location || "",
         max_capacity: session.max_capacity || "",
-        is_attendance_required: session.is_attendance_required !== undefined ? session.is_attendance_required : true,
+        is_attendance_required:
+          session.is_attendance_required !== undefined
+            ? session.is_attendance_required
+            : true,
         is_public: session.is_public !== undefined ? session.is_public : true,
         session_type: session.session_type || "main_event",
         speakers: session.speakers?.length > 0 ? session.speakers : [""],
-        requirements: session.requirements?.length > 0 ? session.requirements : [""],
-        forms: session.forms || []
+        requirements:
+          session.requirements?.length > 0 ? session.requirements : [""],
+        forms: session.forms || [],
       });
     } else {
       setFormData({
@@ -171,10 +197,10 @@ const SessionsManagementTab = ({ event }) => {
         session_type: "main_event",
         speakers: [""],
         requirements: [""],
-        forms: []
+        forms: [],
       });
     }
-    
+
     setShowModal(true);
   };
 
@@ -194,38 +220,38 @@ const SessionsManagementTab = ({ event }) => {
       is_public: true,
       session_type: "main_event",
       speakers: [""],
-      requirements: [""]
+      requirements: [""],
     });
   };
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const handleArrayChange = (field, index, value) => {
     const updatedArray = [...formData[field]];
     updatedArray[index] = value;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: updatedArray
+      [field]: updatedArray,
     }));
   };
 
   const addArrayItem = (field) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: [...prev[field], ""]
+      [field]: [...prev[field], ""],
     }));
   };
 
   const removeArrayItem = (field, index) => {
     const updatedArray = formData[field].filter((_, i) => i !== index);
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: updatedArray
+      [field]: updatedArray,
     }));
   };
 
@@ -253,9 +279,9 @@ const SessionsManagementTab = ({ event }) => {
         is_attendance_required: formData.is_attendance_required,
         is_public: formData.is_public,
         session_type: formData.session_type,
-        speakers: formData.speakers.filter(s => s.trim()),
-        requirements: formData.requirements.filter(r => r.trim()),
-        forms: formData.forms
+        speakers: formData.speakers.filter((s) => s.trim()),
+        requirements: formData.requirements.filter((r) => r.trim()),
+        forms: formData.forms,
       };
 
       if (editingSession) {
@@ -290,7 +316,7 @@ const SessionsManagementTab = ({ event }) => {
         is_public: session.is_public,
         session_type: session.session_type,
         speakers: session.speakers,
-        requirements: session.requirements
+        requirements: session.requirements,
       });
     } catch (error) {
       console.error("Error deleting session:", error);
@@ -304,7 +330,7 @@ const SessionsManagementTab = ({ event }) => {
       const updateManager = UpdateSessionManager(session._id);
       await updateManager.updateSession({
         ...session,
-        is_public: !session.is_public
+        is_public: !session.is_public,
       });
       refetchSessions();
     } catch (error) {
@@ -319,7 +345,7 @@ const SessionsManagementTab = ({ event }) => {
       active: "bg-green-100 text-green-800",
       ongoing: "bg-green-100 text-green-800",
       completed: "bg-gray-100 text-gray-800",
-      cancelled: "bg-red-100 text-red-800"
+      cancelled: "bg-red-100 text-red-800",
     };
     return colors[status] || "bg-gray-100 text-gray-800";
   };
@@ -332,7 +358,7 @@ const SessionsManagementTab = ({ event }) => {
       break: Clock,
       ceremony: CheckCircle,
       presentation: BarChart3,
-      other: AlertCircle
+      other: AlertCircle,
     };
     return icons[type] || Calendar;
   };
@@ -347,19 +373,28 @@ const SessionsManagementTab = ({ event }) => {
         totalSessions: 0,
         totalRegistered: 0,
         totalAttended: 0,
-        averageAttendance: 0
+        averageAttendance: 0,
       };
     }
 
-    const totalRegistered = sessions.reduce((sum, session) => sum + (session.registered_count || 0), 0);
-    const totalAttended = sessions.reduce((sum, session) => sum + (session.attended_count || 0), 0);
-    const averageAttendance = totalRegistered > 0 ? Math.round((totalAttended / totalRegistered) * 100) : 0;
+    const totalRegistered = sessions.reduce(
+      (sum, session) => sum + (session.registered_count || 0),
+      0
+    );
+    const totalAttended = sessions.reduce(
+      (sum, session) => sum + (session.attended_count || 0),
+      0
+    );
+    const averageAttendance =
+      totalRegistered > 0
+        ? Math.round((totalAttended / totalRegistered) * 100)
+        : 0;
 
     return {
       totalSessions: sessions.length,
       totalRegistered,
       totalAttended,
-      averageAttendance
+      averageAttendance,
     };
   };
 
@@ -373,13 +408,12 @@ const SessionsManagementTab = ({ event }) => {
     }
 
     try {
-      await sessionAttendanceManager.markAttendance({
+      await markAttendance({
         invitee_code: attendanceCode.trim(),
-        marking_method: "manual"
+        marking_method: "manual",
       });
       setAttendanceCode("");
       refetchAttendance();
-      toast.success("Attendance marked successfully");
     } catch (error) {
       console.error("Error marking attendance:", error);
       toast.error("Failed to mark attendance");
@@ -426,7 +460,9 @@ const SessionsManagementTab = ({ event }) => {
   // Handle session registration link copy
   const handleCopySessionLink = (session, accessCode = "") => {
     const baseUrl = window.location.origin;
-    const link = `${baseUrl}/events/${event?.id}/sessions/${session._id}/register${accessCode ? `?accessCode=${accessCode}` : ''}`;
+    const link = `${baseUrl}/events/${event?.id}/sessions/${
+      session._id
+    }/register${accessCode ? `?accessCode=${accessCode}` : ""}`;
     copyToClipboard(link);
   };
 
@@ -434,11 +470,13 @@ const SessionsManagementTab = ({ event }) => {
   const handleShareSession = (session) => {
     const baseUrl = window.location.origin;
     const link = `${baseUrl}/events/${event?.id}/sessions/${session._id}/register`;
-    
+
     if (navigator.share) {
       navigator.share({
         title: `Register for ${session.name}`,
-        text: `Join us for ${session.name} on ${new Date(session.date).toLocaleDateString()}`,
+        text: `Join us for ${session.name} on ${new Date(
+          session.date
+        ).toLocaleDateString()}`,
         url: link,
       });
     } else {
@@ -468,7 +506,7 @@ const SessionsManagementTab = ({ event }) => {
               <p className="text-gray-600">{viewingSession.description}</p>
             </div>
           </div>
-          
+
           {/* Share buttons for detailed view */}
           <div className="flex items-center gap-2">
             <button
@@ -536,11 +574,15 @@ const SessionsManagementTab = ({ event }) => {
                   <div className="space-y-3 text-sm">
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-gray-400" />
-                      <span>{new Date(viewingSession.date).toLocaleDateString()}</span>
+                      <span>
+                        {new Date(viewingSession.date).toLocaleDateString()}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-gray-400" />
-                      <span>{viewingSession.start_time} - {viewingSession.end_time}</span>
+                      <span>
+                        {viewingSession.start_time} - {viewingSession.end_time}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-gray-400" />
@@ -589,7 +631,7 @@ const SessionsManagementTab = ({ event }) => {
                       buttonColor="bg-green-600"
                       radius="rounded-md"
                       onClick={handleMarkAttendance}
-                      isLoading={sessionAttendanceManager.isLoading}
+                      isLoading={markingAttendance}
                     />
                   </div>
                 </div>
@@ -613,17 +655,31 @@ const SessionsManagementTab = ({ event }) => {
                   <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-purple-600 border-r-transparent"></div>
                   <p className="mt-2 text-gray-600">Loading registrations...</p>
                 </div>
-              ) : registrationsData?.data?.length > 0 ? (
+              ) : registrationsData?.data?.data?.length > 0 ? (
                 <div className="space-y-3">
-                  {registrationsData.data.map((registration) => (
-                    <div key={registration._id} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                  {registrationsData.data.data.map((registration) => (
+                    <div
+                      key={registration._id}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded"
+                    >
                       <div>
-                        <div className="font-medium">{registration.name}</div>
-                        <div className="text-sm text-gray-600">{registration.email}</div>
-                        <div className="text-xs text-gray-500">Code: {registration.invitee_code}</div>
+                        <div className="font-medium">
+                          {registration.invitee?.name}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {registration.invitee?.email}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Code: {registration.invitee?.code}
+                        </div>
+                        <div className="text-xs text-purple-600 font-medium">
+                          Status: {registration.attendance_status}
+                        </div>
                       </div>
                       <div className="text-xs text-gray-500">
-                        {new Date(registration.registered_at).toLocaleString()}
+                        {new Date(
+                          registration.registration_date
+                        ).toLocaleString()}
                       </div>
                     </div>
                   ))}
@@ -652,14 +708,23 @@ const SessionsManagementTab = ({ event }) => {
                   <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-purple-600 border-r-transparent"></div>
                   <p className="mt-2 text-gray-600">Loading attendance...</p>
                 </div>
-              ) : attendanceData?.data?.length > 0 ? (
+              ) : attendanceData?.data?.data?.length > 0 ? (
                 <div className="space-y-3">
-                  {attendanceData.data.map((attendance) => (
-                    <div key={attendance._id} className="flex items-center justify-between p-3 bg-green-50 rounded">
+                  {attendanceData.data.data.map((attendance) => (
+                    <div
+                      key={attendance._id}
+                      className="flex items-center justify-between p-3 bg-green-50 rounded"
+                    >
                       <div>
-                        <div className="font-medium">{attendance.name}</div>
-                        <div className="text-sm text-gray-600">{attendance.email}</div>
-                        <div className="text-xs text-gray-500">Code: {attendance.invitee_code}</div>
+                        <div className="font-medium">
+                          {attendance.invitee?.name}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {attendance.invitee?.email}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Code: {attendance.invitee?.code}
+                        </div>
                       </div>
                       <div className="text-right">
                         <div className="text-xs text-green-600 font-medium">
@@ -691,10 +756,11 @@ const SessionsManagementTab = ({ event }) => {
         <div>
           <h2 className="text-2xl font-semibold mb-2">Sessions Management</h2>
           <p className="text-gray-600">
-            Manage multiple sessions, days, and attendance tracking for your event
+            Manage multiple sessions, days, and attendance tracking for your
+            event
           </p>
         </div>
-        
+
         <CustomButton
           buttonText="Add Session"
           prefixIcon={<Plus className="w-4 h-4" />}
@@ -738,7 +804,9 @@ const SessionsManagementTab = ({ event }) => {
             <BarChart3 className="w-5 h-5 text-orange-600" />
             <div>
               <p className="text-sm text-gray-600">Avg. Attendance</p>
-              <p className="text-2xl font-semibold">{stats.averageAttendance}%</p>
+              <p className="text-2xl font-semibold">
+                {stats.averageAttendance}%
+              </p>
             </div>
           </div>
         </div>
@@ -749,9 +817,12 @@ const SessionsManagementTab = ({ event }) => {
         {sessions.length === 0 ? (
           <div className="text-center py-12 bg-gray-50 rounded-lg">
             <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No sessions yet</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No sessions yet
+            </h3>
             <p className="text-gray-500 mb-4">
-              Create sessions to organize your multi-day event and track attendance
+              Create sessions to organize your multi-day event and track
+              attendance
             </p>
             <CustomButton
               buttonText="Create First Session"
@@ -776,9 +847,16 @@ const SessionsManagementTab = ({ event }) => {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold">{session.name}</h3>
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(session.status)}`}>
-                          {session.status?.charAt(0).toUpperCase() + session.status?.slice(1)}
+                        <h3 className="text-lg font-semibold">
+                          {session.name}
+                        </h3>
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                            session.status
+                          )}`}
+                        >
+                          {session.status?.charAt(0).toUpperCase() +
+                            session.status?.slice(1)}
                         </span>
                         {session.is_attendance_required && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
@@ -786,17 +864,23 @@ const SessionsManagementTab = ({ event }) => {
                           </span>
                         )}
                       </div>
-                      
-                      <p className="text-gray-600 text-sm mb-3">{session.description}</p>
-                      
+
+                      <p className="text-gray-600 text-sm mb-3">
+                        {session.description}
+                      </p>
+
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4" />
-                          <span>{formatDateTime(session.date, session.start_time)}</span>
+                          <span>
+                            {formatDateTime(session.date, session.start_time)}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Clock className="w-4 h-4" />
-                          <span>{session.start_time} - {session.end_time}</span>
+                          <span>
+                            {session.start_time} - {session.end_time}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <MapPin className="w-4 h-4" />
@@ -806,13 +890,17 @@ const SessionsManagementTab = ({ event }) => {
 
                       {session.speakers && session.speakers.length > 0 && (
                         <div className="mt-3">
-                          <span className="text-sm text-gray-500">Speakers: </span>
-                          <span className="text-sm text-gray-700">{session.speakers.join(", ")}</span>
+                          <span className="text-sm text-gray-500">
+                            Speakers:{" "}
+                          </span>
+                          <span className="text-sm text-gray-700">
+                            {session.speakers.join(", ")}
+                          </span>
                         </div>
                       )}
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     {session.is_attendance_required && (
                       <button
@@ -824,7 +912,9 @@ const SessionsManagementTab = ({ event }) => {
                       </button>
                     )}
                     <button
-                      onClick={() => handleViewSession(session, "registrations")}
+                      onClick={() =>
+                        handleViewSession(session, "registrations")
+                      }
                       className="p-2 text-gray-500 hover:text-blue-600 rounded"
                       title="View registrations"
                     >
@@ -853,10 +943,18 @@ const SessionsManagementTab = ({ event }) => {
                     </button>
                     <button
                       onClick={() => toggleSessionVisibility(session)}
-                      className={`p-2 rounded ${session.is_public ? 'text-green-600 bg-green-50' : 'text-gray-400 bg-gray-50'}`}
+                      className={`p-2 rounded ${
+                        session.is_public
+                          ? "text-green-600 bg-green-50"
+                          : "text-gray-400 bg-gray-50"
+                      }`}
                       title={session.is_public ? "Public" : "Private"}
                     >
-                      {session.is_public ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                      {session.is_public ? (
+                        <Eye className="w-4 h-4" />
+                      ) : (
+                        <EyeOff className="w-4 h-4" />
+                      )}
                     </button>
                     <button
                       onClick={() => handleOpenModal(session)}
@@ -881,15 +979,27 @@ const SessionsManagementTab = ({ event }) => {
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Attendance Progress</span>
                     <span className="font-medium">
-                      {session.attended_count || 0} / {session.registered_count || 0} 
-                      ({Math.round(((session.attended_count || 0) / (session.registered_count || 1)) * 100)}%)
+                      {session.attended_count || 0} /{" "}
+                      {session.registered_count || 0}(
+                      {Math.round(
+                        ((session.attended_count || 0) /
+                          (session.registered_count || 1)) *
+                          100
+                      )}
+                      %)
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
+                    <div
                       className="bg-purple-600 h-2 rounded-full transition-all duration-300"
-                      style={{ 
-                        width: `${(session.registered_count || 0) > 0 ? ((session.attended_count || 0) / (session.registered_count || 1)) * 100 : 0}%` 
+                      style={{
+                        width: `${
+                          (session.registered_count || 0) > 0
+                            ? ((session.attended_count || 0) /
+                                (session.registered_count || 1)) *
+                              100
+                            : 0
+                        }%`,
                       }}
                     ></div>
                   </div>
@@ -945,14 +1055,16 @@ const SessionsManagementTab = ({ event }) => {
                     onChange={(e) => handleInputChange("name", e.target.value)}
                     isRequired={true}
                   />
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Session Type
                     </label>
                     <select
                       value={formData.session_type}
-                      onChange={(e) => handleInputChange("session_type", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("session_type", e.target.value)
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                     >
                       {sessionTypes.map((type) => (
@@ -970,7 +1082,9 @@ const SessionsManagementTab = ({ event }) => {
                   isTextArea={true}
                   rows={3}
                   value={formData.description}
-                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -981,20 +1095,24 @@ const SessionsManagementTab = ({ event }) => {
                     onChange={(e) => handleInputChange("date", e.target.value)}
                     isRequired={true}
                   />
-                  
+
                   <InputWithFullBoarder
                     label="Start Time *"
                     type="time"
                     value={formData.start_time}
-                    onChange={(e) => handleInputChange("start_time", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("start_time", e.target.value)
+                    }
                     isRequired={true}
                   />
-                  
+
                   <InputWithFullBoarder
                     label="End Time"
                     type="time"
                     value={formData.end_time}
-                    onChange={(e) => handleInputChange("end_time", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("end_time", e.target.value)
+                    }
                   />
                 </div>
 
@@ -1003,15 +1121,19 @@ const SessionsManagementTab = ({ event }) => {
                     label="Location"
                     placeholder="Session location"
                     value={formData.location}
-                    onChange={(e) => handleInputChange("location", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("location", e.target.value)
+                    }
                   />
-                  
+
                   <InputWithFullBoarder
                     label="Max Capacity"
                     type="number"
                     placeholder="Maximum attendees"
                     value={formData.max_capacity}
-                    onChange={(e) => handleInputChange("max_capacity", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("max_capacity", e.target.value)
+                    }
                   />
                 </div>
 
@@ -1026,7 +1148,9 @@ const SessionsManagementTab = ({ event }) => {
                         <input
                           type="text"
                           value={speaker}
-                          onChange={(e) => handleArrayChange("speakers", index, e.target.value)}
+                          onChange={(e) =>
+                            handleArrayChange("speakers", index, e.target.value)
+                          }
                           placeholder={`Speaker ${index + 1}`}
                           className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                         />
@@ -1059,7 +1183,13 @@ const SessionsManagementTab = ({ event }) => {
                         <input
                           type="text"
                           value={requirement}
-                          onChange={(e) => handleArrayChange("requirements", index, e.target.value)}
+                          onChange={(e) =>
+                            handleArrayChange(
+                              "requirements",
+                              index,
+                              e.target.value
+                            )
+                          }
                           placeholder={`Requirement ${index + 1}`}
                           className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                         />
@@ -1087,20 +1217,31 @@ const SessionsManagementTab = ({ event }) => {
                     <input
                       type="checkbox"
                       checked={formData.is_attendance_required}
-                      onChange={(e) => handleInputChange("is_attendance_required", e.target.checked)}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "is_attendance_required",
+                          e.target.checked
+                        )
+                      }
                       className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                     />
-                    <span className="text-sm font-medium text-gray-700">Attendance Required</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      Attendance Required
+                    </span>
                   </label>
 
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
                       checked={formData.is_public}
-                      onChange={(e) => handleInputChange("is_public", e.target.checked)}
+                      onChange={(e) =>
+                        handleInputChange("is_public", e.target.checked)
+                      }
                       className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                     />
-                    <span className="text-sm font-medium text-gray-700">Public Session</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      Public Session
+                    </span>
                   </label>
                 </div>
 
@@ -1112,33 +1253,48 @@ const SessionsManagementTab = ({ event }) => {
                     </label>
                     <div className="space-y-2 max-h-32 overflow-y-auto border border-gray-200 rounded-md p-3">
                       {loadingForms ? (
-                        <div className="text-sm text-gray-500">Loading forms...</div>
+                        <div className="text-sm text-gray-500">
+                          Loading forms...
+                        </div>
                       ) : formsData?.data?.length === 0 ? (
-                        <div className="text-sm text-gray-500 italic">No forms found for this event</div>
+                        <div className="text-sm text-gray-500 italic">
+                          No forms found for this event
+                        </div>
                       ) : (
                         <>
                           {/* Filter out forms that are marked as required (those are for event registration only) */}
                           {(formsData?.data || [])
-                            .filter(form => !form.is_required)
+                            .filter((form) => !form.is_required)
                             .map((form) => (
-                              <label key={form._id} className="flex items-center gap-2">
+                              <label
+                                key={form._id}
+                                className="flex items-center gap-2"
+                              >
                                 <input
                                   type="checkbox"
                                   checked={formData.forms.includes(form._id)}
                                   onChange={(e) => {
                                     const newForms = e.target.checked
                                       ? [...formData.forms, form._id]
-                                      : formData.forms.filter(id => id !== form._id);
+                                      : formData.forms.filter(
+                                          (id) => id !== form._id
+                                        );
                                     handleInputChange("forms", newForms);
                                   }}
                                   className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                                 />
-                                <span className="text-sm text-gray-700">{form.description}</span>
+                                <span className="text-sm text-gray-700">
+                                  {form.description}
+                                </span>
                               </label>
                             ))}
-                          {(formsData?.data || []).filter(form => !form.is_required).length === 0 && (
+                          {(formsData?.data || []).filter(
+                            (form) => !form.is_required
+                          ).length === 0 && (
                             <div className="text-sm text-gray-500 italic">
-                              No available forms for session registration. All forms are marked as required for event registration.
+                              No available forms for session registration. All
+                              forms are marked as required for event
+                              registration.
                             </div>
                           )}
                         </>
@@ -1149,7 +1305,9 @@ const SessionsManagementTab = ({ event }) => {
 
                 <div className="flex gap-3 pt-4">
                   <CustomButton
-                    buttonText={editingSession ? "Update Session" : "Create Session"}
+                    buttonText={
+                      editingSession ? "Update Session" : "Create Session"
+                    }
                     prefixIcon={<Save className="w-4 h-4" />}
                     buttonColor="bg-purple-600"
                     radius="rounded-md"

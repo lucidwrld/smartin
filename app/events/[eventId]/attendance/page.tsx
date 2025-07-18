@@ -36,23 +36,7 @@ const AttendanceMarking: React.FC<AttendanceMarkingProps> = ({ params }) => {
   const searchParams = useSearchParams();
   const accessCode = searchParams.get("accessCode") || searchParams.get("c");
 
-  // Check if accessCode is not found
-  if (!accessCode) {
-    return (
-      <div className="max-w-4xl mx-auto p-4 flex flex-col justify-center items-center h-screen">
-        <img src={logoMain1.src} alt="" className="w-[80%] mb-10" />
-        <div className="bg-white rounded-lg shadow p-6 text-center">
-          <h2 className="text-xl font-bold text-gray-800 mb-2">
-            Access Code Not Found
-          </h2>
-          <p className="text-gray-600">
-            Please ensure you have the correct URL with the access code.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
+  // State management - moved before early return
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedSession, setSelectedSession] = useState("event"); // Changed from "all" to "event"
   const [attendanceType, setAttendanceType] = useState("event"); // "event" or "session"
@@ -87,10 +71,26 @@ const AttendanceMarking: React.FC<AttendanceMarkingProps> = ({ params }) => {
       code: accessCode,
     });
 
-  const availableSessions = sessionsData?.data || [];
+  const availableSessions = Array.isArray(sessionsData?.data) ? sessionsData.data : [];
   const sessionsRequiringAttendance = availableSessions.filter(
-    (s) => s.is_attendance_required
+    (s) => s.is_attendance_required === true
   );
+
+  // Debug logging
+  console.log("Sessions Debug:", {
+    sessionsData,
+    availableSessions,
+    sessionsRequiringAttendance,
+    loadingSessions,
+    eventId: event?.id || event?._id,
+    // Log each session's attendance requirement
+    sessionDetails: availableSessions.map(s => ({
+      name: s.name,
+      is_attendance_required: s.is_attendance_required,
+      attendance_required: s.attendance_required,
+      requiresAttendance: s.requiresAttendance
+    }))
+  });
 
   // Get guests list (for event attendance)
   const { data: guestsData, isLoading: loadingGuests } =
@@ -272,10 +272,16 @@ const AttendanceMarking: React.FC<AttendanceMarkingProps> = ({ params }) => {
   const filteredGuests =
     debouncedQuery && searchResult?.data?.guests
       ? searchResult.data.guests
-      : currentData?.data || [];
-  const totalGuests = currentData?.pagination?.total || 0;
+      : attendanceType === "session" 
+        ? currentData?.data?.data || []
+        : currentData?.data || [];
+  const totalGuests = attendanceType === "session" 
+    ? currentData?.data?.pagination?.total || 0
+    : currentData?.pagination?.total || 0;
   const attendedGuests =
-    currentData?.data?.filter((g) => g.attended).length || 0;
+    attendanceType === "session"
+      ? currentData?.data?.data?.filter((g) => g.invitee?.attended).length || 0
+      : currentData?.data?.filter((g) => g.attended).length || 0;
 
   const currentSession = getCurrentSession();
   const markingAttendance = markingEventAttendance || markingSessionAttendance;
@@ -298,7 +304,7 @@ const AttendanceMarking: React.FC<AttendanceMarkingProps> = ({ params }) => {
       </div>
 
       {/* Attendance Type Selection */}
-      {availableSessions.length > 0 && (
+      {!loadingSessions && (availableSessions.length > 0 || true) && (
         <div className="mb-6 bg-purple-50 p-4 rounded-lg">
           <h3 className="text-sm font-medium text-gray-700 mb-3">
             Select Attendance Type
@@ -522,83 +528,93 @@ const AttendanceMarking: React.FC<AttendanceMarkingProps> = ({ params }) => {
           </div>
         ) : (
           <ul className="divide-y divide-gray-200">
-            {filteredGuests.map((guest) => (
-              <li
-                key={guest.id || guest._id}
-                className="px-6 py-4 hover:bg-gray-50"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center">
-                      <p
-                        className="text-sm font-medium text-gray-900 truncate cursor-pointer hover:text-purple-600"
-                        onClick={() => handleShowGuestDetails(guest)}
-                      >
-                        {guest.name}
-                      </p>
-                      <span
-                        className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
-                          guest.response === "accepted"
-                            ? "bg-green-100 text-green-800"
-                            : guest.response === "declined"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {guest.response === "accepted"
-                          ? "Accepted"
-                          : guest.response === "declined"
-                          ? "Declined"
-                          : "Pending"}
-                      </span>
-                    </div>
-                    <div className="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:mt-0 sm:space-x-6">
-                      <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                        {guest.phone}
-                      </div>
-                      <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                        {guest.email || "No email"}
-                      </div>
-                      <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                        <span className="font-mono bg-gray-100 px-1 rounded">
-                          {guest.code}
+            {filteredGuests.map((guest) => {
+              // Handle both regular guests and session registrations
+              const guestData = attendanceType === "session" ? guest.invitee : guest;
+              const guestId = guest.id || guest._id;
+              
+              return (
+                <li
+                  key={guestId}
+                  className="px-6 py-4 hover:bg-gray-50"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center">
+                        <p
+                          className="text-sm font-medium text-gray-900 truncate cursor-pointer hover:text-purple-600"
+                          onClick={() => handleShowGuestDetails(guestData)}
+                        >
+                          {guestData?.name}
+                        </p>
+                        <span
+                          className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
+                            attendanceType === "session"
+                              ? "bg-purple-100 text-purple-800"
+                              : guestData?.response === "accepted"
+                              ? "bg-green-100 text-green-800"
+                              : guestData?.response === "declined"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {attendanceType === "session"
+                            ? guest.attendance_status || "Registered"
+                            : guestData?.response === "accepted"
+                            ? "Accepted"
+                            : guestData?.response === "declined"
+                            ? "Declined"
+                            : "Pending"}
                         </span>
                       </div>
+                      <div className="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:mt-0 sm:space-x-6">
+                        <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                          {guestData?.phone}
+                        </div>
+                        <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                          {guestData?.email || "No email"}
+                        </div>
+                        <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                          <span className="font-mono bg-gray-100 px-1 rounded">
+                            {guestData?.code}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleShowGuestDetails(guestData)}
+                        className="inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      >
+                        Details
+                      </button>
+                      <button
+                        onClick={() => markGuestAttendance(guestData)}
+                        disabled={guestData?.attended || markingAttendance}
+                        className={`inline-flex items-center px-3 py-1 border font-medium rounded-md text-sm ${
+                          guestData?.attended
+                            ? "border-green-500 text-green-700 bg-green-50"
+                            : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+                        }`}
+                      >
+                        {guestData?.attended ? (
+                          <>
+                            <UserCheck className="mr-1.5 h-4 w-4 text-green-500" />
+                            Present
+                          </>
+                        ) : (
+                          `Mark Present${
+                            attendanceType === "session" && currentSession
+                              ? ` (${currentSession.name})`
+                              : " (Event)"
+                          }`
+                        )}
+                      </button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleShowGuestDetails(guest)}
-                      className="inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    >
-                      Details
-                    </button>
-                    <button
-                      onClick={() => markGuestAttendance(guest)}
-                      disabled={guest.attended || markingAttendance}
-                      className={`inline-flex items-center px-3 py-1 border font-medium rounded-md text-sm ${
-                        guest.attended
-                          ? "border-green-500 text-green-700 bg-green-50"
-                          : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
-                      }`}
-                    >
-                      {guest.attended ? (
-                        <>
-                          <UserCheck className="mr-1.5 h-4 w-4 text-green-500" />
-                          Present
-                        </>
-                      ) : (
-                        `Mark Present${
-                          attendanceType === "session" && currentSession
-                            ? ` (${currentSession.name})`
-                            : " (Event)"
-                        }`
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
