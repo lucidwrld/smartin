@@ -95,7 +95,7 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
         { id: 11, name: "Ticketing", icon: Ticket },
         { id: 13, name: "Sponsors & Partners", icon: Handshake },
         { id: 14, name: "Hosts & Figures", icon: Crown },
-        { id: 15, name: "Broadcast", icon: Speaker, comingSoon: true },
+        { id: 15, name: "Broadcast", icon: Speaker, comingSoon: false },
         { id: 16, name: "Sessions", icon: Timer },
       ],
     },
@@ -109,7 +109,14 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
     },
     {
       title: "Invitation Management",
-      items: [{ id: 18, name: "Invitation Management", icon: Mail, comingSoon: true }],
+      items: [
+        {
+          id: 18,
+          name: "Invitation Management",
+          icon: Mail,
+          comingSoon: false,
+        },
+      ],
     },
     {
       title: "Experience",
@@ -174,7 +181,8 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
                       </h3>
                       <div className="space-y-1">
                         {section.items.map((item) => {
-                          const isDisabled = !event?.data?.isPaid || item.comingSoon;
+                          const isDisabled =
+                            !event?.data?.isPaid || item.comingSoon;
                           const IconComponent = item.icon;
                           return (
                             <button
@@ -271,7 +279,11 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
             )}
             {currentView === 17 && <FormsManagementTab event={event?.data} />}
             {currentView === 18 && (
-              <InvitationManagementTab event={event?.data} eventId={eventId} comingSoon={true} />
+              <InvitationManagementTab
+                event={event?.data}
+                eventId={eventId}
+                comingSoon={true}
+              />
             )}
             {currentView === 19 && <GalleryManagementTab event={event?.data} />}
           </div>
