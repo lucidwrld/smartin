@@ -16,7 +16,7 @@ const useGetSearchForTablesAndGuestsManager = ({
       try {
         const response = await axiosInstance.get(
           `/event/${eventId}/tables/search?s=${searchQuery}${
-            code && `&accessCode=${code}`
+            code ? `&accessCode=${code}` : ""
           }`
         );
         return response.data;

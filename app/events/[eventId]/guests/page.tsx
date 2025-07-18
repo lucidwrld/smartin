@@ -2,16 +2,21 @@
 
 import React, { useState, useEffect } from "react";
 import { Users, UserCheck, Clock, Grid } from "lucide-react";
-import useGetAccessCodeDetailsManager from "../controllers/members/getAccessCodeInformationController";
+import useGetAccessCodeDetailsManager from "../../controllers/members/getAccessCodeInformationController";
 import { useSearchParams } from "next/navigation";
 import PublicSearch from "@/components/events/publicComponents/PublicSearch";
 import PublicGuestList from "@/components/events/publicComponents/PublicGuestList";
 import PublicTableList from "@/components/events/publicComponents/PublicTableList";
 import { logoMain1 } from "@/public/images";
 
-const PublicEventView = () => {
+interface PublicEventViewProps {
+  params: Promise<{ eventId: string }>;
+}
+
+const PublicEventView: React.FC<PublicEventViewProps> = ({ params }) => {
+  const { eventId } = React.use(params);
   const searchParams = useSearchParams();
-  const accessCode = searchParams.get("c");
+  const accessCode = searchParams.get("accessCode") || searchParams.get("c");
 
   // Check if accessCode is not found
   if (!accessCode) {

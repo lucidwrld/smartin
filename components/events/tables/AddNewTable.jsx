@@ -3,10 +3,8 @@ import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import React, { useState } from "react";
 import { Plus } from "lucide-react";
 import { AddTableManager } from "@/app/events/controllers/tables/addTableController";
-import { getQueryParams } from "@/utils/getQueryParams";
 
-const AddNewTable = ({ tables, setTables }) => {
-  const { id } = getQueryParams(["id"]);
+const AddNewTable = ({ tables, setTables, eventId }) => {
   const { addTable: addTableAPI, isLoading } = AddTableManager();
 
   const [newTableName, setNewTableName] = useState("");
@@ -45,7 +43,7 @@ const AddNewTable = ({ tables, setTables }) => {
 
     const baseIdentifier = getNextIdentifier();
     const details = {
-      event: id,
+      event: eventId,
       name: newTableName.trim() || baseIdentifier,
       no_of_seats: parseInt(newTableSeats),
     };

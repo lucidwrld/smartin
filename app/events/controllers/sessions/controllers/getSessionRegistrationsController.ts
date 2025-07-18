@@ -1,4 +1,5 @@
 import { useQuery } from "react-query";
+import Axios from "@/constants/api_management/MyHttpHelper";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { SessionRegistrationsResponse } from "../types";
 
@@ -6,25 +7,33 @@ interface GetSessionRegistrationsParams {
   sessionId: string;
   enabled?: boolean;
   page?: number;
-  limit?: number;
+  pageSize?: number;
+  code?: string;
 }
 
-const useGetSessionRegistrationsManager = ({ 
-  sessionId, 
-  enabled = true, 
-  page = 1, 
-  limit = 10 
+const useGetSessionRegistrationsManager = ({
+  sessionId,
+  enabled = true,
+  page = 1,
+  pageSize = 10,
+  code,
 }: GetSessionRegistrationsParams) => {
+  const axiosInstance = code ? Axios : AxiosWithToken;
+
   return useQuery<SessionRegistrationsResponse>({
-    queryKey: ["session-registrations", sessionId, page, limit],
+    queryKey: ["session-registrations", sessionId, page, pageSize, code],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`/sessions/${sessionId}/registrations`, {
-          params: {
-            page,
-            limit,
-          },
-        });
+        const response = await axiosInstance.get(
+          `/sessions/${sessionId}/registrations`,
+          {
+            params: {
+              page,
+              pageSize,
+              ...(code && { accessCode: code }),
+            },
+          }
+        );
         return response.data;
       } catch (error: any) {
         throw new Error("Sorry: " + error.response?.data?.message);

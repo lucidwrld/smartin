@@ -63,7 +63,7 @@ const TableArrangement = ({ eventId }) => {
       <TableSearch eventId={eventId} apiTables={apiTables?.data} />
 
       {/* Add new table section */}
-      <AddNewTable tables={tables} setTables={setTables} />
+      <AddNewTable tables={tables} setTables={setTables} eventId={eventId} />
 
       <TabManager
         currentView={currentView}

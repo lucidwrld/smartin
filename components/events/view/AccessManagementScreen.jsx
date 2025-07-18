@@ -10,6 +10,8 @@ import {
   Eye,
   CheckCheck,
   UserX,
+  Share2,
+  Link,
 } from "lucide-react";
 import useGetMembersManager from "@/app/events/controllers/members/getMembersController";
 import { AddMemberManager } from "@/app/events/controllers/members/addMembersController";
@@ -220,6 +222,40 @@ const AccessManagement = ({ event }) => {
   // Function to copy access code
   const handleCopyCode = (code) => {
     copyToClipboard(code);
+  };
+
+  // Function to copy link with access code
+  const handleCopyLink = (code, type) => {
+    const baseUrl = window.location.origin;
+    const url = type === "view" 
+      ? `${baseUrl}/events/${event?.id}/guests?accessCode=${code}`
+      : `${baseUrl}/events/${event?.id}/attendance?accessCode=${code}`;
+    copyToClipboard(url);
+  };
+
+  // Function to share link
+  const handleShare = async (code, type) => {
+    const baseUrl = window.location.origin;
+    const url = type === "view" 
+      ? `${baseUrl}/events/${event?.id}/guests?accessCode=${code}`
+      : `${baseUrl}/events/${event?.id}/attendance?accessCode=${code}`;
+    
+    const shareData = {
+      title: `${event?.eventName} - ${type === "view" ? "Guest List" : "Mark Attendance"}`,
+      text: `Access code: ${code}`,
+      url: url,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback to copying the link
+        copyToClipboard(url);
+      }
+    } catch (err) {
+      console.log("Error sharing:", err);
+    }
   };
 
   return (
@@ -518,6 +554,22 @@ const AccessManagement = ({ event }) => {
 
             <div>
               <h3 className="text-lg font-medium mb-4">Active access codes</h3>
+              
+              {/* Info Box */}
+              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 className="text-sm font-medium text-blue-900 mb-2">Access Pages Information:</h4>
+                <ul className="text-sm text-blue-800 space-y-1">
+                  <li className="flex items-start">
+                    <Eye className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                    <span><strong>View-Only Access:</strong> Allows viewing the guest list and table arrangements at <code className="bg-blue-100 px-1 rounded">/events/{event?.id}/guests</code></span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCheck className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                    <span><strong>Attendance Access:</strong> Allows marking guest attendance at the event entrance at <code className="bg-blue-100 px-1 rounded">/events/{event?.id}/attendance</code></span>
+                  </li>
+                </ul>
+              </div>
+
               <div className="space-y-3">
                 {accessCodes.length === 0 ? (
                   <p className="text-gray-500 italic">
@@ -548,19 +600,41 @@ const AccessManagement = ({ event }) => {
                         </div>
 
                         <div className="flex items-center space-x-2">
-                          {
-                            <span className="text-xs text-gray-500">
-                              Last updated: {formatDate(accessCode?.updatedAt)}
-                            </span>
-                          }
+                          <span className="text-xs text-gray-500">
+                            Last updated: {formatDate(accessCode?.updatedAt)}
+                          </span>
 
-                          <button
-                            onClick={() => handleCopyCode(accessCode.code)}
-                            className={`p-1 rounded-full focus:outline-none ${"text-gray-500 hover:bg-gray-100"}`}
-                          >
-                            <Copy className="h-4 w-4" />
-                            <span className="sr-only">Copy</span>
-                          </button>
+                          <div className="flex items-center space-x-1">
+                            {/* Copy Code Button */}
+                            <button
+                              onClick={() => handleCopyCode(accessCode.code)}
+                              className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                              title="Copy access code"
+                            >
+                              <Copy className="h-3 w-3 mr-1" />
+                              Copy Code
+                            </button>
+
+                            {/* Copy Link Button */}
+                            <button
+                              onClick={() => handleCopyLink(accessCode.code, accessCode?.permissions?.view_only ? "view" : "attendance")}
+                              className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                              title="Copy link with access code"
+                            >
+                              <Link className="h-3 w-3 mr-1" />
+                              Copy Link
+                            </button>
+
+                            {/* Share Button */}
+                            <button
+                              onClick={() => handleShare(accessCode.code, accessCode?.permissions?.view_only ? "view" : "attendance")}
+                              className="inline-flex items-center px-2 py-1 text-xs font-medium text-purple-700 bg-purple-100 hover:bg-purple-200 rounded-md transition-colors"
+                              title="Share access link"
+                            >
+                              <Share2 className="h-3 w-3 mr-1" />
+                              Share
+                            </button>
+                          </div>
                         </div>
                       </div>
                     );

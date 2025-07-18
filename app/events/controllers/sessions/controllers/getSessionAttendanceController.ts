@@ -6,25 +6,28 @@ interface GetSessionAttendanceParams {
   sessionId: string;
   enabled?: boolean;
   page?: number;
-  limit?: number;
+  pageSize?: number;
 }
 
-const useGetSessionAttendanceManager = ({ 
-  sessionId, 
-  enabled = true, 
-  page = 1, 
-  limit = 10 
+const useGetSessionAttendanceManager = ({
+  sessionId,
+  enabled = true,
+  page = 1,
+  pageSize = 10,
 }: GetSessionAttendanceParams) => {
   return useQuery<SessionAttendanceResponse>({
-    queryKey: ["session-attendance", sessionId, page, limit],
+    queryKey: ["session-attendance", sessionId, page, pageSize],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`/sessions/${sessionId}/attendance`, {
-          params: {
-            page,
-            limit,
-          },
-        });
+        const response = await AxiosWithToken.get(
+          `/sessions/${sessionId}/attendance`,
+          {
+            params: {
+              page,
+              pageSize,
+            },
+          }
+        );
         return response.data;
       } catch (error: any) {
         throw new Error("Sorry: " + error.response?.data?.message);

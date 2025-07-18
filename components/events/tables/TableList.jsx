@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Trash2, Copy, Edit2 } from "lucide-react";
 import useGetAllTablesManager from "@/app/events/controllers/tables/getAllTablesController";
-import { getQueryParams } from "@/utils/getQueryParams";
 import Loader from "@/components/Loader";
 import CompletePagination from "@/components/CompletePagination";
 import { AddTableManager } from "@/app/events/controllers/tables/addTableController";
@@ -13,7 +12,6 @@ import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 import { DeleteTableManager } from "@/app/events/controllers/tables/deleteTableController";
 
 const TableList = ({ isLoading, data, setCurrentPage, eventId }) => {
-  const { id } = getQueryParams(["id"]);
   const { manageAssignment, isLoading: unassigning } =
     AssignUnassignGuestsManager({ isAdd: false });
 
@@ -30,7 +28,7 @@ const TableList = ({ isLoading, data, setCurrentPage, eventId }) => {
 
   useEffect(() => {
     if (deleted) {
-      document.getElementById("delete").closest();
+      document.getElementById("delete").close();
     }
   }, [deleted]);
 
@@ -76,7 +74,7 @@ const TableList = ({ isLoading, data, setCurrentPage, eventId }) => {
 
     const duplicatedTable = {
       ...table,
-      event: id,
+      event: eventId,
       name: newTableName,
       no_of_seats: table?.no_of_seats,
     };

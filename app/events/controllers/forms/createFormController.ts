@@ -17,10 +17,7 @@ export const CreateFormManager = () => {
 
   const createForm = async (formData: any) => {
     try {
-      const payload: CreateFormPayload = {
-        data: formData,
-      };
-      await postCaller(payload);
+      await postCaller(formData);
     } catch (error) {
       console.error("Error creating form:", error);
     }

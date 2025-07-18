@@ -20,15 +20,21 @@ import useGetSearchForTablesAndGuestsManager from "@/app/events/controllers/tabl
 import useGetAccessCodeDetailsManager from "@/app/events/controllers/members/getAccessCodeInformationController";
 import useGetAllSessionsManager from "@/app/events/controllers/sessions/controllers/getAllSessionsController";
 import SessionAttendanceManager from "@/app/events/controllers/sessions/controllers/sessionAttendanceController";
+import useGetSessionRegistrationsManager from "@/app/events/controllers/sessions/controllers/getSessionRegistrationsController";
 import QRCodeScanner from "@/components/events/publicComponents/QRCodeScanner";
 import CompletePagination from "@/components/CompletePagination";
 import PublicGuestDetailsModal from "@/components/events/publicComponents/PublicGuestDetailsModal";
 import { logoMain, logoMain1 } from "@/public/images";
 import { toast } from "react-toastify";
 
-const AttendanceMarking = () => {
+interface AttendanceMarkingProps {
+  params: Promise<{ eventId: string }>;
+}
+
+const AttendanceMarking: React.FC<AttendanceMarkingProps> = ({ params }) => {
+  const { eventId } = React.use(params);
   const searchParams = useSearchParams();
-  const accessCode = searchParams.get("c");
+  const accessCode = searchParams.get("accessCode") || searchParams.get("c");
 
   // Check if accessCode is not found
   if (!accessCode) {
@@ -65,27 +71,51 @@ const AttendanceMarking = () => {
   const [showGuestDetails, setShowGuestDetails] = useState(false);
 
   // Attendance marking hooks
-  const { markAttendance, isLoading: markingEventAttendance } = MarkAttendanceManager();
+  const { markAttendance, isLoading: markingEventAttendance } =
+    MarkAttendanceManager(accessCode);
   const [currentSessionId, setCurrentSessionId] = useState(null);
-  const sessionAttendanceManager = SessionAttendanceManager(currentSessionId);
+  const {
+    markAttendance: markSessionAttendance,
+    isLoading: markingSessionAttendance,
+  } = SessionAttendanceManager(currentSessionId || "", accessCode);
 
   // Get sessions from backend
-  const { data: sessionsData, isLoading: loadingSessions } = useGetAllSessionsManager({
-    eventId: event?.id || event?._id,
-    enabled: Boolean(event?.id || event?._id),
-  });
+  const { data: sessionsData, isLoading: loadingSessions } =
+    useGetAllSessionsManager({
+      eventId: event?.id || event?._id,
+      enabled: Boolean(event?.id || event?._id),
+      code: accessCode,
+    });
 
   const availableSessions = sessionsData?.data || [];
-  const sessionsRequiringAttendance = availableSessions.filter(s => s.is_attendance_required);
+  const sessionsRequiringAttendance = availableSessions.filter(
+    (s) => s.is_attendance_required
+  );
 
-  // Get guests list
+  // Get guests list (for event attendance)
   const { data: guestsData, isLoading: loadingGuests } =
     useGetEventInviteesManager({
       eventId: event?.id || event?._id,
       page: currentPage,
       code: accessCode,
-      enabled: Boolean(event?.id || event?._id),
+      enabled: Boolean(event?.id || event?._id) && attendanceType === "event",
     });
+
+  // Get session registrations (for session attendance)
+  const {
+    data: sessionRegistrationsData,
+    isLoading: loadingSessionRegistrations,
+  } = useGetSessionRegistrationsManager({
+    sessionId:
+      selectedSession && selectedSession !== "event" ? selectedSession : "",
+    enabled: Boolean(
+      selectedSession &&
+        selectedSession !== "event" &&
+        attendanceType === "session"
+    ),
+    page: currentPage,
+    code: accessCode,
+  });
 
   // Search functionality
   const { data: searchResult, isLoading: loadingSearch } =
@@ -150,30 +180,35 @@ const AttendanceMarking = () => {
     }
 
     try {
-      if (attendanceType === "session" && selectedSession && selectedSession !== "event") {
+      if (
+        attendanceType === "session" &&
+        selectedSession &&
+        selectedSession !== "event"
+      ) {
         // Mark session attendance
         setCurrentSessionId(selectedSession);
-        
+
         const sessionData = {
           invitee_code: guest.code,
           marking_method: "manual",
         };
 
-        await sessionAttendanceManager.markAttendance(sessionData);
-        
+        await markSessionAttendance(sessionData);
+
         setSuccessMessage({
           type: "success",
-          text: `Guest ${guest.name} marked as attended for ${getSessionName(selectedSession)}.`,
+          text: `Guest ${guest.name} marked as attended for ${getSessionName(
+            selectedSession
+          )}.`,
         });
       } else {
         // Mark event attendance
         const attendanceData = {
           inviteeId: guest.id || guest._id,
-          code: accessCode,
         };
 
         await markAttendance(attendanceData);
-        
+
         setSuccessMessage({
           type: "success",
           text: `Guest ${guest.name} marked as attended for the event.`,
@@ -228,16 +263,22 @@ const AttendanceMarking = () => {
     );
   }
 
+  // Determine which data source to use based on attendance type
+  const currentData =
+    attendanceType === "session" ? sessionRegistrationsData : guestsData;
+  const currentLoading =
+    attendanceType === "session" ? loadingSessionRegistrations : loadingGuests;
+
   const filteredGuests =
     debouncedQuery && searchResult?.data?.guests
       ? searchResult.data.guests
-      : guestsData?.data || [];
-  const totalGuests = guestsData?.pagination?.total || 0;
+      : currentData?.data || [];
+  const totalGuests = currentData?.pagination?.total || 0;
   const attendedGuests =
-    guestsData?.data?.filter((g) => g.attended).length || 0;
+    currentData?.data?.filter((g) => g.attended).length || 0;
 
   const currentSession = getCurrentSession();
-  const markingAttendance = markingEventAttendance || sessionAttendanceManager.isLoading;
+  const markingAttendance = markingEventAttendance || markingSessionAttendance;
 
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -311,8 +352,9 @@ const AttendanceMarking = () => {
                 )}
                 {sessionsRequiringAttendance.map((session) => (
                   <option key={session._id} value={session._id}>
-                    {session.name} - {new Date(session.date).toLocaleDateString()}{" "}
-                    at {session.start_time}
+                    {session.name} -{" "}
+                    {new Date(session.date).toLocaleDateString()} at{" "}
+                    {session.start_time}
                     {session.end_time && ` - ${session.end_time}`}
                   </option>
                 ))}
@@ -333,7 +375,8 @@ const AttendanceMarking = () => {
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
                           {currentSession.start_time}
-                          {currentSession.end_time && ` - ${currentSession.end_time}`}
+                          {currentSession.end_time &&
+                            ` - ${currentSession.end_time}`}
                         </div>
                         {currentSession.location && (
                           <div className="flex items-center gap-1">
@@ -369,7 +412,9 @@ const AttendanceMarking = () => {
             <Users className="h-6 w-6 text-blue-600" />
           </div>
           <div className="ml-4">
-            <p className="text-sm text-gray-500">Total Guests</p>
+            <p className="text-sm text-gray-500">
+              Total {attendanceType === "session" ? "Registrations" : "Guests"}
+            </p>
             <p className="text-xl font-semibold">{totalGuests}</p>
           </div>
         </div>
@@ -457,17 +502,23 @@ const AttendanceMarking = () => {
         <div className="px-6 py-4 bg-gray-50 border-b">
           <h2 className="text-lg font-medium">
             Attendance List
-            {attendanceType === "session" && currentSession && ` - ${currentSession.name}`}
+            {attendanceType === "session" &&
+              currentSession &&
+              ` - ${currentSession.name}`}
           </h2>
         </div>
-        {loadingGuests || loadingSearch ? (
+        {currentLoading || loadingSearch ? (
           <div className="p-6 text-center">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-purple-600 border-r-transparent"></div>
-            <p className="mt-2 text-gray-600">Loading guests...</p>
+            <p className="mt-2 text-gray-600">
+              Loading{" "}
+              {attendanceType === "session" ? "registrations" : "guests"}...
+            </p>
           </div>
         ) : filteredGuests.length === 0 ? (
           <div className="p-6 text-center text-gray-500 italic">
-            No guests found matching your search.
+            No {attendanceType === "session" ? "registrations" : "guests"} found
+            matching your search.
           </div>
         ) : (
           <ul className="divide-y divide-gray-200">
@@ -538,8 +589,8 @@ const AttendanceMarking = () => {
                         </>
                       ) : (
                         `Mark Present${
-                          attendanceType === "session" && currentSession 
-                            ? ` (${currentSession.name})` 
+                          attendanceType === "session" && currentSession
+                            ? ` (${currentSession.name})`
                             : " (Event)"
                         }`
                       )}
@@ -564,11 +615,11 @@ const AttendanceMarking = () => {
       )}
 
       {/* Pagination */}
-      {guestsData?.data?.length > 0 && guestsData?.pagination && (
+      {currentData?.data?.length > 0 && currentData?.pagination && (
         <CompletePagination
           setCurrentPage={setCurrentPage}
-          pagination={guestsData?.pagination}
-          suffix="Guests"
+          pagination={currentData?.pagination}
+          suffix={attendanceType === "session" ? "Registrations" : "Guests"}
         />
       )}
     </div>

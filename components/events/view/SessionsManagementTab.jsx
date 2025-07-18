@@ -36,6 +36,7 @@ import DeleteSessionManager from "@/app/events/controllers/sessions/controllers/
 import SessionAttendanceManager from "@/app/events/controllers/sessions/controllers/sessionAttendanceController";
 import useGetSessionRegistrationsManager from "@/app/events/controllers/sessions/controllers/getSessionRegistrationsController";
 import useGetSessionAttendanceManager from "@/app/events/controllers/sessions/controllers/getSessionAttendanceController";
+import GetEventFormsManager from "@/app/events/controllers/forms/getEventFormsController";
 
 const SessionsManagementTab = ({ event }) => {
   const [showModal, setShowModal] = useState(false);
@@ -46,6 +47,12 @@ const SessionsManagementTab = ({ event }) => {
 
   // Session controllers
   const { data: sessionsData, isLoading: loadingSessions, refetch: refetchSessions } = useGetAllSessionsManager({
+    eventId: event?.id,
+    enabled: Boolean(event?.id)
+  });
+
+  // Forms controller
+  const { data: formsData, isLoading: loadingForms } = GetEventFormsManager({
     eventId: event?.id,
     enabled: Boolean(event?.id)
   });
@@ -82,7 +89,8 @@ const SessionsManagementTab = ({ event }) => {
     is_public: true,
     session_type: "main_event",
     speakers: [""],
-    requirements: [""]
+    requirements: [""],
+    forms: []
   });
 
   const sessionTypes = [
@@ -134,7 +142,8 @@ const SessionsManagementTab = ({ event }) => {
         is_public: session.is_public !== undefined ? session.is_public : true,
         session_type: session.session_type || "main_event",
         speakers: session.speakers?.length > 0 ? session.speakers : [""],
-        requirements: session.requirements?.length > 0 ? session.requirements : [""]
+        requirements: session.requirements?.length > 0 ? session.requirements : [""],
+        forms: session.forms || []
       });
     } else {
       setFormData({
@@ -150,7 +159,8 @@ const SessionsManagementTab = ({ event }) => {
         is_public: true,
         session_type: "main_event",
         speakers: [""],
-        requirements: [""]
+        requirements: [""],
+        forms: []
       });
     }
     
@@ -233,7 +243,8 @@ const SessionsManagementTab = ({ event }) => {
         is_public: formData.is_public,
         session_type: formData.session_type,
         speakers: formData.speakers.filter(s => s.trim()),
-        requirements: formData.requirements.filter(r => r.trim())
+        requirements: formData.requirements.filter(r => r.trim()),
+        forms: formData.forms
       };
 
       if (editingSession) {
@@ -978,6 +989,49 @@ const SessionsManagementTab = ({ event }) => {
                     <span className="text-sm font-medium text-gray-700">Public Session</span>
                   </label>
                 </div>
+
+                {/* Forms Selection - Only show when attendance is required */}
+                {formData.is_attendance_required && (
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Required Forms for Registration
+                    </label>
+                    <div className="space-y-2 max-h-32 overflow-y-auto border border-gray-200 rounded-md p-3">
+                      {loadingForms ? (
+                        <div className="text-sm text-gray-500">Loading forms...</div>
+                      ) : formsData?.data?.length === 0 ? (
+                        <div className="text-sm text-gray-500 italic">No forms found for this event</div>
+                      ) : (
+                        <>
+                          {/* Filter out forms that are marked as required (those are for event registration only) */}
+                          {(formsData?.data || [])
+                            .filter(form => !form.is_required)
+                            .map((form) => (
+                              <label key={form._id} className="flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={formData.forms.includes(form._id)}
+                                  onChange={(e) => {
+                                    const newForms = e.target.checked
+                                      ? [...formData.forms, form._id]
+                                      : formData.forms.filter(id => id !== form._id);
+                                    handleInputChange("forms", newForms);
+                                  }}
+                                  className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                                />
+                                <span className="text-sm text-gray-700">{form.description}</span>
+                              </label>
+                            ))}
+                          {(formsData?.data || []).filter(form => !form.is_required).length === 0 && (
+                            <div className="text-sm text-gray-500 italic">
+                              No available forms for session registration. All forms are marked as required for event registration.
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex gap-3 pt-4">
                   <CustomButton
