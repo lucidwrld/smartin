@@ -20,6 +20,8 @@ import GoBackButton from "@/components/GoBackButton";
 
 import useGetUserDetailsManager from "@/app/profile-settings/controllers/get_UserDetails_controller";
 import usePayForEventManager from "../controllers/payForEventController";
+import useGetUserSubscriptionsManager from "@/components/subscriptions/controllers/getUserSubscriptionsController";
+import useGetAllEventsManager from "../controllers/getAllEventsController";
 
 const EventPage = () => {
   const { id, section } = getQueryParams(["id", "section"]);
@@ -36,6 +38,32 @@ const EventPage = () => {
 
   const { data: userDetails } = useGetUserDetailsManager();
   const currency = userDetails?.data?.user?.currency || "USD";
+  
+  // Subscription checks
+  const { data: userSubscriptions } = useGetUserSubscriptionsManager({});
+  const { data: userEventsResponse } = useGetAllEventsManager({ 
+    page: 1, 
+    pageSize: 100, 
+    enabled: !isEditMode // Only fetch for new events
+  });
+  
+  const currentSubscription = userSubscriptions?.subscriptions?.find(sub => sub.status === 'active');
+  const userEvents = userEventsResponse?.data?.events || [];
+  const eventCount = userEvents.length;
+  
+  // Check if user can create events based on subscription
+  const canCreateEvent = isEditMode || checkEventCreationLimits();
+  
+  function checkEventCreationLimits() {
+    // If user has active subscription, they can create unlimited events
+    if (currentSubscription) {
+      return true;
+    }
+    
+    // Free users can create up to 3 events
+    const FREE_EVENT_LIMIT = 3;
+    return eventCount < FREE_EVENT_LIMIT;
+  }
 
   // Custom hooks
   const {
@@ -90,24 +118,25 @@ const EventPage = () => {
     // From InvitationSettingsStep
     host: "",
     verification_type: "",
-    event_notifications: {
+    event_invitation: {
       email: false,
       sms: false,
       whatsapp: false,
       voice: false,
     },
-    reminder_notifications: {
+    reminder_notification: {
       email: false,
       sms: false,
       whatsapp: false,
       voice: false,
     },
-    thank_you_notifications: {
+    thankyou_notification: {
       email: false,
       sms: false,
       whatsapp: false,
       voice: false,
     },
+    voice_recording: "",
     enable_auto_reminder: false,
     enable_auto_thank_you: false,
 
@@ -135,6 +164,18 @@ const EventPage = () => {
     gallery: [],
     speakers: [],
     resources: [],
+    
+    // Auto settings structure for backend
+    auto_settings: {
+      auto_reminder: {
+        active: false,
+        recording: ""
+      },
+      auto_thankyou: {
+        active: false,
+        recording: ""
+      }
+    },
   });
 
   // UI-only state (not sent to backend)
@@ -185,27 +226,31 @@ const EventPage = () => {
         ...formData,
         ...event?.data,
         // Ensure notification objects have proper structure
-        event_notifications: event?.data?.event_notifications || {
+        event_invitation: event?.data?.event_invitation || {
           email: false,
           sms: false,
           whatsapp: false,
           voice: false,
         },
-        reminder_notifications: event?.data?.reminder_notifications || {
+        reminder_notification: event?.data?.reminder_notification || {
           email: false,
           sms: false,
           whatsapp: false,
           voice: false,
         },
-        thank_you_notifications: event?.data?.thank_you_notifications || {
+        thankyou_notification: event?.data?.thankyou_notification || {
           email: false,
           sms: false,
           whatsapp: false,
           voice: false,
         },
+        voice_recording: event?.data?.voice_recording || "",
         // Ensure other fields have defaults
         colors: event?.data?.colors || ["#6366f1", "#8b5cf6"],
         payment_mode: event?.data?.payment_mode || "pay_per_event",
+        // Sync auto settings from backend to UI toggles
+        enable_auto_reminder: event?.data?.auto_settings?.auto_reminder?.active || false,
+        enable_auto_thank_you: event?.data?.auto_settings?.auto_thankyou?.active || false,
       });
 
       // Initialize UI state from event data
@@ -305,29 +350,53 @@ const EventPage = () => {
         payment_type: value,
         pay_later: value === "later" || value === "bank",
       }));
-    } else if (field.startsWith("event_notifications.")) {
+    } else if (field.startsWith("event_invitation.")) {
       const channel = field.split(".")[1];
       setFormData((prev) => ({
         ...prev,
-        event_notifications: { ...prev.event_notifications, [channel]: value },
+        event_invitation: { ...prev.event_invitation, [channel]: value },
       }));
-    } else if (field.startsWith("reminder_notifications.")) {
+    } else if (field.startsWith("reminder_notification.")) {
       const channel = field.split(".")[1];
       setFormData((prev) => ({
         ...prev,
-        reminder_notifications: {
-          ...prev.reminder_notifications,
+        reminder_notification: {
+          ...prev.reminder_notification,
           [channel]: value,
         },
       }));
-    } else if (field.startsWith("thank_you_notifications.")) {
+    } else if (field.startsWith("thankyou_notification.")) {
       const channel = field.split(".")[1];
       setFormData((prev) => ({
         ...prev,
-        thank_you_notifications: {
-          ...prev.thank_you_notifications,
+        thankyou_notification: {
+          ...prev.thankyou_notification,
           [channel]: value,
         },
+      }));
+    } else if (field === "enable_auto_reminder") {
+      setFormData((prev) => ({
+        ...prev,
+        enable_auto_reminder: value,
+        auto_settings: {
+          ...prev.auto_settings,
+          auto_reminder: {
+            ...prev.auto_settings.auto_reminder,
+            active: value
+          }
+        }
+      }));
+    } else if (field === "enable_auto_thank_you") {
+      setFormData((prev) => ({
+        ...prev,
+        enable_auto_thank_you: value,
+        auto_settings: {
+          ...prev.auto_settings,
+          auto_thankyou: {
+            ...prev.auto_settings.auto_thankyou,
+            active: value
+          }
+        }
       }));
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
@@ -397,6 +466,7 @@ const EventPage = () => {
           uiState={uiState}
           onFormDataChange={handleFormDataChange}
           isEditMode={isEditMode}
+          currentSubscription={currentSubscription}
         />
       ),
     },
@@ -410,6 +480,7 @@ const EventPage = () => {
           uiState={uiState}
           onFormDataChange={handleFormDataChange}
           currency={currency}
+          currentSubscription={currentSubscription}
         />
       ),
     },
@@ -503,6 +574,12 @@ const EventPage = () => {
     if (formData.banner_image && typeof formData.banner_image === "object") {
       const bannerUrl = await handleFileUpload(formData.banner_image);
       updatedData.banner_image = bannerUrl;
+    }
+
+    // Handle voice recording upload
+    if (formData.voice_recording && typeof formData.voice_recording === "object") {
+      const voiceUrl = await handleFileUpload(formData.voice_recording);
+      updatedData.voice_recording = voiceUrl;
     }
 
     // Handle gallery uploads (existing logic)
@@ -617,6 +694,36 @@ const EventPage = () => {
     );
   }
 
+  // Show subscription limit warning for free users
+  if (!isEditMode && !canCreateEvent) {
+    return (
+      <BaseDashboardNavigation title="Create Event">
+        <div className="max-w-2xl mx-auto text-center py-12">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-8 mb-6">
+            <h2 className="text-2xl font-bold text-amber-800 mb-4">Event Limit Reached</h2>
+            <p className="text-amber-700 mb-6">
+              You've reached the free plan limit of 3 events. Subscribe to create unlimited events and unlock premium features.
+            </p>
+            <div className="space-y-3">
+              <button
+                onClick={() => router.push('/subscriptions')}
+                className="w-full bg-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700 transition-colors"
+              >
+                View Subscription Plans
+              </button>
+              <button
+                onClick={() => router.push('/events')}
+                className="w-full bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+              >
+                Back to Events
+              </button>
+            </div>
+          </div>
+        </div>
+      </BaseDashboardNavigation>
+    );
+  }
+
   const isSubmitting = creating || updating || uploadingFile;
 
   return (
@@ -630,6 +737,29 @@ const EventPage = () => {
         )}
 
       <div className="w-full max-w-7xl mx-auto px-4">
+        {/* Subscription Warning for Free Users */}
+        {!isEditMode && !currentSubscription && eventCount >= 2 && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-medium text-amber-800">
+                  {eventCount === 2 ? "1 Event Remaining" : "Free Plan Limit"}
+                </h3>
+                <p className="text-sm text-amber-700">
+                  You have {3 - eventCount} event{3 - eventCount !== 1 ? 's' : ''} left on the free plan. 
+                  Upgrade to create unlimited events.
+                </p>
+              </div>
+              <button
+                onClick={() => router.push('/subscriptions')}
+                className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-purple-700 transition-colors"
+              >
+                Upgrade
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="w-full space-y-6 text-brandBlack">
           {!section && (
             <StepProgress

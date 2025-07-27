@@ -1,4 +1,4 @@
-"use client";
+t"use client";
 
 import React, { useState } from "react";
 import { Check, Crown, Star, Zap } from "lucide-react";

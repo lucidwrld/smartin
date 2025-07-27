@@ -6,6 +6,7 @@ import {
   HelpCircleIcon,
   Settings,
   Users2,
+  CreditCard,
 } from "lucide-react";
 import React from "react";
 
@@ -34,6 +35,12 @@ export const mainMenu: MenuItemType[] = [
     inactive: transactions,
     title: "Transactions",
     url: "/transactions",
+  },
+  {
+    active: <CreditCard />,
+    inactive: <CreditCard />,
+    title: "Subscriptions",
+    url: "/subscriptions",
   },
   {
     active: <BellRing />,
@@ -87,6 +94,12 @@ export const adminMenu: MenuItemType[] = [
   //   inactive: transactions,
   // },
   {
+    title: "Subscriptions",
+    url: "/admin/subscriptions",
+    active: <CreditCard />,
+    inactive: <CreditCard />,
+  },
+  {
     title: "Notifications",
     url: "/admin/notifications",
     active: <BellRing />,
@@ -103,6 +116,5 @@ export const adminMenu: MenuItemType[] = [
     url: "",
     active: logout,
     inactive: logout,
-    text: "Log Out",
   },
 ];

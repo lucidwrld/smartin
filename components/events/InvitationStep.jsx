@@ -1,5 +1,7 @@
 import InputWithFullBoarder from "../InputWithFullBoarder";
 import VoiceRecorder from "../VoiceRecorder";
+import { useGetCreditPricingManager } from "@/app/events/controllers/creditManagement/getCreditPricingController";
+import useGetUserDetailsManager from "@/app/profile-settings/controllers/get_UserDetails_controller";
 import {
   KeySquare,
   Scan,
@@ -125,51 +127,64 @@ const verificationOptions = [
   },
 ];
 
-// Mock invitation pricing data
-const invitationMethods = [
-  {
-    id: "email",
+// Channel configuration with icons and descriptions
+const channelConfig = {
+  email: {
     icon: Mail,
     title: "Email",
     description: "Send beautiful email invitations",
-    priceNGN: 25,
-    priceUSD: 0.05,
   },
-  {
-    id: "sms",
+  sms: {
     icon: MessageSquare,
     title: "SMS",
     description: "Send text message invitations",
-    priceNGN: 45,
-    priceUSD: 0.08,
   },
-  {
-    id: "whatsapp",
+  whatsapp: {
     icon: Phone,
     title: "WhatsApp",
     description: "Send via WhatsApp with rich media",
-    priceNGN: 35,
-    priceUSD: 0.06,
   },
-  {
-    id: "voice",
+  voice: {
     icon: Volume2,
     title: "Voice Call",
     description: "Automated voice call invitations",
-    priceNGN: 150,
-    priceUSD: 0.25,
   },
-];
+};
 
-// Notification pricing (50% of invitation cost for reminders, 75% for thank you)
-const REMINDER_MULTIPLIER = 0.5;
-const THANK_YOU_MULTIPLIER = 0.75;
 
-export const InvitationSettingsStep = ({ formData, uiState, onFormDataChange, isEditMode }) => {
-  const currency = formData.currency || "USD";
+export const InvitationSettingsStep = ({ formData, uiState, onFormDataChange, isEditMode, currentSubscription }) => {
+  // Get user details for currency
+  const { data: userDetails } = useGetUserDetailsManager();
+  const currency = userDetails?.data?.user?.currency || "USD";
   const enableInvitations = uiState.enable_invitations || false;
   const enableReminders = uiState.enable_reminders || false;
   const enableThankYou = uiState.enable_thank_you || false;
+  const hasActiveSubscription = Boolean(currentSubscription);
+  
+  // Fetch real pricing data
+  const { data: pricingData, isLoading: pricingLoading } = useGetCreditPricingManager();
+  
+  // Get pricing for a channel and type
+  const getChannelPrice = (channel, type) => {
+    if (!pricingData?.data) return 0;
+    
+    // Build the field name based on type, channel, and currency
+    const currencyKey = currency === 'NGN' ? 'naira' : 'usd';
+    const fieldName = `${type}_${channel}_price_${currencyKey}`;
+    
+    return pricingData.data[fieldName] || 0;
+  };
+  
+  // Show loading state
+  if (pricingLoading) {
+    return (
+      <div className="space-y-8 w-full max-w-4xl">
+        <div className="text-center py-8">
+          <div className="text-gray-500">Loading pricing information...</div>
+        </div>
+      </div>
+    );
+  }
 
   const handleInputChange = (field, value) => {
     onFormDataChange(field, value);
@@ -179,18 +194,18 @@ export const InvitationSettingsStep = ({ formData, uiState, onFormDataChange, is
     handleInputChange("enable_invitations", enabled);
     if (!enabled) {
       // Reset all notification channels when disabled
-      handleInputChange("event_notifications.email", false);
-      handleInputChange("event_notifications.sms", false);
-      handleInputChange("event_notifications.whatsapp", false);
-      handleInputChange("event_notifications.voice", false);
-      handleInputChange("reminder_notifications.email", false);
-      handleInputChange("reminder_notifications.sms", false);
-      handleInputChange("reminder_notifications.whatsapp", false);
-      handleInputChange("reminder_notifications.voice", false);
-      handleInputChange("thank_you_notifications.email", false);
-      handleInputChange("thank_you_notifications.sms", false);
-      handleInputChange("thank_you_notifications.whatsapp", false);
-      handleInputChange("thank_you_notifications.voice", false);
+      handleInputChange("event_invitation.email", false);
+      handleInputChange("event_invitation.sms", false);
+      handleInputChange("event_invitation.whatsapp", false);
+      handleInputChange("event_invitation.voice", false);
+      handleInputChange("reminder_notification.email", false);
+      handleInputChange("reminder_notification.sms", false);
+      handleInputChange("reminder_notification.whatsapp", false);
+      handleInputChange("reminder_notification.voice", false);
+      handleInputChange("thankyou_notification.email", false);
+      handleInputChange("thankyou_notification.sms", false);
+      handleInputChange("thankyou_notification.whatsapp", false);
+      handleInputChange("thankyou_notification.voice", false);
       handleInputChange("enable_reminders", false);
       handleInputChange("enable_thank_you", false);
       handleInputChange("enable_auto_reminder", false);
@@ -199,8 +214,8 @@ export const InvitationSettingsStep = ({ formData, uiState, onFormDataChange, is
   };
 
   const handleInvitationChannelToggle = (channel) => {
-    const currentValue = formData.event_notifications[channel];
-    handleInputChange(`event_notifications.${channel}`, !currentValue);
+    const currentValue = formData.event_invitation[channel];
+    handleInputChange(`event_invitation.${channel}`, !currentValue);
   };
 
   const handleReminderToggle = (enabled) => {
@@ -209,10 +224,10 @@ export const InvitationSettingsStep = ({ formData, uiState, onFormDataChange, is
     
     if (!enabled) {
       // Clear all reminder channels when disabled
-      handleInputChange("reminder_notifications.email", false);
-      handleInputChange("reminder_notifications.sms", false);
-      handleInputChange("reminder_notifications.whatsapp", false);
-      handleInputChange("reminder_notifications.voice", false);
+      handleInputChange("reminder_notification.email", false);
+      handleInputChange("reminder_notification.sms", false);
+      handleInputChange("reminder_notification.whatsapp", false);
+      handleInputChange("reminder_notification.voice", false);
     }
   };
 
@@ -222,49 +237,55 @@ export const InvitationSettingsStep = ({ formData, uiState, onFormDataChange, is
     
     if (!enabled) {
       // Clear all thank you channels when disabled
-      handleInputChange("thank_you_notifications.email", false);
-      handleInputChange("thank_you_notifications.sms", false);
-      handleInputChange("thank_you_notifications.whatsapp", false);
-      handleInputChange("thank_you_notifications.voice", false);
+      handleInputChange("thankyou_notification.email", false);
+      handleInputChange("thankyou_notification.sms", false);
+      handleInputChange("thankyou_notification.whatsapp", false);
+      handleInputChange("thankyou_notification.voice", false);
     }
   };
 
-  const calculateChannelCost = (channel, multiplier = 1) => {
-    const method = invitationMethods.find(m => m.id === channel);
-    if (!method) return 0;
-    
+  const calculateInvitationCost = (channel) => {
     const guestCount = parseInt(formData.no_of_invitees) || 0;
-    const price = currency === "NGN" ? method.priceNGN : method.priceUSD;
-    return price * guestCount * multiplier;
+    const price = getChannelPrice(channel, 'invitation');
+    return price * guestCount;
+  };
+
+  const calculateNotificationCost = (channel) => {
+    const guestCount = parseInt(formData.no_of_invitees) || 0;
+    const price = getChannelPrice(channel, 'notification');
+    return price * guestCount;
   };
 
   const calculateTotalCost = () => {
+    // If user has active subscription, notifications are included
+    if (hasActiveSubscription) return 0;
+    
     let total = 0;
     const guestCount = parseInt(formData.no_of_invitees) || 0;
     
     if (!enableInvitations || guestCount === 0) return 0;
     
     // Calculate invitation costs
-    Object.keys(formData.event_notifications).forEach(channel => {
-      if (formData.event_notifications[channel]) {
-        total += calculateChannelCost(channel);
+    Object.keys(formData.event_invitation || {}).forEach(channel => {
+      if (formData.event_invitation[channel]) {
+        total += calculateInvitationCost(channel);
       }
     });
     
-    // Calculate reminder costs (50% of base cost)
+    // Calculate reminder costs using notification pricing
     if (enableReminders) {
-      Object.keys(formData.reminder_notifications).forEach(channel => {
-        if (formData.reminder_notifications[channel]) {
-          total += calculateChannelCost(channel, REMINDER_MULTIPLIER);
+      Object.keys(formData.reminder_notification || {}).forEach(channel => {
+        if (formData.reminder_notification[channel]) {
+          total += calculateNotificationCost(channel);
         }
       });
     }
     
-    // Calculate thank you costs (75% of base cost)
+    // Calculate thank you costs using notification pricing
     if (enableThankYou) {
-      Object.keys(formData.thank_you_notifications).forEach(channel => {
-        if (formData.thank_you_notifications[channel]) {
-          total += calculateChannelCost(channel, THANK_YOU_MULTIPLIER);
+      Object.keys(formData.thankyou_notification || {}).forEach(channel => {
+        if (formData.thankyou_notification[channel]) {
+          total += calculateNotificationCost(channel);
         }
       });
     }
@@ -272,7 +293,7 @@ export const InvitationSettingsStep = ({ formData, uiState, onFormDataChange, is
     return total;
   };
 
-  const hasSelectedChannels = Object.values(formData.event_notifications).some(v => v);
+  const hasSelectedChannels = Object.values(formData.event_invitation || {}).some(v => v);
 
   return (
     <div className="space-y-8 w-full max-w-4xl">
@@ -361,18 +382,16 @@ export const InvitationSettingsStep = ({ formData, uiState, onFormDataChange, is
                 Select channels for sending invitations to {formData.no_of_invitees || 0} guests
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {invitationMethods.map((method) => (
+                {Object.entries(channelConfig).map(([channelId, config]) => (
                   <InvitationMethodOption
-                    key={method.id}
-                    icon={method.icon}
-                    title={method.title}
-                    description={method.description}
-                    price={
-                      currency === "NGN" ? method.priceNGN : method.priceUSD
-                    }
+                    key={channelId}
+                    icon={config.icon}
+                    title={config.title}
+                    description={config.description}
+                    price={getChannelPrice(channelId, 'invitation')}
                     currency={currency}
-                    selected={formData.event_notifications[method.id]}
-                    onClick={() => handleInvitationChannelToggle(method.id)}
+                    selected={formData.event_invitation[channelId]}
+                    onClick={() => handleInvitationChannelToggle(channelId)}
                   />
                 ))}
               </div>
@@ -381,6 +400,19 @@ export const InvitationSettingsStep = ({ formData, uiState, onFormDataChange, is
                 <p className="text-amber-600 text-sm mt-4">
                   Please select at least one invitation channel.
                 </p>
+              )}
+              
+              {/* Voice Recording for Event Invitations */}
+              {formData.event_invitation?.voice && (
+                <div className="mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                  <h4 className="font-medium text-gray-900 mb-3">Record Event Invitation Voice Message</h4>
+                  <VoiceRecorder
+                    onRecordingComplete={(audioBlob) => {
+                      handleInputChange("voice_recording", audioBlob);
+                    }}
+                    existingRecording={formData.voice_recording}
+                  />
+                </div>
               )}
             </div>
 
@@ -426,27 +458,40 @@ export const InvitationSettingsStep = ({ formData, uiState, onFormDataChange, is
                 {enableReminders && (
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <p className="text-sm text-gray-600 mb-2">
-                      Select reminder channels (50% of invitation cost):
+                      Select reminder channels:
                     </p>
                     <div className="grid grid-cols-2 gap-2">
-                      {invitationMethods.map(method => {
+                      {Object.entries(channelConfig).map(([channelId, config]) => {
                         return (
-                          <label key={method.id} className="flex items-center gap-2 text-sm">
+                          <label key={channelId} className="flex items-center gap-2 text-sm">
                             <input
                               type="checkbox"
-                              checked={formData.reminder_notifications[method.id]}
-                              onChange={(e) => handleInputChange(`reminder_notifications.${method.id}`, e.target.checked)}
+                              checked={formData.reminder_notification[channelId]}
+                              onChange={(e) => handleInputChange(`reminder_notification.${channelId}`, e.target.checked)}
                               className="rounded text-brandPurple"
                             />
-                            <span>{method.title}</span>
+                            <span>{config.title}</span>
                             <span className="text-gray-500">
                               ({currency === "NGN" ? "₦" : "$"}
-                              {calculateChannelCost(method.id, REMINDER_MULTIPLIER).toFixed(2)})
+                              {calculateNotificationCost(channelId).toFixed(2)})
                             </span>
                           </label>
                         );
                       })}
                     </div>
+                    
+                    {/* Voice Recording for Reminders */}
+                    {formData.reminder_notification?.voice && (
+                      <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <h5 className="font-medium text-gray-900 mb-3">Record Reminder Voice Message</h5>
+                        <VoiceRecorder
+                          onRecordingComplete={(audioBlob) => {
+                            handleInputChange("voice_recording", audioBlob);
+                          }}
+                          existingRecording={formData.voice_recording}
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -487,27 +532,40 @@ export const InvitationSettingsStep = ({ formData, uiState, onFormDataChange, is
                 {enableThankYou && (
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <p className="text-sm text-gray-600 mb-2">
-                      Select thank you channels (75% of invitation cost):
+                      Select thank you channels:
                     </p>
                     <div className="grid grid-cols-2 gap-2">
-                      {invitationMethods.map(method => {
+                      {Object.entries(channelConfig).map(([channelId, config]) => {
                         return (
-                          <label key={method.id} className="flex items-center gap-2 text-sm">
+                          <label key={channelId} className="flex items-center gap-2 text-sm">
                             <input
                               type="checkbox"
-                              checked={formData.thank_you_notifications[method.id]}
-                              onChange={(e) => handleInputChange(`thank_you_notifications.${method.id}`, e.target.checked)}
+                              checked={formData.thankyou_notification[channelId]}
+                              onChange={(e) => handleInputChange(`thankyou_notification.${channelId}`, e.target.checked)}
                               className="rounded text-brandPurple"
                             />
-                            <span>{method.title}</span>
+                            <span>{config.title}</span>
                             <span className="text-gray-500">
                               ({currency === "NGN" ? "₦" : "$"}
-                              {calculateChannelCost(method.id, THANK_YOU_MULTIPLIER).toFixed(2)})
+                              {calculateNotificationCost(channelId).toFixed(2)})
                             </span>
                           </label>
                         );
                       })}
                     </div>
+                    
+                    {/* Voice Recording for Thank You Messages */}
+                    {formData.thankyou_notification?.voice && (
+                      <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                        <h5 className="font-medium text-gray-900 mb-3">Record Thank You Voice Message</h5>
+                        <VoiceRecorder
+                          onRecordingComplete={(audioBlob) => {
+                            handleInputChange("voice_recording", audioBlob);
+                          }}
+                          existingRecording={formData.voice_recording}
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -524,21 +582,21 @@ export const InvitationSettingsStep = ({ formData, uiState, onFormDataChange, is
                     <span>Invitations ({formData.no_of_invitees || 0} guests)</span>
                     <span className="font-medium">
                       {currency === "NGN" ? "₦" : "$"}
-                      {Object.keys(formData.event_notifications)
-                        .filter(channel => formData.event_notifications[channel])
-                        .reduce((sum, channel) => sum + calculateChannelCost(channel), 0)
+                      {Object.keys(formData.event_invitation || {})
+                        .filter(channel => formData.event_invitation[channel])
+                        .reduce((sum, channel) => sum + calculateInvitationCost(channel), 0)
                         .toFixed(2)}
                     </span>
                   </div>
                   
                   {enableReminders && (
                     <div className="flex justify-between">
-                      <span>Reminders (50% of invitation cost)</span>
+                      <span>Reminders</span>
                       <span className="font-medium">
                         {currency === "NGN" ? "₦" : "$"}
-                        {Object.keys(formData.reminder_notifications)
-                          .filter(channel => formData.reminder_notifications[channel])
-                          .reduce((sum, channel) => sum + calculateChannelCost(channel, REMINDER_MULTIPLIER), 0)
+                        {Object.keys(formData.reminder_notification || {})
+                          .filter(channel => formData.reminder_notification[channel])
+                          .reduce((sum, channel) => sum + calculateNotificationCost(channel), 0)
                           .toFixed(2)}
                       </span>
                     </div>
@@ -546,12 +604,12 @@ export const InvitationSettingsStep = ({ formData, uiState, onFormDataChange, is
                   
                   {enableThankYou && (
                     <div className="flex justify-between">
-                      <span>Thank You Messages (75% of invitation cost)</span>
+                      <span>Thank You Messages</span>
                       <span className="font-medium">
                         {currency === "NGN" ? "₦" : "$"}
-                        {Object.keys(formData.thank_you_notifications)
-                          .filter(channel => formData.thank_you_notifications[channel])
-                          .reduce((sum, channel) => sum + calculateChannelCost(channel, THANK_YOU_MULTIPLIER), 0)
+                        {Object.keys(formData.thankyou_notification || {})
+                          .filter(channel => formData.thankyou_notification[channel])
+                          .reduce((sum, channel) => sum + calculateNotificationCost(channel), 0)
                           .toFixed(2)}
                       </span>
                     </div>

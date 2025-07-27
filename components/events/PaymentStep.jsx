@@ -15,11 +15,8 @@ import useGetPricingsManager from "@/app/admin/settings/controllers/getPricingCo
 import useGetUserDetailsManager from "@/app/profile-settings/controllers/get_UserDetails_controller";
 import { calculateTotal } from "@/utils/calculateTotal";
 import {
-  mockUserSubscription,
   subscriptionPlans,
-  canUseSubscription,
   calculateInvitationCosts,
-  canUseInvitationsWithSubscription,
 } from "@/utils/mockSubscriptionData";
 
 const PAYMENT_METHODS = [
@@ -256,6 +253,7 @@ const PaymentStep = ({
   isEditMode = false,
   event,
   currency,
+  currentSubscription,
 }) => {
   const handleCopyClick = (text) => navigator.clipboard.writeText(text);
   const { data: discounts, isLoading: loadingDiscounts } =
@@ -272,8 +270,8 @@ const PaymentStep = ({
   const enableReminders = formData.enable_reminders || false;
 
   // Get current subscription info
-  const userSubscription = mockUserSubscription;
-  const currentPlan = subscriptionPlans[userSubscription.plan];
+  const userSubscription = currentSubscription;
+  const currentPlan = userSubscription ? subscriptionPlans[userSubscription.plan] : null;
 
   // Calculate costs
   const priceCalculation =
@@ -296,44 +294,10 @@ const PaymentStep = ({
       )
     : 0;
 
-  // Check subscription eligibility
-  const canUseSubscriptionForEvent = canUseSubscription(
-    userSubscription,
-    formData
-  );
-  const canUseSubscriptionForInvitations = canUseInvitationsWithSubscription(
-    userSubscription,
-    invitationCost,
-    currency
-  );
-
-  // Determine subscription availability reasons
-  const subscriptionReasons = [];
-  if (
-    userSubscription.usage.eventsThisMonth >=
-    userSubscription.limits.eventsPerMonth
-  ) {
-    subscriptionReasons.push(
-      `Monthly event limit reached (${userSubscription.limits.eventsPerMonth})`
-    );
-  }
-  if (
-    userSubscription.usage.guestsThisMonth + noOfGuests >
-    userSubscription.limits.guestsPerEvent
-  ) {
-    subscriptionReasons.push(
-      `Guest limit exceeded (${userSubscription.limits.guestsPerEvent} max)`
-    );
-  }
-  if (enableInvitations && !canUseSubscriptionForInvitations) {
-    subscriptionReasons.push(
-      "Invitation limit exceeded - additional charges apply"
-    );
-  }
-
-  const canUseSubscriptionFully =
-    canUseSubscriptionForEvent &&
-    (!enableInvitations || canUseSubscriptionForInvitations);
+  // Check subscription eligibility - simplified
+  const hasActiveSubscription = Boolean(userSubscription);
+  const canUseSubscriptionFully = hasActiveSubscription;
+  const subscriptionReasons = hasActiveSubscription ? [] : ['No active subscription'];
 
   const formatCurrency = (amount) => {
     return `${amount.toLocaleString()} ${currency}`;
@@ -351,14 +315,34 @@ const PaymentStep = ({
       <div className="mb-8">
         <h3 className="text-lg font-medium mb-4">Choose Billing Method</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <SubscriptionOption
-            selected={formData.payment_mode === "subscription"}
-            onClick={() => onFormDataChange("payment_mode", "subscription")}
-            plan={currentPlan}
-            userPlan={currentPlan}
-            canUse={canUseSubscriptionFully}
-            reasons={subscriptionReasons}
-          />
+          {hasActiveSubscription ? (
+            <SubscriptionOption
+              selected={formData.payment_mode === "subscription"}
+              onClick={() => onFormDataChange("payment_mode", "subscription")}
+              plan={currentPlan}
+              userPlan={currentPlan}
+              canUse={canUseSubscriptionFully}
+              reasons={subscriptionReasons}
+            />
+          ) : (
+            <div className="border rounded-xl p-6 bg-gray-50 border-gray-200">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 rounded-lg bg-gray-200">
+                  <Crown className="h-5 w-5 text-gray-400" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900">No Active Subscription</h3>
+                  <p className="text-sm text-gray-500">Subscribe to unlock premium features</p>
+                </div>
+              </div>
+              <button 
+                className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+                onClick={() => window.open('/subscriptions', '_blank')}
+              >
+                View Subscription Plans →
+              </button>
+            </div>
+          )}
 
           <PayPerEventOption
             selected={formData.payment_mode !== "subscription"}
@@ -374,7 +358,7 @@ const PaymentStep = ({
       <div className="space-y-4 mb-8 bg-whiteColor p-2 md:p-6 rounded-lg">
         <h3 className="text-lg font-medium mb-4">Payment Summary</h3>
 
-        {formData.payment_mode === "subscription" && canUseSubscriptionFully ? (
+        {formData.payment_mode === "subscription" && hasActiveSubscription && canUseSubscriptionFully ? (
           // Subscription Summary
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-green-600 mb-4">
