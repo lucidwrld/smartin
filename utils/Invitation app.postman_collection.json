@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "9651cc8e-1bd8-4fe0-8606-9de9d4eb7ea1",
+		"_postman_id": "9893a026-a045-4fa3-bf70-a286e96d2dcf",
 		"name": "Invitation app",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "17652468"
@@ -886,7 +886,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"inviteeIds\": [\n        \"6772948f6c6caa0015ff3e5d\",\n        \"6772948f6c6caa0015ff3e5e\"\n    ],\n    \"type\": \"event | update | thankyou\"\n}",
+									"raw": "{\n    \"inviteeIds\": [\n        \"6772948f6c6caa0015ff3e5e\"\n    ],\n    \"eventIds\":[\n        \"6772948f6c6caa0015ff3e5f\"\n    ],\n    \"type\": \"event\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -894,18 +894,154 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/event/{{eventId}}invitees/notify",
+									"raw": "{{baseUrl}}/event/{{eventId}}/invitees/notify",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"event",
-										"{{eventId}}invitees",
+										"{{eventId}}",
+										"invitees",
 										"notify"
 									]
 								}
 							},
-							"response": []
+							"response": [
+								{
+									"name": "400 error",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"inviteeIds\": [\n        \"6772948f6c6caa0015ff3e5e\"\n    ],\n    \"type\": \"update\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/event/{{eventId}}/invitees/notify",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"event",
+												"{{eventId}}",
+												"invitees",
+												"notify"
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "350"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"15e-N82br5EIiWdlVGpnDerE/03k2FI\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 26 Jul 2025 14:25:15 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"error\",\n    \"message\": \"Insufficient credits for one or more channels\",\n    \"data\": [\n        {\n            \"type\": \"notification\",\n            \"channel\": \"sms\",\n            \"required\": 1,\n            \"available\": 0,\n            \"sufficient\": false\n        },\n        {\n            \"type\": \"notification\",\n            \"channel\": \"whatsapp\",\n            \"required\": 1,\n            \"available\": 0,\n            \"sufficient\": false\n        },\n        {\n            \"type\": \"notification\",\n            \"channel\": \"email\",\n            \"required\": 1,\n            \"available\": 0,\n            \"sufficient\": false\n        }\n    ]\n}"
+								},
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"inviteeIds\": [\n        \"6772948f6c6caa0015ff3e5e\"\n    ],\n    \"type\": \"event\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/event/{{eventId}}/invitees/notify",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"event",
+												"{{eventId}}",
+												"invitees",
+												"notify"
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "428"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"1ac-tdwAocVo2MFHB6XpuKu0YS7j5NA\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 26 Jul 2025 14:41:00 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"invtiations/notifications sent\",\n    \"total_deducted\": 2,\n    \"successful_deductions\": 3,\n    \"failed_deductions\": 0,\n    \"details\": [\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"sms\",\n            \"deducted\": 1,\n            \"status\": \"success\",\n            \"remaining_balance\": 46\n        },\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"whatsapp\",\n            \"deducted\": 1,\n            \"status\": \"success\",\n            \"remaining_balance\": 47\n        },\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"email\",\n            \"deducted\": 0,\n            \"status\": \"success\",\n            \"remaining_balance\": 50\n        }\n    ]\n}"
+								}
+							]
 						},
 						{
 							"name": "Mark attendance",
@@ -4041,7 +4177,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"gallery\": [\n        \"https://Votemania-b2.s3.us-west-002.backblazeb2.com/counsellme-17356172829535235628.jpg\",\n        \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\"\n    ],\n    \"showFeedback\": true,\n     \"video\": \"https://videourl.com\",\n    \"logo\": \"https://logo.com\",\n    \"event_days\": [\n        {\n            \"date\": \"2025-07-23\",\n            \"time\": \"9:00 am\"\n        }\n    ],\n    \"resources\": [ \"https://resource.link\"]\n}",
+							"raw": "{\n    \"event_notification\": {\n        \"email\": true,\n        \"sms\": true,\n        \"whatsapp\": true,\n        \"voice\": false\n    },\n    \"reminder_notification\": {\n        \"email\": true,\n        \"sms\": true,\n        \"whatsapp\": true,\n        \"voice\": false\n    },\n    \"thankyou_notification\": {\n        \"email\": true,\n        \"sms\": true,\n        \"whatsapp\": true,\n        \"voice\": false\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -4524,6 +4660,17 @@
 							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Analytics fetched\",\n    \"data\": {\n        \"totalEvents\": 35,\n        \"totalActiveEvents\": 7,\n        \"totalInactiveEvents\": 28,\n        \"totalUpcomingEvents\": 7,\n        \"totalUsers\": 9,\n        \"totalRevenueNaira\": \"₦200,600\",\n        \"totalRevenueDollar\": \"$5,110\"\n    }\n}"
 						}
 					]
+				},
+				{
+					"name": "Configure event auto settings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -5890,17 +6037,6 @@
 			"name": "Settings",
 			"item": [
 				{
-					"name": "New Request",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": ""
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Create setting",
 					"request": {
 						"method": "POST",
@@ -5965,6 +6101,998 @@
 							],
 							"path": [
 								"settings"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Credit Management",
+			"item": [
+				{
+					"name": "Pricing",
+					"item": [
+						{
+							"name": "Create credit pricing",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"invitation_email_price_naira\": 10,\n    \"invitation_email_price_usd\": 0.01,\n    \"invitation_sms_price_naira\": 10,\n    \"invitation_sms_price_usd\": 0.01,\n    \"invitation_whatsapp_price_naira\": 100,\n    \"invitation_whatsapp_price_usd\": 0.1,\n    \"invitation_voice_price_naira\": 50,\n    \"invitation_voice_price_usd\": 0.05,\n    \"notification_email_price_naira\": 10,\n    \"notification_email_price_usd\": 0.01,\n    \"notification_sms_price_naira\": 10,\n    \"notification_sms_price_usd\": 0.01,\n    \"notification_whatsapp_price_naira\": 100,\n    \"notification_whatsapp_price_usd\": 0.1,\n    \"notification_voice_price_naira\": 50,\n    \"notification_voice_price_usd\": 0.05\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/pricing/credits",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"pricing",
+										"credits"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get credit pricing",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/pricing/credits",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"pricing",
+										"credits"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/pricing/credits",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"pricing",
+												"credits"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "784"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"310-kSj1ZHRV4/s5X5FIOzjmNOPdSjI\""
+										},
+										{
+											"key": "Date",
+											"value": "Mon, 21 Jul 2025 07:50:33 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Credit pricing fetched successfully\",\n    \"data\": {\n        \"invitation_email_price_naira\": 10,\n        \"invitation_email_price_usd\": 0.01,\n        \"invitation_sms_price_naira\": 10,\n        \"invitation_sms_price_usd\": 0.01,\n        \"invitation_whatsapp_price_naira\": 100,\n        \"invitation_whatsapp_price_usd\": 0.1,\n        \"invitation_voice_price_naira\": 50,\n        \"invitation_voice_price_usd\": 0.05,\n        \"notification_email_price_naira\": 10,\n        \"notification_email_price_usd\": 0.01,\n        \"notification_sms_price_naira\": 10,\n        \"notification_sms_price_usd\": 0.01,\n        \"notification_whatsapp_price_naira\": 100,\n        \"notification_whatsapp_price_usd\": 0.1,\n        \"notification_voice_price_naira\": 50,\n        \"notification_voice_price_usd\": 0.05,\n        \"_id\": \"687df127144402d93b403c05\",\n        \"createdAt\": \"2025-07-21T07:49:58.535Z\",\n        \"updatedAt\": \"2025-07-21T07:49:58.535Z\",\n        \"id\": \"687df127144402d93b403c05\"\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Get price for specific credit type and channel",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/pricing/credits/channel/{{type}}/{{channel}}/{{currency}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"pricing",
+										"credits",
+										"channel",
+										"{{type}}",
+										"{{channel}}",
+										"{{currency}}"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/pricing/credits/channel/{{type}}/{{channel}}/{{currency}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"pricing",
+												"credits",
+												"channel",
+												"{{type}}",
+												"{{channel}}",
+												"{{currency}}"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "145"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"91-GT/MmlWsAg6EdxY0aE8VyLS88mw\""
+										},
+										{
+											"key": "Date",
+											"value": "Mon, 21 Jul 2025 07:52:23 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Credit price fetched successfully\",\n    \"data\": {\n        \"channel\": \"whatsapp\",\n        \"type\": \"invitation\",\n        \"currency\": \"usd\",\n        \"price\": 0.1\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Calculate total cost for bulk credit purchase",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"credits\": [\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"whatsapp\",\n            \"quantity\": 50,\n            \"currency\": \"naira\"\n        },\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"email\",\n            \"quantity\": 50,\n            \"currency\": \"naira\"\n        },\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"sms\",\n            \"quantity\": 50,\n            \"currency\": \"naira\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/pricing/credits/calculate",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"pricing",
+										"credits",
+										"calculate"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"credits\": [\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"whatsapp\",\n            \"quantity\": 50,\n            \"currency\": \"naira\"\n        },\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"email\",\n            \"quantity\": 50,\n            \"currency\": \"naira\"\n        },\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"sms\",\n            \"quantity\": 50,\n            \"currency\": \"naira\"\n        }\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/pricing/credits/calculate",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"pricing",
+												"credits",
+												"calculate"
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "450"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"1c2-4sebJ87zJMSnOFmIjqwtpxeMd1Y\""
+										},
+										{
+											"key": "Date",
+											"value": "Mon, 21 Jul 2025 07:56:15 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Credits cost calculated successfully\",\n    \"data\": {\n        \"total_cost\": 6000,\n        \"breakdown\": [\n            {\n                \"type\": \"invitation\",\n                \"channel\": \"whatsapp\",\n                \"quantity\": 50,\n                \"unit_price\": 100,\n                \"total_cost\": 5000,\n                \"currency\": \"naira\"\n            },\n            {\n                \"type\": \"invitation\",\n                \"channel\": \"email\",\n                \"quantity\": 50,\n                \"unit_price\": 10,\n                \"total_cost\": 500,\n                \"currency\": \"naira\"\n            },\n            {\n                \"type\": \"invitation\",\n                \"channel\": \"sms\",\n                \"quantity\": 50,\n                \"unit_price\": 10,\n                \"total_cost\": 500,\n                \"currency\": \"naira\"\n            }\n        ],\n        \"currency\": \"naira\"\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Update credit pricing",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"invitation_email_price_naira\": 10,\n    \"invitation_email_price_usd\": 0.01,\n    \"invitation_sms_price_naira\": 10,\n    \"invitation_sms_price_usd\": 0.01,\n    \"invitation_whatsapp_price_naira\": 100,\n    \"invitation_whatsapp_price_usd\": 0.1,\n    \"invitation_voice_price_naira\": 50,\n    \"invitation_voice_price_usd\": 0.05,\n    \"notification_email_price_naira\": 10,\n    \"notification_email_price_usd\": 0.01,\n    \"notification_sms_price_naira\": 10,\n    \"notification_sms_price_usd\": 0.01,\n    \"notification_whatsapp_price_naira\": 100,\n    \"notification_whatsapp_price_usd\": 0.1,\n    \"notification_voice_price_naira\": 50,\n    \"notification_voice_price_usd\": 0.05\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/pricing/credits",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"pricing",
+										"credits"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Purchase credit",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"currency\": \"NGN\",\n    \"path\": \"/cedits\",\n    \"credits\": [\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"whatsapp\",\n            \"quantity\": 50\n        },\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"email\",\n            \"quantity\": 50\n        },\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"sms\",\n            \"quantity\": 50\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/credit-management/initiate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"credit-management",
+								"initiate"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 - Paystack response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"currency\": \"NGN\",\n    \"path\": \"/cedits\",\n    \"credits\": [\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"whatsapp\",\n            \"quantity\": 50\n        },\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"email\",\n            \"quantity\": 50\n        },\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"sms\",\n            \"quantity\": 50\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/credit-management/initiate",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"credit-management",
+										"initiate"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "657"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"291-96ZW4EjvpymaQ7xjQGu0mVcZqIw\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 21 Jul 2025 08:07:47 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Credit purchase initiated successfully\",\n    \"data\": {\n        \"purchase_id\": \"687df551de2d8e581b099349\",\n        \"payment_reference\": \"SMINV20250721090745837776243703\",\n        \"total_amount\": 6000,\n        \"currency\": \"NGN\",\n        \"breakdown\": [\n            {\n                \"type\": \"invitation\",\n                \"channel\": \"whatsapp\",\n                \"quantity\": 50,\n                \"unit_price\": 100,\n                \"total_cost\": 5000,\n                \"currency\": \"naira\"\n            },\n            {\n                \"type\": \"invitation\",\n                \"channel\": \"email\",\n                \"quantity\": 50,\n                \"unit_price\": 10,\n                \"total_cost\": 500,\n                \"currency\": \"naira\"\n            },\n            {\n                \"type\": \"invitation\",\n                \"channel\": \"sms\",\n                \"quantity\": 50,\n                \"unit_price\": 10,\n                \"total_cost\": 500,\n                \"currency\": \"naira\"\n            }\n        ],\n        \"payment_data\": {\n            \"amount\": 6000,\n            \"currency\": \"NGN\",\n            \"checkoutUrl\": \"https://checkout.paystack.com/1qte08cctr9e53y\"\n        }\n    }\n}"
+						},
+						{
+							"name": "200 - Stripe response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"currency\": \"USD\",\n    \"path\": \"/cedits\",\n    \"credits\": [\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"whatsapp\",\n            \"quantity\": 50\n        },\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"email\",\n            \"quantity\": 50\n        },\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"sms\",\n            \"quantity\": 50\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/credit-management/initiate",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"credit-management",
+										"initiate"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "961"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"3c1-BHXCiw+wlvMYcMvkxewxVmd+Jfw\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 21 Jul 2025 08:12:18 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Credit purchase initiated successfully\",\n    \"data\": {\n        \"purchase_id\": \"687df65e6f3b216228ab1885\",\n        \"payment_reference\": \"SMINV202507210912141352663796963\",\n        \"total_amount\": 6,\n        \"currency\": \"USD\",\n        \"breakdown\": [\n            {\n                \"type\": \"invitation\",\n                \"channel\": \"whatsapp\",\n                \"quantity\": 50,\n                \"unit_price\": 0.1,\n                \"total_cost\": 5,\n                \"currency\": \"usd\"\n            },\n            {\n                \"type\": \"invitation\",\n                \"channel\": \"email\",\n                \"quantity\": 50,\n                \"unit_price\": 0.01,\n                \"total_cost\": 0.5,\n                \"currency\": \"usd\"\n            },\n            {\n                \"type\": \"invitation\",\n                \"channel\": \"sms\",\n                \"quantity\": 50,\n                \"unit_price\": 0.01,\n                \"total_cost\": 0.5,\n                \"currency\": \"usd\"\n            }\n        ],\n        \"payment_data\": {\n            \"amount\": 6,\n            \"currency\": \"USD\",\n            \"checkoutUrl\": \"https://checkout.stripe.com/c/pay/cs_test_a1yx6KvMbzlccQcOjiZsGtlPaCtNB7cHnqKgF7vAmlpadQkxKlSqBQ8DMC#fidkdWxOYHwnPyd1blpxYHZxWjA0VExnQX9McEZJMElNZHxuNFdMRGNnclFKU2JtckxgVTNVaU9KVHRod1ZzXDdXM0pOcFNvMz1sd3V9Y2NjcFNUREhWYGpLUUFWXXRIMmZPZ0lTZ0NDMmRfNTUwZjJ8RExxRycpJ2N3amhWYHdzYHcnP3F3cGApJ2lkfGpwcVF8dWAnPyd2bGtiaWBabHFgaCcpJ2BrZGdpYFVpZGZgbWppYWB3dic%2FcXdwYHgl\"\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Purchase credit mobile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"currency\": \"USD\",\n    \"path\": \"/cedits\",\n    \"credits\": [\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"whatsapp\",\n            \"quantity\": 50\n        },\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"email\",\n            \"quantity\": 50\n        },\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"sms\",\n            \"quantity\": 50\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/credit-management/initiate/mobile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"credit-management",
+								"initiate",
+								"mobile"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 paystack",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"currency\": \"NGN\",\n    \"path\": \"/cedits\",\n    \"credits\": [\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"whatsapp\",\n            \"quantity\": 50\n        },\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"email\",\n            \"quantity\": 50\n        },\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"sms\",\n            \"quantity\": 50\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/credit-management/initiate/mobile",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"credit-management",
+										"initiate",
+										"mobile"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "804"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"324-o88tS/59dPeF1YSgFJJIbV14cgg\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 23 Jul 2025 08:42:27 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Credit purchase initiated successfully\",\n    \"data\": {\n        \"purchase_id\": \"6880a07253d745e1d9ffcd33\",\n        \"payment_reference\": \"SMINV202507230942261459872630503\",\n        \"total_amount\": 6000,\n        \"currency\": \"NGN\",\n        \"breakdown\": [\n            {\n                \"type\": \"invitation\",\n                \"channel\": \"whatsapp\",\n                \"quantity\": 50,\n                \"unit_price\": 100,\n                \"total_cost\": 5000,\n                \"currency\": \"naira\"\n            },\n            {\n                \"type\": \"invitation\",\n                \"channel\": \"email\",\n                \"quantity\": 50,\n                \"unit_price\": 10,\n                \"total_cost\": 500,\n                \"currency\": \"naira\"\n            },\n            {\n                \"type\": \"invitation\",\n                \"channel\": \"sms\",\n                \"quantity\": 50,\n                \"unit_price\": 10,\n                \"total_cost\": 500,\n                \"currency\": \"naira\"\n            }\n        ],\n        \"payment_data\": {\n            \"tx_ref\": \"SMINV20250723094227264136618344\",\n            \"amount\": 600000,\n            \"currency\": \"NGN\",\n            \"email\": \"yoitsburby@gmail.com\",\n            \"paystackpubk\": \"pk_test_95c9358df659cc6e679deb09f36afccbeacb31d2\",\n            \"paystackseck\": \"sk_test_320351ef1896a71b35d92d5e79ff836f22edd03c\"\n        }\n    }\n}"
+						},
+						{
+							"name": "200 stripe",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"currency\": \"USD\",\n    \"path\": \"/cedits\",\n    \"credits\": [\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"whatsapp\",\n            \"quantity\": 50\n        },\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"email\",\n            \"quantity\": 50\n        },\n        {\n            \"type\": \"invitation\",\n            \"channel\": \"sms\",\n            \"quantity\": 50\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/credit-management/initiate/mobile",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"credit-management",
+										"initiate",
+										"mobile"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "788"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"314-wDjseSsc857Xn5DLQceJAzaIJuE\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 23 Jul 2025 08:43:04 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"success\",\n    \"message\": \"Credit purchase initiated successfully\",\n    \"data\": {\n        \"purchase_id\": \"6880a09453d745e1d9ffcd3e\",\n        \"payment_reference\": \"SMINV202507230943001323684641878\",\n        \"total_amount\": 6,\n        \"currency\": \"USD\",\n        \"breakdown\": [\n            {\n                \"type\": \"invitation\",\n                \"channel\": \"whatsapp\",\n                \"quantity\": 50,\n                \"unit_price\": 0.1,\n                \"total_cost\": 5,\n                \"currency\": \"usd\"\n            },\n            {\n                \"type\": \"invitation\",\n                \"channel\": \"email\",\n                \"quantity\": 50,\n                \"unit_price\": 0.01,\n                \"total_cost\": 0.5,\n                \"currency\": \"usd\"\n            },\n            {\n                \"type\": \"invitation\",\n                \"channel\": \"sms\",\n                \"quantity\": 50,\n                \"unit_price\": 0.01,\n                \"total_cost\": 0.5,\n                \"currency\": \"usd\"\n            }\n        ],\n        \"payment_data\": {\n            \"client_secret\": \"pi_3RnyGSIuCL5LHayk0bypSoG5_secret_8YCqr3c4yboQ6fb0woLp2sgv4\",\n            \"customer\": \"cus_SjR8deIGZcw2iS\",\n            \"pub_key\": \"pk_test_51QIbDzIuCL5LHayk1RIAfbwTOVghwIeP6PlJOQqmrSvY2R6OKuVj68irpxfffuVQAMSeoNTDSXqM7cJbLVbFF7aZ005c7yAItB\"\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get User Credit Balance",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/credit-management/balance",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"credit-management",
+								"balance"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Subscription",
+			"item": [
+				{
+					"name": "Plan",
+					"item": [
+						{
+							"name": "Create Plan",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Premium Plan USD\",\n    \"description\":\"Create unlimited events\",\n    \"price\": 4,\n    \"duration\": 30,\n    \"currency\": \"USD\",\n    \"isActive\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/subscription/plan",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"subscription",
+										"plan"
+									]
+								},
+								"description": "unit for price is $\n\nunit for duration is 'days'"
+							},
+							"response": []
+						},
+						{
+							"name": "Get plans",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/subscription/plan/list?currency=ngn",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"subscription",
+										"plan",
+										"list"
+									],
+									"query": [
+										{
+											"key": "currency",
+											"value": "ngn"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/subscription/plan/list",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"subscription",
+												"plan",
+												"list"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "586"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"24a-ktYoxYbY6BHlVycQLf3Puk5GPOE\""
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 23 Jul 2025 08:16:55 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"plans fetched\",\n    \"data\": [\n        {\n            \"active\": true,\n            \"_id\": \"68809a48be0e9f862b28b3aa\",\n            \"name\": \"Premium Plan\",\n            \"description\": \"Create unlimited events\",\n            \"price\": 5000,\n            \"duration\": 30,\n            \"currency\": \"NGN\",\n            \"createdAt\": \"2025-07-23T08:16:08.740Z\",\n            \"updatedAt\": \"2025-07-23T08:16:54.984Z\",\n            \"id\": \"68809a48be0e9f862b28b3aa\"\n        },\n        {\n            \"active\": true,\n            \"_id\": \"68809a5ebe0e9f862b28b3ad\",\n            \"name\": \"Premium Plan USD\",\n            \"description\": \"Create unlimited events\",\n            \"price\": 4,\n            \"duration\": 30,\n            \"currency\": \"USD\",\n            \"createdAt\": \"2025-07-23T08:16:30.380Z\",\n            \"updatedAt\": \"2025-07-23T08:16:54.984Z\",\n            \"id\": \"68809a5ebe0e9f862b28b3ad\"\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Get single plan by id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/subscription/plan/{{planId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"subscription",
+										"plan",
+										"{{planId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Edit plan",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Premium Plan USD\",\n    \"description\":\"Create unlimited events\",\n    \"price\": 4,\n    \"duration\": 30,\n    \"currency\": \"USD\",\n    \"isActive\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/subscription/plan/{{planId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"subscription",
+										"plan",
+										"{{planId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete plan",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/subscription/plan/{{planId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"subscription",
+										"plan",
+										"{{planId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Purchase subscription",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"planId\": \"68809a48be0e9f862b28b3aa\",\n    \"duration\": 1,\n    \"path\": \"/susbcription/confirm\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/subscription/pay",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"subscription",
+								"pay"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Purchase subscription mobile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"planId\": \"6384e9f9806f0f7ae9d28b71\",\n    \"duration\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/subscription/pay/mobile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"subscription",
+								"pay",
+								"mobile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get subscriptions for logged in user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/subscription",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"subscription"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Renew Subscription web",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"planId\":\"6385a2309f2d36967a629b3e\",\n    \"duration\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/subscription/{{subscriptionId}}/renew",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"subscription",
+								"{{subscriptionId}}",
+								"renew"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Renew Subscription mobile",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"planId\":\"6385a2309f2d36967a629b3e\",\n    \"duration\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/subscription/{{subscriptionId}}/renew/mobile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"subscription",
+								"{{subscriptionId}}",
+								"renew",
+								"mobile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Subscription",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/subscription/cancel",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"subscription",
+								"cancel"
 							]
 						}
 					},

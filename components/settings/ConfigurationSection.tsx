@@ -10,9 +10,15 @@ import { CreatePricingManager } from "@/app/admin/settings/controllers/createPri
 import { DeleteDiscountManager } from "@/app/admin/settings/controllers/deleteDiscountController";
 import { UpdateDiscountManager } from "@/app/admin/settings/controllers/updateDiscountController";
 import DeleteConfirmationModal from "../DeleteConfirmationModal";
+import { useGetCreditPricingManager } from "@/app/events/controllers/creditManagement/getCreditPricingController";
+import { UpdateCreditPricingManager } from "@/app/events/controllers/creditManagement/updateCreditPricingController";
+import { CreateCreditPricingManager } from "@/app/events/controllers/creditManagement/createCreditPricingController";
 
 const ConfigurationSection = () => {
   const { data, isLoading } = useGetPricingsManager();
+  const { data: creditPricingData, isLoading: loadingCreditPricing, error: creditPricingError } = useGetCreditPricingManager();
+  const { updateCreditPricing, isLoading: updatingCreditPricing } = UpdateCreditPricingManager();
+  const { createCreditPricing, isLoading: creatingCreditPricing } = CreateCreditPricingManager();
   const [discountId, setDiscountId] = useState();
   const { createPricing, isLoading: updating } = CreatePricingManager();
   const { data: discounts, isLoading: loadingDiscounts } =
@@ -28,8 +34,27 @@ const ConfigurationSection = () => {
   } = DeleteDiscountManager({ discountId: discountId });
 
   const [formData, setFormData] = useState({
-    price_per_invite_naira: 0,
-    price_per_invite_usd: 0,
+    event_price_naira: 0,
+    event_price_usd: 0,
+  });
+
+  const [creditFormData, setCreditFormData] = useState({
+    invitation_email_price_naira: 0,
+    invitation_email_price_usd: 0,
+    invitation_sms_price_naira: 0,
+    invitation_sms_price_usd: 0,
+    invitation_whatsapp_price_naira: 0,
+    invitation_whatsapp_price_usd: 0,
+    invitation_voice_price_naira: 0,
+    invitation_voice_price_usd: 0,
+    notification_email_price_naira: 0,
+    notification_email_price_usd: 0,
+    notification_sms_price_naira: 0,
+    notification_sms_price_usd: 0,
+    notification_whatsapp_price_naira: 0,
+    notification_whatsapp_price_usd: 0,
+    notification_voice_price_naira: 0,
+    notification_voice_price_usd: 0,
   });
 
   const [discountArray, setDiscountArray] = useState([]);
@@ -49,11 +74,34 @@ const ConfigurationSection = () => {
   useEffect(() => {
     if (data?.data) {
       setFormData({
-        price_per_invite_naira: Number(data.data.price_per_invite_naira) || 0,
-        price_per_invite_usd: Number(data.data.price_per_invite_usd) || 0,
+        event_price_naira: Number(data.data.event_price_naira) || 0,
+        event_price_usd: Number(data.data.event_price_usd) || 0,
       });
     }
   }, [data]);
+
+  useEffect(() => {
+    if (creditPricingData?.data) {
+      setCreditFormData({
+        invitation_email_price_naira: Number(creditPricingData.data.invitation_email_price_naira) || 0,
+        invitation_email_price_usd: Number(creditPricingData.data.invitation_email_price_usd) || 0,
+        invitation_sms_price_naira: Number(creditPricingData.data.invitation_sms_price_naira) || 0,
+        invitation_sms_price_usd: Number(creditPricingData.data.invitation_sms_price_usd) || 0,
+        invitation_whatsapp_price_naira: Number(creditPricingData.data.invitation_whatsapp_price_naira) || 0,
+        invitation_whatsapp_price_usd: Number(creditPricingData.data.invitation_whatsapp_price_usd) || 0,
+        invitation_voice_price_naira: Number(creditPricingData.data.invitation_voice_price_naira) || 0,
+        invitation_voice_price_usd: Number(creditPricingData.data.invitation_voice_price_usd) || 0,
+        notification_email_price_naira: Number(creditPricingData.data.notification_email_price_naira) || 0,
+        notification_email_price_usd: Number(creditPricingData.data.notification_email_price_usd) || 0,
+        notification_sms_price_naira: Number(creditPricingData.data.notification_sms_price_naira) || 0,
+        notification_sms_price_usd: Number(creditPricingData.data.notification_sms_price_usd) || 0,
+        notification_whatsapp_price_naira: Number(creditPricingData.data.notification_whatsapp_price_naira) || 0,
+        notification_whatsapp_price_usd: Number(creditPricingData.data.notification_whatsapp_price_usd) || 0,
+        notification_voice_price_naira: Number(creditPricingData.data.notification_voice_price_naira) || 0,
+        notification_voice_price_usd: Number(creditPricingData.data.notification_voice_price_usd) || 0,
+      });
+    }
+  }, [creditPricingData]);
 
   useEffect(() => {
     if (discounts?.data) {
@@ -68,10 +116,40 @@ const ConfigurationSection = () => {
 
   const handleSavePricingChanges = () => {
     const updatedFormData = {
-      price_per_invite_naira: Number(formData.price_per_invite_naira) || 0,
-      price_per_invite_usd: Number(formData.price_per_invite_usd) || 0,
+      event_price_naira: Number(formData.event_price_naira) || 0,
+      event_price_usd: Number(formData.event_price_usd) || 0,
+      price_per_invite_naira: 0,
+      price_per_invite_usd: 0,
     };
     createPricing(updatedFormData);
+  };
+
+  const handleSaveCreditPricingChanges = () => {
+    const updatedCreditData = {
+      invitation_email_price_naira: Number(creditFormData.invitation_email_price_naira) || 0,
+      invitation_email_price_usd: Number(creditFormData.invitation_email_price_usd) || 0,
+      invitation_sms_price_naira: Number(creditFormData.invitation_sms_price_naira) || 0,
+      invitation_sms_price_usd: Number(creditFormData.invitation_sms_price_usd) || 0,
+      invitation_whatsapp_price_naira: Number(creditFormData.invitation_whatsapp_price_naira) || 0,
+      invitation_whatsapp_price_usd: Number(creditFormData.invitation_whatsapp_price_usd) || 0,
+      invitation_voice_price_naira: Number(creditFormData.invitation_voice_price_naira) || 0,
+      invitation_voice_price_usd: Number(creditFormData.invitation_voice_price_usd) || 0,
+      notification_email_price_naira: Number(creditFormData.notification_email_price_naira) || 0,
+      notification_email_price_usd: Number(creditFormData.notification_email_price_usd) || 0,
+      notification_sms_price_naira: Number(creditFormData.notification_sms_price_naira) || 0,
+      notification_sms_price_usd: Number(creditFormData.notification_sms_price_usd) || 0,
+      notification_whatsapp_price_naira: Number(creditFormData.notification_whatsapp_price_naira) || 0,
+      notification_whatsapp_price_usd: Number(creditFormData.notification_whatsapp_price_usd) || 0,
+      notification_voice_price_naira: Number(creditFormData.notification_voice_price_naira) || 0,
+      notification_voice_price_usd: Number(creditFormData.notification_voice_price_usd) || 0,
+    };
+    
+    // Check if credit pricing exists - if error indicates not found, create; otherwise update
+    if (creditPricingError && creditPricingError.message && creditPricingError.message.includes("not found")) {
+      createCreditPricing(updatedCreditData);
+    } else {
+      updateCreditPricing(updatedCreditData);
+    }
   };
 
   const handleDiscountChange = (index, field, value) => {
@@ -116,16 +194,16 @@ const ConfigurationSection = () => {
     await deleteDiscount();
   };
 
-  if (isLoading || loadingDiscounts) return <Loader />;
+  if (isLoading || loadingDiscounts || loadingCreditPricing || creatingCreditPricing) return <Loader />;
 
   return (
     <div className="flex w-full bg-white rounded-lg flex-col text-brandBlack p-10">
       {/* Pricing Section */}
       <div className="flex items-start gap-32">
         <div className="flex flex-col items-start">
-          <p className="text-16px font-semibold">Invites Pricing</p>
+          <p className="text-16px font-semibold">Event Pricing</p>
           <p className="text-14px text-textGrey2 w-[200px] mb-10">
-            Set and configure invite pricing
+            Set and configure event pricing
           </p>
           <CustomButton
             buttonText="Save Changes"
@@ -136,33 +214,297 @@ const ConfigurationSection = () => {
         <div className="relative w-[546px] flex flex-col">
           <div className="w-full">
             <InputWithFullBoarder
-              label="Price per invite ($)"
+              label="Price per event (USD)"
               placeholder="$ 0.00"
               type="number"
               step="0.01"
               min="0"
-              value={formData.price_per_invite_naira}
+              value={formData.event_price_usd}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  price_per_invite_naira: e.target.value,
+                  event_price_usd: e.target.value,
                 })
               }
             />
             <InputWithFullBoarder
-              label="Price per invite (NGN)"
+              label="Price per event (NGN)"
               placeholder="NGN 0.00"
               type="number"
               step="0.01"
               min="0"
-              value={formData.price_per_invite_usd}
+              value={formData.event_price_naira}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  price_per_invite_usd: e.target.value,
+                  event_price_naira: e.target.value,
                 })
               }
             />
+          </div>
+        </div>
+      </div>
+
+      <div className="divider my-10"></div>
+
+      {/* Credit Pricing Section */}
+      <div className="flex items-start gap-32 mb-10">
+        <div className="flex flex-col items-start">
+          <p className="text-16px font-semibold">Credit Pricing</p>
+          <p className="text-14px text-textGrey2 w-[200px] mb-10">
+            Set pricing for invitation and notification credits
+          </p>
+          <CustomButton
+            buttonText="Save Credit Pricing"
+            isLoading={updatingCreditPricing || creatingCreditPricing}
+            onClick={handleSaveCreditPricingChanges}
+          />
+        </div>
+        <div className="relative w-[546px] flex flex-col space-y-6">
+          {/* Invitation Credits */}
+          <div>
+            <h4 className="font-semibold mb-4">Invitation Credits</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm font-medium mb-2">Email</p>
+                <InputWithFullBoarder
+                  label="Naira (₦)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={creditFormData.invitation_email_price_naira}
+                  onChange={(e) =>
+                    setCreditFormData({
+                      ...creditFormData,
+                      invitation_email_price_naira: e.target.value,
+                    })
+                  }
+                />
+                <InputWithFullBoarder
+                  label="USD ($)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={creditFormData.invitation_email_price_usd}
+                  onChange={(e) =>
+                    setCreditFormData({
+                      ...creditFormData,
+                      invitation_email_price_usd: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <p className="text-sm font-medium mb-2">SMS</p>
+                <InputWithFullBoarder
+                  label="Naira (₦)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={creditFormData.invitation_sms_price_naira}
+                  onChange={(e) =>
+                    setCreditFormData({
+                      ...creditFormData,
+                      invitation_sms_price_naira: e.target.value,
+                    })
+                  }
+                />
+                <InputWithFullBoarder
+                  label="USD ($)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={creditFormData.invitation_sms_price_usd}
+                  onChange={(e) =>
+                    setCreditFormData({
+                      ...creditFormData,
+                      invitation_sms_price_usd: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <p className="text-sm font-medium mb-2">WhatsApp</p>
+                <InputWithFullBoarder
+                  label="Naira (₦)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={creditFormData.invitation_whatsapp_price_naira}
+                  onChange={(e) =>
+                    setCreditFormData({
+                      ...creditFormData,
+                      invitation_whatsapp_price_naira: e.target.value,
+                    })
+                  }
+                />
+                <InputWithFullBoarder
+                  label="USD ($)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={creditFormData.invitation_whatsapp_price_usd}
+                  onChange={(e) =>
+                    setCreditFormData({
+                      ...creditFormData,
+                      invitation_whatsapp_price_usd: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <p className="text-sm font-medium mb-2">Voice</p>
+                <InputWithFullBoarder
+                  label="Naira (₦)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={creditFormData.invitation_voice_price_naira}
+                  onChange={(e) =>
+                    setCreditFormData({
+                      ...creditFormData,
+                      invitation_voice_price_naira: e.target.value,
+                    })
+                  }
+                />
+                <InputWithFullBoarder
+                  label="USD ($)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={creditFormData.invitation_voice_price_usd}
+                  onChange={(e) =>
+                    setCreditFormData({
+                      ...creditFormData,
+                      invitation_voice_price_usd: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Notification Credits */}
+          <div>
+            <h4 className="font-semibold mb-4">Notification Credits</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm font-medium mb-2">Email</p>
+                <InputWithFullBoarder
+                  label="Naira (₦)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={creditFormData.notification_email_price_naira}
+                  onChange={(e) =>
+                    setCreditFormData({
+                      ...creditFormData,
+                      notification_email_price_naira: e.target.value,
+                    })
+                  }
+                />
+                <InputWithFullBoarder
+                  label="USD ($)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={creditFormData.notification_email_price_usd}
+                  onChange={(e) =>
+                    setCreditFormData({
+                      ...creditFormData,
+                      notification_email_price_usd: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <p className="text-sm font-medium mb-2">SMS</p>
+                <InputWithFullBoarder
+                  label="Naira (₦)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={creditFormData.notification_sms_price_naira}
+                  onChange={(e) =>
+                    setCreditFormData({
+                      ...creditFormData,
+                      notification_sms_price_naira: e.target.value,
+                    })
+                  }
+                />
+                <InputWithFullBoarder
+                  label="USD ($)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={creditFormData.notification_sms_price_usd}
+                  onChange={(e) =>
+                    setCreditFormData({
+                      ...creditFormData,
+                      notification_sms_price_usd: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <p className="text-sm font-medium mb-2">WhatsApp</p>
+                <InputWithFullBoarder
+                  label="Naira (₦)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={creditFormData.notification_whatsapp_price_naira}
+                  onChange={(e) =>
+                    setCreditFormData({
+                      ...creditFormData,
+                      notification_whatsapp_price_naira: e.target.value,
+                    })
+                  }
+                />
+                <InputWithFullBoarder
+                  label="USD ($)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={creditFormData.notification_whatsapp_price_usd}
+                  onChange={(e) =>
+                    setCreditFormData({
+                      ...creditFormData,
+                      notification_whatsapp_price_usd: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <p className="text-sm font-medium mb-2">Voice</p>
+                <InputWithFullBoarder
+                  label="Naira (₦)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={creditFormData.notification_voice_price_naira}
+                  onChange={(e) =>
+                    setCreditFormData({
+                      ...creditFormData,
+                      notification_voice_price_naira: e.target.value,
+                    })
+                  }
+                />
+                <InputWithFullBoarder
+                  label="USD ($)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={creditFormData.notification_voice_price_usd}
+                  onChange={(e) =>
+                    setCreditFormData({
+                      ...creditFormData,
+                      notification_voice_price_usd: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
