@@ -1,7 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Mic, Square, Play, Pause, Upload, Trash2 } from "lucide-react";
 
-const VoiceRecorder = ({ onRecordingComplete, existingRecording = null }) => {
+const VoiceRecorder = ({ 
+  onRecordingComplete, 
+  existingRecording = null,
+  maxFileSizeMB = 10,
+  maxDurationMinutes = 5,
+  acceptedFormats = "audio/*"
+}) => {
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState(existingRecording);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -46,7 +52,15 @@ const VoiceRecorder = ({ onRecordingComplete, existingRecording = null }) => {
       
       // Start timer
       timerRef.current = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
+        setRecordingTime(prev => {
+          const newTime = prev + 1;
+          // Auto-stop recording if max duration reached
+          if (newTime >= maxDurationMinutes * 60) {
+            stopRecording();
+            alert(`Recording stopped automatically after ${maxDurationMinutes} minutes`);
+          }
+          return newTime;
+        });
       }, 1000);
     } catch (error) {
       console.error("Error accessing microphone:", error);
@@ -87,6 +101,13 @@ const VoiceRecorder = ({ onRecordingComplete, existingRecording = null }) => {
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (file && file.type.startsWith("audio/")) {
+      // Check file size
+      const fileSizeMB = file.size / (1024 * 1024);
+      if (fileSizeMB > maxFileSizeMB) {
+        alert(`File size too large. Maximum allowed size is ${maxFileSizeMB}MB`);
+        return;
+      }
+      
       setAudioBlob(file);
       setAudioUrl(URL.createObjectURL(file));
       onRecordingComplete(file);
@@ -136,7 +157,7 @@ const VoiceRecorder = ({ onRecordingComplete, existingRecording = null }) => {
                   <span>Upload Audio</span>
                   <input
                     type="file"
-                    accept="audio/*"
+                    accept={acceptedFormats}
                     onChange={handleFileUpload}
                     className="hidden"
                   />
@@ -152,6 +173,8 @@ const VoiceRecorder = ({ onRecordingComplete, existingRecording = null }) => {
             
             <p className="text-sm text-gray-500">
               Record your voice invitation or upload an existing audio file
+              <br />
+              <span className="text-xs">Max: {maxDurationMinutes} min, {maxFileSizeMB}MB</span>
             </p>
           </>
         ) : (

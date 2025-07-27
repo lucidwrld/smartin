@@ -21,7 +21,7 @@ import {
   Calendar,
   Search,
   MessageCircle,
-  Volume2
+  Volume2,
 } from "lucide-react";
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
@@ -32,7 +32,8 @@ const BroadcastManagementTab = ({ event }) => {
     {
       id: "broadcast_1",
       title: "Event Reminder - 24 Hours to Go!",
-      message: "Don't forget about our upcoming event tomorrow. We're excited to see you there!",
+      message:
+        "Don't forget about our upcoming event tomorrow. We're excited to see you there!",
       type: "reminder",
       channels: ["email", "sms", "whatsapp"],
       recipients: "all",
@@ -42,12 +43,13 @@ const BroadcastManagementTab = ({ event }) => {
       recipient_count: 245,
       open_rate: 78.5,
       click_rate: 12.3,
-      created_at: "2024-07-20T15:30:00"
+      created_at: "2024-07-20T15:30:00",
     },
     {
-      id: "broadcast_2", 
+      id: "broadcast_2",
       title: "Venue Change Important Update",
-      message: "Due to unforeseen circumstances, our event venue has been changed. Please check your email for the new location details.",
+      message:
+        "Due to unforeseen circumstances, our event venue has been changed. Please check your email for the new location details.",
       type: "update",
       channels: ["email", "push"],
       recipients: "accepted",
@@ -57,8 +59,8 @@ const BroadcastManagementTab = ({ event }) => {
       recipient_count: 0,
       open_rate: 0,
       click_rate: 0,
-      created_at: "2024-07-22T10:15:00"
-    }
+      created_at: "2024-07-22T10:15:00",
+    },
   ]);
 
   const [showModal, setShowModal] = useState(false);
@@ -71,18 +73,24 @@ const BroadcastManagementTab = ({ event }) => {
     title: "",
     message: "",
     type: "announcement",
-    channels: ["email"],
+    event_notification: {
+      email: false,
+      sms: false,
+      whatsapp: false,
+      voice: false,
+      push: false,
+    },
     recipients: "all",
     scheduled_for: "",
     send_immediately: true,
-    voiceRecording: null
+    voiceRecording: null,
   });
 
   const broadcastTypes = [
     { value: "announcement", label: "Announcement", icon: Bell },
     { value: "reminder", label: "Reminder", icon: Clock },
     { value: "update", label: "Update", icon: AlertCircle },
-    { value: "welcome", label: "Welcome", icon: MessageSquare }
+    { value: "welcome", label: "Welcome", icon: MessageSquare },
   ];
 
   const channelOptions = [
@@ -90,7 +98,7 @@ const BroadcastManagementTab = ({ event }) => {
     { value: "sms", label: "SMS", icon: Smartphone },
     { value: "whatsapp", label: "WhatsApp", icon: MessageCircle },
     { value: "voice", label: "Voice Call", icon: Volume2 },
-    { value: "push", label: "Push Notification", icon: Bell }
+    { value: "push", label: "Push Notification", icon: Bell },
   ];
 
   const recipientOptions = [
@@ -99,7 +107,7 @@ const BroadcastManagementTab = ({ event }) => {
     { value: "pending", label: "Pending Only" },
     { value: "declined", label: "Declined Only" },
     { value: "vip", label: "VIP Guests" },
-    { value: "custom", label: "Custom Selection" }
+    { value: "custom", label: "Custom Selection" },
   ];
 
   const statusFilters = [
@@ -107,36 +115,60 @@ const BroadcastManagementTab = ({ event }) => {
     { value: "draft", label: "Drafts" },
     { value: "scheduled", label: "Scheduled" },
     { value: "sent", label: "Sent" },
-    { value: "failed", label: "Failed" }
+    { value: "failed", label: "Failed" },
   ];
 
   const handleOpenModal = (broadcast = null) => {
     setEditingBroadcast(broadcast);
-    
+
     if (broadcast) {
+      // Convert channels array to event_notification object
+      const eventNotification = {
+        email: false,
+        sms: false,
+        whatsapp: false,
+        voice: false,
+        push: false,
+      };
+      if (broadcast.channels) {
+        broadcast.channels.forEach((channel) => {
+          if (eventNotification.hasOwnProperty(channel)) {
+            eventNotification[channel] = true;
+          }
+        });
+      }
+
       setFormData({
         title: broadcast.title || "",
         message: broadcast.message || "",
         type: broadcast.type || "announcement",
-        channels: broadcast.channels || ["email"],
+        event_notification: eventNotification,
         recipients: broadcast.recipients || "all",
-        scheduled_for: broadcast.scheduled_for ? new Date(broadcast.scheduled_for).toISOString().slice(0, 16) : "",
+        scheduled_for: broadcast.scheduled_for
+          ? new Date(broadcast.scheduled_for).toISOString().slice(0, 16)
+          : "",
         send_immediately: !broadcast.scheduled_for,
-        voiceRecording: broadcast.voiceRecording || null
+        voiceRecording: broadcast.voiceRecording || null,
       });
     } else {
       setFormData({
         title: "",
         message: "",
         type: "announcement",
-        channels: ["email"],
+        event_notification: {
+          email: false,
+          sms: false,
+          whatsapp: false,
+          voice: false,
+          push: false,
+        },
         recipients: "all",
         scheduled_for: "",
         send_immediately: true,
-        voiceRecording: null
+        voiceRecording: null,
       });
     }
-    
+
     setShowModal(true);
   };
 
@@ -147,34 +179,41 @@ const BroadcastManagementTab = ({ event }) => {
       title: "",
       message: "",
       type: "announcement",
-      channels: ["email"],
+      event_notification: {
+        email: false,
+        sms: false,
+        whatsapp: false,
+        voice: false,
+        push: false,
+      },
       recipients: "all",
       scheduled_for: "",
       send_immediately: true,
-      voiceRecording: null
+      voiceRecording: null,
     });
   };
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const handleVoiceRecordingComplete = (audioBlob) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      voiceRecording: audioBlob
+      voiceRecording: audioBlob,
     }));
   };
 
   const handleChannelToggle = (channel) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      channels: prev.channels.includes(channel)
-        ? prev.channels.filter(c => c !== channel)
-        : [...prev.channels, channel]
+      event_notification: {
+        ...prev.event_notification,
+        [channel]: !prev.event_notification[channel],
+      },
     }));
   };
 
@@ -184,30 +223,57 @@ const BroadcastManagementTab = ({ event }) => {
       return;
     }
 
-    if (formData.channels.length === 0) {
+    if (!Object.values(formData.event_notification).some(Boolean)) {
       alert("Please select at least one communication channel");
       return;
     }
 
     setIsLoading(true);
-    
+
     try {
+      let voiceRecordingUrl = "";
+
+      // Upload voice recording if there's a new one
+      if (
+        formData.voiceRecording &&
+        typeof formData.voiceRecording !== "string"
+      ) {
+        // Here you would implement the file upload logic
+        // voiceRecordingUrl = await handleFileUpload(formData.voiceRecording);
+      }
+
+      // Convert event_notification object back to channels array for storage
+      const selectedChannels = Object.keys(formData.event_notification).filter(
+        (channel) => formData.event_notification[channel]
+      );
+
+      const broadcastData = {
+        ...formData,
+        channels: selectedChannels,
+        notification_voice_recording: voiceRecordingUrl,
+        event_notification: formData.event_notification,
+      };
+
       const newBroadcast = {
         id: editingBroadcast?.id || `broadcast_${Date.now()}`,
-        ...formData,
-        scheduled_for: formData.send_immediately ? null : formData.scheduled_for,
+        ...broadcastData,
+        scheduled_for: formData.send_immediately
+          ? null
+          : formData.scheduled_for,
         status: formData.send_immediately ? "sending" : "scheduled",
         recipient_count: formData.recipients === "all" ? 245 : 120, // Mock counts
         created_at: editingBroadcast?.created_at || new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
 
       if (editingBroadcast) {
-        setBroadcasts(prev => 
-          prev.map(broadcast => broadcast.id === editingBroadcast.id ? newBroadcast : broadcast)
+        setBroadcasts((prev) =>
+          prev.map((broadcast) =>
+            broadcast.id === editingBroadcast.id ? newBroadcast : broadcast
+          )
         );
       } else {
-        setBroadcasts(prev => [...prev, newBroadcast]);
+        setBroadcasts((prev) => [...prev, newBroadcast]);
       }
 
       // Here you would typically save to backend and send if immediate
@@ -232,7 +298,9 @@ const BroadcastManagementTab = ({ event }) => {
     }
 
     try {
-      setBroadcasts(prev => prev.filter(broadcast => broadcast.id !== broadcastId));
+      setBroadcasts((prev) =>
+        prev.filter((broadcast) => broadcast.id !== broadcastId)
+      );
       // await deleteBroadcast({ eventId: event.id, broadcastId });
     } catch (error) {
       console.error("Error deleting broadcast:", error);
@@ -246,10 +314,14 @@ const BroadcastManagementTab = ({ event }) => {
     }
 
     try {
-      setBroadcasts(prev => 
-        prev.map(broadcast => 
-          broadcast.id === broadcastId 
-            ? { ...broadcast, status: "sending", sent_at: new Date().toISOString() }
+      setBroadcasts((prev) =>
+        prev.map((broadcast) =>
+          broadcast.id === broadcastId
+            ? {
+                ...broadcast,
+                status: "sending",
+                sent_at: new Date().toISOString(),
+              }
             : broadcast
         )
       );
@@ -266,13 +338,13 @@ const BroadcastManagementTab = ({ event }) => {
       scheduled: "bg-blue-100 text-blue-800",
       sending: "bg-yellow-100 text-yellow-800",
       sent: "bg-green-100 text-green-800",
-      failed: "bg-red-100 text-red-800"
+      failed: "bg-red-100 text-red-800",
     };
     return colors[status] || "bg-gray-100 text-gray-800";
   };
 
   const getTypeIcon = (type) => {
-    const typeData = broadcastTypes.find(t => t.value === type);
+    const typeData = broadcastTypes.find((t) => t.value === type);
     return typeData ? typeData.icon : Bell;
   };
 
@@ -282,11 +354,14 @@ const BroadcastManagementTab = ({ event }) => {
   };
 
   const filteredBroadcasts = broadcasts
-    .filter(broadcast => activeFilter === "all" || broadcast.status === activeFilter)
-    .filter(broadcast => 
-      searchTerm === "" || 
-      broadcast.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      broadcast.message.toLowerCase().includes(searchTerm.toLowerCase())
+    .filter(
+      (broadcast) => activeFilter === "all" || broadcast.status === activeFilter
+    )
+    .filter(
+      (broadcast) =>
+        searchTerm === "" ||
+        broadcast.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        broadcast.message.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
   return (
@@ -299,7 +374,7 @@ const BroadcastManagementTab = ({ event }) => {
             Send announcements, reminders, and updates to your event attendees
           </p>
         </div>
-        
+
         <CustomButton
           buttonText="Create Broadcast"
           prefixIcon={<Plus className="w-4 h-4" />}
@@ -311,9 +386,11 @@ const BroadcastManagementTab = ({ event }) => {
 
       {/* Notification Credits Balance */}
       <div className="bg-green-50 p-4 rounded-lg">
-        <h3 className="font-medium text-gray-900 mb-3">Available Notification Credits</h3>
+        <h3 className="font-medium text-gray-900 mb-3">
+          Available Notification Credits
+        </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {channelOptions.map(channel => {
+          {channelOptions.map((channel) => {
             const Icon = channel.icon;
             // Mock credit balances - replace with actual data
             const credits = {
@@ -321,20 +398,23 @@ const BroadcastManagementTab = ({ event }) => {
               sms: 120,
               whatsapp: 180,
               voice: 50,
-              push: 300
+              push: 300,
             };
-            
+
             return (
               <div key={channel.value} className="flex items-center space-x-2">
                 <Icon size={16} className="text-gray-600" />
                 <span className="text-sm font-medium">{channel.label}:</span>
-                <span className="text-sm text-green-600 font-bold">{credits[channel.value] || 0}</span>
+                <span className="text-sm text-green-600 font-bold">
+                  {credits[channel.value] || 0}
+                </span>
               </div>
             );
           })}
         </div>
         <p className="text-xs text-gray-500 mt-2">
-          Need more credits? Purchase additional notification credits from Invitation Management.
+          Need more credits? Purchase additional notification credits from
+          Invitation Management.
         </p>
       </div>
 
@@ -373,13 +453,14 @@ const BroadcastManagementTab = ({ event }) => {
           <div className="text-center py-12 bg-gray-50 rounded-lg">
             <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {searchTerm || activeFilter !== "all" ? "No broadcasts found" : "No broadcasts yet"}
+              {searchTerm || activeFilter !== "all"
+                ? "No broadcasts found"
+                : "No broadcasts yet"}
             </h3>
             <p className="text-gray-500 mb-4">
-              {searchTerm || activeFilter !== "all" 
+              {searchTerm || activeFilter !== "all"
                 ? "Try adjusting your search or filter criteria"
-                : "Create your first broadcast to communicate with attendees"
-              }
+                : "Create your first broadcast to communicate with attendees"}
             </p>
             {!searchTerm && activeFilter === "all" && (
               <CustomButton
@@ -406,9 +487,13 @@ const BroadcastManagementTab = ({ event }) => {
                         <TypeIcon className="w-5 h-5 text-purple-600" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 mb-1">{broadcast.title}</h3>
-                        <p className="text-gray-600 text-sm mb-2 line-clamp-2">{broadcast.message}</p>
-                        
+                        <h3 className="font-semibold text-gray-900 mb-1">
+                          {broadcast.title}
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-2 line-clamp-2">
+                          {broadcast.message}
+                        </p>
+
                         <div className="flex items-center gap-4 text-xs text-gray-500">
                           <span className="flex items-center gap-1">
                             <Users className="w-3 h-3" />
@@ -416,16 +501,28 @@ const BroadcastManagementTab = ({ event }) => {
                           </span>
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
-                            {broadcast.sent_at ? `Sent ${formatDateTime(broadcast.sent_at)}` : 
-                             broadcast.scheduled_for ? `Scheduled for ${formatDateTime(broadcast.scheduled_for)}` :
-                             `Created ${formatDateTime(broadcast.created_at)}`}
+                            {broadcast.sent_at
+                              ? `Sent ${formatDateTime(broadcast.sent_at)}`
+                              : broadcast.scheduled_for
+                              ? `Scheduled for ${formatDateTime(
+                                  broadcast.scheduled_for
+                                )}`
+                              : `Created ${formatDateTime(
+                                  broadcast.created_at
+                                )}`}
                           </span>
                           <span className="flex items-center gap-1">
                             {broadcast.channels.map((channel) => {
-                              const channelData = channelOptions.find(c => c.value === channel);
-                              const ChannelIcon = channelData?.icon || MessageSquare;
+                              const channelData = channelOptions.find(
+                                (c) => c.value === channel
+                              );
+                              const ChannelIcon =
+                                channelData?.icon || MessageSquare;
                               return (
-                                <span key={channel} className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded text-xs">
+                                <span
+                                  key={channel}
+                                  className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded text-xs"
+                                >
                                   <ChannelIcon className="w-3 h-3" />
                                   {channelData?.label || channel}
                                 </span>
@@ -435,12 +532,17 @@ const BroadcastManagementTab = ({ event }) => {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(broadcast.status)}`}>
-                        {broadcast.status.charAt(0).toUpperCase() + broadcast.status.slice(1)}
+                      <span
+                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          broadcast.status
+                        )}`}
+                      >
+                        {broadcast.status.charAt(0).toUpperCase() +
+                          broadcast.status.slice(1)}
                       </span>
-                      
+
                       <div className="flex items-center gap-1">
                         {broadcast.status === "draft" && (
                           <button
@@ -475,15 +577,21 @@ const BroadcastManagementTab = ({ event }) => {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
                           <p className="text-gray-500">Delivered</p>
-                          <p className="font-semibold">{broadcast.recipient_count}</p>
+                          <p className="font-semibold">
+                            {broadcast.recipient_count}
+                          </p>
                         </div>
                         <div>
                           <p className="text-gray-500">Open Rate</p>
-                          <p className="font-semibold">{broadcast.open_rate}%</p>
+                          <p className="font-semibold">
+                            {broadcast.open_rate}%
+                          </p>
                         </div>
                         <div>
                           <p className="text-gray-500">Click Rate</p>
-                          <p className="font-semibold">{broadcast.click_rate}%</p>
+                          <p className="font-semibold">
+                            {broadcast.click_rate}%
+                          </p>
                         </div>
                         <div>
                           <p className="text-gray-500">Engagement</p>
@@ -564,14 +672,14 @@ const BroadcastManagementTab = ({ event }) => {
                         <label
                           key={channel.value}
                           className={`flex items-center gap-2 p-3 border rounded-md cursor-pointer transition-colors ${
-                            formData.channels.includes(channel.value)
+                            formData.event_notification[channel.value]
                               ? "border-purple-500 bg-purple-50"
                               : "border-gray-300 hover:border-gray-400"
                           }`}
                         >
                           <input
                             type="checkbox"
-                            checked={formData.channels.includes(channel.value)}
+                            checked={formData.event_notification[channel.value]}
                             onChange={() => handleChannelToggle(channel.value)}
                             className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                           />
@@ -584,17 +692,21 @@ const BroadcastManagementTab = ({ event }) => {
                 </div>
 
                 {/* Voice Recording Section */}
-                {formData.channels.includes("voice") && (
+                {formData.event_notification.voice && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Voice Broadcast Recording
                     </label>
                     <p className="text-sm text-gray-600 mb-4">
-                      Record or upload a voice message for your broadcast announcement.
+                      Record or upload a voice message for your broadcast
+                      announcement.
                     </p>
                     <VoiceRecorder
                       onRecordingComplete={handleVoiceRecordingComplete}
                       existingRecording={formData.voiceRecording}
+                      maxFileSizeMB={5}
+                      maxDurationMinutes={2}
+                      acceptedFormats="audio/mp3,audio/wav,audio/m4a"
                     />
                   </div>
                 )}
@@ -605,7 +717,9 @@ const BroadcastManagementTab = ({ event }) => {
                   </label>
                   <select
                     value={formData.recipients}
-                    onChange={(e) => handleInputChange("recipients", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("recipients", e.target.value)
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                   >
                     {recipientOptions.map((option) => (
@@ -621,10 +735,14 @@ const BroadcastManagementTab = ({ event }) => {
                     <input
                       type="checkbox"
                       checked={formData.send_immediately}
-                      onChange={(e) => handleInputChange("send_immediately", e.target.checked)}
+                      onChange={(e) =>
+                        handleInputChange("send_immediately", e.target.checked)
+                      }
                       className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                     />
-                    <span className="text-sm font-medium text-gray-700">Send immediately</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      Send immediately
+                    </span>
                   </label>
 
                   {!formData.send_immediately && (
@@ -632,14 +750,20 @@ const BroadcastManagementTab = ({ event }) => {
                       label="Schedule For"
                       type="datetime-local"
                       value={formData.scheduled_for}
-                      onChange={(e) => handleInputChange("scheduled_for", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("scheduled_for", e.target.value)
+                      }
                     />
                   )}
                 </div>
 
                 <div className="flex gap-3 pt-4">
                   <CustomButton
-                    buttonText={formData.send_immediately ? "Send Now" : "Schedule Broadcast"}
+                    buttonText={
+                      formData.send_immediately
+                        ? "Send Now"
+                        : "Schedule Broadcast"
+                    }
                     prefixIcon={<Send className="w-4 h-4" />}
                     buttonColor="bg-purple-600"
                     radius="rounded-md"
@@ -652,7 +776,11 @@ const BroadcastManagementTab = ({ event }) => {
                     textColor="text-gray-700"
                     radius="rounded-md"
                     onClick={() => {
-                      setFormData(prev => ({ ...prev, send_immediately: false, scheduled_for: "" }));
+                      setFormData((prev) => ({
+                        ...prev,
+                        send_immediately: false,
+                        scheduled_for: "",
+                      }));
                       handleSave();
                     }}
                   />

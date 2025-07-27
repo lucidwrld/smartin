@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import ImageUploader from "@/components/ImageUploader";
+// import ImageUploader from "@/components/ImageUploader";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import CustomButton from "@/components/Button";
 import VoiceRecorder from "@/components/VoiceRecorder";
@@ -14,7 +14,12 @@ const ThankYouMessage = ({ event }) => {
   const [formData, setFormData] = useState({
     thankYouImage: null,
     thankYouMessage: "",
-    selectedChannels: [],
+    thankyou_notification: {
+      email: false,
+      sms: false,
+      whatsapp: false,
+      voice: false
+    },
     voiceRecording: null,
   });
 
@@ -46,6 +51,13 @@ const ThankYouMessage = ({ event }) => {
         ...formData,
         thankYouImage: event?.thank_you_message?.image,
         thankYouMessage: event?.thank_you_message?.message,
+        thankyou_notification: {
+          email: event?.thankyou_notification?.email || false,
+          sms: event?.thankyou_notification?.sms || false,
+          whatsapp: event?.thankyou_notification?.whatsapp || false,
+          voice: event?.thankyou_notification?.voice || false
+        },
+        voiceRecording: event?.auto_settings?.auto_thankyou?.recording || null,
       });
       setIsNewImage(false); // Reset when event data changes
     }
@@ -62,9 +74,10 @@ const ThankYouMessage = ({ event }) => {
   const handleChannelSelection = (channelId) => {
     setFormData(prev => ({
       ...prev,
-      selectedChannels: prev.selectedChannels.includes(channelId)
-        ? prev.selectedChannels.filter(id => id !== channelId)
-        : [...prev.selectedChannels, channelId]
+      thankyou_notification: {
+        ...prev.thankyou_notification,
+        [channelId]: !prev.thankyou_notification[channelId]
+      }
     }));
   };
 
@@ -87,6 +100,7 @@ const ThankYouMessage = ({ event }) => {
 
   const handleSaveMessage = async () => {
     const updatedFormData = { ...formData };
+    let thankYouRecordingUrl = event?.auto_settings?.auto_thankyou?.recording || "";
 
     // Only upload if it's a new image (File object)
     if (formData.thankYouImage && isNewImage) {
@@ -94,10 +108,23 @@ const ThankYouMessage = ({ event }) => {
       updatedFormData.thankYouImage = imageUrl;
     }
 
+    // Upload voice recording if there's a new one
+    if (formData.voiceRecording && typeof formData.voiceRecording !== 'string') {
+      thankYouRecordingUrl = await handleFileUpload(formData.voiceRecording);
+    }
+
     const details = {
       thank_you_message: {
         image: updatedFormData.thankYouImage,
         message: updatedFormData.thankYouMessage,
+      },
+      thankyou_notification: updatedFormData.thankyou_notification,
+      auto_settings: {
+        ...event?.auto_settings,
+        auto_thankyou: {
+          active: event?.auto_settings?.auto_thankyou?.active || false,
+          recording: thankYouRecordingUrl
+        }
       },
     };
     updateEvent(details);
@@ -109,16 +136,16 @@ const ThankYouMessage = ({ event }) => {
         Create your thank you message for guests
       </p>
       <div className="w-full flex flex-col md:flex-row gap-8 bg-whiteColor p-4 md:p-10">
-        <div className="w-full md:w-1/2">
+        {/* <div className="w-full md:w-1/2">
           <ImageUploader
             onImageChange={handleImageChange}
             currentImage={formData.thankYouImage}
             height="h-72"
             label="Upload Thank You Image"
           />
-        </div>
+        </div> */}
 
-        <div className="w-full md:w-1/2 flex flex-col items-center justify-center">
+        <div className="w-full flex flex-col items-center justify-center">
           <div className="w-full">
             <InputWithFullBoarder
               label="Thank You Message"
@@ -141,7 +168,7 @@ const ThankYouMessage = ({ event }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {channelOptions.map(channel => {
                 const Icon = channel.icon;
-                const isSelected = formData.selectedChannels.includes(channel.id);
+                const isSelected = formData.thankyou_notification[channel.id];
                 
                 return (
                   <button
@@ -165,7 +192,7 @@ const ThankYouMessage = ({ event }) => {
               })}
             </div>
             
-            {formData.selectedChannels.length === 0 && (
+            {!Object.values(formData.thankyou_notification).some(Boolean) && (
               <p className="text-amber-600 text-sm mt-2">
                 Please select at least one channel to send thank you messages.
               </p>
@@ -173,15 +200,27 @@ const ThankYouMessage = ({ event }) => {
           </div>
 
           {/* Voice Recording Section */}
-          {formData.selectedChannels.includes("voice") && (
+          {formData.thankyou_notification.voice && (
             <div className="w-full mt-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">Voice Thank You Recording</h3>
               <p className="text-sm text-gray-600 mb-4">
                 Record or upload a personalized voice message to thank your guests.
               </p>
+              {event?.auto_settings?.auto_thankyou?.recording && !formData.voiceRecording && (
+                <div className="mb-4 p-3 bg-blue-50 rounded">
+                  <p className="text-sm text-gray-700 mb-2">Existing recording:</p>
+                  <audio controls className="w-full">
+                    <source src={event.auto_settings.auto_thankyou.recording} type="audio/mpeg" />
+                    Your browser does not support the audio element.
+                  </audio>
+                </div>
+              )}
               <VoiceRecorder
                 onRecordingComplete={handleVoiceRecordingComplete}
                 existingRecording={formData.voiceRecording}
+                maxFileSizeMB={5}
+                maxDurationMinutes={2}
+                acceptedFormats="audio/mp3,audio/wav,audio/m4a"
               />
             </div>
           )}
@@ -193,7 +232,7 @@ const ThankYouMessage = ({ event }) => {
               buttonColor={
                 "bg-whiteColor hover:bg-purple-50 border border-purple-600"
               }
-              isLoading={uploadingFile || updating}
+              isLoading={updating}
               textColor={"text-purple-600"}
               onClick={handleSaveMessage}
             />

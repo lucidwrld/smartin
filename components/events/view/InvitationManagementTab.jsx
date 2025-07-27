@@ -12,9 +12,14 @@ import Loader from "../../Loader";
 
 const InvitationManagementTab = ({ event, eventId }) => {
   const [activeTab, setActiveTab] = useState("send");
-  const [selectedChannels, setSelectedChannels] = useState([]);
+  const [eventInvitation, setEventInvitation] = useState({
+    email: event?.event_invitation?.email || false,
+    sms: event?.event_invitation?.sms || false,
+    whatsapp: event?.event_invitation?.whatsapp || false,
+    voice: event?.event_invitation?.voice || false
+  });
   const [voiceRecording, setVoiceRecording] = useState(null);
-  const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
+  const [existingInvitationVoiceUrl, setExistingInvitationVoiceUrl] = useState(event?.voice_recording || "");
   const [autoReminder, setAutoReminder] = useState(event?.auto_settings?.auto_reminder?.active || false);
   const [autoThankYou, setAutoThankYou] = useState(event?.auto_settings?.auto_thankyou?.active || false);
   const [reminderRecording, setReminderRecording] = useState(null); // Will hold the file blob
@@ -149,15 +154,10 @@ const InvitationManagementTab = ({ event, eventId }) => {
   };
 
   const handleChannelSelection = (channelId) => {
-    if (channelId === "voice") {
-      setShowVoiceRecorder(!selectedChannels.includes(channelId));
-    }
-    
-    setSelectedChannels(prev => 
-      prev.includes(channelId) 
-        ? prev.filter(id => id !== channelId)
-        : [...prev, channelId]
-    );
+    setEventInvitation(prev => ({
+      ...prev,
+      [channelId]: !prev[channelId]
+    }));
   };
 
   const addToCart = (creditType, channel, quantity) => {
@@ -352,13 +352,13 @@ const InvitationManagementTab = ({ event, eventId }) => {
                   key={channel.id}
                   onClick={() => handleChannelSelection(channel.id)}
                   className={`p-4 border rounded-lg text-left transition-colors ${
-                    selectedChannels.includes(channel.id)
+                    eventInvitation[channel.id]
                       ? "border-purple-500 bg-purple-50"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <channel.icon size={20} className={selectedChannels.includes(channel.id) ? "text-purple-600" : "text-gray-600"} />
+                    <channel.icon size={20} className={eventInvitation[channel.id] ? "text-purple-600" : "text-gray-600"} />
                     <div className="flex-1">
                       <p className="font-medium text-gray-900">{channel.name}</p>
                       <p className="text-sm text-gray-600">₦{channel.invitationPrice} per invitation</p>
@@ -371,12 +371,24 @@ const InvitationManagementTab = ({ event, eventId }) => {
           </div>
 
           {/* Voice Recording */}
-          {showVoiceRecorder && selectedChannels.includes("voice") && (
+          {eventInvitation.voice && (
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-4">Voice Invitation Recording</h3>
+              {existingInvitationVoiceUrl && !voiceRecording && (
+                <div className="mb-4 p-3 bg-blue-50 rounded">
+                  <p className="text-sm text-gray-700 mb-2">Existing recording:</p>
+                  <audio controls className="w-full">
+                    <source src={existingInvitationVoiceUrl} type="audio/mpeg" />
+                    Your browser does not support the audio element.
+                  </audio>
+                </div>
+              )}
               <VoiceRecorder
                 onRecordingComplete={setVoiceRecording}
                 existingRecording={voiceRecording}
+                maxFileSizeMB={5}
+                maxDurationMinutes={2}
+                acceptedFormats="audio/mp3,audio/wav,audio/m4a"
               />
             </div>
           )}
@@ -446,12 +458,12 @@ const InvitationManagementTab = ({ event, eventId }) => {
           )}
 
           {/* Send Summary */}
-          {selectedGroups.length > 0 && selectedChannels.length > 0 && (
+          {selectedGroups.length > 0 && Object.values(eventInvitation).some(Boolean) && (
             <div className="bg-purple-50 p-4 rounded-lg">
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-sm text-gray-600">
-                    Sending to {getSelectedGuestCount()} guests via {selectedChannels.length} channels
+                    Sending to {getSelectedGuestCount()} guests via {Object.values(eventInvitation).filter(Boolean).length} channels
                   </p>
                   <p className="text-lg font-medium text-purple-600">
                     Selected Groups: {selectedGroups.length}
@@ -461,6 +473,30 @@ const InvitationManagementTab = ({ event, eventId }) => {
                   buttonText="Send Invitations"
                   buttonColor="bg-purple-600 hover:bg-purple-700"
                   textColor="text-white"
+                  onClick={async () => {
+                    let invitationVoiceUrl = existingInvitationVoiceUrl;
+                    
+                    // Upload voice recording if there's a new one
+                    if (voiceRecording && typeof voiceRecording !== 'string') {
+                      invitationVoiceUrl = await handleFileUpload(voiceRecording);
+                    }
+                    
+                    const invitationData = {
+                      event_invitation: eventInvitation,
+                      voice_recording: invitationVoiceUrl,
+                      selectedGroups,
+                      guestCount: getSelectedGuestCount()
+                    };
+                    
+                    // Update event with invitation settings
+                    await updateEvent({
+                      event_invitation: eventInvitation,
+                      voice_recording: invitationVoiceUrl
+                    });
+                    
+                    console.log('Sending invitations with data:', invitationData);
+                    // Here you would call the actual send invitation API
+                  }}
                 />
               </div>
             </div>
@@ -713,6 +749,9 @@ const InvitationManagementTab = ({ event, eventId }) => {
                     <VoiceRecorder
                       onRecordingComplete={setReminderRecording}
                       existingRecording={reminderRecording}
+                      maxFileSizeMB={5}
+                      maxDurationMinutes={2}
+                      acceptedFormats="audio/mp3,audio/wav,audio/m4a"
                     />
                   </div>
                 )}
@@ -782,6 +821,9 @@ const InvitationManagementTab = ({ event, eventId }) => {
                     <VoiceRecorder
                       onRecordingComplete={setThankYouRecording}
                       existingRecording={thankYouRecording}
+                      maxFileSizeMB={5}
+                      maxDurationMinutes={2}
+                      acceptedFormats="audio/mp3,audio/wav,audio/m4a"
                     />
                   </div>
                 )}
