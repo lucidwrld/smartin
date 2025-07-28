@@ -7,12 +7,13 @@ const useGetAllEventsManager = ({
   pageSize = 10,
   search = "",
   user,
+  isActive,
   status,
   date,
   enabled = true,
 }) => {
   return useQuery(
-    ["events", enabled, search, page, pageSize, user, status, date],
+    ["events", enabled, search, page, pageSize, user, status, date, isActive],
     async () => {
       try {
         const [response] = [
@@ -24,6 +25,7 @@ const useGetAllEventsManager = ({
               ...(date && { date }),
               ...(user && { user }),
               ...(status && { status }),
+              ...(isActive && { isActive }),
             },
           }),
         ];

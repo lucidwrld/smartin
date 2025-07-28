@@ -9,7 +9,7 @@ import { formatAmount } from "@/utils/formatAmount";
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import Dropdown from "@/components/Dropdown";
-import { Plus, CreditCard } from "lucide-react";
+import { Plus, CreditCard, Mail, MessageSquare, Phone, Volume2 } from "lucide-react";
 
 import { useRouter } from "next/navigation";
 import { getQueryParams } from "@/utils/getQueryParams";
@@ -262,50 +262,168 @@ const UserDetailsPage = () => {
       {/* Tab Content */}
       <div className="bg-white rounded-lg p-6">
         {currentView === 0 && (
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-semibold mb-4">Personal Information</h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-gray-600">Full Name</p>
-                  <p className="font-medium">{user?.data?.user?.fullname}</p>
+          <div className="space-y-8">
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-semibold mb-4">Personal Information</h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-gray-600">Full Name</p>
+                    <p className="font-medium">{user?.data?.user?.fullname}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Email</p>
+                    <p className="font-medium">{user?.data?.user?.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Phone</p>
+                    <p className="font-medium">{user?.data?.user?.phone}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Referral Code</p>
+                    <p className="font-medium">{user?.data?.user?.referral_code}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Currency</p>
+                    <p className="font-medium">{user?.data?.user?.currency}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-gray-600">Email</p>
-                  <p className="font-medium">{user?.data?.user?.email}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Phone</p>
-                  <p className="font-medium">{user?.data?.user?.phone}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-4">Account Information</h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-gray-600">Account Status</p>
+                    <StatusButton
+                      status={
+                        user?.data?.user?.isSuspended
+                          ? "Suspended"
+                          : user?.data?.user?.is_active
+                          ? "Active"
+                          : "Inactive"
+                      }
+                    />
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Partner Status</p>
+                    <StatusButton
+                      status={user?.data?.user?.isPartner ? "Partner" : "Regular User"}
+                    />
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Member Since</p>
+                    <p className="font-medium">
+                      {formatDateTime(user?.data?.user?.createdAt)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Last Updated</p>
+                    <p className="font-medium">
+                      {formatDateTime(user?.data?.user?.updatedAt)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Notification Counter</p>
+                    <p className="font-medium">{user?.data?.user?.notification_counter || 0}</p>
+                  </div>
                 </div>
               </div>
             </div>
+
+            {/* Credit Balance Section */}
             <div>
-              <h3 className="font-semibold mb-4">Account Information</h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-gray-600">Account Status</p>
-                  <StatusButton
-                    status={
-                      user?.data?.user?.isSuspended
-                        ? "Suspended"
-                        : user?.data?.user?.is_active
-                        ? "Active"
-                        : "Inactive"
-                    }
-                  />
+              <h3 className="font-semibold mb-4">Credit Balance Overview</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Invitation Credits */}
+                <div className="bg-blue-50 p-6 rounded-lg">
+                  <h4 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
+                    <CreditCard size={20} className="text-blue-600" />
+                    Invitation Credits
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Mail size={16} className="text-gray-600" />
+                        <span className="text-sm">Email</span>
+                      </div>
+                      <span className="font-medium">
+                        {user?.data?.user?.credit_balance?.invitation_email_balance || 0}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <MessageSquare size={16} className="text-gray-600" />
+                        <span className="text-sm">SMS</span>
+                      </div>
+                      <span className="font-medium">
+                        {user?.data?.user?.credit_balance?.invitation_sms_balance || 0}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Phone size={16} className="text-gray-600" />
+                        <span className="text-sm">WhatsApp</span>
+                      </div>
+                      <span className="font-medium">
+                        {user?.data?.user?.credit_balance?.invitation_whatsapp_balance || 0}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Volume2 size={16} className="text-gray-600" />
+                        <span className="text-sm">Voice Call</span>
+                      </div>
+                      <span className="font-medium">
+                        {user?.data?.user?.credit_balance?.invitation_voice_balance || 0}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-gray-600">Member Since</p>
-                  <p className="font-medium">
-                    {formatDateTime(user?.data?.user?.createdAt)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Last Updated</p>
-                  <p className="font-medium">
-                    {formatDateTime(user?.data?.user?.updatedAt)}
-                  </p>
+
+                {/* Notification Credits */}
+                <div className="bg-green-50 p-6 rounded-lg">
+                  <h4 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
+                    <CreditCard size={20} className="text-green-600" />
+                    Notification Credits
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Mail size={16} className="text-gray-600" />
+                        <span className="text-sm">Email</span>
+                      </div>
+                      <span className="font-medium">
+                        {user?.data?.user?.credit_balance?.notification_email_balance || 0}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <MessageSquare size={16} className="text-gray-600" />
+                        <span className="text-sm">SMS</span>
+                      </div>
+                      <span className="font-medium">
+                        {user?.data?.user?.credit_balance?.notification_sms_balance || 0}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Phone size={16} className="text-gray-600" />
+                        <span className="text-sm">WhatsApp</span>
+                      </div>
+                      <span className="font-medium">
+                        {user?.data?.user?.credit_balance?.notification_whatsapp_balance || 0}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Volume2 size={16} className="text-gray-600" />
+                        <span className="text-sm">Voice Call</span>
+                      </div>
+                      <span className="font-medium">
+                        {user?.data?.user?.credit_balance?.notification_voice_balance || 0}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -363,7 +481,105 @@ const UserDetailsPage = () => {
         {currentView === 3 && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Add Credits for User</h3>
+              <h3 className="text-lg font-semibold">Credit Management</h3>
+            </div>
+
+            {/* Current Balance Summary */}
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h4 className="font-medium mb-4">Current Credit Balance</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Invitation Credits Summary */}
+                <div className="bg-white p-4 rounded-lg border">
+                  <h5 className="font-medium text-blue-600 mb-3 flex items-center gap-2">
+                    <CreditCard size={18} />
+                    Invitation Credits
+                  </h5>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="flex items-center gap-2">
+                        <Mail size={14} />
+                        Email
+                      </span>
+                      <span className="font-medium">
+                        {user?.data?.user?.credit_balance?.invitation_email_balance || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="flex items-center gap-2">
+                        <MessageSquare size={14} />
+                        SMS
+                      </span>
+                      <span className="font-medium">
+                        {user?.data?.user?.credit_balance?.invitation_sms_balance || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="flex items-center gap-2">
+                        <Phone size={14} />
+                        WhatsApp
+                      </span>
+                      <span className="font-medium">
+                        {user?.data?.user?.credit_balance?.invitation_whatsapp_balance || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="flex items-center gap-2">
+                        <Volume2 size={14} />
+                        Voice
+                      </span>
+                      <span className="font-medium">
+                        {user?.data?.user?.credit_balance?.invitation_voice_balance || 0}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Notification Credits Summary */}
+                <div className="bg-white p-4 rounded-lg border">
+                  <h5 className="font-medium text-green-600 mb-3 flex items-center gap-2">
+                    <CreditCard size={18} />
+                    Notification Credits
+                  </h5>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="flex items-center gap-2">
+                        <Mail size={14} />
+                        Email
+                      </span>
+                      <span className="font-medium">
+                        {user?.data?.user?.credit_balance?.notification_email_balance || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="flex items-center gap-2">
+                        <MessageSquare size={14} />
+                        SMS
+                      </span>
+                      <span className="font-medium">
+                        {user?.data?.user?.credit_balance?.notification_sms_balance || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="flex items-center gap-2">
+                        <Phone size={14} />
+                        WhatsApp
+                      </span>
+                      <span className="font-medium">
+                        {user?.data?.user?.credit_balance?.notification_whatsapp_balance || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="flex items-center gap-2">
+                        <Volume2 size={14} />
+                        Voice
+                      </span>
+                      <span className="font-medium">
+                        {user?.data?.user?.credit_balance?.notification_voice_balance || 0}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Add Credit Form */}

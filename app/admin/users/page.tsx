@@ -6,12 +6,14 @@ import StatusButton from "@/components/StatusButton";
 import StatusCard from "@/components/StatusCard";
 import TablesComponent from "@/components/TablesComponent";
 import UserCard from "@/components/UserCard";
-import { ArrowLeftRight, Clock } from "lucide-react";
+import { ArrowLeftRight, Clock, Search } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 import { formatAmount } from "@/utils/formatAmount";
 import { formatDateTime } from "@/utils/formatDateTime";
 import useGetUsersManager from "./controllers/getAllUsersController";
+import useDebounce from "@/utils/UseDebounce";
+import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import useGetSingleUser from "./controllers/getSingleUserController";
 import { useRouter } from "next/navigation";
 import { MakeUserPartnerManager } from "./controllers/makeUserPartnerController";
@@ -23,7 +25,15 @@ const UsersPage = () => {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState(null);
-  const { data, isLoading } = useGetUsersManager({ page: currentPage });
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Debounce search term with 1 second delay
+  const debouncedSearchTerm = useDebounce(searchTerm, 1000);
+
+  const { data, isLoading } = useGetUsersManager({ 
+    page: currentPage, 
+    searchQuery: debouncedSearchTerm 
+  });
   const { makePartner } = MakeUserPartnerManager({ userId: selectedUser });
   const { manageSuspend } = SuspendUnsuspendUserManager({
     userId: selectedUser,
@@ -35,6 +45,13 @@ const UsersPage = () => {
     if (selectedUser) {
     }
   }, [selectedUser]);
+
+  // Reset to page 1 when search term changes
+  useEffect(() => {
+    if (debouncedSearchTerm !== "") {
+      setCurrentPage(1);
+    }
+  }, [debouncedSearchTerm]);
 
   const cards = [
     { title: "Total Users", count: 120, icon: ArrowLeftRight },
@@ -72,7 +89,28 @@ const UsersPage = () => {
           <StatusCard key={index} {...card} />
         ))}
       </div>
-      <div className="mt-6 flex flex-col w-full gap-4">
+      
+      {/* Search Section */}
+      <div className="mt-6 mb-4">
+        <div className="w-full max-w-md">
+          <InputWithFullBoarder
+            id="user-search"
+            name="search"
+            type="text"
+            placeholder="Search users by fullname..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            icon={<Search className="h-5 w-5 text-gray-400" />}
+          />
+        </div>
+        {debouncedSearchTerm && (
+          <p className="text-sm text-gray-600 mt-2">
+            {isLoading ? "Searching..." : `Search results for "${debouncedSearchTerm}"`}
+          </p>
+        )}
+      </div>
+
+      <div className="flex flex-col w-full gap-4">
         <div className="h-[67vh] w-full relative">
           {
             <TablesComponent

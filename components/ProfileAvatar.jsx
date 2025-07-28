@@ -31,7 +31,12 @@ const ProfileAvatar = ({ name, image, email, size = "md", onClick }) => {
         <h3 className="font-medium text-whiteColor ">{name}</h3>
         <p className="text-gray-200 truncate">{email}</p>
       </Link>
-      <LogOutIcon className="text-white shrink-0" size={20} onClick={onClick} />
+      <LogOutIcon 
+        className="text-white shrink-0 hover:text-red-300 cursor-pointer transition-colors" 
+        size={20} 
+        onClick={onClick}
+        title="Logout"
+      />
     </div>
   );
 };

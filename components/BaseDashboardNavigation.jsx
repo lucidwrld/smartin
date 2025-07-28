@@ -177,10 +177,9 @@ const BaseDashboardNavigation = ({ children, title }) => {
               {/* {showNotification && (
                 <NotificationList showNotification={showNotification} />
               )} */}
-              {/* <div className="rounded-full border-brandRed border-solid border-2 mr-[13px] cursor-pointer">
-                {" "}
+              <Link href="/profile-settings" className="rounded-full border-gray-300 border-solid border-2 mr-[13px] cursor-pointer hover:border-purple-500 transition-colors">
                 <img
-                  className=" object-cover h-[44px] w-[44px] p-[0.7px] rounded-full "
+                  className="object-cover h-[44px] w-[44px] p-[0.7px] rounded-full"
                   src={
                     data?.data?.user?.profile_picture !== ""
                       ? data?.data?.user?.profile_picture
@@ -188,7 +187,7 @@ const BaseDashboardNavigation = ({ children, title }) => {
                   }
                   alt="user avatar"
                 />
-              </div> */}
+              </Link>
               <div>
                 {/* <p className="flex items-center text-brandRed text-[13px] font-semibold leading-tight">
                   {data?.data?.user?.firstName} {data?.data?.user?.lastName}

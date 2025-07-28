@@ -13,7 +13,9 @@ const useGetUsersManager = ({
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(
-          `/user/all?page=${page}&pageSize=${pageSize}`
+          `/user/all?page=${page}&pageSize=${pageSize}${
+            searchQuery ? `&fullname=${encodeURIComponent(searchQuery)}` : ""
+          }`
         );
         return response.data;
       } catch (error) {
