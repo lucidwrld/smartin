@@ -7,6 +7,9 @@ import { UserCircle, ArrowLeft } from "lucide-react";
 import { formatDateTime } from "@/utils/formatDateTime";
 import { formatAmount } from "@/utils/formatAmount";
 import CustomButton from "@/components/Button";
+import InputWithFullBoarder from "@/components/InputWithFullBoarder";
+import Dropdown from "@/components/Dropdown";
+import { Plus, CreditCard } from "lucide-react";
 
 import { useRouter } from "next/navigation";
 import { getQueryParams } from "@/utils/getQueryParams";
@@ -20,6 +23,7 @@ import { formatDate } from "@/utils/formatDate";
 import { MakeUserPartnerManager } from "../controllers/makeUserPartnerController";
 import { ConfirmBankPaymentManager } from "@/app/transactions/controllers/confirmBankPaymentController";
 import { SuspendUnsuspendUserManager } from "../controllers/suspendUnsuspendUserController";
+import { AddUserCreditsManager } from "@/app/events/controllers/creditManagement/addUserCreditsController";
 
 const UserDetailsPage = () => {
   const { id } = getQueryParams(["id"]);
@@ -36,6 +40,15 @@ const UserDetailsPage = () => {
     userId: id,
   });
   const { confirmBankPayment } = ConfirmBankPaymentManager();
+  const { addUserCredits, isLoading: addingCredits } = AddUserCreditsManager();
+
+  // Credit management states
+  const [creditForm, setCreditForm] = useState({
+    type: 'invitation',
+    channel: 'email',
+    quantity: ''
+  });
+  const [creditItems, setCreditItems] = useState([]);
   const { data, isLoading: loadingTransactions } = useGetAllTransactionsManager(
     {
       enabled: Boolean(id),
@@ -92,6 +105,53 @@ const UserDetailsPage = () => {
     el?.no_of_invitees,
     formatDate(el?.createdAt),
     <StatusButton status={el?.isActive ? "Active" : "Inactive"} />,
+  ];
+
+  // Credit management functions
+  const handleAddCreditItem = () => {
+    if (!creditForm.quantity || creditForm.quantity <= 0) return;
+    
+    const newItem = {
+      id: Date.now(),
+      type: creditForm.type,
+      channel: creditForm.channel,
+      quantity: parseInt(creditForm.quantity)
+    };
+    
+    setCreditItems([...creditItems, newItem]);
+    setCreditForm({ ...creditForm, quantity: '' });
+  };
+
+  const handleRemoveCreditItem = (id) => {
+    setCreditItems(creditItems.filter(item => item.id !== id));
+  };
+
+  const handleSubmitCredits = async () => {
+    if (creditItems.length === 0) return;
+    
+    const payload = {
+      userId: id,
+      purchaseItems: creditItems.map(item => ({
+        type: item.type,
+        channel: item.channel,
+        quantity: item.quantity
+      }))
+    };
+    
+    await addUserCredits(payload);
+    setCreditItems([]);
+  };
+
+  const channelOptions = [
+    { value: 'email', label: 'Email' },
+    { value: 'sms', label: 'SMS' },
+    { value: 'whatsapp', label: 'WhatsApp' },
+    { value: 'voice', label: 'Voice Call' }
+  ];
+
+  const typeOptions = [
+    { value: 'invitation', label: 'Invitation' },
+    { value: 'notification', label: 'Notification' }
   ];
 
   if (isLoading) return <div>Loading...</div>;
@@ -196,7 +256,7 @@ const UserDetailsPage = () => {
       <TabManager
         currentView={currentView}
         setCurrentView={setCurrentView}
-        list={["Details", "Payments", "Events"]}
+        list={["Details", "Payments", "Events", "Credits"]}
       />
 
       {/* Tab Content */}
@@ -298,6 +358,116 @@ const UserDetailsPage = () => {
             getFormattedValue={getEventValue}
             headers={eventHeaders}
           />
+        )}
+
+        {currentView === 3 && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">Add Credits for User</h3>
+            </div>
+
+            {/* Add Credit Form */}
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h4 className="font-medium mb-4">Add New Credit Item</h4>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div>
+                  <Dropdown
+                    label="Credit Type"
+                    id="credit_type"
+                    type="select"
+                    value={creditForm.type}
+                    options={typeOptions}
+                    onChange={(e) => setCreditForm({ ...creditForm, type: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Dropdown
+                    label="Channel"
+                    id="credit_channel"
+                    type="select"
+                    value={creditForm.channel}
+                    options={channelOptions}
+                    onChange={(e) => setCreditForm({ ...creditForm, channel: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <InputWithFullBoarder
+                    label="Quantity"
+                    type="number"
+                    value={creditForm.quantity}
+                    onChange={(e) => setCreditForm({ ...creditForm, quantity: e.target.value })}
+                    placeholder="Enter quantity"
+                    min="1"
+                  />
+                </div>
+                <div>
+                  <CustomButton
+                    buttonText="Add Item"
+                    buttonColor="bg-blue-600"
+                    textColor="text-white"
+                    onClick={handleAddCreditItem}
+                    prefixIcon={<Plus size={16} />}
+                    disabled={!creditForm.quantity || creditForm.quantity <= 0}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Credit Items List */}
+            {creditItems.length > 0 && (
+              <div className="bg-white border rounded-lg">
+                <div className="p-4 border-b">
+                  <h4 className="font-medium">Credits to Add</h4>
+                </div>
+                <div className="divide-y">
+                  {creditItems.map((item) => (
+                    <div key={item.id} className="p-4 flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <CreditCard size={20} className="text-gray-400" />
+                        <div>
+                          <p className="font-medium capitalize">
+                            {item.type} - {item.channel}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {item.quantity} credits
+                          </p>
+                        </div>
+                      </div>
+                      <CustomButton
+                        buttonText="Remove"
+                        buttonColor="bg-red-50"
+                        textColor="text-red-600"
+                        onClick={() => handleRemoveCreditItem(item.id)}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="p-4 border-t bg-gray-50">
+                  <div className="flex justify-between items-center">
+                    <p className="font-medium">
+                      Total Items: {creditItems.length}
+                    </p>
+                    <CustomButton
+                      buttonText={addingCredits ? "Adding Credits..." : "Add All Credits"}
+                      buttonColor="bg-green-600"
+                      textColor="text-white"
+                      onClick={handleSubmitCredits}
+                      isLoading={addingCredits}
+                      disabled={addingCredits || creditItems.length === 0}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {creditItems.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                <CreditCard size={48} className="mx-auto mb-4 text-gray-300" />
+                <p>No credit items added yet</p>
+                <p className="text-sm">Use the form above to add credits for this user</p>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </BaseDashboardNavigation>

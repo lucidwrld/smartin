@@ -7,6 +7,7 @@ import {
   Settings,
   Users2,
   CreditCard,
+  Wallet,
 } from "lucide-react";
 import React from "react";
 
@@ -35,6 +36,12 @@ export const mainMenu: MenuItemType[] = [
     inactive: transactions,
     title: "Transactions",
     url: "/transactions",
+  },
+  {
+    active: <Wallet />,
+    inactive: <Wallet />,
+    title: "Wallet",
+    url: "/wallet",
   },
   {
     active: <CreditCard />,

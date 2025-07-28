@@ -14,6 +14,7 @@ import { formatDateTime } from "@/utils/formatDateTime";
 import useGetUserDetailsManager from "../profile-settings/controllers/get_UserDetails_controller";
 import TransactionDetailModal from "@/components/transactions/TransactionDetailModal";
 import CustomButton from "@/components/Button";
+import WithdrawalModal from "@/components/transactions/WithdrawalModal";
 
 const TransactionsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -133,6 +134,11 @@ const TransactionsPage = () => {
         isOpen={Boolean(selectedTransaction)}
         onClose={() => setSelectedTransaction(null)}
         transaction={selectedTransaction}
+      />
+      <WithdrawalModal
+        isOpen={showWithdrawModal}
+        onClose={() => setShowWithdrawModal(false)}
+        walletBalance={walletBalance}
       />
     </BaseDashboardNavigation>
   );

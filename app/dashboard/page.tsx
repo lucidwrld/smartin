@@ -11,6 +11,7 @@ import {
   Percent,
   Clock,
   ChevronRight,
+  CreditCard as CreditCardIcon,
 } from "lucide-react";
 import Link from "next/link";
 import BaseDashboardNavigation from "@/components/BaseDashboardNavigation";
@@ -23,6 +24,7 @@ import { formatDateToLongString } from "@/utils/formatDateToLongString";
 import { OpenSingleNotificationManager } from "../notifications/controllers/openSingleNotificationController";
 import useGetUserAnalyticsManager from "../events/controllers/getUserAnalyticsController";
 import useGetAllEventsManager from "../events/controllers/getAllEventsController";
+import useGetUserCreditsManager from "../events/controllers/creditManagement/getUserCreditsController";
 
 const StatCard = ({ icon: Icon, label, value, trend }) => (
   <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow text-brandBlack">
@@ -105,8 +107,90 @@ const PromoCard = () => (
   </div>
 );
 
+const CreditCard = () => {
+  const { data: userCredits } = useGetUserCreditsManager({ enabled: true });
+  
+  const creditChannels = [
+    { 
+      channel: 'email', 
+      label: 'Email', 
+      invitation: userCredits?.data?.invitation_email_balance || 0,
+      notification: userCredits?.data?.notification_email_balance || 0 
+    },
+    { 
+      channel: 'sms', 
+      label: 'SMS', 
+      invitation: userCredits?.data?.invitation_sms_balance || 0,
+      notification: userCredits?.data?.notification_sms_balance || 0 
+    },
+    { 
+      channel: 'whatsapp', 
+      label: 'WhatsApp', 
+      invitation: userCredits?.data?.invitation_whatsapp_balance || 0,
+      notification: userCredits?.data?.notification_whatsapp_balance || 0 
+    },
+    { 
+      channel: 'voice', 
+      label: 'Voice', 
+      invitation: userCredits?.data?.invitation_voice_balance || 0,
+      notification: userCredits?.data?.notification_voice_balance || 0 
+    }
+  ];
+
+  return (
+    <div className="bg-white p-6 rounded-xl shadow-sm">
+      <div className="flex items-center gap-2 mb-4">
+        <CreditCardIcon className="text-brandPurple" size={20} />
+        <h3 className="font-semibold">Available Credits</h3>
+      </div>
+      
+      <div className="bg-gray-50 rounded-lg p-3 mb-4">
+        <div className="flex justify-between text-xs font-medium text-gray-600 mb-2">
+          <span>Channel</span>
+          <div className="flex gap-8">
+            <span>Invitations</span>
+            <span>Notifications</span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="space-y-3">
+        {creditChannels.map((channel) => (
+          <div key={channel.channel} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
+            <span className="text-sm font-medium capitalize">{channel.label}</span>
+            <div className="flex gap-8 text-sm">
+              <span className="text-blue-600 font-medium w-16 text-right">
+                {channel.invitation}
+              </span>
+              <span className="text-green-600 font-medium w-16 text-right">
+                {channel.notification}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      <div className="mt-4 pt-3 border-t text-xs text-gray-500">
+        <p className="mb-2">
+          <span className="text-blue-600">●</span> Invitations: Credits for sending event invites
+        </p>
+        <p className="mb-3">
+          <span className="text-green-600">●</span> Notifications: Credits for event updates & reminders
+        </p>
+      </div>
+      
+      <div className="mt-3">
+        <Link href="/events" className="text-brandPurple text-sm hover:underline font-medium">
+          Purchase more credits →
+        </Link>
+      </div>
+    </div>
+  );
+};
+
 const Dashboard = () => {
   const { data: analytics } = useGetUserAnalyticsManager();
+  const { data: userCredits } = useGetUserCreditsManager({ enabled: true });
   const stats = [
     {
       icon: Calendar,
@@ -242,6 +326,7 @@ const Dashboard = () => {
           </div>
 
           <div className="space-y-6">
+            <CreditCard />
             <PromoCard />
             <div className="bg-white p-6 rounded-xl shadow-sm">
               <h3 className="font-semibold mb-4">Quick Tips</h3>

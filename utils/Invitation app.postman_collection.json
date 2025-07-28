@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "9893a026-a045-4fa3-bf70-a286e96d2dcf",
+		"_postman_id": "1195d31b-d965-4f08-b382-ae101f13bb01",
 		"name": "Invitation app",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "17652468"
@@ -3716,6 +3716,138 @@
 					]
 				},
 				{
+					"name": "Broadcast",
+					"item": [
+						{
+							"name": "Create Broadcast",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"event\": \"6769207ee7d2433e9716216c\",\n    \"title\": \"Event update\",\n    \"message\": \"random event message\",\n    \"target_audience\": \"all | accepted | declined | pending\",\n    \"send_immediately\": true,\n    \"scheduled_time\": \"\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/broadcast",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"broadcast"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get all broadcasts for an event",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/broadcast/event/{{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"broadcast",
+										"event",
+										"{{eventId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get broadcast by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/broadcast/{{broadcastId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"broadcast",
+										"{{broadcastId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Send broadcast",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/broadcast/send/{{broadcastId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"broadcast",
+										"send",
+										"{{broadcastId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Edit Broadcast",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"event\": \"6769207ee7d2433e9716216c\",\n    \"title\": \"Event update\",\n    \"message\": \"random event message\",\n    \"target_audience\": \"all | accepted | declined | pending\",\n    \"send_immediately\": true,\n    \"scheduled_time\": \"\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/broadcast/{{broadcastId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"broadcast",
+										"{{broadcastId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Broadcast",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/broadcast/{{broadcastId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"broadcast",
+										"{{broadcastId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "Create Event",
 					"request": {
 						"method": "POST",
@@ -6034,6 +6166,444 @@
 			]
 		},
 		{
+			"name": "Wallet",
+			"item": [
+				{
+					"name": "Withdrawal",
+					"item": [
+						{
+							"name": "Get bank list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/user/kyc/banks/list",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"user",
+										"kyc",
+										"banks",
+										"list"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Resolve bank account",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/wallet/bank/resolve?account_number=0458272003&bank_code=058",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wallet",
+										"bank",
+										"resolve"
+									],
+									"query": [
+										{
+											"key": "account_number",
+											"value": "0458272003"
+										},
+										{
+											"key": "bank_code",
+											"value": "058"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "New Request",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/wallet/bank/resolve?account_number=0458272003&bank_code=058",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"wallet",
+												"bank",
+												"resolve"
+											],
+											"query": [
+												{
+													"key": "account_number",
+													"value": "0458272003"
+												},
+												{
+													"key": "bank_code",
+													"value": "058"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "168"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"a8-ENQtJpxuwg7N1nBCcCF8w8I5Yhs\""
+										},
+										{
+											"key": "Date",
+											"value": "Mon, 09 Dec 2024 18:44:49 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Account number resolved\",\n    \"data\": {\n        \"account_number\": \"0458272003\",\n        \"account_name\": \"EZEAKA CHUKWUKA IKECHUKWU\",\n        \"bank_id\": 9,\n        \"bank_code\": \"058\"\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "request withdrawal",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Chukwuka Ezeaka\",\n    \"account_number\": \"0458272003\",\n    \"amount\": 500,\n    \"bank_code\": \"058\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/wallet/withdrawal",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wallet",
+										"withdrawal"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "withdraw",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"Chukwuka Ezeaka\",\n    \"account_number\": \"0458272003\",\n    \"amount\": 500,\n    \"bank_code\": \"058\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/wallet/withdrawal",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"wallet",
+												"withdrawal"
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "115"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"73-y4rBfZuhr1g9be3vCCxNozYc2+E\""
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 11 Dec 2024 09:52:50 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"An OTP has been sent to your registered emaill address to complete your withdrawal\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Complete withdrawal with otp",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"otp\": \"064043\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/wallet/withdrawal/otp",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wallet",
+										"withdrawal",
+										"otp"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "SUCCESS",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"otp\": \"064043\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/wallet/withdrawal/otp",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"wallet",
+												"withdrawal",
+												"otp"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "55"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"37-RZz7RC1o3m1q7m2IvEBAUNSEj5Y\""
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 11 Dec 2024 09:54:26 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Withdrawal in progress\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Get user withdrawals",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/wallet/withdrawal",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wallet",
+										"withdrawal"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/wallet/withdrawal",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"wallet",
+												"withdrawal"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "4727"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"1277-4HjvGel+77jREGa6Gcbmsw1V8co\""
+										},
+										{
+											"key": "Date",
+											"value": "Wed, 11 Dec 2024 08:54:16 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Requests fetched\",\n    \"data\": {\n        \"pagination\": {\n            \"prevPage\": null,\n            \"currentPage\": 1,\n            \"nextPage\": null,\n            \"pageTotal\": 1,\n            \"pageSize\": 3,\n            \"total\": 3\n        },\n        \"transactions\": [\n            {\n                \"amount\": 1000,\n                \"status\": \"declined\",\n                \"_id\": \"675807612083d409baf09275\",\n                \"user\": {\n                    \"address\": {\n                        \"street_address\": \"\",\n                        \"country\": \"\",\n                        \"city\": \"\",\n                        \"state\": \"\",\n                        \"lga\": \"\"\n                    },\n                    \"referral_code\": null,\n                    \"roles\": [],\n                    \"is_active\": true,\n                    \"isSuspended\": false,\n                    \"isDeleted\": false,\n                    \"phone\": \"\",\n                    \"nationality\": \"\",\n                    \"occupation\": \"\",\n                    \"profile_picture\": \"\",\n                    \"firebase_uid\": null,\n                    \"kyc_status\": \"completed\",\n                    \"hasKyc\": true,\n                    \"customer_code\": \"CUS_a13inwwyinmbsme\",\n                    \"_id\": \"6730f13bec2e23817429a0e6\",\n                    \"first_name\": \"Chukwuka\",\n                    \"last_name\": \"Ezeaka\",\n                    \"email\": \"chukwuka.ezeaka1@outlook.com\",\n                    \"password\": \"$2a$11$78XA5cWf1aOENy8mw9kFE..C5SgqZwXTFQKmwccUDgQuY2vcRIYBO\",\n                    \"activation_code\": null,\n                    \"activation_expires_in\": null,\n                    \"createdAt\": \"2024-11-10T17:45:32.581Z\",\n                    \"updatedAt\": \"2024-12-11T08:53:55.066Z\",\n                    \"__v\": 0,\n                    \"notification_counter\": 10,\n                    \"kyc\": \"675810122973bb360bf847f9\",\n                    \"id\": \"6730f13bec2e23817429a0e6\"\n                },\n                \"recipient_code\": \"RCP_nwh7y34loodylj5\",\n                \"transfer_recipient\": {\n                    \"details\": {\n                        \"authorization_code\": null,\n                        \"account_number\": \"0458272003\",\n                        \"account_name\": \"EZEAKA CHUKWUKA IKECHUKWU\",\n                        \"bank_code\": \"058\",\n                        \"bank_name\": \"Guaranty Trust Bank\"\n                    },\n                    \"_id\": \"6758075e2083d409baf09266\",\n                    \"active\": true,\n                    \"createdAt\": \"2024-12-09T18:46:58.000Z\",\n                    \"currency\": \"NGN\",\n                    \"domain\": \"test\",\n                    \"integration\": 1174258,\n                    \"name\": \"Chukwuka Ezeaka\",\n                    \"recipient_code\": \"RCP_nwh7y34loodylj5\",\n                    \"type\": \"nuban\",\n                    \"updatedAt\": \"2024-12-09T18:46:58.000Z\",\n                    \"is_deleted\": false,\n                    \"user\": \"6730f13bec2e23817429a0e6\",\n                    \"__v\": 0\n                },\n                \"withdrawal_reference\": \"MECASA-20241210101821-1038384191292\",\n                \"createdAt\": \"2024-12-10T09:18:25.433Z\",\n                \"updatedAt\": \"2024-12-10T09:34:59.153Z\"\n            },\n            {\n                \"amount\": 1000,\n                \"status\": \"otp\",\n                \"_id\": \"67580b781e347320e3afbbdc\",\n                \"user\": {\n                    \"address\": {\n                        \"street_address\": \"\",\n                        \"country\": \"\",\n                        \"city\": \"\",\n                        \"state\": \"\",\n                        \"lga\": \"\"\n                    },\n                    \"referral_code\": null,\n                    \"roles\": [],\n                    \"is_active\": true,\n                    \"isSuspended\": false,\n                    \"isDeleted\": false,\n                    \"phone\": \"\",\n                    \"nationality\": \"\",\n                    \"occupation\": \"\",\n                    \"profile_picture\": \"\",\n                    \"firebase_uid\": null,\n                    \"kyc_status\": \"completed\",\n                    \"hasKyc\": true,\n                    \"customer_code\": \"CUS_a13inwwyinmbsme\",\n                    \"_id\": \"6730f13bec2e23817429a0e6\",\n                    \"first_name\": \"Chukwuka\",\n                    \"last_name\": \"Ezeaka\",\n                    \"email\": \"chukwuka.ezeaka1@outlook.com\",\n                    \"password\": \"$2a$11$78XA5cWf1aOENy8mw9kFE..C5SgqZwXTFQKmwccUDgQuY2vcRIYBO\",\n                    \"activation_code\": null,\n                    \"activation_expires_in\": null,\n                    \"createdAt\": \"2024-11-10T17:45:32.581Z\",\n                    \"updatedAt\": \"2024-12-11T08:53:55.066Z\",\n                    \"__v\": 0,\n                    \"notification_counter\": 10,\n                    \"kyc\": \"675810122973bb360bf847f9\",\n                    \"id\": \"6730f13bec2e23817429a0e6\"\n                },\n                \"recipient_code\": \"RCP_nwh7y34loodylj5\",\n                \"transfer_recipient\": {\n                    \"details\": {\n                        \"authorization_code\": null,\n                        \"account_number\": \"0458272003\",\n                        \"account_name\": \"EZEAKA CHUKWUKA IKECHUKWU\",\n                        \"bank_code\": \"058\",\n                        \"bank_name\": \"Guaranty Trust Bank\"\n                    },\n                    \"_id\": \"67580b761e347320e3afbbcd\",\n                    \"active\": true,\n                    \"createdAt\": \"2024-12-09T18:46:58.000Z\",\n                    \"currency\": \"NGN\",\n                    \"domain\": \"test\",\n                    \"integration\": 1174258,\n                    \"name\": \"Chukwuka Ezeaka\",\n                    \"recipient_code\": \"RCP_nwh7y34loodylj5\",\n                    \"type\": \"nuban\",\n                    \"updatedAt\": \"2024-12-09T18:46:58.000Z\",\n                    \"is_deleted\": false,\n                    \"user\": \"6730f13bec2e23817429a0e6\",\n                    \"__v\": 0\n                },\n                \"withdrawal_reference\": \"MECASA-20241210103549-773727429630\",\n                \"createdAt\": \"2024-12-10T09:35:52.796Z\",\n                \"updatedAt\": \"2024-12-10T09:36:18.286Z\",\n                \"transfer_code\": \"TRF_fix8zpwjz41ak17h\"\n            },\n            {\n                \"amount\": 1000,\n                \"status\": \"requested\",\n                \"_id\": \"6759532367a2873db6283549\",\n                \"user\": {\n                    \"address\": {\n                        \"street_address\": \"\",\n                        \"country\": \"\",\n                        \"city\": \"\",\n                        \"state\": \"\",\n                        \"lga\": \"\"\n                    },\n                    \"referral_code\": null,\n                    \"roles\": [],\n                    \"is_active\": true,\n                    \"isSuspended\": false,\n                    \"isDeleted\": false,\n                    \"phone\": \"\",\n                    \"nationality\": \"\",\n                    \"occupation\": \"\",\n                    \"profile_picture\": \"\",\n                    \"firebase_uid\": null,\n                    \"kyc_status\": \"completed\",\n                    \"hasKyc\": true,\n                    \"customer_code\": \"CUS_a13inwwyinmbsme\",\n                    \"_id\": \"6730f13bec2e23817429a0e6\",\n                    \"first_name\": \"Chukwuka\",\n                    \"last_name\": \"Ezeaka\",\n                    \"email\": \"chukwuka.ezeaka1@outlook.com\",\n                    \"password\": \"$2a$11$78XA5cWf1aOENy8mw9kFE..C5SgqZwXTFQKmwccUDgQuY2vcRIYBO\",\n                    \"activation_code\": null,\n                    \"activation_expires_in\": null,\n                    \"createdAt\": \"2024-11-10T17:45:32.581Z\",\n                    \"updatedAt\": \"2024-12-11T08:53:55.066Z\",\n                    \"__v\": 0,\n                    \"notification_counter\": 10,\n                    \"kyc\": \"675810122973bb360bf847f9\",\n                    \"id\": \"6730f13bec2e23817429a0e6\"\n                },\n                \"recipient_code\": \"RCP_nwh7y34loodylj5\",\n                \"transfer_recipient\": {\n                    \"details\": {\n                        \"authorization_code\": null,\n                        \"account_number\": \"0458272003\",\n                        \"account_name\": \"EZEAKA CHUKWUKA IKECHUKWU\",\n                        \"bank_code\": \"058\",\n                        \"bank_name\": \"Guaranty Trust Bank\"\n                    },\n                    \"_id\": \"6759532067a2873db628353a\",\n                    \"active\": true,\n                    \"createdAt\": \"2024-12-09T18:46:58.000Z\",\n                    \"currency\": \"NGN\",\n                    \"domain\": \"test\",\n                    \"integration\": 1174258,\n                    \"name\": \"Chukwuka Ezeaka\",\n                    \"recipient_code\": \"RCP_nwh7y34loodylj5\",\n                    \"type\": \"nuban\",\n                    \"updatedAt\": \"2024-12-09T18:46:58.000Z\",\n                    \"is_deleted\": false,\n                    \"user\": \"6730f13bec2e23817429a0e6\",\n                    \"__v\": 0\n                },\n                \"withdrawal_reference\": \"MECASA-20241211095351-1227329481776\",\n                \"createdAt\": \"2024-12-11T08:53:55.485Z\",\n                \"updatedAt\": \"2024-12-11T08:53:55.485Z\"\n            }\n        ]\n    }\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Get User Balance",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/wallet/balance",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wallet",
+								"balance"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user transaction history",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/wallet/transactions?page=1&pageSize=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"wallet",
+								"transactions"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Settings",
 			"item": [
 				{
@@ -6755,6 +7325,34 @@
 							"path": [
 								"credit-management",
 								"balance"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add user credits admin",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"67602747c0fb825740339b3a\",\n    \"purchaseItems\": [\n        {\n            \"type\": \"notification\",\n            \"channel\": \"whatsapp\",\n            \"quantity\": 40\n        },\n        {\n            \"type\": \"notification\",\n            \"channel\": \"email\",\n            \"quantity\": 40\n        },\n        {\n            \"type\": \"notification\",\n            \"channel\": \"sms\",\n            \"quantity\": 40\n        },\n        {\n            \"type\": \"notification\",\n            \"channel\": \"voice\",\n            \"quantity\": 40\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/credit-management/balance/credit",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"credit-management",
+								"balance",
+								"credit"
 							]
 						}
 					},

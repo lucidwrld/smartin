@@ -1,20 +1,22 @@
 import usePostManager from "@/constants/controller_templates/post_controller_template";
 
-export const SendNotificationManager = ({ eventId }) => {
+export const WithdrawalManager = () => {
   const { postCaller, isLoading, isSuccess, error, data } = usePostManager(
-    `/event/${eventId}/invitees/notify`,
-    ["notify"],
+    "/wallet/withdrawal",
+    ["wallet-withdrawals"],
     true
   );
-  const sendNotification = async (details) => {
+
+  const processWithdrawal = async (details) => {
     try {
       await postCaller(details);
     } catch (error) {
       console.error("error:", error);
     }
   };
+
   return {
-    sendNotification,
+    processWithdrawal,
     data,
     isLoading,
     isSuccess,

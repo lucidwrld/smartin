@@ -1,20 +1,22 @@
 import usePostManager from "@/constants/controller_templates/post_controller_template";
 
-export const SendNotificationManager = ({ eventId }) => {
+export const SendBroadcastManager = ({ broadcastId }) => {
   const { postCaller, isLoading, isSuccess, error, data } = usePostManager(
-    `/event/${eventId}/invitees/notify`,
-    ["notify"],
+    `/broadcast/send/${broadcastId}`,
+    ["event_broadcasts"],
     true
   );
-  const sendNotification = async (details) => {
+
+  const sendBroadcast = async () => {
     try {
-      await postCaller(details);
+      await postCaller({});
     } catch (error) {
       console.error("error:", error);
     }
   };
+
   return {
-    sendNotification,
+    sendBroadcast,
     data,
     isLoading,
     isSuccess,
