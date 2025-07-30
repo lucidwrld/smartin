@@ -35,10 +35,14 @@ import { UpdateBroadcastManager } from "@/app/events/controllers/eventBroadcast/
 import { DeleteBroadcastManager } from "@/app/events/controllers/eventBroadcast/deleteBroadcastController";
 import { SendBroadcastManager } from "@/app/events/controllers/eventBroadcast/sendBroadcastController";
 import { EditEventManager } from "@/app/events/controllers/editEventController";
+import useGetUserCreditsManager from "@/app/events/controllers/creditManagement/getUserCreditsController";
 
 const BroadcastManagementTab = ({ event }) => {
   // Fetch broadcasts data
   const { data: broadcastsData, isLoading: isLoadingBroadcasts, refetch: refetchBroadcasts } = useGetBroadcastsForEventManager(event?.id);
+  
+  // Fetch user credits
+  const { data: userCredits, isLoading: loadingUserCredits } = useGetUserCreditsManager({ enabled: true });
   
   // Initialize broadcast managers
   const { createBroadcast, isLoading: isCreating, isSuccess: createSuccess } = CreateBroadcastManager();
@@ -51,8 +55,17 @@ const BroadcastManagementTab = ({ event }) => {
 
   const [showModal, setShowModal] = useState(false);
   const [editingBroadcast, setEditingBroadcast] = useState(null);
+  const [isViewingForDuplication, setIsViewingForDuplication] = useState(false);
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  
+  // Track current event notification channels locally
+  const [currentEventChannels, setCurrentEventChannels] = useState({
+    email: event?.event_notification?.email || false,
+    sms: event?.event_notification?.sms || false,
+    whatsapp: event?.event_notification?.whatsapp || false,
+    voice: event?.event_notification?.voice || false,
+  });
 
   const [formData, setFormData] = useState({
     title: "",
@@ -63,7 +76,7 @@ const BroadcastManagementTab = ({ event }) => {
       sms: false,
       whatsapp: false,
       voice: false,
-      push: false,
+      // push: false,
     },
     target_audience: "all",
     scheduled_time: "",
@@ -72,7 +85,7 @@ const BroadcastManagementTab = ({ event }) => {
   });
 
   // Format broadcasts data
-  const broadcasts = broadcastsData?.data || [];
+  const broadcasts = broadcastsData?.data?.data || [];
 
   // Initialize managers with current broadcast ID
   const { updateBroadcast, isLoading: isUpdating } = UpdateBroadcastManager({ 
@@ -99,7 +112,7 @@ const BroadcastManagementTab = ({ event }) => {
     { value: "sms", label: "SMS", icon: Smartphone },
     { value: "whatsapp", label: "WhatsApp", icon: MessageCircle },
     { value: "voice", label: "Voice Call", icon: Volume2 },
-    { value: "push", label: "Push Notification", icon: Bell },
+    // { value: "push", label: "Push Notification", icon: Bell },
   ];
 
   const recipientOptions = [
@@ -118,19 +131,33 @@ const BroadcastManagementTab = ({ event }) => {
   ];
 
   const handleOpenModal = (broadcast = null) => {
-    setEditingBroadcast(broadcast);
-    setCurrentBroadcastId(broadcast?._id || broadcast?.id || null);
+    // If broadcast is sent, treat it as duplication (create new) instead of editing
+    const isEditing = broadcast && broadcast.status !== "sent";
+    const isViewingForDuplication = broadcast && broadcast.status === "sent";
+    
+    setEditingBroadcast(isEditing ? broadcast : null);
+    setCurrentBroadcastId(isEditing ? (broadcast?._id || broadcast?.id) : null);
+    setIsViewingForDuplication(isViewingForDuplication);
 
     if (broadcast) {
-      // Convert channels array to event_notification object
-      const eventNotification = {
+      // For editing existing broadcast, use its channels
+      // For duplication/new, use event's current notification settings
+      const eventNotification = isEditing ? {
         email: false,
         sms: false,
         whatsapp: false,
         voice: false,
-        push: false,
+        // push: false,
+      } : {
+        email: currentEventChannels.email,
+        sms: currentEventChannels.sms,
+        whatsapp: currentEventChannels.whatsapp,
+        voice: currentEventChannels.voice,
+        // push: false,
       };
-      if (broadcast.channels) {
+      
+      // Only override with broadcast channels if we're editing
+      if (isEditing && broadcast.channels) {
         broadcast.channels.forEach((channel) => {
           if (eventNotification.hasOwnProperty(channel)) {
             eventNotification[channel] = true;
@@ -147,24 +174,25 @@ const BroadcastManagementTab = ({ event }) => {
         scheduled_time: broadcast.scheduled_time
           ? new Date(broadcast.scheduled_time).toISOString().slice(0, 16)
           : "",
-        send_immediately: !broadcast.scheduled_time,
+        send_immediately: isEditing ? !broadcast.scheduled_time : false,
         voiceRecording: broadcast.voiceRecording || null,
       });
     } else {
+      // Pre-populate with event's current notification channels
       setFormData({
         title: "",
         message: "",
         type: "announcement",
         event_notification: {
-          email: false,
-          sms: false,
-          whatsapp: false,
-          voice: false,
-          push: false,
+          email: currentEventChannels.email,
+          sms: currentEventChannels.sms,
+          whatsapp: currentEventChannels.whatsapp,
+          voice: currentEventChannels.voice,
+          // push: false,
         },
         target_audience: "all",
         scheduled_time: "",
-        send_immediately: true,
+        send_immediately: false,
         voiceRecording: null,
       });
     }
@@ -176,20 +204,21 @@ const BroadcastManagementTab = ({ event }) => {
     setShowModal(false);
     setEditingBroadcast(null);
     setCurrentBroadcastId(null);
+    setIsViewingForDuplication(false);
     setFormData({
       title: "",
       message: "",
       type: "announcement",
       event_notification: {
-        email: false,
-        sms: false,
-        whatsapp: false,
-        voice: false,
-        push: false,
+        email: currentEventChannels.email,
+        sms: currentEventChannels.sms,
+        whatsapp: currentEventChannels.whatsapp,
+        voice: currentEventChannels.voice,
+        // push: false,
       },
       target_audience: "all",
       scheduled_time: "",
-      send_immediately: true,
+      send_immediately: false,
       voiceRecording: null,
     });
   };
@@ -208,14 +237,26 @@ const BroadcastManagementTab = ({ event }) => {
     }));
   };
 
-  const handleChannelToggle = (channel) => {
+  const handleChannelToggle = async (channel) => {
+    const updatedChannels = {
+      ...formData.event_notification,
+      [channel]: !formData.event_notification[channel]
+    };
+    
     setFormData((prev) => ({
       ...prev,
-      event_notification: {
-        ...prev.event_notification,
-        [channel]: !prev.event_notification[channel],
-      },
+      event_notification: updatedChannels
     }));
+    
+    // Update local tracking of event channels
+    setCurrentEventChannels(updatedChannels);
+    
+    // Update event immediately when channels are selected
+    const details = {
+      event_notification: updatedChannels
+    };
+    
+    await updateEvent(details);
   };
 
   const handleSave = async () => {
@@ -253,9 +294,14 @@ const BroadcastManagementTab = ({ event }) => {
         message: formData.message,
         target_audience: formData.target_audience,
         send_immediately: formData.send_immediately,
-        scheduled_time: formData.send_immediately ? "" : formData.scheduled_time,
+        type: formData.type,
         // Add other fields as needed based on API requirements
       };
+
+      // Only include scheduled_time if not sending immediately
+      if (!formData.send_immediately && formData.scheduled_time) {
+        broadcastData.scheduled_time = formData.scheduled_time;
+      }
 
       if (editingBroadcast) {
         // Update existing broadcast
@@ -344,6 +390,10 @@ const BroadcastManagementTab = ({ event }) => {
         broadcast.message?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+  if (loadingUserCredits) {
+    return <Loader />;
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -372,21 +422,21 @@ const BroadcastManagementTab = ({ event }) => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {channelOptions.map((channel) => {
             const Icon = channel.icon;
-            // Mock credit balances - replace with actual data
-            const credits = {
-              email: 200,
-              sms: 120,
-              whatsapp: 180,
-              voice: 50,
-              push: 300,
+            // Get actual notification credits using correct field names
+            const creditFieldMap = {
+              email: 'notification_email_balance',
+              sms: 'notification_sms_balance', 
+              whatsapp: 'notification_whatsapp_balance',
+              voice: 'notification_voice_balance'
             };
+            const channelCredits = userCredits?.data?.[creditFieldMap[channel.value]] || 0;
 
             return (
               <div key={channel.value} className="flex items-center space-x-2">
                 <Icon size={16} className="text-gray-600" />
                 <span className="text-sm font-medium">{channel.label}:</span>
                 <span className="text-sm text-green-600 font-bold">
-                  {credits[channel.value] || 0}
+                  {channelCredits}
                 </span>
               </div>
             );
@@ -528,7 +578,7 @@ const BroadcastManagementTab = ({ event }) => {
                       </span>
 
                       <div className="flex items-center gap-1">
-                        {broadcast.status === "draft" && (
+                        {(broadcast.status === "draft" || broadcast.status === "scheduled") && (
                           <button
                             onClick={() => handleSendNow(broadcast._id || broadcast.id)}
                             className="p-1 text-gray-500 hover:text-green-600 rounded"
@@ -541,18 +591,20 @@ const BroadcastManagementTab = ({ event }) => {
                         <button
                           onClick={() => handleOpenModal(broadcast)}
                           className="p-1 text-gray-500 hover:text-blue-600 rounded"
-                          title="Edit broadcast"
+                          title={broadcast.status === "sent" ? "View & Duplicate" : "Edit broadcast"}
                         >
-                          <Edit2 className="w-4 h-4" />
+                          {broadcast.status === "sent" ? <Eye className="w-4 h-4" /> : <Edit2 className="w-4 h-4" />}
                         </button>
-                        <button
-                          onClick={() => handleDelete(broadcast._id || broadcast.id)}
-                          className="p-1 text-gray-500 hover:text-red-600 rounded"
-                          title="Delete broadcast"
-                          disabled={isDeleting && currentBroadcastId === (broadcast._id || broadcast.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {(broadcast.status === "draft" || broadcast.status === "scheduled") && (
+                          <button
+                            onClick={() => handleDelete(broadcast._id || broadcast.id)}
+                            className="p-1 text-gray-500 hover:text-red-600 rounded"
+                            title="Delete broadcast"
+                            disabled={isDeleting && currentBroadcastId === (broadcast._id || broadcast.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -601,7 +653,8 @@ const BroadcastManagementTab = ({ event }) => {
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <MessageSquare className="w-5 h-5 text-purple-600" />
-                  {editingBroadcast ? "Edit Broadcast" : "Create New Broadcast"}
+                  {isViewingForDuplication ? "View & Duplicate Broadcast" : 
+                   editingBroadcast ? "Edit Broadcast" : "Create New Broadcast"}
                 </h3>
                 <button
                   onClick={handleCloseModal}
@@ -744,32 +797,65 @@ const BroadcastManagementTab = ({ event }) => {
                 </div>
 
                 <div className="flex gap-3 pt-4">
-                  <CustomButton
-                    buttonText={
-                      formData.send_immediately
-                        ? "Send Now"
-                        : "Schedule Broadcast"
-                    }
-                    prefixIcon={<Send className="w-4 h-4" />}
-                    buttonColor="bg-purple-600"
-                    radius="rounded-md"
-                    isLoading={isCreating || isUpdating}
-                    onClick={handleSave}
-                  />
-                  <CustomButton
-                    buttonText="Save as Draft"
-                    buttonColor="bg-gray-300"
-                    textColor="text-gray-700"
-                    radius="rounded-md"
-                    onClick={() => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        send_immediately: false,
-                        scheduled_time: "",
-                      }));
-                      handleSave();
-                    }}
-                  />
+                  {isViewingForDuplication ? (
+                    <>
+                      <CustomButton
+                        buttonText="Duplicate & Send Now"
+                        prefixIcon={<Send className="w-4 h-4" />}
+                        buttonColor="bg-purple-600"
+                        radius="rounded-md"
+                        isLoading={isCreating}
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, send_immediately: true }));
+                          handleSave();
+                        }}
+                      />
+                      <CustomButton
+                        buttonText="Duplicate as Draft"
+                        buttonColor="bg-gray-300"
+                        textColor="text-gray-700"
+                        radius="rounded-md"
+                        isLoading={isCreating}
+                        onClick={() => {
+                          setFormData(prev => ({ 
+                            ...prev, 
+                            send_immediately: false,
+                            scheduled_time: "" 
+                          }));
+                          handleSave();
+                        }}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <CustomButton
+                        buttonText={
+                          formData.send_immediately
+                            ? "Send Now"
+                            : "Schedule Broadcast"
+                        }
+                        prefixIcon={<Send className="w-4 h-4" />}
+                        buttonColor="bg-purple-600"
+                        radius="rounded-md"
+                        isLoading={isCreating || isUpdating}
+                        onClick={handleSave}
+                      />
+                      <CustomButton
+                        buttonText="Save as Draft"
+                        buttonColor="bg-gray-300"
+                        textColor="text-gray-700"
+                        radius="rounded-md"
+                        onClick={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            send_immediately: false,
+                            scheduled_time: "",
+                          }));
+                          handleSave();
+                        }}
+                      />
+                    </>
+                  )}
                   <CustomButton
                     buttonText="Cancel"
                     buttonColor="bg-gray-100"

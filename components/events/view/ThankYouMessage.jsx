@@ -71,14 +71,23 @@ const ThankYouMessage = ({ event }) => {
     setIsNewImage(true); // Set to true when new file is selected
   };
 
-  const handleChannelSelection = (channelId) => {
+  const handleChannelSelection = async (channelId) => {
+    const updatedChannels = {
+      ...formData.thankyou_notification,
+      [channelId]: !formData.thankyou_notification[channelId]
+    };
+    
     setFormData(prev => ({
       ...prev,
-      thankyou_notification: {
-        ...prev.thankyou_notification,
-        [channelId]: !prev.thankyou_notification[channelId]
-      }
+      thankyou_notification: updatedChannels
     }));
+    
+    // Update event immediately when channels are selected
+    const details = {
+      thankyou_notification: updatedChannels
+    };
+    
+    await updateEvent(details);
   };
 
   const handleVoiceRecordingComplete = (audioBlob) => {
@@ -127,7 +136,21 @@ const ThankYouMessage = ({ event }) => {
         }
       },
     };
-    updateEvent(details);
+    await updateEvent(details);
+    return true; // Return true on success
+  };
+
+  const handleSendMessage = async () => {
+    // First save the message
+    const saved = await handleSaveMessage();
+    
+    if (saved && formData.thankYouMessage) {
+      // Then send the notification
+      sendNotification({
+        inviteeIds: [],
+        type: "thankyou",
+      });
+    }
   };
 
   return (
@@ -239,15 +262,8 @@ const ThankYouMessage = ({ event }) => {
             <CustomButton
               radius={"rounded-full w-full"}
               buttonText={"Send Message"}
-              onClick={() => {
-                if (event?.thank_you_message?.message) {
-                  sendNotification({
-                    inviteeIds: [],
-                    type: "thankyou",
-                  });
-                }
-              }}
-              isLoading={sending}
+              onClick={handleSendMessage}
+              isLoading={sending || updating}
             />
           </div>
         </div>
