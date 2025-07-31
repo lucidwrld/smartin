@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "1195d31b-d965-4f08-b382-ae101f13bb01",
+		"_postman_id": "ef86c585-98e3-4ee5-9f4e-6a6f17712663",
 		"name": "Invitation app",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "17652468"
@@ -4809,6 +4809,345 @@
 		{
 			"name": "Ticket",
 			"item": [
+				{
+					"name": "Coupons",
+					"item": [
+						{
+							"name": "Create coupon",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"event\": \"67ef9ef742e432ece1e388a3\",\n  \"code\": \"EARLY20\",\n  \"name\": \"Early Bird Discount\",\n  \"description\": \"coupon description\",\n  \"type\": \"percentage\",\n  \"value\": 10,\n  \"min_purchase\": 5000,\n  \"max_discount\": 1000,\n  \"usage_limit\": 10,\n  \"is_active\": true,\n  \"valid_from\": \"2024-01-01T00:00:00.000Z\",\n  \"valid_until\": \"2024-12-31T23:59:59.000Z\",\n  \"applicable_tickets\": [\n    \"68691ddbc3284b01c5158ace\"\n  ],\n  \"apply_to_all_tickets\": false\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/coupons",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"coupons"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get all coupons for an event",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/coupons/event/{{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"coupons",
+										"event",
+										"{{eventId}}"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"event\": \"67ef9ef742e432ece1e388a3\",\n  \"code\": \"EARLY20\",\n  \"name\": \"Early Bird Discount\",\n  \"description\": \"coupon description\",\n  \"type\": \"percentage\",\n  \"value\": 10,\n  \"min_purchase\": 5,\n  \"max_discount\": 0,\n  \"usage_limit\": 10,\n  \"is_active\": true,\n  \"valid_from\": \"2024-01-01T00:00:00.000Z\",\n  \"valid_until\": \"2024-12-31T23:59:59.000Z\",\n  \"applicable_tickets\": [\n    \"68691ddbc3284b01c5158ace\"\n  ],\n  \"apply_to_all_tickets\": false\n}"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/coupons/event/{{eventId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"coupons",
+												"event",
+												"{{eventId}}"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "1098"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"44a-zK8afoCM1wGlNuWmtizBABjTgU0\""
+										},
+										{
+											"key": "Date",
+											"value": "Thu, 31 Jul 2025 12:28:04 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Event coupons fetched successfully\",\n    \"data\": {\n        \"pagination\": {\n            \"prevPage\": null,\n            \"currentPage\": 1,\n            \"nextPage\": null,\n            \"pageTotal\": 1,\n            \"pageSize\": 1,\n            \"total\": 1\n        },\n        \"coupons\": [\n            {\n                \"type\": \"percentage\",\n                \"used_count\": 0,\n                \"is_active\": true,\n                \"applicable_tickets\": [\n                    {\n                        \"_id\": \"68691ddbc3284b01c5158ace\",\n                        \"name\": \"Standard\",\n                        \"price\": 1000\n                    }\n                ],\n                \"apply_to_all_tickets\": false,\n                \"_id\": \"688b60aca3996941a8d2a056\",\n                \"event\": \"67ef9ef742e432ece1e388a3\",\n                \"code\": \"EARLY20\",\n                \"name\": \"Early Bird Discount\",\n                \"description\": \"coupon description\",\n                \"value\": 10,\n                \"min_purchase\": 5,\n                \"max_discount\": 0,\n                \"usage_limit\": 10,\n                \"valid_from\": \"2024-01-01T00:00:00.000Z\",\n                \"valid_until\": \"2024-12-31T23:59:59.000Z\",\n                \"created_by\": {\n                    \"_id\": \"67602747c0fb825740339b3a\",\n                    \"fullname\": \"Chukwuka Ezeaka\",\n                    \"email\": \"yoitsburby@gmail.com\",\n                    \"id\": \"67602747c0fb825740339b3a\"\n                },\n                \"createdAt\": \"2025-07-31T12:25:16.165Z\",\n                \"updatedAt\": \"2025-07-31T12:25:16.165Z\",\n                \"is_expired\": true,\n                \"is_not_started\": false,\n                \"is_usage_limit_reached\": false,\n                \"is_valid\": false,\n                \"usage_percentage\": 0,\n                \"id\": \"688b60aca3996941a8d2a056\"\n            }\n        ],\n        \"statistics\": {\n            \"total_coupons\": 1,\n            \"active_coupons\": 1,\n            \"total_usage\": 0,\n            \"total_savings\": 0\n        }\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Get coupon by id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/coupons/{{couponId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"coupons",
+										"{{couponId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update coupon",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"code\": \"EARLY20\",\n  \"name\": \"Early Bird Discount\",\n  \"description\": \"coupon description\",\n  \"type\": \"percentage\",\n  \"value\": 10,\n  \"min_purchase\": 5000,\n  \"max_discount\": 1000,\n  \"usage_limit\": 10,\n  \"is_active\": true,\n  \"valid_from\": \"2025-07-28T00:00:00.000Z\",\n  \"valid_until\": \"2025-08-10T23:59:59.000Z\",\n  \"applicable_tickets\": [\n    \"68691ddbc3284b01c5158ace\"\n  ],\n  \"apply_to_all_tickets\": false\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/coupons/{{couponId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"coupons",
+										"{{couponId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete coupons",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/coupons/{{couponId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"coupons",
+										"{{couponId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Validate coupon code",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"code\": \"EARLY20\",\n  \"total_amount\": 2000,\n  \"tickets\": [\n    {\n      \"ticket_id\": \"68691ddbc3284b01c5158ace\",\n      \"quantity\": 2\n    }\n  ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/coupons/event/{{eventId}}/validate",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"coupons",
+										"event",
+										"{{eventId}}",
+										"validate"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "201",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"code\": \"EARLY20\",\n  \"total_amount\": 2000,\n  \"tickets\": [\n    {\n      \"ticket_id\": \"68691ddbc3284b01c5158ace\",\n      \"quantity\": 2\n    }\n  ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/coupons/event/{{eventId}}/validate",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"coupons",
+												"event",
+												"{{eventId}}",
+												"validate"
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "256"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"100-W+9uV/D1ynbNZ9Qq8NhEZZ1LFiQ\""
+										},
+										{
+											"key": "Date",
+											"value": "Thu, 31 Jul 2025 12:49:51 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Coupon is valid\",\n    \"data\": {\n        \"coupon\": {\n            \"id\": \"688b60aca3996941a8d2a056\",\n            \"code\": \"EARLY20\",\n            \"name\": \"Early Bird Discount\",\n            \"type\": \"percentage\",\n            \"value\": 10\n        },\n        \"discount_amount\": 200,\n        \"original_amount\": 2000,\n        \"final_amount\": 1800,\n        \"savings\": 200\n    }\n}"
+								},
+								{
+									"name": "400",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"code\": \"EARLY20\",\n  \"total_amount\": 2000,\n  \"tickets\": [\n    {\n      \"ticket_id\": \"68691ddbc3284b01c5158ace\",\n      \"quantity\": 2\n    }\n  ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/coupons/event/{{eventId}}/validate",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"coupons",
+												"event",
+												"{{eventId}}",
+												"validate"
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "62"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"3e-zcFSpiSkFe5iaSdqe3V6T9p/fCE\""
+										},
+										{
+											"key": "Date",
+											"value": "Thu, 31 Jul 2025 13:04:00 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"error\",\n    \"message\": \"Minimum purchase amount is 5000\"\n}"
+								}
+							]
+						}
+					]
+				},
 				{
 					"name": "Create ticket category",
 					"request": {

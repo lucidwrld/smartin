@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Plus, 
   Edit2, 
@@ -17,62 +17,17 @@ import {
 } from "lucide-react";
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
+import {
+  CreateCouponManager,
+  useGetEventCouponsManager,
+  UpdateCouponManager,
+  DeleteCouponManager,
+} from "@/components/tickets/couponController";
+import { useGetEventTicketsManager } from "@/app/tickets/controllers/ticketController";
+import Loader from "@/components/Loader";
+import showToast from "@/components/CustomToastContainer";
 
 const CouponSystem = ({ eventId }) => {
-  const [coupons, setCoupons] = useState([
-    {
-      id: "coupon_1",
-      code: "EARLY20",
-      name: "Early Bird Discount",
-      description: "20% off for early registrations",
-      type: "percentage",
-      value: 20,
-      min_purchase: 100,
-      max_discount: 50,
-      usage_limit: 100,
-      used_count: 23,
-      is_active: true,
-      valid_from: "2024-07-01",
-      valid_until: "2024-07-15",
-      applicable_tickets: ["ticket_1", "ticket_2"],
-      created_at: "2024-06-20T10:00:00"
-    },
-    {
-      id: "coupon_2", 
-      code: "VIP50",
-      name: "VIP Exclusive",
-      description: "$50 off VIP tickets",
-      type: "fixed",
-      value: 50,
-      min_purchase: 200,
-      max_discount: null,
-      usage_limit: 50,
-      used_count: 12,
-      is_active: true,
-      valid_from: "2024-07-01",
-      valid_until: "2024-07-25",
-      applicable_tickets: ["ticket_3"],
-      created_at: "2024-06-25T14:30:00"
-    },
-    {
-      id: "coupon_3",
-      code: "BULK15",
-      name: "Bulk Purchase Discount", 
-      description: "15% off when buying 5+ tickets",
-      type: "percentage",
-      value: 15,
-      min_purchase: null,
-      min_quantity: 5,
-      max_discount: 100,
-      usage_limit: 200,
-      used_count: 45,
-      is_active: true,
-      valid_from: "2024-07-01",
-      valid_until: "2024-07-30",
-      applicable_tickets: ["all"],
-      created_at: "2024-06-15T09:15:00"
-    }
-  ]);
 
   const [showModal, setShowModal] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState(null);
@@ -88,16 +43,31 @@ const CouponSystem = ({ eventId }) => {
     usage_limit: "",
     valid_from: "",
     valid_until: "",
-    applicable_tickets: ["all"],
+    applicable_tickets: [],
+    apply_to_all_tickets: false,
     is_active: true
   });
 
-  const ticketOptions = [
-    { id: "all", name: "All Tickets" },
-    { id: "ticket_1", name: "General Admission" },
-    { id: "ticket_2", name: "Premium" },
-    { id: "ticket_3", name: "VIP" }
-  ];
+  // API Integration
+  const { data: couponsData, isLoading: loadingCoupons, refetch: refetchCoupons } = useGetEventCouponsManager(eventId);
+  const { data: ticketsData } = useGetEventTicketsManager(eventId);
+  const { createCoupon, isLoading: creatingCoupon } = CreateCouponManager();
+  const { updateCoupon, isLoading: updatingCoupon } = UpdateCouponManager({ couponId: editingCoupon?._id || editingCoupon?.id });
+  const { deleteCoupon, isLoading: deletingCoupon } = DeleteCouponManager({ couponId: editingCoupon?._id || editingCoupon?.id });
+
+  const isLoading = creatingCoupon || updatingCoupon || deletingCoupon;
+  const coupons = couponsData?.data?.coupons || [];
+  const statistics = couponsData?.data?.statistics || {
+    total_coupons: 0,
+    active_coupons: 0,
+    total_usage: 0,
+    total_savings: 0
+  };
+
+  const ticketOptions = ticketsData?.data?.map(ticket => ({
+    id: ticket._id,
+    name: ticket.name
+  })) || [];
 
   const handleOpenModal = (coupon = null) => {
     setEditingCoupon(coupon);
@@ -112,9 +82,10 @@ const CouponSystem = ({ eventId }) => {
         min_quantity: coupon.min_quantity || "",
         max_discount: coupon.max_discount || "",
         usage_limit: coupon.usage_limit || "",
-        valid_from: coupon.valid_from || "",
-        valid_until: coupon.valid_until || "",
-        applicable_tickets: coupon.applicable_tickets || ["all"],
+        valid_from: coupon.valid_from ? new Date(coupon.valid_from).toISOString().split('T')[0] : "",
+        valid_until: coupon.valid_until ? new Date(coupon.valid_until).toISOString().split('T')[0] : "",
+        applicable_tickets: coupon.applicable_tickets?.map(t => t._id || t) || [],
+        apply_to_all_tickets: coupon.apply_to_all_tickets || false,
         is_active: coupon.is_active !== undefined ? coupon.is_active : true
       });
     } else {
@@ -130,56 +101,91 @@ const CouponSystem = ({ eventId }) => {
         usage_limit: "",
         valid_from: "",
         valid_until: "",
-        applicable_tickets: ["all"],
+        applicable_tickets: [],
+        apply_to_all_tickets: false,
         is_active: true
       });
     }
     setShowModal(true);
   };
 
-  const handleSave = () => {
-    if (!formData.code.trim() || !formData.name.trim() || !formData.value) {
-      alert("Please fill in required fields");
-      return;
+  const handleSave = async () => {
+    try {
+      if (!formData.code.trim() || !formData.name.trim() || !formData.value) {
+        showToast.error("Please fill in required fields");
+        return;
+      }
+
+      if (!formData.valid_from || !formData.valid_until) {
+        showToast.error("Please set valid from and until dates");
+        return;
+      }
+
+      const couponData = {
+        event: eventId,
+        code: formData.code.toUpperCase(),
+        name: formData.name,
+        description: formData.description,
+        type: formData.type,
+        value: parseFloat(formData.value),
+        min_purchase: formData.min_purchase ? parseFloat(formData.min_purchase) : undefined,
+        max_discount: formData.max_discount ? parseFloat(formData.max_discount) : undefined,
+        usage_limit: formData.usage_limit ? parseInt(formData.usage_limit) : undefined,
+        is_active: formData.is_active,
+        valid_from: new Date(formData.valid_from).toISOString(),
+        valid_until: new Date(formData.valid_until).toISOString(),
+        applicable_tickets: formData.apply_to_all_tickets ? [] : formData.applicable_tickets,
+        apply_to_all_tickets: formData.apply_to_all_tickets
+      };
+
+      if (editingCoupon) {
+        await updateCoupon(couponData);
+      } else {
+        await createCoupon(couponData);
+      }
+
+      await refetchCoupons();
+      setShowModal(false);
+      setEditingCoupon(null);
+    } catch (error) {
+      console.error("Error saving coupon:", error);
     }
-
-    const newCoupon = {
-      id: editingCoupon?.id || `coupon_${Date.now()}`,
-      ...formData,
-      value: parseFloat(formData.value),
-      min_purchase: formData.min_purchase ? parseFloat(formData.min_purchase) : null,
-      min_quantity: formData.min_quantity ? parseInt(formData.min_quantity) : null,
-      max_discount: formData.max_discount ? parseFloat(formData.max_discount) : null,
-      usage_limit: formData.usage_limit ? parseInt(formData.usage_limit) : null,
-      used_count: editingCoupon?.used_count || 0,
-      created_at: editingCoupon?.created_at || new Date().toISOString()
-    };
-
-    if (editingCoupon) {
-      setCoupons(prev => prev.map(c => c.id === editingCoupon.id ? newCoupon : c));
-    } else {
-      setCoupons(prev => [...prev, newCoupon]);
-    }
-
-    setShowModal(false);
-    setEditingCoupon(null);
   };
 
-  const handleDelete = (couponId) => {
+  const handleDelete = async (couponId) => {
     if (confirm("Are you sure you want to delete this coupon?")) {
-      setCoupons(prev => prev.filter(c => c.id !== couponId));
+      try {
+        setEditingCoupon({ _id: couponId });
+        await deleteCoupon();
+        await refetchCoupons();
+        setEditingCoupon(null);
+      } catch (error) {
+        console.error("Error deleting coupon:", error);
+      }
     }
   };
 
-  const toggleStatus = (couponId) => {
-    setCoupons(prev => prev.map(c => 
-      c.id === couponId ? { ...c, is_active: !c.is_active } : c
-    ));
+  const toggleStatus = async (coupon) => {
+    try {
+      setEditingCoupon(coupon);
+      await updateCoupon({
+        ...coupon,
+        event: eventId,
+        is_active: !coupon.is_active,
+        applicable_tickets: coupon.applicable_tickets?.map(t => t._id || t) || [],
+        valid_from: new Date(coupon.valid_from).toISOString(),
+        valid_until: new Date(coupon.valid_until).toISOString()
+      });
+      await refetchCoupons();
+      setEditingCoupon(null);
+    } catch (error) {
+      console.error("Error toggling coupon status:", error);
+    }
   };
 
   const copyCouponCode = (code) => {
     navigator.clipboard.writeText(code);
-    alert("Coupon code copied to clipboard!");
+    showToast.success("Coupon code copied to clipboard!");
   };
 
   const formatDiscount = (coupon) => {
@@ -199,13 +205,14 @@ const CouponSystem = ({ eventId }) => {
     return new Date(validUntil) < new Date();
   };
 
-  const totalCoupons = coupons.length;
-  const activeCoupons = coupons.filter(c => c.is_active).length;
-  const totalUsage = coupons.reduce((sum, c) => sum + c.used_count, 0);
-  const totalSavings = coupons.reduce((sum, c) => {
-    const avgDiscount = c.type === "percentage" ? c.value : c.value;
-    return sum + (c.used_count * avgDiscount);
-  }, 0);
+  const totalCoupons = statistics.total_coupons;
+  const activeCoupons = statistics.active_coupons;
+  const totalUsage = statistics.total_usage;
+  const totalSavings = statistics.total_savings;
+
+  if (loadingCoupons) {
+    return <Loader />;
+  }
 
   return (
     <div className="space-y-6">
@@ -285,7 +292,7 @@ const CouponSystem = ({ eventId }) => {
           </div>
         ) : (
           coupons.map(coupon => (
-            <div key={coupon.id} className="bg-white border rounded-lg p-6">
+            <div key={coupon._id || coupon.id} className="bg-white border rounded-lg p-6">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
@@ -361,7 +368,7 @@ const CouponSystem = ({ eventId }) => {
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => toggleStatus(coupon.id)}
+                    onClick={() => toggleStatus(coupon)}
                     className={`p-2 rounded ${
                       coupon.is_active 
                         ? 'text-green-600 bg-green-50' 
@@ -379,7 +386,7 @@ const CouponSystem = ({ eventId }) => {
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => handleDelete(coupon.id)}
+                    onClick={() => handleDelete(coupon._id || coupon.id)}
                     className="p-2 text-gray-500 hover:text-red-600 rounded"
                     title="Delete coupon"
                   >
@@ -508,7 +515,20 @@ const CouponSystem = ({ eventId }) => {
                     Applicable Tickets
                   </label>
                   <div className="space-y-2">
-                    {ticketOptions.map(ticket => (
+                    <label className="flex items-center mb-2">
+                      <input
+                        type="checkbox"
+                        checked={formData.apply_to_all_tickets}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          apply_to_all_tickets: e.target.checked,
+                          applicable_tickets: e.target.checked ? [] : formData.applicable_tickets
+                        })}
+                        className="mr-2"
+                      />
+                      Apply to all tickets
+                    </label>
+                    {!formData.apply_to_all_tickets && ticketOptions.map(ticket => (
                       <label key={ticket.id} className="flex items-center">
                         <input
                           type="checkbox"
