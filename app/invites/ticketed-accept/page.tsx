@@ -36,8 +36,14 @@ const TicketedInviteAcceptPage = () => {
     }
   }, [isSuccess, paymentResult]);
 
-  const handleTicketSelection = (tickets) => {
-    setSelectedTickets(tickets);
+  const handleTicketSelection = (selectionData) => {
+    if (selectionData.tickets) {
+      // New format with coupon data
+      setSelectedTickets(selectionData);
+    } else {
+      // Fallback for old format
+      setSelectedTickets({ tickets: selectionData, coupon: null, subtotal: 0, discount: 0, total: 0 });
+    }
   };
 
   const handlePaymentComplete = async (result) => {
@@ -59,11 +65,11 @@ const TicketedInviteAcceptPage = () => {
   };
 
   const canProceedToPayment = () => {
-    return selectedTickets.length > 0 && selectedTickets.some(ticket => ticket.selectedQuantity > 0);
+    return selectedTickets.tickets && selectedTickets.tickets.length > 0 && selectedTickets.tickets.some(ticket => ticket.selectedQuantity > 0);
   };
 
   const getTotalAmount = () => {
-    return selectedTickets.reduce((total, ticket) => total + ticket.subtotal, 0);
+    return selectedTickets.total || selectedTickets.reduce?.((total, ticket) => total + ticket.subtotal, 0) || 0;
   };
 
   const formatCurrency = (amount, currency = "USD") => {
@@ -187,7 +193,7 @@ const TicketedInviteAcceptPage = () => {
                   />
                   
                   <CustomButton
-                    buttonText={`Proceed to Payment (${formatCurrency(getTotalAmount(), selectedTickets[0]?.currency || 'USD')})`}
+                    buttonText={`Proceed to Payment (${formatCurrency(getTotalAmount(), selectedTickets.tickets?.[0]?.currency || 'USD')})`}
                     buttonColor="bg-purple-600"
                     radius="rounded-full"
                     disabled={!canProceedToPayment()}
@@ -239,14 +245,14 @@ const TicketedInviteAcceptPage = () => {
                       Transaction ID: {paymentResult.transactionId}
                     </p>
                     <p className="text-sm text-gray-600 mb-2">
-                      Total Amount: {formatCurrency(paymentResult.amount, selectedTickets[0]?.currency)}
+                      Total Amount: {formatCurrency(paymentResult.amount, selectedTickets.tickets?.[0]?.currency)}
                     </p>
                     <div className="space-y-1">
-                      {selectedTickets.map((ticket) => (
+                      {selectedTickets.tickets?.map((ticket) => (
                         <p key={ticket.id} className="text-sm">
                           {ticket.name} × {ticket.selectedQuantity}
                         </p>
-                      ))}
+                      )) || []}
                     </div>
                   </div>
                   
