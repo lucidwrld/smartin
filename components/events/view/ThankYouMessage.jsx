@@ -99,7 +99,7 @@ const ThankYouMessage = ({ event }) => {
 
   const handleMessageChange = (e) => {
     const message = e.target.value;
-    if (message.split(/\s+/).length <= 200) {
+    if (message.length <= 140) {
       setFormData((prev) => ({
         ...prev,
         thankYouMessage: message,
@@ -176,11 +176,11 @@ const ThankYouMessage = ({ event }) => {
               isRequired={true}
               value={formData.thankYouMessage}
               showCharacterCount={true}
-              placeholder="Write your thank you message (max 200 words)"
-              className="h-40 w-full"
+              placeholder="Write your thank you message (max 140 characters)"
+              className="h-32 w-full"
               isTextArea={true}
-              maxLength={200}
-              rows={6}
+              maxLength={140}
+              rows={4}
               onChange={handleMessageChange}
             />
           </div>
