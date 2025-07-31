@@ -25,7 +25,7 @@ import {
 } from "@/components/tickets/couponController";
 import { useGetEventTicketsManager } from "@/app/tickets/controllers/ticketController";
 import Loader from "@/components/Loader";
-import showToast from "@/components/CustomToastContainer";
+import { toast } from "react-toastify";
 
 const CouponSystem = ({ eventId }) => {
 
@@ -112,12 +112,12 @@ const CouponSystem = ({ eventId }) => {
   const handleSave = async () => {
     try {
       if (!formData.code.trim() || !formData.name.trim() || !formData.value) {
-        showToast.error("Please fill in required fields");
+        toast.error("Please fill in required fields");
         return;
       }
 
       if (!formData.valid_from || !formData.valid_until) {
-        showToast.error("Please set valid from and until dates");
+        toast.error("Please set valid from and until dates");
         return;
       }
 
@@ -185,7 +185,7 @@ const CouponSystem = ({ eventId }) => {
 
   const copyCouponCode = (code) => {
     navigator.clipboard.writeText(code);
-    showToast.success("Coupon code copied to clipboard!");
+    toast.success("Coupon code copied to clipboard!");
   };
 
   const formatDiscount = (coupon) => {

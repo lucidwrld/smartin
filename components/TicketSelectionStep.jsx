@@ -3,7 +3,7 @@ import { Ticket, Plus, Minus, ShoppingCart, CreditCard, Tag, Check, X, AlertCirc
 import CustomButton from "./Button";
 import InputWithFullBoarder from "./InputWithFullBoarder";
 import { ValidateCouponManager } from "./tickets/couponController";
-import showToast from "./CustomToastContainer";
+import { toast } from "react-toastify";
 
 const TicketSelectionStep = ({ event, onTicketSelection, selectedTickets, isLoading }) => {
   const [quantities, setQuantities] = useState({});
@@ -177,7 +177,7 @@ const TicketSelectionStep = ({ event, onTicketSelection, selectedTickets, isLoad
           savings: validationResult.savings
         });
         
-        showToast.success(`Coupon applied! You saved ${formatCurrency(validationResult.savings)}`);
+        toast.success(`Coupon applied! You saved ${formatCurrency(validationResult.savings)}`);
       } else {
         // Fallback - simulate a response for testing
         setAppliedCoupon({
@@ -187,7 +187,7 @@ const TicketSelectionStep = ({ event, onTicketSelection, selectedTickets, isLoad
           value: 10
         });
         
-        showToast.success(\"Coupon applied successfully!\");
+        toast.success("Coupon applied successfully!");
       }
     } catch (error) {
       setCouponError(error.message || \"Invalid coupon code\");
@@ -200,7 +200,7 @@ const TicketSelectionStep = ({ event, onTicketSelection, selectedTickets, isLoad
     setAppliedCoupon(null);
     setCouponCode(\"\");
     setCouponError(\"\");
-    showToast.success(\"Coupon removed\");
+    toast.success("Coupon removed");
     
     // Update parent component
     const selectedTicketsArray = Object.entries(quantities)
