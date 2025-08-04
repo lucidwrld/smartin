@@ -26,6 +26,8 @@ import {
   Speaker,
   Mail,
   Camera,
+  Monitor,
+  CheckSquare,
 } from "lucide-react";
 import StatusCard from "@/components/StatusCard";
 import TabManager from "@/components/TabManager";
@@ -52,6 +54,9 @@ import SessionsManagementTab from "@/components/events/view/SessionsManagementTa
 import GalleryManagementTab from "@/components/events/view/GalleryManagementTab";
 import FormsManagementTab from "@/components/events/view/FormsManagementTab";
 import InvitationManagementTab from "@/components/events/view/InvitationManagementTab";
+import BoothManagementTab from "@/components/events/view/BoothManagementTab";
+import AdvertisementManagementTab from "@/components/events/view/AdvertisementManagementTab";
+import TodoManagementTab from "@/components/events/view/TodoManagementTab";
 
 interface EventDetailsPageProps {
   params: Promise<{ eventId: string }>;
@@ -93,6 +98,8 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
         { id: 9, name: "Program", icon: FileText },
         { id: 10, name: "Stakeholders", icon: Users2 },
         { id: 11, name: "Ticketing", icon: Ticket },
+        { id: 20, name: "Booth Management", icon: Building },
+        { id: 21, name: "Advertisement Management", icon: Monitor },
         { id: 13, name: "Sponsors & Partners", icon: Handshake },
         { id: 14, name: "Hosts & Figures", icon: Crown },
         { id: 15, name: "Broadcast", icon: Speaker, comingSoon: false },
@@ -125,6 +132,12 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
         { id: 6, name: "Feedback", icon: MessageSquare },
         { id: 12, name: "Polls & Q&A", icon: BarChart3 },
         { id: 4, name: "Thank You Message", icon: Heart },
+      ],
+    },
+    {
+      title: "Project Management",
+      items: [
+        { id: 22, name: "To-Do List", icon: CheckSquare },
       ],
     },
   ];
@@ -286,6 +299,9 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
               />
             )}
             {currentView === 19 && <GalleryManagementTab event={event?.data} />}
+            {currentView === 20 && <BoothManagementTab event={event?.data} />}
+            {currentView === 21 && <AdvertisementManagementTab event={event?.data} />}
+            {currentView === 22 && <TodoManagementTab event={event?.data} />}
           </div>
         </div>
       </div>
