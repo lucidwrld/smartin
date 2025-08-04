@@ -139,17 +139,17 @@ const TicketSelectionStep = ({ event, onTicketSelection, selectedTickets, isLoad
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
-      setCouponError(\"Please enter a coupon code\");
+      setCouponError("Please enter a coupon code");
       return;
     }
 
     if (getTotalTickets() === 0) {
-      setCouponError(\"Please select tickets before applying a coupon\");
+      setCouponError("Please select tickets before applying a coupon");
       return;
     }
 
     setValidatingCoupon(true);
-    setCouponError(\"\");
+    setCouponError("");
 
     try {
       const ticketItems = Object.entries(quantities)
@@ -183,14 +183,14 @@ const TicketSelectionStep = ({ event, onTicketSelection, selectedTickets, isLoad
         setAppliedCoupon({
           code: couponCode.toUpperCase(),
           discount_amount: Math.min(getSubtotal() * 0.1, 50), // 10% or $50 max
-          type: \"percentage\",
+          type: "percentage",
           value: 10
         });
         
         toast.success("Coupon applied successfully!");
       }
     } catch (error) {
-      setCouponError(error.message || \"Invalid coupon code\");
+      setCouponError(error.message || "Invalid coupon code");
     } finally {
       setValidatingCoupon(false);
     }
@@ -198,8 +198,8 @@ const TicketSelectionStep = ({ event, onTicketSelection, selectedTickets, isLoad
 
   const handleRemoveCoupon = () => {
     setAppliedCoupon(null);
-    setCouponCode(\"\");
-    setCouponError(\"\");
+    setCouponCode("");
+    setCouponError("");
     toast.success("Coupon removed");
     
     // Update parent component
