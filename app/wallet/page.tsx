@@ -7,19 +7,19 @@ import Dropdown from "@/components/Dropdown";
 import TablesComponent from "@/components/TablesComponent";
 import Loader from "@/components/Loader";
 import { toast } from "react-toastify";
-import { 
-  Wallet, 
-  ArrowUpRight, 
-  ArrowDownLeft, 
-  Eye, 
-  EyeOff, 
-  Plus, 
+import {
+  Wallet,
+  ArrowUpRight,
+  ArrowDownLeft,
+  Eye,
+  EyeOff,
+  Plus,
   History,
   CreditCard,
   Building2,
   CheckCircle,
   AlertCircle,
-  Clock
+  Clock,
 } from "lucide-react";
 
 // Import wallet controllers
@@ -38,7 +38,7 @@ const WalletPage = () => {
   const [showBalance, setShowBalance] = useState(true);
   const [withdrawalStep, setWithdrawalStep] = useState("amount"); // amount, bank, otp, success
   const [currentPage, setCurrentPage] = useState(1);
-  
+
   // Withdrawal form states
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const [selectedBank, setSelectedBank] = useState(null);
@@ -48,24 +48,27 @@ const WalletPage = () => {
   const [withdrawalId, setWithdrawalId] = useState(null);
 
   // Initialize controllers
-  const { data: balanceData, isLoading: loadingBalance } = useGetUserBalanceManager({ enabled: true });
+  const { data: balanceData, isLoading: loadingBalance } =
+    useGetUserBalanceManager({ enabled: true });
   const { data: bankList, isLoading: loadingBanks } = useGetBankListManager();
-  const { data: resolvedAccount, isLoading: resolvingAccount } = useResolveBankAccountManager(
-    accountNumber, 
-    selectedBank?.code || ""
-  );
-  const { processWithdrawal, isLoading: processingWithdrawal } = WithdrawalManager();
-  const { verifyWithdrawalOtp, isLoading: verifyingOtp } = VerifyWithdrawalOtpManager();
-  const { data: withdrawalsData, isLoading: loadingWithdrawals } = useGetUserWithdrawalsManager({
-    page: currentPage,
-    pageSize: 10,
-    enabled: activeTab === "withdrawals"
-  });
-  const { data: transactionsData, isLoading: loadingTransactions } = useGetWalletTransactionsManager({
-    page: currentPage,
-    pageSize: 10,
-    enabled: activeTab === "transactions"
-  });
+  const { data: resolvedAccount, isLoading: resolvingAccount } =
+    useResolveBankAccountManager(accountNumber, selectedBank?.code || "");
+  const { processWithdrawal, isLoading: processingWithdrawal } =
+    WithdrawalManager();
+  const { verifyWithdrawalOtp, isLoading: verifyingOtp } =
+    VerifyWithdrawalOtpManager();
+  const { data: withdrawalsData, isLoading: loadingWithdrawals } =
+    useGetUserWithdrawalsManager({
+      page: currentPage,
+      pageSize: 10,
+      enabled: activeTab === "withdrawals",
+    });
+  const { data: transactionsData, isLoading: loadingTransactions } =
+    useGetWalletTransactionsManager({
+      page: currentPage,
+      pageSize: 10,
+      enabled: activeTab === "transactions",
+    });
 
   const walletBalance = balanceData?.data?.balance || 0;
   const currency = "NGN";
@@ -74,7 +77,7 @@ const WalletPage = () => {
     { id: "overview", name: "Overview", icon: Wallet },
     { id: "withdraw", name: "Withdraw", icon: ArrowUpRight },
     { id: "transactions", name: "Transactions", icon: History },
-    { id: "withdrawals", name: "Withdrawals", icon: ArrowDownLeft }
+    { id: "withdrawals", name: "Withdrawals", icon: ArrowDownLeft },
   ];
 
   // Update account name when account is resolved
@@ -101,7 +104,7 @@ const WalletPage = () => {
       bank_name: selectedBank.name,
       bank_code: selectedBank.code,
       account_number: accountNumber,
-      account_name: accountName
+      account_name: accountName,
     };
 
     try {
@@ -123,7 +126,7 @@ const WalletPage = () => {
 
     const otpData = {
       withdrawal_id: withdrawalId,
-      otp: otpCode
+      otp: otpCode,
     };
 
     try {
@@ -148,8 +151,14 @@ const WalletPage = () => {
     setWithdrawalId(null);
   };
 
-  const getTransactionHeaders = () => ["Type", "Amount", "Description", "Date", "Status"];
-  
+  const getTransactionHeaders = () => [
+    "Type",
+    "Amount",
+    "Description",
+    "Date",
+    "Status",
+  ];
+
   const getTransactionFormattedValue = (el, index) => {
     return [
       <div className="flex items-center space-x-2">
@@ -160,37 +169,55 @@ const WalletPage = () => {
         )}
         <span className="capitalize">{el.type}</span>
       </div>,
-      <span className={el.type === "credit" ? "text-green-600" : "text-red-600"}>
-        {el.type === "credit" ? "+" : "-"}{currency} {formatAmount(el.amount)}
+      <span
+        className={el.type === "credit" ? "text-green-600" : "text-red-600"}
+      >
+        {el.type === "credit" ? "+" : "-"}
+        {currency} {formatAmount(el.amount)}
       </span>,
       el.description || "Wallet transaction",
       formatDateTime(el.createdAt),
-      <span className={`px-2 py-1 rounded-full text-xs ${
-        el.status === "completed" ? "bg-green-100 text-green-800" :
-        el.status === "pending" ? "bg-yellow-100 text-yellow-800" :
-        "bg-red-100 text-red-800"
-      }`}>
+      <span
+        className={`px-2 py-1 rounded-full text-xs ${
+          el.status === "completed"
+            ? "bg-green-100 text-green-800"
+            : el.status === "pending"
+            ? "bg-yellow-100 text-yellow-800"
+            : "bg-red-100 text-red-800"
+        }`}
+      >
         {el.status}
-      </span>
+      </span>,
     ];
   };
 
-  const getWithdrawalHeaders = () => ["Amount", "Bank", "Account", "Date", "Status"];
-  
+  const getWithdrawalHeaders = () => [
+    "Amount",
+    "Bank",
+    "Account",
+    "Date",
+    "Status",
+  ];
+
   const getWithdrawalFormattedValue = (el, index) => {
     return [
       `${currency} ${formatAmount(el.amount)}`,
       el.bank_name,
       `${el.account_number} - ${el.account_name}`,
       formatDateTime(el.createdAt),
-      <span className={`px-2 py-1 rounded-full text-xs ${
-        el.status === "completed" ? "bg-green-100 text-green-800" :
-        el.status === "pending" ? "bg-yellow-100 text-yellow-800" :
-        el.status === "failed" ? "bg-red-100 text-red-800" :
-        "bg-gray-100 text-gray-800"
-      }`}>
+      <span
+        className={`px-2 py-1 rounded-full text-xs ${
+          el.status === "completed"
+            ? "bg-green-100 text-green-800"
+            : el.status === "pending"
+            ? "bg-yellow-100 text-yellow-800"
+            : el.status === "failed"
+            ? "bg-red-100 text-red-800"
+            : "bg-gray-100 text-gray-800"
+        }`}
+      >
         {el.status}
-      </span>
+      </span>,
     ];
   };
 
@@ -207,7 +234,9 @@ const WalletPage = () => {
             <h1 className="text-2xl font-serif font-bold mb-2">My Wallet</h1>
             <div className="flex items-center space-x-3">
               <p className="text-3xl font-bold">
-                {showBalance ? `${currency} ${formatAmount(walletBalance)}` : "****"}
+                {showBalance
+                  ? `${currency} ${formatAmount(walletBalance)}`
+                  : "****"}
               </p>
               <button
                 onClick={() => setShowBalance(!showBalance)}
@@ -263,7 +292,10 @@ const WalletPage = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Total Received</p>
-                    <p className="text-xl font-bold text-forest">{currency} {formatAmount(balanceData?.data?.total_received || 0)}</p>
+                    <p className="text-xl font-bold text-forest">
+                      {currency}{" "}
+                      {formatAmount(balanceData?.data?.total_received || 0)}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -274,7 +306,10 @@ const WalletPage = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Total Withdrawn</p>
-                    <p className="text-xl font-bold text-forest">{currency} {formatAmount(balanceData?.data?.total_withdrawn || 0)}</p>
+                    <p className="text-xl font-bold text-forest">
+                      {currency}{" "}
+                      {formatAmount(balanceData?.data?.total_withdrawn || 0)}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -285,7 +320,9 @@ const WalletPage = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Current Balance</p>
-                    <p className="text-xl font-bold text-forest">{currency} {formatAmount(walletBalance)}</p>
+                    <p className="text-xl font-bold text-forest">
+                      {currency} {formatAmount(walletBalance)}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -293,7 +330,9 @@ const WalletPage = () => {
 
             {/* Recent Transactions */}
             <div className="bg-white border border-sand/30 rounded-xl p-6">
-              <h3 className="font-serif font-bold text-xl text-forest mb-4">Recent Transactions</h3>
+              <h3 className="font-serif font-bold text-xl text-forest mb-4">
+                Recent Transactions
+              </h3>
               {loadingTransactions ? (
                 <Loader />
               ) : (
@@ -308,7 +347,6 @@ const WalletPage = () => {
               <div className="mt-4 text-center">
                 <Button
                   buttonText="View All Transactions"
-                  buttonColor="bg-olive"
                   textColor="text-cream"
                   onClick={() => setActiveTab("transactions")}
                 />
@@ -320,8 +358,10 @@ const WalletPage = () => {
         {activeTab === "withdraw" && (
           <div className="max-w-2xl mx-auto">
             <div className="bg-white border border-sand/30 rounded-xl p-6">
-              <h3 className="font-serif font-bold text-xl text-forest mb-6">Withdraw Funds</h3>
-              
+              <h3 className="font-serif font-bold text-xl text-forest mb-6">
+                Withdraw Funds
+              </h3>
+
               {withdrawalStep === "amount" && (
                 <div className="space-y-6">
                   <div>
@@ -341,10 +381,10 @@ const WalletPage = () => {
                   </div>
                   <Button
                     buttonText="Continue"
-                    buttonColor="bg-olive"
-                    textColor="text-cream"
                     onClick={() => setWithdrawalStep("bank")}
-                    disabled={!withdrawalAmount || parseFloat(withdrawalAmount) <= 0}
+                    disabled={
+                      !withdrawalAmount || parseFloat(withdrawalAmount) <= 0
+                    }
                   />
                 </div>
               )}
@@ -363,16 +403,23 @@ const WalletPage = () => {
                         id="bank_selection"
                         type="select"
                         value={selectedBank?.code || ""}
-                        options={bankList?.data?.map(bank => ({ value: bank.code, label: bank.name })) || []}
+                        options={
+                          bankList?.data?.map((bank) => ({
+                            value: bank.code,
+                            label: bank.name,
+                          })) || []
+                        }
                         onChange={(e) => {
-                          const bank = bankList?.data?.find(b => b.code === e.target.value);
+                          const bank = bankList?.data?.find(
+                            (b) => b.code === e.target.value
+                          );
                           setSelectedBank(bank);
                         }}
                         placeholder="Choose your bank"
                       />
                     )}
                   </div>
-                  
+
                   {selectedBank && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -400,8 +447,12 @@ const WalletPage = () => {
                     <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                       <div className="flex items-center space-x-2">
                         <CheckCircle size={16} className="text-green-600" />
-                        <span className="text-sm font-medium text-green-800">Account Name:</span>
-                        <span className="text-sm text-green-700">{accountName}</span>
+                        <span className="text-sm font-medium text-green-800">
+                          Account Name:
+                        </span>
+                        <span className="text-sm text-green-700">
+                          {accountName}
+                        </span>
                       </div>
                     </div>
                   )}
@@ -414,9 +465,9 @@ const WalletPage = () => {
                       onClick={() => setWithdrawalStep("amount")}
                     />
                     <Button
-                      buttonText={processingWithdrawal ? "Processing..." : "Proceed"}
-                      buttonColor="bg-olive"
-                      textColor="text-cream"
+                      buttonText={
+                        processingWithdrawal ? "Processing..." : "Proceed"
+                      }
                       onClick={handleWithdrawalSubmit}
                       disabled={!accountName || processingWithdrawal}
                       isLoading={processingWithdrawal}
@@ -428,12 +479,16 @@ const WalletPage = () => {
               {withdrawalStep === "otp" && (
                 <div className="space-y-6 text-center">
                   <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <AlertCircle size={24} className="text-blue-600 mx-auto mb-2" />
+                    <AlertCircle
+                      size={24}
+                      className="text-blue-600 mx-auto mb-2"
+                    />
                     <p className="text-sm text-blue-800">
-                      An OTP has been sent to your registered phone number. Please enter it below to complete the withdrawal.
+                      An OTP has been sent to your registered phone number.
+                      Please enter it below to complete the withdrawal.
                     </p>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Enter OTP Code
@@ -456,9 +511,9 @@ const WalletPage = () => {
                       onClick={() => setWithdrawalStep("bank")}
                     />
                     <Button
-                      buttonText={verifyingOtp ? "Verifying..." : "Verify & Complete"}
-                      buttonColor="bg-olive"
-                      textColor="text-cream"
+                      buttonText={
+                        verifyingOtp ? "Verifying..." : "Verify & Complete"
+                      }
                       onClick={handleOtpVerification}
                       disabled={!otpCode || verifyingOtp}
                       isLoading={verifyingOtp}
@@ -470,18 +525,23 @@ const WalletPage = () => {
               {withdrawalStep === "success" && (
                 <div className="space-y-6 text-center">
                   <div className="p-6 bg-green-50 border border-green-200 rounded-lg">
-                    <CheckCircle size={48} className="text-green-600 mx-auto mb-4" />
-                    <h4 className="text-lg font-medium text-green-800 mb-2">Withdrawal Successful!</h4>
+                    <CheckCircle
+                      size={48}
+                      className="text-green-600 mx-auto mb-4"
+                    />
+                    <h4 className="text-lg font-medium text-green-800 mb-2">
+                      Withdrawal Successful!
+                    </h4>
                     <p className="text-sm text-green-700">
-                      Your withdrawal of {currency} {formatAmount(withdrawalAmount)} has been processed successfully.
-                      The funds will be credited to your account within 24 hours.
+                      Your withdrawal of {currency}{" "}
+                      {formatAmount(withdrawalAmount)} has been processed
+                      successfully. The funds will be credited to your account
+                      within 24 hours.
                     </p>
                   </div>
-                  
+
                   <Button
                     buttonText="Make Another Withdrawal"
-                    buttonColor="bg-olive"
-                    textColor="text-cream"
                     onClick={resetWithdrawalForm}
                   />
                 </div>
@@ -492,7 +552,9 @@ const WalletPage = () => {
 
         {activeTab === "transactions" && (
           <div className="bg-white border border-sand/30 rounded-xl p-6">
-            <h3 className="font-serif font-bold text-xl text-forest mb-6">Transaction History</h3>
+            <h3 className="font-serif font-bold text-xl text-forest mb-6">
+              Transaction History
+            </h3>
             <TablesComponent
               isLoading={loadingTransactions}
               data={transactionsData?.data || []}
@@ -505,7 +567,9 @@ const WalletPage = () => {
 
         {activeTab === "withdrawals" && (
           <div className="bg-white border border-sand/30 rounded-xl p-6">
-            <h3 className="font-serif font-bold text-xl text-forest mb-6">Withdrawal History</h3>
+            <h3 className="font-serif font-bold text-xl text-forest mb-6">
+              Withdrawal History
+            </h3>
             <TablesComponent
               isLoading={loadingWithdrawals}
               data={withdrawalsData?.data || []}

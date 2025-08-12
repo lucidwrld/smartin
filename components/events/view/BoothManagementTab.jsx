@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
-import { toast } from "react-toastify";
 import {
   Plus,
   Trash2,
@@ -28,14 +27,21 @@ import {
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import StatusButton from "@/components/StatusButton";
+import {
+  CreateBoothManager,
+  useGetEventBoothsManager,
+  UpdateBoothManager,
+  DeleteBoothManager,
+} from "@/app/booths/controllers/boothController";
+import {
+  useGetBoothCategoriesManager,
+  CreateBoothCategoryManager,
+} from "@/app/booths/controllers/boothController";
+import Loader from "@/components/Loader";
+import { toast } from "react-toastify";
+import BoothCouponSystem from "@/components/booths/BoothCouponSystem";
 
-const BoothCard = ({
-  booth,
-  onEdit,
-  onDelete,
-  onToggleStatus,
-  isLoading,
-}) => {
+const BoothCard = ({ booth, onEdit, onDelete, onToggleStatus, isLoading }) => {
   const {
     id,
     name,
@@ -106,9 +112,7 @@ const BoothCard = ({
               </span>
             </div>
             <p className="text-sm text-gray-600">{description}</p>
-            {size && (
-              <p className="text-xs text-gray-500 mt-1">Size: {size}</p>
-            )}
+            {size && <p className="text-xs text-gray-500 mt-1">Size: {size}</p>}
             {location && (
               <p className="text-xs text-gray-500 flex items-center gap-1">
                 <MapPin className="w-3 h-3" />
@@ -207,7 +211,12 @@ const BoothCard = ({
   );
 };
 
-const BoothOrderCard = ({ order, onViewDetails, onUpdateStatus, isLoading }) => {
+const BoothOrderCard = ({
+  order,
+  onViewDetails,
+  onUpdateStatus,
+  isLoading,
+}) => {
   const {
     id,
     order_number,
@@ -394,43 +403,26 @@ const BoothManagementTab = ({ event }) => {
     amenities: [],
   });
 
-  // Mock data - replace with actual API calls
-  const mockBooths = [
-    {
-      id: "1",
-      name: "Premium Corner Booth",
-      description: "Large corner booth with high visibility",
-      price: 2500,
-      currency: "USD",
-      quantity: 5,
-      sold: 3,
-      status: "active",
-      category: "Premium",
-      sale_start_date: "2024-01-01",
-      sale_end_date: "2024-12-31",
-      revenue: 7500,
-      is_free: false,
-      size: "10x10 ft",
-      location: "Main Hall - Corner",
-    },
-    {
-      id: "2",
-      name: "Standard Booth",
-      description: "Standard exhibition booth",
-      price: 1500,
-      currency: "USD",
-      quantity: 20,
-      sold: 15,
-      status: "active",
-      category: "Standard",
-      sale_start_date: "2024-01-01",
-      sale_end_date: "2024-12-31",
-      revenue: 22500,
-      is_free: false,
-      size: "8x8 ft",
-      location: "Main Hall",
-    },
-  ];
+  // API Integrations
+  const {
+    data: boothsData,
+    isLoading: loadingBooths,
+    refetch: refetchBooths,
+  } = useGetEventBoothsManager(event?.id || event?._id);
+  const { data: categoriesData, refetch: refetchCategories } =
+    useGetBoothCategoriesManager();
+  const { createBooth, isLoading: creatingBooth } = CreateBoothManager();
+  const { updateBooth, isLoading: updatingBooth } = UpdateBoothManager({
+    boothId: editingBooth?._id,
+  });
+  const { deleteBooth, isLoading: deletingBooth } = DeleteBoothManager({
+    boothId: editingBooth?._id,
+  });
+  const { createBoothCategory, isLoading: creatingCategory } =
+    CreateBoothCategoryManager();
+
+  const isLoading =
+    creatingBooth || updatingBooth || deletingBooth || creatingCategory;
 
   const mockOrders = [
     {
@@ -451,16 +443,37 @@ const BoothManagementTab = ({ event }) => {
     },
   ];
 
-  const mockCategories = [
-    { _id: "1", name: "Premium" },
-    { _id: "2", name: "Standard" },
-    { _id: "3", name: "Startup" },
-  ];
-
-  const isLoading = false;
-
   const handleToggleBoothStatus = async (boothId, newStatus) => {
-    console.log("Toggle booth status:", boothId, newStatus);
+    try {
+      const booth = boothsData?.data.find((b) => b._id === boothId);
+      if (!booth) return;
+
+      const updateData = {
+        name: booth.name,
+        category:
+          typeof booth.category === "object"
+            ? booth.category._id
+            : booth.category,
+        price: booth.price,
+        description: booth.description,
+        size: booth.size,
+        location: booth.location,
+        quantity: booth.quantity,
+        currency: booth.currency,
+        sale_start_date: booth.sale_start_date.split("T")[0],
+        sale_end_date: booth.sale_end_date.split("T")[0],
+        min_per_order: booth.min_per_order,
+        max_per_order: booth.max_per_order,
+        is_active: newStatus === "active",
+        requires_approval: booth.requires_approval,
+        is_free: booth.is_free,
+      };
+
+      await updateBooth(updateData);
+      await refetchBooths();
+    } catch (error) {
+      console.error("Error updating booth status:", error);
+    }
   };
 
   const handleUpdateOrderStatus = (orderId, newStatus) => {
@@ -496,24 +509,46 @@ const BoothManagementTab = ({ event }) => {
         return;
       }
 
-      console.log("Save booth:", formData);
+      const boothData = {
+        event: event?.id || event?._id,
+        name: formData.name,
+        category: formData.category,
+        price: formData.price,
+        description: formData.description,
+        size: formData.size,
+        location: formData.location,
+        quantity: formData.quantity,
+        currency: formData.currency,
+        sale_start_date: formData.sale_start_date,
+        sale_end_date: formData.sale_end_date,
+        min_per_order: formData.min_per_order,
+        max_per_order: formData.max_per_order,
+        is_active: formData.is_active,
+        requires_approval: formData.requires_approval,
+        is_free: formData.is_free,
+      };
+
+      if (editingBooth) {
+        await updateBooth(boothData);
+      } else {
+        await createBooth(boothData);
+      }
+
+      await refetchBooths();
       setShowBoothModal(false);
       setEditingBooth(null);
-      toast.success(editingBooth ? "Booth updated successfully" : "Booth created successfully");
     } catch (error) {
       console.error("Error saving booth:", error);
-      toast.error("Failed to save booth");
     }
   };
 
   const handleDeleteBooth = async () => {
     try {
-      console.log("Delete booth:", editingBooth?.id);
+      await deleteBooth();
+      await refetchBooths();
       document.getElementById("delete-booth").close();
-      toast.success("Booth deleted successfully");
     } catch (error) {
       console.error("Error deleting booth:", error);
-      toast.error("Failed to delete booth");
     }
   };
 
@@ -524,13 +559,12 @@ const BoothManagementTab = ({ event }) => {
         return;
       }
 
-      console.log("Save category:", categoryFormData);
+      await createBoothCategory(categoryFormData);
+      await refetchCategories();
       setShowCategoryModal(false);
       setCategoryFormData({ name: "" });
-      toast.success("Category created successfully");
     } catch (error) {
       console.error("Error creating category:", error);
-      toast.error("Failed to create category");
     }
   };
 
@@ -538,13 +572,25 @@ const BoothManagementTab = ({ event }) => {
     { id: "overview", label: "Overview", icon: BarChart3 },
     { id: "booths", label: "Booth Types", icon: Building },
     { id: "orders", label: "Orders", icon: Users },
+    { id: "coupons", label: "Coupons", icon: Percent },
     { id: "analytics", label: "Analytics", icon: TrendingUp },
   ];
 
-  const totalRevenue = mockBooths.reduce((sum, booth) => sum + (booth.revenue || 0), 0);
-  const totalSold = mockBooths.reduce((sum, booth) => sum + booth.sold, 0);
-  const totalAvailable = mockBooths.reduce((sum, booth) => sum + (booth.quantity - booth.sold), 0);
-  const activeTypes = mockBooths.filter(booth => booth.status === "active").length;
+  const booths = boothsData?.data || [];
+  const totalRevenue = 0; // Calculate from actual revenue data when available
+  const totalSold = booths.reduce(
+    (sum, booth) => sum + (booth.quantity - booth.quantity_remaining),
+    0
+  );
+  const totalAvailable = booths.reduce(
+    (sum, booth) => sum + booth.quantity_remaining,
+    0
+  );
+  const activeTypes = booths.filter((booth) => booth.is_active).length;
+
+  if (loadingBooths) {
+    return <Loader />;
+  }
 
   return (
     <div className="space-y-6">
@@ -553,7 +599,9 @@ const BoothManagementTab = ({ event }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Total Revenue</p>
-              <p className="text-2xl font-semibold text-green-600">${totalRevenue.toLocaleString()}</p>
+              <p className="text-2xl font-semibold text-green-600">
+                ${totalRevenue.toLocaleString()}
+              </p>
             </div>
             <DollarSign className="w-8 h-8 text-green-500" />
           </div>
@@ -563,7 +611,9 @@ const BoothManagementTab = ({ event }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Booths Sold</p>
-              <p className="text-2xl font-semibold text-blue-600">{totalSold}</p>
+              <p className="text-2xl font-semibold text-blue-600">
+                {totalSold}
+              </p>
             </div>
             <Building className="w-8 h-8 text-blue-500" />
           </div>
@@ -573,7 +623,9 @@ const BoothManagementTab = ({ event }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Available</p>
-              <p className="text-2xl font-semibold text-olive">{totalAvailable}</p>
+              <p className="text-2xl font-semibold text-olive">
+                {totalAvailable}
+              </p>
             </div>
             <Users className="w-8 h-8 text-olive" />
           </div>
@@ -583,7 +635,9 @@ const BoothManagementTab = ({ event }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Active Types</p>
-              <p className="text-2xl font-semibold text-gray-900">{activeTypes}</p>
+              <p className="text-2xl font-semibold text-gray-900">
+                {activeTypes}
+              </p>
             </div>
             <CheckCircle className="w-8 h-8 text-green-500" />
           </div>
@@ -614,20 +668,20 @@ const BoothManagementTab = ({ event }) => {
           <div className="bg-white p-6 rounded-lg border">
             <h3 className="text-lg font-semibold mb-4">Sales Overview</h3>
             <div className="space-y-3">
-              {mockBooths.map((booth) => {
-                const soldPercentage = (booth.sold / booth.quantity) * 100;
+              {booths.map((booth) => {
+                const sold = booth.quantity - booth.quantity_remaining;
+                const soldPercentage = (sold / booth.quantity) * 100;
                 return (
-                  <div key={booth.id}>
+                  <div key={booth._id}>
                     <div className="flex justify-between text-sm mb-1">
                       <span>{booth.name}</span>
                       <span>
-                        {booth.sold}/{booth.quantity} (
-                        {soldPercentage.toFixed(1)}%)
+                        {sold}/{booth.quantity} ({soldPercentage.toFixed(1)}%)
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className="bg-olive h-2 rounded-full"
+                        className=" h-2 rounded-full"
                         style={{ width: `${Math.min(soldPercentage, 100)}%` }}
                       ></div>
                     </div>
@@ -680,7 +734,6 @@ const BoothManagementTab = ({ event }) => {
               <CustomButton
                 buttonText="Add Booth"
                 prefixIcon={<Plus size={16} />}
-                buttonColor="bg-olive"
                 radius="rounded-full"
                 onClick={() => {
                   setEditingBooth(null);
@@ -709,47 +762,110 @@ const BoothManagementTab = ({ event }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {mockBooths.map((booth) => (
-              <BoothCard
-                key={booth.id}
-                booth={booth}
-                onEdit={() => {
-                  setEditingBooth(booth);
+          {loadingBooths ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-olive mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading booths...</p>
+            </div>
+          ) : booths.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-lg border">
+              <Building className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No booths yet
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Create your first booth type to start selling.
+              </p>
+              <CustomButton
+                buttonText="Create First Booth"
+                prefixIcon={<Plus size={16} />}
+                radius="rounded-full"
+                onClick={() => {
+                  setEditingBooth(null);
                   setFormData({
-                    name: booth.name,
-                    category: booth.category,
-                    price: booth.price,
-                    description: booth.description || "",
-                    quantity: booth.quantity,
-                    currency: booth.currency,
-                    sale_start_date: booth.sale_start_date,
-                    sale_end_date: booth.sale_end_date,
+                    event: event?.id,
+                    name: "",
+                    category: "",
+                    price: 0,
+                    description: "",
+                    quantity: 10,
+                    currency: "USD",
+                    sale_start_date: "",
+                    sale_end_date: "",
                     min_per_order: 1,
                     max_per_order: 5,
-                    is_active: booth.status === "active",
+                    is_active: true,
                     requires_approval: false,
-                    is_free: booth.is_free,
-                    size: booth.size || "",
-                    location: booth.location || "",
-                    amenities: booth.amenities || [],
+                    is_free: false,
+                    size: "",
+                    location: "",
+                    amenities: [],
                   });
                   setShowBoothModal(true);
                 }}
-                onDelete={() => {
-                  setEditingBooth(booth);
-                  document.getElementById("delete-booth").showModal();
-                }}
-                onToggleStatus={() =>
-                  handleToggleBoothStatus(
-                    booth.id,
-                    booth.status === "active" ? "paused" : "active"
-                  )
-                }
-                isLoading={isLoading}
               />
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {booths.map((booth) => (
+                <BoothCard
+                  key={booth._id}
+                  booth={{
+                    ...booth,
+                    id: booth._id,
+                    sold: booth.quantity - booth.quantity_remaining,
+                    status: booth.is_active
+                      ? booth.sold_out
+                        ? "sold_out"
+                        : "active"
+                      : "paused",
+                    category:
+                      typeof booth.category === "object"
+                        ? booth.category.name
+                        : booth.category,
+                    revenue: 0, // Hardcoded as requested
+                  }}
+                  onEdit={() => {
+                    setEditingBooth(booth);
+                    setFormData({
+                      name: booth.name,
+                      category:
+                        typeof booth.category === "object"
+                          ? booth.category._id
+                          : booth.category,
+                      price: booth.price,
+                      description: booth.description || "",
+                      quantity: booth.quantity,
+                      currency: booth.currency,
+                      sale_start_date:
+                        booth.sale_start_date?.split("T")[0] || "",
+                      sale_end_date: booth.sale_end_date?.split("T")[0] || "",
+                      min_per_order: booth.min_per_order,
+                      max_per_order: booth.max_per_order,
+                      is_active: booth.is_active,
+                      requires_approval: booth.requires_approval,
+                      is_free: booth.is_free,
+                      size: booth.size || "",
+                      location: booth.location || "",
+                      amenities: booth.amenities || [],
+                    });
+                    setShowBoothModal(true);
+                  }}
+                  onDelete={() => {
+                    setEditingBooth(booth);
+                    document.getElementById("delete-booth").showModal();
+                  }}
+                  onToggleStatus={() =>
+                    handleToggleBoothStatus(
+                      booth._id,
+                      booth.is_active ? "paused" : "active"
+                    )
+                  }
+                  isLoading={isLoading}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -796,10 +912,14 @@ const BoothManagementTab = ({ event }) => {
         </div>
       )}
 
+      {activeTab === "coupons" && <BoothCouponSystem eventId={event?.id} />}
+
       {activeTab === "analytics" && (
         <div className="space-y-6">
           <div className="bg-white p-6 rounded-lg border">
-            <h3 className="text-lg font-semibold mb-4">Booth Sales Analytics</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              Booth Sales Analytics
+            </h3>
             <div className="text-center py-12 text-gray-500">
               <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p>Detailed analytics charts would be displayed here.</p>
@@ -907,8 +1027,8 @@ const BoothManagementTab = ({ event }) => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-olive focus:border-olive"
                     >
                       <option value="">Select category</option>
-                      {mockCategories.map((cat) => (
-                        <option key={cat._id} value={cat.name}>
+                      {categoriesData?.data?.map((cat) => (
+                        <option key={cat._id} value={cat._id}>
                           {cat.name}
                         </option>
                       ))}
@@ -1073,10 +1193,7 @@ const BoothManagementTab = ({ event }) => {
 
                 <div className="flex gap-3 pt-4">
                   <CustomButton
-                    buttonText={
-                      editingBooth ? "Update Booth" : "Create Booth"
-                    }
-                    buttonColor="bg-olive"
+                    buttonText={editingBooth ? "Update Booth" : "Create Booth"}
                     radius="rounded-md"
                     isLoading={isLoading}
                     onClick={handleSaveBooth}

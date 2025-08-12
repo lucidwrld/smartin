@@ -33,6 +33,14 @@ import {
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import StatusButton from "@/components/StatusButton";
+import {
+  CreateTodoManager,
+  useGetEventTodosManager,
+  UpdateTodoManager,
+  DeleteTodoManager,
+  CreateTodoNoteManager,
+} from "@/app/todos/controllers/todoController";
+import Loader from "@/components/Loader";
 
 const TaskCard = ({
   task,
@@ -46,16 +54,15 @@ const TaskCard = ({
   getStatusColor,
 }) => {
   const {
-    id,
+    _id,
     title,
     description,
     assigned_to,
     priority,
     due_date,
     status,
-    created_date,
+    createdAt,
     notes,
-    category,
   } = task;
 
   const [showNotes, setShowNotes] = useState(false);
@@ -65,7 +72,7 @@ const TaskCard = ({
 
   const handleAddNote = () => {
     if (newNote.trim()) {
-      onAddNote(id, newNote.trim());
+      onAddNote(_id, newNote.trim());
       setNewNote("");
     }
   };
@@ -75,7 +82,12 @@ const TaskCard = ({
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-start gap-3 flex-1">
           <button
-            onClick={() => onToggleStatus(id, status === "completed" ? "pending" : "completed")}
+            onClick={() =>
+              onToggleStatus(
+                _id,
+                status === "completed" ? "pending" : "completed"
+              )
+            }
             className="mt-1"
           >
             {status === "completed" ? (
@@ -86,17 +98,27 @@ const TaskCard = ({
           </button>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <h3 className={`font-semibold text-lg ${status === "completed" ? "line-through text-gray-500" : "text-gray-900"}`}>
+              <h3
+                className={`font-semibold text-lg ${
+                  status === "completed"
+                    ? "line-through text-gray-500"
+                    : "text-gray-900"
+                }`}
+              >
                 {title}
               </h3>
               <span
-                className={`px-2 py-1 text-xs rounded border ${getPriorityColor(priority)}`}
+                className={`px-2 py-1 text-xs rounded border ${getPriorityColor(
+                  priority
+                )}`}
               >
                 <Flag className="w-3 h-3 inline mr-1" />
                 {priority.toUpperCase()}
               </span>
               <span
-                className={`px-2 py-1 text-xs rounded ${getStatusColor(status)}`}
+                className={`px-2 py-1 text-xs rounded ${getStatusColor(
+                  status
+                )}`}
               >
                 {status.replace("_", " ").toUpperCase()}
               </span>
@@ -107,11 +129,48 @@ const TaskCard = ({
                 </span>
               )}
             </div>
-            
+
             {description && (
-              <p className={`text-sm mb-3 ${status === "completed" ? "text-gray-400" : "text-gray-600"}`}>
-                {description}
-              </p>
+              <div
+                className={`text-sm mb-3 ${
+                  status === "completed" ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                <p className="text-xs text-gray-500 mb-1">Sub Tasks:</p>
+                <div className="space-y-1">
+                  {description
+                    .split("\n")
+                    .filter(Boolean)
+                    .map((subTask, index) => {
+                      const isTaskCompleted = subTask.startsWith("[x] ");
+                      const taskText = subTask.replace(/^\[(x| )\] /, "");
+                      return (
+                        <div key={index} className="flex items-center gap-2">
+                          <div
+                            className={`w-3 h-3 rounded border flex items-center justify-center ${
+                              isTaskCompleted
+                                ? "bg-green-500 border-green-500"
+                                : "border-gray-300"
+                            }`}
+                          >
+                            {isTaskCompleted && (
+                              <span className="text-white text-xs">✓</span>
+                            )}
+                          </div>
+                          <span
+                            className={
+                              isTaskCompleted
+                                ? "line-through text-gray-400"
+                                : ""
+                            }
+                          >
+                            {taskText}
+                          </span>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-gray-600 mb-3">
@@ -120,19 +179,20 @@ const TaskCard = ({
                 <div>
                   <span className="text-xs text-gray-500">Assigned to:</span>
                   <div className="flex flex-wrap gap-1 mt-1">
-                    {Array.isArray(assigned_to) ? 
-                      assigned_to.map((member, index) => (
-                        <span 
+                    {assigned_to && assigned_to.length > 0 ? (
+                      assigned_to.map((assignee, index) => (
+                        <span
                           key={index}
                           className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs"
                         >
-                          {member}
+                          {assignee}
                         </span>
-                      )) : 
-                      <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                        {assigned_to}
+                      ))
+                    ) : (
+                      <span className="px-2 py-1 bg-gray-100 text-gray-500 rounded-full text-xs">
+                        Unassigned
                       </span>
-                    }
+                    )}
                   </div>
                 </div>
               </div>
@@ -142,15 +202,9 @@ const TaskCard = ({
               </div>
               <div className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />
-                <span>Created: {formatDate(created_date)}</span>
+                <span>Created: {formatDate(createdAt)}</span>
               </div>
             </div>
-
-            {category && (
-              <span className="inline-block px-2 py-1 bg-brandPurple/10 text-brandPurple rounded text-xs mb-3">
-                {category}
-              </span>
-            )}
 
             {notes && notes.length > 0 && (
               <div className="mb-3">
@@ -159,16 +213,24 @@ const TaskCard = ({
                   className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
                 >
                   <MessageSquare className="w-4 h-4" />
-                  {notes.length} note(s) • Click to {showNotes ? "hide" : "view"}
+                  {notes.length} note(s) • Click to{" "}
+                  {showNotes ? "hide" : "view"}
                 </button>
-                
+
                 {showNotes && (
                   <div className="mt-2 space-y-2 max-h-32 overflow-y-auto">
                     {notes.map((note, index) => (
-                      <div key={index} className="bg-gray-50 p-2 rounded text-xs">
+                      <div
+                        key={index}
+                        className="bg-gray-50 p-2 rounded text-xs"
+                      >
                         <div className="flex justify-between items-start mb-1">
-                          <span className="font-medium text-gray-700">{note.author}</span>
-                          <span className="text-gray-500">{formatDate(note.date)}</span>
+                          <span className="font-medium text-gray-700">
+                            {note.author}
+                          </span>
+                          <span className="text-gray-500">
+                            {formatDate(note.createdAt)}
+                          </span>
                         </div>
                         <p className="text-gray-600">{note.content}</p>
                       </div>
@@ -208,7 +270,7 @@ const TaskCard = ({
             <Edit2 className="w-4 h-4" />
           </button>
           <button
-            onClick={() => onDelete(id)}
+            onClick={() => onDelete(_id)}
             disabled={isLoading}
             className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
             title="Delete task"
@@ -230,6 +292,26 @@ const TodoManagementTab = ({ event }) => {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
 
+  // API Integrations
+  const {
+    data: todosData,
+    isLoading: loadingTodos,
+    refetch: refetchTodos,
+    error: todosError,
+  } = useGetEventTodosManager(event?.id || event?._id);
+  const { createTodo, isLoading: creatingTodo } = CreateTodoManager();
+  const { updateTodo, isLoading: updatingTodo } = UpdateTodoManager();
+  const { deleteTodo, isLoading: deletingTodo } = DeleteTodoManager({
+    todoId: editingTask?._id,
+  });
+  const { createNote, isLoading: creatingNote } = CreateTodoNoteManager({
+    todoId: editingTask?._id,
+  });
+
+  const isLoading =
+    creatingTodo || updatingTodo || deletingTodo || creatingNote;
+  const todos = todosData?.data || [];
+
   // Utility functions
   const formatDate = (dateString) => {
     try {
@@ -240,7 +322,7 @@ const TodoManagementTab = ({ event }) => {
   };
 
   const getPriorityColor = (priority) => {
-    switch (priority) {
+    switch (priority?.toLowerCase()) {
       case "high":
         return "bg-red-100 text-red-800 border-red-200";
       case "medium":
@@ -266,178 +348,114 @@ const TodoManagementTab = ({ event }) => {
         return "bg-gray-100 text-gray-800";
     }
   };
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    assigned_to: [], // Changed to array for multiple members
-    priority: "medium",
+    assigned_to: [],
+    priority: "Medium",
+    category: "General",
     due_date: "",
     status: "pending",
-    category: "",
   });
 
-  // Mock data - replace with actual API calls
-  const mockTasks = [
-    {
-      id: "1",
-      title: "Setup venue lighting system",
-      description: "Install and test all lighting equipment for main stage and booth areas",
-      assigned_to: ["John Smith", "Tom Brown"], // Multiple members
-      priority: "high",
-      due_date: "2024-02-15",
-      status: "in_progress",
-      created_date: "2024-01-20",
-      category: "Technical Setup",
-      notes: [
-        {
-          author: "John Smith",
-          date: "2024-01-21",
-          content: "Contacted lighting vendor, equipment will arrive Thursday"
-        },
-        {
-          author: "Event Manager",
-          date: "2024-01-22",
-          content: "Please coordinate with sound team for power requirements"
-        }
-      ]
-    },
-    {
-      id: "2",
-      title: "Finalize catering menu",
-      description: "Review and approve final menu options with dietary restrictions considered",
-      assigned_to: ["Sarah Johnson"],
-      priority: "medium",
-      due_date: "2024-02-10",
-      status: "pending",
-      created_date: "2024-01-18",
-      category: "Catering",
-      notes: [
-        {
-          author: "Sarah Johnson",
-          date: "2024-01-19",
-          content: "Meeting scheduled with caterer for menu tasting this Friday"
-        }
-      ]
-    },
-    {
-      id: "3",
-      title: "Book security personnel",
-      description: "Arrange security team for event entrance and booth monitoring",
-      assigned_to: ["Mike Wilson", "Emma Davis"], // Multiple members
-      priority: "high",
-      due_date: "2024-02-08",
-      status: "completed",
-      created_date: "2024-01-15",
-      category: "Security",
-      notes: [
-        {
-          author: "Mike Wilson",
-          date: "2024-01-25",
-          content: "Security team booked - 8 personnel confirmed for event day"
-        }
-      ]
-    },
-    {
-      id: "4",
-      title: "Print event signage",
-      description: "Design and print all directional and informational signage",
-      assigned_to: ["Lisa Chen"],
-      priority: "low",
-      due_date: "2024-02-12",
-      status: "pending",
-      created_date: "2024-01-22",
-      category: "Marketing",
-      notes: []
-    },
-    {
-      id: "5",
-      title: "Test registration system",
-      description: "End-to-end testing of online registration and check-in process",
-      assigned_to: ["David Park", "John Smith", "Lisa Chen"], // Multiple members
-      priority: "high",
-      due_date: "2024-02-01",
-      status: "overdue",
-      created_date: "2024-01-10",
-      category: "Technical Setup",
-      notes: [
-        {
-          author: "David Park",
-          date: "2024-01-28",
-          content: "Found issues with QR code scanner, working on fixes"
-        }
-      ]
-    }
-  ];
+  const [newAssignee, setNewAssignee] = useState("");
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState("");
 
-  const mockTeamMembers = [
-    "John Smith",
-    "Sarah Johnson", 
-    "Mike Wilson",
-    "Lisa Chen",
-    "David Park",
-    "Emma Davis",
-    "Tom Brown"
-  ];
+  if (loadingTodos) {
+    return <Loader />;
+  }
 
-  const isLoading = false;
+  if (todosError) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-red-600">
+          Error loading todos: {todosError.message}
+        </p>
+        <CustomButton
+          buttonText="Retry"
+          onClick={() => refetchTodos()}
+          buttonColor="bg-brandPurple"
+          radius="rounded-md"
+        />
+      </div>
+    );
+  }
 
   const handleToggleTaskStatus = async (taskId, newStatus) => {
-    console.log("Toggle task status:", taskId, newStatus);
-    toast.success(`Task ${newStatus === "completed" ? "completed" : "updated"}`);
+    try {
+      await updateTodo(taskId, { status: newStatus });
+      refetchTodos();
+    } catch (error) {
+      console.error("Error updating task status:", error);
+    }
   };
 
   const handleAddNote = async (taskId, noteContent) => {
-    console.log("Add note to task:", taskId, noteContent);
-    toast.success("Note added successfully");
+    try {
+      await createNote({ content: noteContent });
+      refetchTodos();
+    } catch (error) {
+      console.error("Error adding note:", error);
+    }
   };
 
   const handleSaveTask = async () => {
     try {
-      if (!formData.title || formData.assigned_to.length === 0 || !formData.due_date) {
-        toast.error("Please fill in all required fields and assign at least one team member");
+      if (!formData.title || !formData.due_date) {
+        toast.error("Please fill in all required fields");
         return;
       }
 
-      // Updated payload structure for backend
+      // Convert sub tasks array to description string
+      const descriptionString = tasks
+        .map((subTask) => `[${subTask.completed ? "x" : " "}] ${subTask.text}`)
+        .join("\n");
+
       const taskPayload = {
         event: event?.id || event?._id,
         title: formData.title,
-        description: formData.description,
-        assigned_to: formData.assigned_to, // Array of member IDs/names
-        priority: formData.priority, // high, medium, low
-        due_date: formData.due_date,
-        status: formData.status, // pending, in_progress, completed, overdue
+        description: descriptionString,
+        assigned_to: formData.assigned_to,
         category: formData.category,
-        notes: [] // Empty array on creation, updated later via separate endpoint
+        priority: formData.priority,
+        due_date: formData.due_date,
       };
-      
-      console.log("Save task payload:", taskPayload);
+
+      if (editingTask) {
+        await updateTodo(editingTask._id, taskPayload);
+      } else {
+        await createTodo(taskPayload);
+      }
+
       setShowTaskModal(false);
       setEditingTask(null);
       setFormData({
         title: "",
         description: "",
         assigned_to: [],
-        priority: "medium",
+        priority: "Medium",
+        category: "General",
         due_date: "",
         status: "pending",
-        category: "",
       });
-      toast.success(editingTask ? "Task updated successfully" : "Task created successfully");
+      setNewAssignee("");
+      setTasks([]);
+      setNewTask("");
+      refetchTodos();
     } catch (error) {
       console.error("Error saving task:", error);
-      toast.error("Failed to save task");
     }
   };
 
   const handleDeleteTask = async () => {
     try {
-      console.log("Delete task:", editingTask?.id);
+      await deleteTodo();
       document.getElementById("delete-task").close();
-      toast.success("Task deleted successfully");
+      refetchTodos();
     } catch (error) {
       console.error("Error deleting task:", error);
-      toast.error("Failed to delete task");
     }
   };
 
@@ -449,35 +467,58 @@ const TodoManagementTab = ({ event }) => {
   ];
 
   // Filter tasks
-  const filteredTasks = mockTasks.filter(task => {
-    const assigneesString = Array.isArray(task.assigned_to) 
-      ? task.assigned_to.join(' ').toLowerCase() 
-      : task.assigned_to.toLowerCase();
-    
-    const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         task.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         assigneesString.includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === "all" || task.status === filterStatus;
-    const matchesPriority = filterPriority === "all" || task.priority === filterPriority;
-    const matchesAssignee = filterAssignee === "all" || 
-                           (Array.isArray(task.assigned_to) 
-                             ? task.assigned_to.includes(filterAssignee)
-                             : task.assigned_to === filterAssignee);
-    
+  const filteredTasks = todos.filter((task) => {
+    const assigneesString = Array.isArray(task.assigned_to)
+      ? task.assigned_to.join(" ").toLowerCase()
+      : task.assigned_to
+      ? task.assigned_to.toLowerCase()
+      : "";
+
+    const matchesSearch =
+      task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (task.description &&
+        task.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      assigneesString.includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      filterStatus === "all" || task.status === filterStatus;
+    const matchesPriority =
+      filterPriority === "all" || task.priority === filterPriority;
+    const matchesAssignee =
+      filterAssignee === "all" ||
+      (Array.isArray(task.assigned_to)
+        ? task.assigned_to.includes(filterAssignee)
+        : task.assigned_to === filterAssignee);
+
     return matchesSearch && matchesStatus && matchesPriority && matchesAssignee;
   });
 
   // Calculate statistics
-  const totalTasks = mockTasks.length;
-  const completedTasks = mockTasks.filter(task => task.status === "completed").length;
-  const inProgressTasks = mockTasks.filter(task => task.status === "in_progress").length;
-  const overdueTasks = mockTasks.filter(task => task.status === "overdue").length;
-  const completionRate = totalTasks > 0 ? (completedTasks / totalTasks * 100).toFixed(1) : 0;
+  const totalTasks = todos.length;
+  const completedTasks = todos.filter(
+    (task) => task.status === "completed"
+  ).length;
+  const inProgressTasks = todos.filter(
+    (task) => task.status === "in_progress"
+  ).length;
+  const overdueTasks = todos.filter((task) => {
+    const isOverdue =
+      new Date(task.due_date) < new Date() && task.status !== "completed";
+    return isOverdue || task.status === "overdue";
+  }).length;
+  const completionRate =
+    totalTasks > 0 ? ((completedTasks / totalTasks) * 100).toFixed(1) : 0;
 
-  // Group tasks by assignee for team view (handle multiple assignees)
-  const tasksByAssignee = mockTasks.reduce((acc, task) => {
-    const assignees = Array.isArray(task.assigned_to) ? task.assigned_to : [task.assigned_to];
-    assignees.forEach(assignee => {
+  // Group tasks by assignee for team view
+  const tasksByAssignee = todos.reduce((acc, task) => {
+    const assignees = Array.isArray(task.assigned_to)
+      ? task.assigned_to.length > 0
+        ? task.assigned_to
+        : ["Unassigned"]
+      : task.assigned_to
+      ? [task.assigned_to]
+      : ["Unassigned"];
+
+    assignees.forEach((assignee) => {
       if (!acc[assignee]) {
         acc[assignee] = [];
       }
@@ -485,6 +526,21 @@ const TodoManagementTab = ({ event }) => {
     });
     return acc;
   }, {});
+
+  // Get unique assignees for filter
+  const uniqueAssignees = [
+    ...new Set(
+      todos
+        .flatMap((task) =>
+          Array.isArray(task.assigned_to)
+            ? task.assigned_to
+            : task.assigned_to
+            ? [task.assigned_to]
+            : []
+        )
+        .filter(Boolean)
+    ),
+  ];
 
   return (
     <div className="space-y-6">
@@ -494,7 +550,9 @@ const TodoManagementTab = ({ event }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Total Tasks</p>
-              <p className="text-2xl font-semibold text-gray-900">{totalTasks}</p>
+              <p className="text-2xl font-semibold text-gray-900">
+                {totalTasks}
+              </p>
             </div>
             <CheckSquare className="w-8 h-8 text-gray-500" />
           </div>
@@ -504,7 +562,9 @@ const TodoManagementTab = ({ event }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Completed</p>
-              <p className="text-2xl font-semibold text-green-600">{completedTasks}</p>
+              <p className="text-2xl font-semibold text-green-600">
+                {completedTasks}
+              </p>
             </div>
             <CheckCircle className="w-8 h-8 text-green-500" />
           </div>
@@ -514,7 +574,9 @@ const TodoManagementTab = ({ event }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">In Progress</p>
-              <p className="text-2xl font-semibold text-blue-600">{inProgressTasks}</p>
+              <p className="text-2xl font-semibold text-blue-600">
+                {inProgressTasks}
+              </p>
             </div>
             <Clock className="w-8 h-8 text-blue-500" />
           </div>
@@ -524,7 +586,9 @@ const TodoManagementTab = ({ event }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Overdue</p>
-              <p className="text-2xl font-semibold text-red-600">{overdueTasks}</p>
+              <p className="text-2xl font-semibold text-red-600">
+                {overdueTasks}
+              </p>
             </div>
             <AlertCircle className="w-8 h-8 text-red-500" />
           </div>
@@ -569,23 +633,35 @@ const TodoManagementTab = ({ event }) => {
                   ></div>
                 </div>
               </div>
-              
+
               <div className="space-y-2">
-                {["Technical Setup", "Catering", "Security", "Marketing"].map(category => {
-                  const categoryTasks = mockTasks.filter(task => task.category === category);
-                  const categoryCompleted = categoryTasks.filter(task => task.status === "completed").length;
-                  const categoryRate = categoryTasks.length > 0 ? (categoryCompleted / categoryTasks.length * 100) : 0;
-                  
+                {["high", "medium", "low"].map((priority) => {
+                  const priorityTasks = todos.filter(
+                    (task) => task.priority === priority
+                  );
+                  const priorityCompleted = priorityTasks.filter(
+                    (task) => task.status === "completed"
+                  ).length;
+                  const priorityRate =
+                    priorityTasks.length > 0
+                      ? (priorityCompleted / priorityTasks.length) * 100
+                      : 0;
+
                   return (
-                    <div key={category}>
+                    <div key={priority}>
                       <div className="flex justify-between text-sm mb-1">
-                        <span>{category}</span>
-                        <span>{categoryCompleted}/{categoryTasks.length}</span>
+                        <span>
+                          {priority.charAt(0).toUpperCase() + priority.slice(1)}{" "}
+                          Priority
+                        </span>
+                        <span>
+                          {priorityCompleted}/{priorityTasks.length}
+                        </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
                           className="bg-brandOrange h-2 rounded-full"
-                          style={{ width: `${categoryRate}%` }}
+                          style={{ width: `${priorityRate}%` }}
                         ></div>
                       </div>
                     </div>
@@ -598,30 +674,43 @@ const TodoManagementTab = ({ event }) => {
           <div className="bg-white p-6 rounded-lg border">
             <h3 className="text-lg font-semibold mb-4">Upcoming Deadlines</h3>
             <div className="space-y-3">
-              {mockTasks
-                .filter(task => task.status !== "completed")
+              {todos
+                .filter((task) => task.status !== "completed")
                 .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
                 .slice(0, 5)
                 .map((task) => {
                   const isOverdue = new Date(task.due_date) < new Date();
                   return (
                     <div
-                      key={task.id}
+                      key={task._id}
                       className={`p-3 rounded border-l-4 ${
-                        isOverdue ? "border-red-500 bg-red-50" : "border-blue-500 bg-blue-50"
+                        isOverdue
+                          ? "border-red-500 bg-red-50"
+                          : "border-blue-500 bg-blue-50"
                       }`}
                     >
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="font-medium text-sm">{task.title}</p>
-                          <p className="text-xs text-gray-600">{task.assigned_to}</p>
+                          <p className="text-xs text-gray-600">
+                            {Array.isArray(task.assigned_to) &&
+                            task.assigned_to.length > 0
+                              ? task.assigned_to.join(", ")
+                              : task.assigned_to || "Unassigned"}
+                          </p>
                         </div>
                         <div className="text-right">
-                          <p className={`text-xs font-medium ${isOverdue ? "text-red-600" : "text-blue-600"}`}>
+                          <p
+                            className={`text-xs font-medium ${
+                              isOverdue ? "text-red-600" : "text-blue-600"
+                            }`}
+                          >
                             {formatDate(task.due_date)}
                           </p>
                           {isOverdue && (
-                            <span className="text-xs text-red-600">Overdue</span>
+                            <span className="text-xs text-red-600">
+                              Overdue
+                            </span>
                           )}
                         </div>
                       </div>
@@ -665,9 +754,9 @@ const TodoManagementTab = ({ event }) => {
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brandPurple"
               >
                 <option value="all">All Priority</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
               </select>
               <select
                 value={filterAssignee}
@@ -675,8 +764,10 @@ const TodoManagementTab = ({ event }) => {
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brandPurple"
               >
                 <option value="all">All Assignees</option>
-                {mockTeamMembers.map(member => (
-                  <option key={member} value={member}>{member}</option>
+                {uniqueAssignees.map((member) => (
+                  <option key={member} value={member}>
+                    {member}
+                  </option>
                 ))}
               </select>
               <CustomButton
@@ -690,11 +781,14 @@ const TodoManagementTab = ({ event }) => {
                     title: "",
                     description: "",
                     assigned_to: [],
-                    priority: "medium",
+                    priority: "Medium",
+                    category: "General",
                     due_date: "",
                     status: "pending",
-                    category: "",
                   });
+                  setNewAssignee("");
+                  setTasks([]);
+                  setNewTask("");
                   setShowTaskModal(true);
                 }}
               />
@@ -704,25 +798,44 @@ const TodoManagementTab = ({ event }) => {
           <div className="space-y-4">
             {filteredTasks.map((task) => (
               <TaskCard
-                key={task.id}
+                key={task._id}
                 task={task}
                 formatDate={formatDate}
                 getPriorityColor={getPriorityColor}
                 getStatusColor={getStatusColor}
                 onEdit={() => {
+                  // Parse description back to sub tasks array
+                  const parsedTasks = task.description
+                    ? task.description
+                        .split("\n")
+                        .filter(Boolean)
+                        .map((taskLine, index) => {
+                          const isCompleted = taskLine.startsWith("[x] ");
+                          const text = taskLine.replace(/^\[(x| )\] /, "");
+                          return { id: index, text, completed: isCompleted };
+                        })
+                    : [];
+
+                  setTasks(parsedTasks);
                   setEditingTask(task);
                   setFormData({
                     title: task.title,
                     description: task.description || "",
-                    assigned_to: Array.isArray(task.assigned_to) ? task.assigned_to : [task.assigned_to],
+                    assigned_to: Array.isArray(task.assigned_to)
+                      ? task.assigned_to
+                      : task.assigned_to
+                      ? [task.assigned_to]
+                      : [],
                     priority: task.priority,
+                    category: task.category || "General",
                     due_date: task.due_date,
                     status: task.status,
-                    category: task.category || "",
                   });
+                  setNewAssignee("");
+                  setNewTask("");
                   setShowTaskModal(true);
                 }}
-                onDelete={() => {
+                onDelete={(taskId) => {
                   setEditingTask(task);
                   document.getElementById("delete-task").showModal();
                 }}
@@ -731,7 +844,7 @@ const TodoManagementTab = ({ event }) => {
                 isLoading={isLoading}
               />
             ))}
-            
+
             {filteredTasks.length === 0 && (
               <div className="text-center py-12 bg-white rounded-lg border">
                 <CheckSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
@@ -739,7 +852,10 @@ const TodoManagementTab = ({ event }) => {
                   No tasks found
                 </h3>
                 <p className="text-gray-500">
-                  {searchTerm || filterStatus !== "all" || filterPriority !== "all" || filterAssignee !== "all"
+                  {searchTerm ||
+                  filterStatus !== "all" ||
+                  filterPriority !== "all" ||
+                  filterAssignee !== "all"
                     ? "Try adjusting your search or filters."
                     : "Create your first task to get started."}
                 </p>
@@ -752,9 +868,14 @@ const TodoManagementTab = ({ event }) => {
       {activeTab === "team" && (
         <div className="space-y-6">
           {Object.entries(tasksByAssignee).map(([assignee, tasks]) => {
-            const assigneeCompleted = tasks.filter(task => task.status === "completed").length;
-            const assigneeRate = (assigneeCompleted / tasks.length * 100).toFixed(1);
-            
+            const assigneeCompleted = tasks.filter(
+              (task) => task.status === "completed"
+            ).length;
+            const assigneeRate = (
+              (assigneeCompleted / tasks.length) *
+              100
+            ).toFixed(1);
+
             return (
               <div key={assignee} className="bg-white p-6 rounded-lg border">
                 <div className="flex items-center justify-between mb-4">
@@ -765,7 +886,8 @@ const TodoManagementTab = ({ event }) => {
                     <div>
                       <h3 className="font-semibold text-lg">{assignee}</h3>
                       <p className="text-sm text-gray-600">
-                        {assigneeCompleted}/{tasks.length} tasks completed ({assigneeRate}%)
+                        {assigneeCompleted}/{tasks.length} tasks completed (
+                        {assigneeRate}%)
                       </p>
                     </div>
                   </div>
@@ -778,27 +900,46 @@ const TodoManagementTab = ({ event }) => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {tasks.map(task => (
+                  {tasks.map((task) => (
                     <div
-                      key={task.id}
+                      key={task._id}
                       className={`p-3 rounded border ${
-                        task.status === "completed" ? "bg-green-50 border-green-200" :
-                        task.status === "overdue" ? "bg-red-50 border-red-200" :
-                        "bg-gray-50 border-gray-200"
+                        task.status === "completed"
+                          ? "bg-green-50 border-green-200"
+                          : new Date(task.due_date) < new Date() &&
+                            task.status !== "completed"
+                          ? "bg-red-50 border-red-200"
+                          : "bg-gray-50 border-gray-200"
                       }`}
                     >
                       <div className="flex items-start justify-between mb-2">
-                        <h4 className={`font-medium text-sm ${task.status === "completed" ? "line-through text-gray-500" : ""}`}>
+                        <h4
+                          className={`font-medium text-sm ${
+                            task.status === "completed"
+                              ? "line-through text-gray-500"
+                              : ""
+                          }`}
+                        >
                           {task.title}
                         </h4>
-                        <span className={`px-2 py-1 text-xs rounded ${getPriorityColor(task.priority)}`}>
+                        <span
+                          className={`px-2 py-1 text-xs rounded ${getPriorityColor(
+                            task.priority
+                          )}`}
+                        >
                           {task.priority.toUpperCase()}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-600 mb-2">Due: {formatDate(task.due_date)}</p>
-                      <span className={`px-2 py-1 text-xs rounded ${getStatusColor(task.status)}`}>
+                      <p className="text-xs text-gray-600 mb-2">
+                        Due: {formatDate(task.due_date)}
+                      </p>
+                      <span
+                        className={`px-2 py-1 text-xs rounded ${getStatusColor(
+                          task.status
+                        )}`}
+                      >
                         {task.status.replace("_", " ").toUpperCase()}
                       </span>
                     </div>
@@ -813,7 +954,9 @@ const TodoManagementTab = ({ event }) => {
       {activeTab === "analytics" && (
         <div className="space-y-6">
           <div className="bg-white p-6 rounded-lg border">
-            <h3 className="text-lg font-semibold mb-4">Task Progress Analytics</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              Task Progress Analytics
+            </h3>
             <div className="text-center py-12 text-gray-500">
               <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p>Detailed analytics charts would be displayed here.</p>
@@ -855,67 +998,230 @@ const TodoManagementTab = ({ event }) => {
                   }
                 />
 
-                <InputWithFullBoarder
-                  label="Description"
-                  placeholder="Describe the task"
-                  isTextArea={true}
-                  rows={3}
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Assigned To *
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Sub Tasks
                     </label>
-                    <div className="space-y-2">
-                      <div className="flex flex-wrap gap-2 mb-2">
-                        {formData.assigned_to.map((member, index) => (
-                          <span 
+
+                    {/* Current Tasks */}
+                    {tasks.length > 0 && (
+                      <div className="space-y-2 mb-3 p-3 border border-gray-200 rounded-md bg-gray-50">
+                        {tasks.map((task, index) => (
+                          <div
                             key={index}
-                            className="px-3 py-1 bg-brandPurple text-whiteColor rounded-full text-sm flex items-center gap-2"
+                            className="flex items-center justify-between p-2 bg-white rounded border"
                           >
-                            {member}
+                            <div className="flex items-center gap-2 flex-1">
+                              <input
+                                type="checkbox"
+                                checked={task.completed}
+                                onChange={() => {
+                                  const updatedTasks = tasks.map((t, i) =>
+                                    i === index
+                                      ? { ...t, completed: !t.completed }
+                                      : t
+                                  );
+                                  setTasks(updatedTasks);
+                                }}
+                                className="w-4 h-4 text-brandPurple focus:ring-brandPurple border-gray-300 rounded"
+                              />
+                              <span
+                                className={
+                                  task.completed
+                                    ? "line-through text-gray-500"
+                                    : ""
+                                }
+                              >
+                                {task.text}
+                              </span>
+                            </div>
                             <button
                               type="button"
                               onClick={() => {
+                                const updatedTasks = tasks.filter(
+                                  (_, i) => i !== index
+                                );
+                                setTasks(updatedTasks);
+                              }}
+                              className="ml-2 text-red-500 hover:text-red-700 focus:outline-none"
+                              title="Remove sub task"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Add New Task */}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Enter a sub task"
+                        value={newTask}
+                        onChange={(e) => setNewTask(e.target.value)}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-brandPurple focus:border-brandPurple"
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            if (newTask.trim()) {
+                              setTasks([
+                                ...tasks,
+                                {
+                                  id: Date.now(),
+                                  text: newTask.trim(),
+                                  completed: false,
+                                },
+                              ]);
+                              setNewTask("");
+                            }
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (newTask.trim()) {
+                            setTasks([
+                              ...tasks,
+                              {
+                                id: Date.now(),
+                                text: newTask.trim(),
+                                completed: false,
+                              },
+                            ]);
+                            setNewTask("");
+                          }
+                        }}
+                        disabled={!newTask.trim()}
+                        className="px-4 py-2 bg-brandPurple text-white rounded-md hover:bg-brandPurple/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <p className="text-xs text-gray-500 mt-1">
+                      Press Enter or click + to add a sub task. Use checkboxes
+                      to mark as complete.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Assigned To
+                    </label>
+
+                    {/* Current Assignees */}
+                    {formData.assigned_to.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-3 p-3 border border-gray-200 rounded-md bg-gray-50">
+                        {formData.assigned_to.map((assignee, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                          >
+                            {assignee}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updatedAssignees =
+                                  formData.assigned_to.filter(
+                                    (_, i) => i !== index
+                                  );
                                 setFormData({
                                   ...formData,
-                                  assigned_to: formData.assigned_to.filter((_, i) => i !== index)
+                                  assigned_to: updatedAssignees,
                                 });
                               }}
-                              className="text-whiteColor hover:text-gray-200"
+                              className="ml-1 text-blue-600 hover:text-blue-800 focus:outline-none"
+                              title="Remove assignee"
                             >
                               ×
                             </button>
                           </span>
                         ))}
                       </div>
-                      <select
-                        value=""
-                        onChange={(e) => {
-                          if (e.target.value && !formData.assigned_to.includes(e.target.value)) {
-                            setFormData({
-                              ...formData,
-                              assigned_to: [...formData.assigned_to, e.target.value]
-                            });
+                    )}
+
+                    {/* Add New Assignee */}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Enter assignee name"
+                        value={newAssignee}
+                        onChange={(e) => setNewAssignee(e.target.value)}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-brandPurple focus:border-brandPurple"
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            if (
+                              newAssignee.trim() &&
+                              !formData.assigned_to.includes(newAssignee.trim())
+                            ) {
+                              setFormData({
+                                ...formData,
+                                assigned_to: [
+                                  ...formData.assigned_to,
+                                  newAssignee.trim(),
+                                ],
+                              });
+                              setNewAssignee("");
+                            }
                           }
                         }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-brandPurple focus:border-brandPurple"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (
+                            newAssignee.trim() &&
+                            !formData.assigned_to.includes(newAssignee.trim())
+                          ) {
+                            setFormData({
+                              ...formData,
+                              assigned_to: [
+                                ...formData.assigned_to,
+                                newAssignee.trim(),
+                              ],
+                            });
+                            setNewAssignee("");
+                          }
+                        }}
+                        disabled={
+                          !newAssignee.trim() ||
+                          formData.assigned_to.includes(newAssignee.trim())
+                        }
+                        className="px-4 py-2 bg-brandPurple text-white rounded-md hover:bg-brandPurple/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
-                        <option value="">Add team member...</option>
-                        {mockTeamMembers
-                          .filter(member => !formData.assigned_to.includes(member))
-                          .map((member) => (
-                            <option key={member} value={member}>
-                              {member}
-                            </option>
-                          ))}
-                      </select>
+                        <Plus className="w-4 h-4" />
+                      </button>
                     </div>
+
+                    <p className="text-xs text-gray-500 mt-1">
+                      Press Enter or click + to add an assignee. Click × to
+                      remove.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Priority
+                    </label>
+                    <select
+                      value={formData.priority}
+                      onChange={(e) =>
+                        setFormData({ ...formData, priority: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-brandPurple focus:border-brandPurple"
+                    >
+                      <option value="Low">Low</option>
+                      <option value="Medium">Medium</option>
+                      <option value="High">High</option>
+                    </select>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -928,38 +1234,25 @@ const TodoManagementTab = ({ event }) => {
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-brandPurple focus:border-brandPurple"
                     >
-                      <option value="">Select category</option>
-                      <option value="Technical Setup">Technical Setup</option>
-                      <option value="Catering">Catering</option>
-                      <option value="Security">Security</option>
+                      <option value="General">General</option>
+                      <option value="Setup">Setup</option>
                       <option value="Marketing">Marketing</option>
+                      <option value="Operations">Operations</option>
+                      <option value="Technical">Technical</option>
                       <option value="Logistics">Logistics</option>
-                      <option value="Equipment">Equipment</option>
-                      <option value="Coordination">Coordination</option>
-                      <option value="Vendor Management">Vendor Management</option>
-                      <option value="Guest Services">Guest Services</option>
-                      <option value="Documentation">Documentation</option>
+                      <option value="Finance">Finance</option>
+                      <option value="Vendor Management">
+                        Vendor Management
+                      </option>
+                      <option value="Safety & Security">
+                        Safety & Security
+                      </option>
+                      <option value="Communications">Communications</option>
                     </select>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Priority
-                    </label>
-                    <select
-                      value={formData.priority}
-                      onChange={(e) =>
-                        setFormData({ ...formData, priority: e.target.value })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-brandPurple focus:border-brandPurple"
-                    >
-                      <option value="low">Low</option>
-                      <option value="medium">Medium</option>
-                      <option value="high">High</option>
-                    </select>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Status
@@ -991,9 +1284,7 @@ const TodoManagementTab = ({ event }) => {
 
                 <div className="flex gap-3 pt-4">
                   <CustomButton
-                    buttonText={
-                      editingTask ? "Update Task" : "Create Task"
-                    }
+                    buttonText={editingTask ? "Update Task" : "Create Task"}
                     buttonColor="bg-brandPurple"
                     radius="rounded-md"
                     isLoading={isLoading}
@@ -1004,6 +1295,9 @@ const TodoManagementTab = ({ event }) => {
                     onClick={() => {
                       setShowTaskModal(false);
                       setEditingTask(null);
+                      setNewAssignee("");
+                      setTasks([]);
+                      setNewTask("");
                     }}
                     buttonColor="bg-gray-300"
                     textColor="text-gray-700"

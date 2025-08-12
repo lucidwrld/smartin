@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "ef86c585-98e3-4ee5-9f4e-6a6f17712663",
+		"_postman_id": "cbf56737-f74d-42ce-9b85-3fe16210b3c7",
 		"name": "Invitation app",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "17652468"
@@ -3848,6 +3848,2834 @@
 					]
 				},
 				{
+					"name": "Todo",
+					"item": [
+						{
+							"name": "Create todo",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"event\": \"67ef960a4542dde3c534e578\",\n    \"title\": \"Finalize catering menu\",\n    \"description\": \"Review and approve final menu options with dietary restrictions considered\",\n    \"assigned_to\": [\n        \"John Doe\",\n        \"Timothy Chalamet\"\n    ],\n    \"category\": \"Catering\",\n    \"priority\": \"Medium\",\n    \"due_date\": \"2025-08-26T05:12:09.379+00:00\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/todos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"todos"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Todos",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/todos/event/{{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"todos",
+										"event",
+										"{{eventId}}"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/todos/event/{{eventId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"todos",
+												"event",
+												"{{eventId}}"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "Text",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "2418"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"972-DVw6YRbI5k4T+JDhrqtOq2PYZhY\""
+										},
+										{
+											"key": "Date",
+											"value": "Fri, 08 Aug 2025 08:26:19 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"pagination\": {\n        \"prevPage\": null,\n        \"currentPage\": 1,\n        \"nextPage\": null,\n        \"pageTotal\": 1,\n        \"pageSize\": 1,\n        \"total\": 1\n    },\n    \"data\": [\n        {\n            \"assigned_to\": [\n                \"John Doe\",\n                \"Timothy Chalamet\"\n            ],\n            \"category\": \"Catering\",\n            \"priority\": \"Medium\",\n            \"status\": \"Pending\",\n            \"_id\": \"6895b28b4e639f06c1d84c73\",\n            \"event\": {\n                \"donation\": {\n                    \"account_name\": \"Ada Jecinta\",\n                    \"bank_name\": \"First bank\",\n                    \"account_number\": \"3078345678\"\n                },\n                \"payment_type\": \"online\",\n                \"isSuspended\": false,\n                \"isPaid\": true,\n                \"isPending\": false,\n                \"paid_amount\": 850,\n                \"no_of_invitees\": 1,\n                \"gallery\": [\n                    \"https://static01.nyt.com/images/2020/09/04/fashion/00MuslimSeparateWeddings/00MuslimSeparateWeddings-articleLarge.png\"\n                ],\n                \"isActive\": true,\n                \"verification_type\": \"facial\",\n                \"status\": \"past\",\n                \"type\": \"event\",\n                \"isVirtual\": false,\n                \"showFeedback\": false,\n                \"video\": \"\",\n                \"logo\": \"\",\n                \"colors\": [],\n                \"voice_recording\": \"\",\n                \"notification_voice_recording\": \"\",\n                \"isFeatured\": false,\n                \"template\": \"\",\n                \"_id\": \"67ef960a4542dde3c534e578\",\n                \"name\": \"Wedding Invitation\",\n                \"description\": \"You are welcomed to to be a partaker of our journey\",\n                \"host\": \"Smart Invite\",\n                \"image\": \"https://Votemania-b2.s3.us-west-002.backblazeb2.com/counsellme-17356172829535235628.jpg\",\n                \"event_type\": \"public\",\n                \"venue\": \"Usuiji event centre, Jos, Plateau State\",\n                \"date\": \"2025-07-22T23:00:00.000Z\",\n                \"time\": \"9:00 am\",\n                \"items\": [\n                    {\n                        \"_id\": \"67ef960a4542dde3c534e579\",\n                        \"name\": \"fridge\",\n                        \"link\": \"https://www.jumia.com.ng/haier-thermocool-93-litres-single-door-dcool-refrigerator-hr-135ba-r6-blk-110395490.html?utm_source=twitter&utm_medium=social&utm_campaign=pdpshare\"\n                    }\n                ],\n                \"currency\": \"NGN\",\n                \"timezone\": \"Africa/Lagos\",\n                \"user\": \"67602747c0fb825740339b3a\",\n                \"createdAt\": \"2025-04-04T08:19:22.886Z\",\n                \"updatedAt\": \"2025-08-08T08:20:00.003Z\",\n                \"event_days\": [],\n                \"speakers\": [\n                    {\n                        \"_id\": \"67ef960a4542dde3c534e57a\",\n                        \"name\": \"John Doe\",\n                        \"designation\": \"Chairman\"\n                    }\n                ],\n                \"id\": \"67ef960a4542dde3c534e578\"\n            },\n            \"title\": \"Finalize catering menu\",\n            \"description\": \"Review and approve final menu options with dietary restrictions considered\",\n            \"due_date\": \"2025-08-26T05:12:09.379Z\",\n            \"created_by\": {\n                \"roles\": [\n                    \"675d38d166fb0b0a454009fd\"\n                ],\n                \"is_active\": true,\n                \"isSuspended\": false,\n                \"isPartner\": true,\n                \"_id\": \"67602747c0fb825740339b3a\",\n                \"fullname\": \"Chukwuka Ezeaka\",\n                \"email\": \"yoitsburby@gmail.com\",\n                \"phone\": \"+234+23408123456789\",\n                \"createdAt\": \"2024-12-16T13:12:39.046Z\",\n                \"updatedAt\": \"2025-08-04T08:00:02.781Z\",\n                \"notification_counter\": 993,\n                \"referral_code\": \"BriuWz\",\n                \"id\": \"67602747c0fb825740339b3a\"\n            },\n            \"notes\": [],\n            \"createdAt\": \"2025-08-08T08:17:15.377Z\",\n            \"updatedAt\": \"2025-08-08T08:17:15.377Z\",\n            \"__v\": 0\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Get todo by id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/todos/{{id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"todos",
+										"{{id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Edit todo",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Finalize catering menu\",\n    \"description\": \"Review and approve final menu options with dietary restrictions considered\",\n    \"assigned_to\": [\n        \"John Doe\",\n        \"Timothy Chalamet\"\n    ],\n    \"category\": \"Catering\",\n    \"priority\": \"Medium\",\n    \"due_date\": \"2025-08-26T05:12:09.379+00:00\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/todos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"todos"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete todo",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/todos/{{id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"todos",
+										"{{id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add note",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"author\": \"John Doe\",\n    \"content\": \"Contacted lighting vendor, equipment will arrive Thursday\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/todos/{{todoId}}/notes",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"todos",
+										"{{todoId}}",
+										"notes"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete note",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/todos/{{todoId}}/notes/{{noteId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"todos",
+										"{{todoId}}",
+										"notes",
+										"{{noteId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Ticket",
+					"item": [
+						{
+							"name": "Coupons",
+							"item": [
+								{
+									"name": "Create coupon",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"event\": \"67ef9ef742e432ece1e388a3\",\n  \"code\": \"EARLY20\",\n  \"name\": \"Early Bird Discount\",\n  \"description\": \"coupon description\",\n  \"type\": \"percentage\",\n  \"value\": 10,\n  \"min_purchase\": 5000,\n  \"max_discount\": 1000,\n  \"usage_limit\": 10,\n  \"is_active\": true,\n  \"valid_from\": \"2024-01-01T00:00:00.000Z\",\n  \"valid_until\": \"2024-12-31T23:59:59.000Z\",\n  \"applicable_tickets\": [\n    \"68691ddbc3284b01c5158ace\"\n  ],\n  \"apply_to_all_tickets\": false\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/coupons",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"coupons"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get all coupons for an event",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/coupons/event/{{eventId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"coupons",
+												"event",
+												"{{eventId}}"
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "200",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"event\": \"67ef9ef742e432ece1e388a3\",\n  \"code\": \"EARLY20\",\n  \"name\": \"Early Bird Discount\",\n  \"description\": \"coupon description\",\n  \"type\": \"percentage\",\n  \"value\": 10,\n  \"min_purchase\": 5,\n  \"max_discount\": 0,\n  \"usage_limit\": 10,\n  \"is_active\": true,\n  \"valid_from\": \"2024-01-01T00:00:00.000Z\",\n  \"valid_until\": \"2024-12-31T23:59:59.000Z\",\n  \"applicable_tickets\": [\n    \"68691ddbc3284b01c5158ace\"\n  ],\n  \"apply_to_all_tickets\": false\n}"
+												},
+												"url": {
+													"raw": "{{baseUrl}}/coupons/event/{{eventId}}",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"coupons",
+														"event",
+														"{{eventId}}"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "X-Powered-By",
+													"value": "Express"
+												},
+												{
+													"key": "Access-Control-Allow-Origin",
+													"value": "*"
+												},
+												{
+													"key": "Content-Type",
+													"value": "application/json; charset=utf-8"
+												},
+												{
+													"key": "Content-Length",
+													"value": "1098"
+												},
+												{
+													"key": "ETag",
+													"value": "W/\"44a-zK8afoCM1wGlNuWmtizBABjTgU0\""
+												},
+												{
+													"key": "Date",
+													"value": "Thu, 31 Jul 2025 12:28:04 GMT"
+												},
+												{
+													"key": "Connection",
+													"value": "keep-alive"
+												},
+												{
+													"key": "Keep-Alive",
+													"value": "timeout=5"
+												}
+											],
+											"cookie": [],
+											"body": "{\n    \"status\": \"success\",\n    \"message\": \"Event coupons fetched successfully\",\n    \"data\": {\n        \"pagination\": {\n            \"prevPage\": null,\n            \"currentPage\": 1,\n            \"nextPage\": null,\n            \"pageTotal\": 1,\n            \"pageSize\": 1,\n            \"total\": 1\n        },\n        \"coupons\": [\n            {\n                \"type\": \"percentage\",\n                \"used_count\": 0,\n                \"is_active\": true,\n                \"applicable_tickets\": [\n                    {\n                        \"_id\": \"68691ddbc3284b01c5158ace\",\n                        \"name\": \"Standard\",\n                        \"price\": 1000\n                    }\n                ],\n                \"apply_to_all_tickets\": false,\n                \"_id\": \"688b60aca3996941a8d2a056\",\n                \"event\": \"67ef9ef742e432ece1e388a3\",\n                \"code\": \"EARLY20\",\n                \"name\": \"Early Bird Discount\",\n                \"description\": \"coupon description\",\n                \"value\": 10,\n                \"min_purchase\": 5,\n                \"max_discount\": 0,\n                \"usage_limit\": 10,\n                \"valid_from\": \"2024-01-01T00:00:00.000Z\",\n                \"valid_until\": \"2024-12-31T23:59:59.000Z\",\n                \"created_by\": {\n                    \"_id\": \"67602747c0fb825740339b3a\",\n                    \"fullname\": \"Chukwuka Ezeaka\",\n                    \"email\": \"yoitsburby@gmail.com\",\n                    \"id\": \"67602747c0fb825740339b3a\"\n                },\n                \"createdAt\": \"2025-07-31T12:25:16.165Z\",\n                \"updatedAt\": \"2025-07-31T12:25:16.165Z\",\n                \"is_expired\": true,\n                \"is_not_started\": false,\n                \"is_usage_limit_reached\": false,\n                \"is_valid\": false,\n                \"usage_percentage\": 0,\n                \"id\": \"688b60aca3996941a8d2a056\"\n            }\n        ],\n        \"statistics\": {\n            \"total_coupons\": 1,\n            \"active_coupons\": 1,\n            \"total_usage\": 0,\n            \"total_savings\": 0\n        }\n    }\n}"
+										}
+									]
+								},
+								{
+									"name": "Get coupon by id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/coupons/{{couponId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"coupons",
+												"{{couponId}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update coupon",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"code\": \"EARLY20\",\n  \"name\": \"Early Bird Discount\",\n  \"description\": \"coupon description\",\n  \"type\": \"percentage\",\n  \"value\": 10,\n  \"min_purchase\": 5000,\n  \"max_discount\": 1000,\n  \"usage_limit\": 10,\n  \"is_active\": true,\n  \"valid_from\": \"2025-07-28T00:00:00.000Z\",\n  \"valid_until\": \"2025-08-10T23:59:59.000Z\",\n  \"applicable_tickets\": [\n    \"68691ddbc3284b01c5158ace\"\n  ],\n  \"apply_to_all_tickets\": false\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/coupons/{{couponId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"coupons",
+												"{{couponId}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete coupons",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/coupons/{{couponId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"coupons",
+												"{{couponId}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Validate coupon code",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"code\": \"EARLY20\",\n  \"total_amount\": 2000,\n  \"tickets\": [\n    {\n      \"ticket_id\": \"68691ddbc3284b01c5158ace\",\n      \"quantity\": 2\n    }\n  ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/coupons/event/{{eventId}}/validate",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"coupons",
+												"event",
+												"{{eventId}}",
+												"validate"
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "201",
+											"originalRequest": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"code\": \"EARLY20\",\n  \"total_amount\": 2000,\n  \"tickets\": [\n    {\n      \"ticket_id\": \"68691ddbc3284b01c5158ace\",\n      \"quantity\": 2\n    }\n  ]\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/coupons/event/{{eventId}}/validate",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"coupons",
+														"event",
+														"{{eventId}}",
+														"validate"
+													]
+												}
+											},
+											"status": "Created",
+											"code": 201,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "X-Powered-By",
+													"value": "Express"
+												},
+												{
+													"key": "Access-Control-Allow-Origin",
+													"value": "*"
+												},
+												{
+													"key": "Content-Type",
+													"value": "application/json; charset=utf-8"
+												},
+												{
+													"key": "Content-Length",
+													"value": "256"
+												},
+												{
+													"key": "ETag",
+													"value": "W/\"100-W+9uV/D1ynbNZ9Qq8NhEZZ1LFiQ\""
+												},
+												{
+													"key": "Date",
+													"value": "Thu, 31 Jul 2025 12:49:51 GMT"
+												},
+												{
+													"key": "Connection",
+													"value": "keep-alive"
+												},
+												{
+													"key": "Keep-Alive",
+													"value": "timeout=5"
+												}
+											],
+											"cookie": [],
+											"body": "{\n    \"status\": \"success\",\n    \"message\": \"Coupon is valid\",\n    \"data\": {\n        \"coupon\": {\n            \"id\": \"688b60aca3996941a8d2a056\",\n            \"code\": \"EARLY20\",\n            \"name\": \"Early Bird Discount\",\n            \"type\": \"percentage\",\n            \"value\": 10\n        },\n        \"discount_amount\": 200,\n        \"original_amount\": 2000,\n        \"final_amount\": 1800,\n        \"savings\": 200\n    }\n}"
+										},
+										{
+											"name": "400",
+											"originalRequest": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"code\": \"EARLY20\",\n  \"total_amount\": 2000,\n  \"tickets\": [\n    {\n      \"ticket_id\": \"68691ddbc3284b01c5158ace\",\n      \"quantity\": 2\n    }\n  ]\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/coupons/event/{{eventId}}/validate",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"coupons",
+														"event",
+														"{{eventId}}",
+														"validate"
+													]
+												}
+											},
+											"status": "Bad Request",
+											"code": 400,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "X-Powered-By",
+													"value": "Express"
+												},
+												{
+													"key": "Access-Control-Allow-Origin",
+													"value": "*"
+												},
+												{
+													"key": "Content-Type",
+													"value": "application/json; charset=utf-8"
+												},
+												{
+													"key": "Content-Length",
+													"value": "62"
+												},
+												{
+													"key": "ETag",
+													"value": "W/\"3e-zcFSpiSkFe5iaSdqe3V6T9p/fCE\""
+												},
+												{
+													"key": "Date",
+													"value": "Thu, 31 Jul 2025 13:04:00 GMT"
+												},
+												{
+													"key": "Connection",
+													"value": "keep-alive"
+												},
+												{
+													"key": "Keep-Alive",
+													"value": "timeout=5"
+												}
+											],
+											"cookie": [],
+											"body": "{\n    \"status\": \"error\",\n    \"message\": \"Minimum purchase amount is 5000\"\n}"
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "Create ticket category",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"General Admission\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ticket/category",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										"category"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Ticket Categories",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/ticket/category",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										"category"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/ticket/category",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"ticket",
+												"category"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "125"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"7d-z/3lFAZtoaww4g+a5D566N/LBDQ\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 05 Jul 2025 12:42:16 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"category list fetched\",\n    \"data\": [\n        {\n            \"_id\": \"68691cb5aa337885c460e65c\",\n            \"name\": \"General Admission\"\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Create ticket",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"event\": \"67ef9ef742e432ece1e388a3\",\n    \"name\": \"Standard\",\n    \"category\": \"68691cb5aa337885c460e65c\",\n    \"price\": 1000,\n    \"description\": \"\",\n    \"quantity\": 50,\n    \"currency\": \"NGN\",\n    \"sale_start_date\": \"2025-07-15\",\n    \"sale_end_date\": \"2025-07-30\",\n    \"min_per_order\": 1,\n    \"max_per_order\": 4,\n    \"is_active\": true,\n    \"requires_approval\": false,\n    \"is_free\": false\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ticket/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get tickets for event",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/ticket/event/{{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										"event",
+										"{{eventId}}"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/ticket/event/{{eventId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"ticket",
+												"event",
+												"{{eventId}}"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "1093"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"445-cyLAE1KTTYRme2BDfuEkbcdf4fY\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 05 Jul 2025 12:50:51 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"tickets fetched\",\n    \"data\": [\n        {\n            \"is_active\": true,\n            \"requires_approval\": false,\n            \"is_free\": false,\n            \"sold_out\": false,\n            \"_id\": \"68691ddbc3284b01c5158ace\",\n            \"event\": \"67ef9ef742e432ece1e388a3\",\n            \"name\": \"Standard\",\n            \"category\": {\n                \"_id\": \"68691cb5aa337885c460e65c\",\n                \"name\": \"General Admission\"\n            },\n            \"price\": 1000,\n            \"quantity\": 50,\n            \"currency\": \"NGN\",\n            \"sale_start_date\": \"2025-07-15T00:00:00.000Z\",\n            \"sale_end_date\": \"2025-07-30T00:00:00.000Z\",\n            \"min_per_order\": 1,\n            \"max_per_order\": 4,\n            \"quantity_remaining\": 50,\n            \"createdAt\": \"2025-07-05T12:43:07.792Z\",\n            \"updatedAt\": \"2025-07-05T12:43:07.792Z\"\n        },\n        {\n            \"is_active\": true,\n            \"requires_approval\": false,\n            \"is_free\": false,\n            \"sold_out\": false,\n            \"_id\": \"68691fa4528b6b03f5cedd30\",\n            \"event\": \"67ef9ef742e432ece1e388a3\",\n            \"name\": \"VIP\",\n            \"category\": {\n                \"_id\": \"68691cb5aa337885c460e65c\",\n                \"name\": \"General Admission\"\n            },\n            \"price\": 3000,\n            \"description\": \"VIP access\",\n            \"quantity\": 50,\n            \"currency\": \"NGN\",\n            \"sale_start_date\": \"2025-07-15T00:00:00.000Z\",\n            \"sale_end_date\": \"2025-07-30T00:00:00.000Z\",\n            \"min_per_order\": 1,\n            \"max_per_order\": 4,\n            \"quantity_remaining\": 50,\n            \"createdAt\": \"2025-07-05T12:50:44.189Z\",\n            \"updatedAt\": \"2025-07-05T12:50:44.189Z\"\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Edit ticket",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"VIP\",\n    \"category\": \"68691cb5aa337885c460e65c\",\n    \"price\": 3000,\n    \"description\": \"VIP access\",\n    \"quantity\": 50,\n    \"currency\": \"NGN\",\n    \"sale_start_date\": \"2025-07-15\",\n    \"sale_end_date\": \"2025-07-30\",\n    \"min_per_order\": 1,\n    \"max_per_order\": 4,\n    \"is_active\": true,\n    \"requires_approval\": false,\n    \"is_free\": false\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ticket/{{ticketid}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										"{{ticketid}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete ticket",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/ticket/{{ticketid}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										"{{ticketid}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Buy ticket",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"tickets\": [\n        {\n            \"ticketId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        },\n        {\n            \"ticketId\": \"68691ddbc3284b01c5158ace\",\n            \"quantity\": 2\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ticket/event/{{eventId}}/buy",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										"event",
+										"{{eventId}}",
+										"buy"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"tickets\": [\n        {\n            \"ticketId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        },\n        {\n            \"ticketId\": \"68691ddbc3284b01c5158ace\",\n            \"quantity\": 2\n        }\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/ticket/event/{{eventId}}/buy",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"ticket",
+												"event",
+												"{{eventId}}",
+												"buy"
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "123"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"7b-3YWuJ3L7gXG9RhtVkcMNsoYLdUk\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 05 Jul 2025 13:05:41 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"amount\": 11000,\n        \"currency\": \"NGN\",\n        \"checkoutUrl\": \"https://checkout.paystack.com/z61fy7xm600e4n1\"\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Buy ticket mobile",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"tickets\": [\n        {\n            \"ticketId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        },\n        {\n            \"ticketId\": \"68691ddbc3284b01c5158ace\",\n            \"quantity\": 2\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ticket/event/{{eventId}}/buy",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										"event",
+										"{{eventId}}",
+										"buy"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"tickets\": [\n        {\n            \"ticketId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        },\n        {\n            \"ticketId\": \"68691ddbc3284b01c5158ace\",\n            \"quantity\": 2\n        }\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/ticket/event/{{eventId}}/buy/mobile",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"ticket",
+												"event",
+												"{{eventId}}",
+												"buy",
+												"mobile"
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "275"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"113-veDFz9tjmVQnpnXqzN9kr+bwTvg\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 05 Jul 2025 13:03:47 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"tx_ref\": \"SMINV202507050203471316573518836\",\n        \"amount\": 1100000,\n        \"currency\": \"NGN\",\n        \"email\": \"chukwuka.ezeaka@gmail.com\",\n        \"paystackpubk\": \"pk_test_95c9358df659cc6e679deb09f36afccbeacb31d2\",\n        \"paystackseck\": \"sk_test_320351ef1896a71b35d92d5e79ff836f22edd03c\"\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Get customer events",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/ticket/events?email=chukwuka.ezeaka@gmail.com",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										"events"
+									],
+									"query": [
+										{
+											"key": "email",
+											"value": "chukwuka.ezeaka@gmail.com"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get customer tickets for event",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/ticket/purchases?email=chukwuka.ezeaka@gmail.com&eventId={{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										"purchases"
+									],
+									"query": [
+										{
+											"key": "email",
+											"value": "chukwuka.ezeaka@gmail.com"
+										},
+										{
+											"key": "eventId",
+											"value": "{{eventId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Request code to edit ticket",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ticket/accessCode",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										"accessCode"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Edit ticket details",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Burby Siegel\",\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"phone\": \"08103456789\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ticket/purchase/{{ticketId}}?email={{email}}&accessCode={{accessCode}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										"purchase",
+										"{{ticketId}}"
+									],
+									"query": [
+										{
+											"key": "email",
+											"value": "{{email}}"
+										},
+										{
+											"key": "accessCode",
+											"value": "{{accessCode}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Booth",
+					"item": [
+						{
+							"name": "Coupons",
+							"item": [
+								{
+									"name": "Create coupon",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"event\": \"67ef9ef742e432ece1e388a3\",\n  \"code\": \"EARLY20\",\n  \"name\": \"Early Bird Discount\",\n  \"description\": \"coupon description\",\n  \"type\": \"percentage\",\n  \"value\": 10,\n  \"min_purchase\": 5000,\n  \"max_discount\": 1000,\n  \"usage_limit\": 10,\n  \"is_active\": true,\n  \"valid_from\": \"2025-08-15T00:00:00.000Z\",\n  \"valid_until\": \"2025-08-31T23:59:59.000Z\",\n  \"applicable_booths\": [\n    \"68999babe8d442d1a52f12f4\"\n  ],\n  \"apply_to_all_booths\": false\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/booth-coupons",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"booth-coupons"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get all coupons for an event",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/booth-coupons/event/{{eventId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"booth-coupons",
+												"event",
+												"{{eventId}}"
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "200",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/booth-coupons/event/{{eventId}}",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"booth-coupons",
+														"event",
+														"{{eventId}}"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "Text",
+											"header": [
+												{
+													"key": "X-Powered-By",
+													"value": "Express"
+												},
+												{
+													"key": "Access-Control-Allow-Origin",
+													"value": "*"
+												},
+												{
+													"key": "Content-Type",
+													"value": "application/json; charset=utf-8"
+												},
+												{
+													"key": "Content-Length",
+													"value": "1039"
+												},
+												{
+													"key": "ETag",
+													"value": "W/\"40f-SYNHrTtpWvkcRQUiXY0Ik26bbME\""
+												},
+												{
+													"key": "Date",
+													"value": "Mon, 11 Aug 2025 09:03:55 GMT"
+												},
+												{
+													"key": "Connection",
+													"value": "keep-alive"
+												},
+												{
+													"key": "Keep-Alive",
+													"value": "timeout=5"
+												}
+											],
+											"cookie": [],
+											"body": "{\n    \"status\": \"success\",\n    \"message\": \"Event coupons fetched successfully\",\n    \"data\": {\n        \"pagination\": {\n            \"prevPage\": null,\n            \"currentPage\": 1,\n            \"nextPage\": null,\n            \"pageTotal\": 1,\n            \"pageSize\": 1,\n            \"total\": 1\n        },\n        \"coupons\": [\n            {\n                \"type\": \"percentage\",\n                \"used_count\": 0,\n                \"is_active\": true,\n                \"applicable_tickets\": [],\n                \"apply_to_all_tickets\": false,\n                \"_id\": \"6899b1e29d5c57efe093d31b\",\n                \"event\": \"67ef9ef742e432ece1e388a3\",\n                \"code\": \"EARLY20\",\n                \"name\": \"Early Bird Discount\",\n                \"description\": \"coupon description\",\n                \"value\": 10,\n                \"min_purchase\": 5000,\n                \"max_discount\": 1000,\n                \"usage_limit\": 10,\n                \"valid_from\": \"2025-08-15T00:00:00.000Z\",\n                \"valid_until\": \"2025-08-31T23:59:59.000Z\",\n                \"created_by\": {\n                    \"_id\": \"67602747c0fb825740339b3a\",\n                    \"fullname\": \"Chukwuka Ezeaka\",\n                    \"email\": \"yoitsburby@gmail.com\",\n                    \"id\": \"67602747c0fb825740339b3a\"\n                },\n                \"createdAt\": \"2025-08-11T09:03:30.868Z\",\n                \"updatedAt\": \"2025-08-11T09:03:30.868Z\",\n                \"is_expired\": false,\n                \"is_not_started\": true,\n                \"is_usage_limit_reached\": false,\n                \"is_valid\": false,\n                \"usage_percentage\": 0,\n                \"id\": \"6899b1e29d5c57efe093d31b\"\n            }\n        ],\n        \"statistics\": {\n            \"total_coupons\": 1,\n            \"active_coupons\": 1,\n            \"total_usage\": 0,\n            \"total_savings\": 0\n        }\n    }\n}"
+										}
+									]
+								},
+								{
+									"name": "Get coupon by id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/booth-coupons/{{couponId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"booth-coupons",
+												"{{couponId}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update coupon",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"code\": \"EARLY20\",\n  \"name\": \"Early Bird Discount\",\n  \"description\": \"coupon description\",\n  \"type\": \"percentage\",\n  \"value\": 10,\n  \"min_purchase\": 5000,\n  \"max_discount\": 1000,\n  \"usage_limit\": 10,\n  \"is_active\": true,\n  \"valid_from\": \"2025-07-28T00:00:00.000Z\",\n  \"valid_until\": \"2025-08-10T23:59:59.000Z\",\n  \"applicable_tickets\": [\n    \"68691ddbc3284b01c5158ace\"\n  ],\n  \"apply_to_all_tickets\": false\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/booth-coupons/{{couponId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"booth-coupons",
+												"{{couponId}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete coupons",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/booth-coupons/{{couponId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"booth-coupons",
+												"{{couponId}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Validate coupon code",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"code\": \"EARLY20\",\n  \"total_amount\": 2000,\n  \"tickets\": [\n    {\n      \"ticket_id\": \"68691ddbc3284b01c5158ace\",\n      \"quantity\": 2\n    }\n  ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/booth-coupons/event/{{eventId}}/validate",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"booth-coupons",
+												"event",
+												"{{eventId}}",
+												"validate"
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "201",
+											"originalRequest": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"code\": \"EARLY20\",\n  \"total_amount\": 2000,\n  \"tickets\": [\n    {\n      \"ticket_id\": \"68691ddbc3284b01c5158ace\",\n      \"quantity\": 2\n    }\n  ]\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/coupons/event/{{eventId}}/validate",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"coupons",
+														"event",
+														"{{eventId}}",
+														"validate"
+													]
+												}
+											},
+											"status": "Created",
+											"code": 201,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "X-Powered-By",
+													"value": "Express"
+												},
+												{
+													"key": "Access-Control-Allow-Origin",
+													"value": "*"
+												},
+												{
+													"key": "Content-Type",
+													"value": "application/json; charset=utf-8"
+												},
+												{
+													"key": "Content-Length",
+													"value": "256"
+												},
+												{
+													"key": "ETag",
+													"value": "W/\"100-W+9uV/D1ynbNZ9Qq8NhEZZ1LFiQ\""
+												},
+												{
+													"key": "Date",
+													"value": "Thu, 31 Jul 2025 12:49:51 GMT"
+												},
+												{
+													"key": "Connection",
+													"value": "keep-alive"
+												},
+												{
+													"key": "Keep-Alive",
+													"value": "timeout=5"
+												}
+											],
+											"cookie": [],
+											"body": "{\n    \"status\": \"success\",\n    \"message\": \"Coupon is valid\",\n    \"data\": {\n        \"coupon\": {\n            \"id\": \"688b60aca3996941a8d2a056\",\n            \"code\": \"EARLY20\",\n            \"name\": \"Early Bird Discount\",\n            \"type\": \"percentage\",\n            \"value\": 10\n        },\n        \"discount_amount\": 200,\n        \"original_amount\": 2000,\n        \"final_amount\": 1800,\n        \"savings\": 200\n    }\n}"
+										},
+										{
+											"name": "400",
+											"originalRequest": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"code\": \"EARLY20\",\n  \"total_amount\": 2000,\n  \"tickets\": [\n    {\n      \"ticket_id\": \"68691ddbc3284b01c5158ace\",\n      \"quantity\": 2\n    }\n  ]\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/coupons/event/{{eventId}}/validate",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"coupons",
+														"event",
+														"{{eventId}}",
+														"validate"
+													]
+												}
+											},
+											"status": "Bad Request",
+											"code": 400,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "X-Powered-By",
+													"value": "Express"
+												},
+												{
+													"key": "Access-Control-Allow-Origin",
+													"value": "*"
+												},
+												{
+													"key": "Content-Type",
+													"value": "application/json; charset=utf-8"
+												},
+												{
+													"key": "Content-Length",
+													"value": "62"
+												},
+												{
+													"key": "ETag",
+													"value": "W/\"3e-zcFSpiSkFe5iaSdqe3V6T9p/fCE\""
+												},
+												{
+													"key": "Date",
+													"value": "Thu, 31 Jul 2025 13:04:00 GMT"
+												},
+												{
+													"key": "Connection",
+													"value": "keep-alive"
+												},
+												{
+													"key": "Keep-Alive",
+													"value": "timeout=5"
+												}
+											],
+											"cookie": [],
+											"body": "{\n    \"status\": \"error\",\n    \"message\": \"Minimum purchase amount is 5000\"\n}"
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "Create booth category",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Premium\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booths/category",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booths",
+										"category"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Booth Categories",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/booths/category",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booths",
+										"category"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/ticket/category",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"ticket",
+												"category"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "125"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"7d-z/3lFAZtoaww4g+a5D566N/LBDQ\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 05 Jul 2025 12:42:16 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"category list fetched\",\n    \"data\": [\n        {\n            \"_id\": \"68691cb5aa337885c460e65c\",\n            \"name\": \"General Admission\"\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Create booth",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"event\": \"67ef9ef742e432ece1e388a3\",\n    \"name\": \"Standard\",\n    \"category\": \"68999b28e8d442d1a52f12ee\",\n    \"price\": 4000,\n    \"description\": \"Large corner booth with high visibility\",\n    \"size\": \"10x10 ft\",\n    \"location\": \"Main Hall - Corner\",\n    \"quantity\": 50,\n    \"currency\": \"NGN\",\n    \"sale_start_date\": \"2025-08-15\",\n    \"sale_end_date\": \"2025-08-30\",\n    \"min_per_order\": 1,\n    \"max_per_order\": 4,\n    \"is_active\": true,\n    \"requires_approval\": false,\n    \"is_free\": false\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booths/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booths",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get booths for event",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/ticket/event/{{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										"event",
+										"{{eventId}}"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/booths/event/{{eventId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"booths",
+												"event",
+												"{{eventId}}"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "Text",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "711"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"2c7-Pu7Zxrjs3ImHFuBSJES8AN1VKUk\""
+										},
+										{
+											"key": "Date",
+											"value": "Mon, 11 Aug 2025 07:34:16 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"booths fetched\",\n    \"data\": [\n        {\n            \"is_active\": true,\n            \"requires_approval\": false,\n            \"is_free\": false,\n            \"sold_out\": false,\n            \"_id\": \"68999babe8d442d1a52f12f4\",\n            \"event\": \"67ef9ef742e432ece1e388a3\",\n            \"name\": \"Standard\",\n            \"category\": {\n                \"_id\": \"68999b28e8d442d1a52f12ee\",\n                \"name\": \"Premium\"\n            },\n            \"price\": 4000,\n            \"description\": \"Large corner booth with high visibility\",\n            \"size\": \"10x10 ft\",\n            \"location\": \"Main Hall - Corner\",\n            \"quantity\": 50,\n            \"currency\": \"NGN\",\n            \"sale_start_date\": \"2025-08-15T00:00:00.000Z\",\n            \"sale_end_date\": \"2025-08-30T00:00:00.000Z\",\n            \"min_per_order\": 1,\n            \"max_per_order\": 4,\n            \"quantity_remaining\": 50,\n            \"createdAt\": \"2025-08-11T07:28:43.879Z\",\n            \"updatedAt\": \"2025-08-11T07:28:43.879Z\",\n            \"sales_progress\": 25,\n            \"id\": \"68999babe8d442d1a52f12f4\"\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Edit booth",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Premium Corner Booth\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booths/{{boothId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booths",
+										"{{boothId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete booth",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/booths/{{boothId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booths",
+										"{{boothId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Buy booth",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"booths\": [\n        {\n            \"boothId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/ticket/event/{{eventId}}/buy",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										"event",
+										"{{eventId}}",
+										"buy"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"tickets\": [\n        {\n            \"ticketId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        },\n        {\n            \"ticketId\": \"68691ddbc3284b01c5158ace\",\n            \"quantity\": 2\n        }\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/ticket/event/{{eventId}}/buy",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"ticket",
+												"event",
+												"{{eventId}}",
+												"buy"
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "123"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"7b-3YWuJ3L7gXG9RhtVkcMNsoYLdUk\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 05 Jul 2025 13:05:41 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"amount\": 11000,\n        \"currency\": \"NGN\",\n        \"checkoutUrl\": \"https://checkout.paystack.com/z61fy7xm600e4n1\"\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Buy booth mobile",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"booths\": [\n        {\n            \"ticketId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        },\n        {\n            \"ticketId\": \"68691ddbc3284b01c5158ace\",\n            \"quantity\": 2\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booths/event/{{eventId}}/buy",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booths",
+										"event",
+										"{{eventId}}",
+										"buy"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"tickets\": [\n        {\n            \"ticketId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        },\n        {\n            \"ticketId\": \"68691ddbc3284b01c5158ace\",\n            \"quantity\": 2\n        }\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/ticket/event/{{eventId}}/buy/mobile",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"ticket",
+												"event",
+												"{{eventId}}",
+												"buy",
+												"mobile"
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "275"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"113-veDFz9tjmVQnpnXqzN9kr+bwTvg\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 05 Jul 2025 13:03:47 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"tx_ref\": \"SMINV202507050203471316573518836\",\n        \"amount\": 1100000,\n        \"currency\": \"NGN\",\n        \"email\": \"chukwuka.ezeaka@gmail.com\",\n        \"paystackpubk\": \"pk_test_95c9358df659cc6e679deb09f36afccbeacb31d2\",\n        \"paystackseck\": \"sk_test_320351ef1896a71b35d92d5e79ff836f22edd03c\"\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Get customer events",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/booths/events?email=chukwuka.ezeaka@gmail.com",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booths",
+										"events"
+									],
+									"query": [
+										{
+											"key": "email",
+											"value": "chukwuka.ezeaka@gmail.com"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get customer booths for event",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/booths/purchases?email=chukwuka.ezeaka@gmail.com&eventId={{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booths",
+										"purchases"
+									],
+									"query": [
+										{
+											"key": "email",
+											"value": "chukwuka.ezeaka@gmail.com"
+										},
+										{
+											"key": "eventId",
+											"value": "{{eventId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Advert",
+					"item": [
+						{
+							"name": "Coupons",
+							"item": [
+								{
+									"name": "Create coupon",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"event\": \"67ef9ef742e432ece1e388a3\",\n  \"code\": \"EARLY20\",\n  \"name\": \"Early Bird Discount\",\n  \"description\": \"coupon description\",\n  \"type\": \"percentage\",\n  \"value\": 10,\n  \"min_purchase\": 5000,\n  \"max_discount\": 1000,\n  \"usage_limit\": 10,\n  \"is_active\": true,\n  \"valid_from\": \"2025-08-15T00:00:00.000Z\",\n  \"valid_until\": \"2025-08-31T23:59:59.000Z\",\n  \"applicable_booths\": [\n    \"68999babe8d442d1a52f12f4\"\n  ],\n  \"apply_to_all_booths\": false\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/advert-coupons",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"advert-coupons"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get all coupons for an event",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/advert-coupons/event/{{eventId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"advert-coupons",
+												"event",
+												"{{eventId}}"
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "200",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/booth-coupons/event/{{eventId}}",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"booth-coupons",
+														"event",
+														"{{eventId}}"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "Text",
+											"header": [
+												{
+													"key": "X-Powered-By",
+													"value": "Express"
+												},
+												{
+													"key": "Access-Control-Allow-Origin",
+													"value": "*"
+												},
+												{
+													"key": "Content-Type",
+													"value": "application/json; charset=utf-8"
+												},
+												{
+													"key": "Content-Length",
+													"value": "1039"
+												},
+												{
+													"key": "ETag",
+													"value": "W/\"40f-SYNHrTtpWvkcRQUiXY0Ik26bbME\""
+												},
+												{
+													"key": "Date",
+													"value": "Mon, 11 Aug 2025 09:03:55 GMT"
+												},
+												{
+													"key": "Connection",
+													"value": "keep-alive"
+												},
+												{
+													"key": "Keep-Alive",
+													"value": "timeout=5"
+												}
+											],
+											"cookie": [],
+											"body": "{\n    \"status\": \"success\",\n    \"message\": \"Event coupons fetched successfully\",\n    \"data\": {\n        \"pagination\": {\n            \"prevPage\": null,\n            \"currentPage\": 1,\n            \"nextPage\": null,\n            \"pageTotal\": 1,\n            \"pageSize\": 1,\n            \"total\": 1\n        },\n        \"coupons\": [\n            {\n                \"type\": \"percentage\",\n                \"used_count\": 0,\n                \"is_active\": true,\n                \"applicable_tickets\": [],\n                \"apply_to_all_tickets\": false,\n                \"_id\": \"6899b1e29d5c57efe093d31b\",\n                \"event\": \"67ef9ef742e432ece1e388a3\",\n                \"code\": \"EARLY20\",\n                \"name\": \"Early Bird Discount\",\n                \"description\": \"coupon description\",\n                \"value\": 10,\n                \"min_purchase\": 5000,\n                \"max_discount\": 1000,\n                \"usage_limit\": 10,\n                \"valid_from\": \"2025-08-15T00:00:00.000Z\",\n                \"valid_until\": \"2025-08-31T23:59:59.000Z\",\n                \"created_by\": {\n                    \"_id\": \"67602747c0fb825740339b3a\",\n                    \"fullname\": \"Chukwuka Ezeaka\",\n                    \"email\": \"yoitsburby@gmail.com\",\n                    \"id\": \"67602747c0fb825740339b3a\"\n                },\n                \"createdAt\": \"2025-08-11T09:03:30.868Z\",\n                \"updatedAt\": \"2025-08-11T09:03:30.868Z\",\n                \"is_expired\": false,\n                \"is_not_started\": true,\n                \"is_usage_limit_reached\": false,\n                \"is_valid\": false,\n                \"usage_percentage\": 0,\n                \"id\": \"6899b1e29d5c57efe093d31b\"\n            }\n        ],\n        \"statistics\": {\n            \"total_coupons\": 1,\n            \"active_coupons\": 1,\n            \"total_usage\": 0,\n            \"total_savings\": 0\n        }\n    }\n}"
+										}
+									]
+								},
+								{
+									"name": "Get coupon by id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/advertcoupons/{{couponId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"advertcoupons",
+												"{{couponId}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update coupon",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"code\": \"EARLY20\",\n  \"name\": \"Early Bird Discount\",\n  \"description\": \"coupon description\",\n  \"type\": \"percentage\",\n  \"value\": 10,\n  \"min_purchase\": 5000,\n  \"max_discount\": 1000,\n  \"usage_limit\": 10,\n  \"is_active\": true,\n  \"valid_from\": \"2025-07-28T00:00:00.000Z\",\n  \"valid_until\": \"2025-08-10T23:59:59.000Z\",\n  \"applicable_tickets\": [\n    \"68691ddbc3284b01c5158ace\"\n  ],\n  \"apply_to_all_tickets\": false\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/advert-coupons/{{couponId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"advert-coupons",
+												"{{couponId}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete coupons",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/advert-coupons/{{couponId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"advert-coupons",
+												"{{couponId}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Validate coupon code",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"code\": \"EARLY20\",\n  \"total_amount\": 2000,\n  \"tickets\": [\n    {\n      \"ticket_id\": \"68691ddbc3284b01c5158ace\",\n      \"quantity\": 2\n    }\n  ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/advert-coupons/event/{{eventId}}/validate",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"advert-coupons",
+												"event",
+												"{{eventId}}",
+												"validate"
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "201",
+											"originalRequest": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"code\": \"EARLY20\",\n  \"total_amount\": 2000,\n  \"tickets\": [\n    {\n      \"ticket_id\": \"68691ddbc3284b01c5158ace\",\n      \"quantity\": 2\n    }\n  ]\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/coupons/event/{{eventId}}/validate",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"coupons",
+														"event",
+														"{{eventId}}",
+														"validate"
+													]
+												}
+											},
+											"status": "Created",
+											"code": 201,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "X-Powered-By",
+													"value": "Express"
+												},
+												{
+													"key": "Access-Control-Allow-Origin",
+													"value": "*"
+												},
+												{
+													"key": "Content-Type",
+													"value": "application/json; charset=utf-8"
+												},
+												{
+													"key": "Content-Length",
+													"value": "256"
+												},
+												{
+													"key": "ETag",
+													"value": "W/\"100-W+9uV/D1ynbNZ9Qq8NhEZZ1LFiQ\""
+												},
+												{
+													"key": "Date",
+													"value": "Thu, 31 Jul 2025 12:49:51 GMT"
+												},
+												{
+													"key": "Connection",
+													"value": "keep-alive"
+												},
+												{
+													"key": "Keep-Alive",
+													"value": "timeout=5"
+												}
+											],
+											"cookie": [],
+											"body": "{\n    \"status\": \"success\",\n    \"message\": \"Coupon is valid\",\n    \"data\": {\n        \"coupon\": {\n            \"id\": \"688b60aca3996941a8d2a056\",\n            \"code\": \"EARLY20\",\n            \"name\": \"Early Bird Discount\",\n            \"type\": \"percentage\",\n            \"value\": 10\n        },\n        \"discount_amount\": 200,\n        \"original_amount\": 2000,\n        \"final_amount\": 1800,\n        \"savings\": 200\n    }\n}"
+										},
+										{
+											"name": "400",
+											"originalRequest": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"code\": \"EARLY20\",\n  \"total_amount\": 2000,\n  \"tickets\": [\n    {\n      \"ticket_id\": \"68691ddbc3284b01c5158ace\",\n      \"quantity\": 2\n    }\n  ]\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/coupons/event/{{eventId}}/validate",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"coupons",
+														"event",
+														"{{eventId}}",
+														"validate"
+													]
+												}
+											},
+											"status": "Bad Request",
+											"code": 400,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "X-Powered-By",
+													"value": "Express"
+												},
+												{
+													"key": "Access-Control-Allow-Origin",
+													"value": "*"
+												},
+												{
+													"key": "Content-Type",
+													"value": "application/json; charset=utf-8"
+												},
+												{
+													"key": "Content-Length",
+													"value": "62"
+												},
+												{
+													"key": "ETag",
+													"value": "W/\"3e-zcFSpiSkFe5iaSdqe3V6T9p/fCE\""
+												},
+												{
+													"key": "Date",
+													"value": "Thu, 31 Jul 2025 13:04:00 GMT"
+												},
+												{
+													"key": "Connection",
+													"value": "keep-alive"
+												},
+												{
+													"key": "Keep-Alive",
+													"value": "timeout=5"
+												}
+											],
+											"cookie": [],
+											"body": "{\n    \"status\": \"error\",\n    \"message\": \"Minimum purchase amount is 5000\"\n}"
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "Create advert category",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Premium\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/booths/category",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"booths",
+										"category"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create advert category Copy",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Premium Banner\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/advert-management/category",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"advert-management",
+										"category"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Advert Categories",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/advert-management/category",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"advert-management",
+										"category"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/ticket/category",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"ticket",
+												"category"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "125"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"7d-z/3lFAZtoaww4g+a5D566N/LBDQ\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 05 Jul 2025 12:42:16 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"category list fetched\",\n    \"data\": [\n        {\n            \"_id\": \"68691cb5aa337885c460e65c\",\n            \"name\": \"General Admission\"\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Create advert",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"event\": \"67ef9ef742e432ece1e388a3\",\n    \"name\": \"Premium Banner - Main Stage\",\n    \"category\": \"6899ad1358ccb7e9ae618fcb\",\n    \"price\": 4000,\n    \"description\": \"Large banner displayed prominently behind main stage\",\n    \"format\": \"Banner\",\n    \"dimensions\": \"1200x400 px\",\n    \"placement\": \"Main Stage Background\",\n    \"duration\": \"Full Event Duration\",\n    \"quantity\": 50,\n    \"currency\": \"NGN\",\n    \"sale_start_date\": \"2025-08-15\",\n    \"sale_end_date\": \"2025-08-30\",\n    \"min_per_order\": 1,\n    \"max_per_order\": 4,\n    \"is_active\": true,\n    \"requires_approval\": false,\n    \"is_free\": false,\n    \"is_virtual\": false\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/advert-management/",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"advert-management",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get adverts for event",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/ticket/event/{{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"ticket",
+										"event",
+										"{{eventId}}"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/advert-management/event/{{eventId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"advert-management",
+												"event",
+												"{{eventId}}"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "Text",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "833"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"341-s50N+LYldRyUAtmnHAaex+/6g6U\""
+										},
+										{
+											"key": "Date",
+											"value": "Mon, 11 Aug 2025 08:54:24 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"adverts fetched\",\n    \"data\": [\n        {\n            \"is_active\": true,\n            \"requires_approval\": false,\n            \"is_free\": false,\n            \"is_virtual\": false,\n            \"sold_out\": false,\n            \"_id\": \"6899af817da3d5ecfe1a00d6\",\n            \"event\": \"67ef9ef742e432ece1e388a3\",\n            \"name\": \"Premium Banner - Main Stage\",\n            \"category\": {\n                \"_id\": \"6899ad1358ccb7e9ae618fcb\",\n                \"name\": \"Premium Banner\"\n            },\n            \"price\": 4000,\n            \"description\": \"Large banner displayed prominently behind main stage\",\n            \"format\": \"Banner\",\n            \"dimensions\": \"1200x400 px\",\n            \"placement\": \"Main Stage Background\",\n            \"duration\": \"Full Event Duration\",\n            \"quantity\": 50,\n            \"currency\": \"NGN\",\n            \"sale_start_date\": \"2025-08-15T00:00:00.000Z\",\n            \"sale_end_date\": \"2025-08-30T00:00:00.000Z\",\n            \"min_per_order\": 1,\n            \"max_per_order\": 4,\n            \"quantity_remaining\": 50,\n            \"createdAt\": \"2025-08-11T08:53:21.535Z\",\n            \"updatedAt\": \"2025-08-11T08:53:21.535Z\",\n            \"sales_progress\": 0,\n            \"id\": \"6899af817da3d5ecfe1a00d6\"\n        }\n    ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Edit advert",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Premium Corner Booth\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/advert-management/{{advertId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"advert-management",
+										"{{advertId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete booth",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/advert-management/{{advertId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"advert-management",
+										"{{advertId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Buy advert",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"adverts\": [\n        {\n            \"advertId\": \"6899af817da3d5ecfe1a00d6\",\n            \"quantity\": 3,\n            \"content_url\": \"https://example.com/virtual-banner.jpg\",\n            \"preview_image_url\": \"https://via.placeholder.com/1200x400/B8860B/FFFFFF?text=Virtual+Mobile+Banner\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/advert-management/event/{{eventId}}/buy",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"advert-management",
+										"event",
+										"{{eventId}}",
+										"buy"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"tickets\": [\n        {\n            \"ticketId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        },\n        {\n            \"ticketId\": \"68691ddbc3284b01c5158ace\",\n            \"quantity\": 2\n        }\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/ticket/event/{{eventId}}/buy",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"ticket",
+												"event",
+												"{{eventId}}",
+												"buy"
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "123"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"7b-3YWuJ3L7gXG9RhtVkcMNsoYLdUk\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 05 Jul 2025 13:05:41 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"amount\": 11000,\n        \"currency\": \"NGN\",\n        \"checkoutUrl\": \"https://checkout.paystack.com/z61fy7xm600e4n1\"\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Buy advert mobile",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"booths\": [\n        {\n            \"advertId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/advert-management/event/{{eventId}}/buy",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"advert-management",
+										"event",
+										"{{eventId}}",
+										"buy"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"tickets\": [\n        {\n            \"ticketId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        },\n        {\n            \"ticketId\": \"68691ddbc3284b01c5158ace\",\n            \"quantity\": 2\n        }\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/ticket/event/{{eventId}}/buy/mobile",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"ticket",
+												"event",
+												"{{eventId}}",
+												"buy",
+												"mobile"
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "275"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"113-veDFz9tjmVQnpnXqzN9kr+bwTvg\""
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 05 Jul 2025 13:03:47 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"tx_ref\": \"SMINV202507050203471316573518836\",\n        \"amount\": 1100000,\n        \"currency\": \"NGN\",\n        \"email\": \"chukwuka.ezeaka@gmail.com\",\n        \"paystackpubk\": \"pk_test_95c9358df659cc6e679deb09f36afccbeacb31d2\",\n        \"paystackseck\": \"sk_test_320351ef1896a71b35d92d5e79ff836f22edd03c\"\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Get customer events",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/advert-management/events?email=chukwuka.ezeaka@gmail.com",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"advert-management",
+										"events"
+									],
+									"query": [
+										{
+											"key": "email",
+											"value": "chukwuka.ezeaka@gmail.com"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get customer adverts for event",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/advert-management/purchases?email=chukwuka.ezeaka@gmail.com&eventId={{eventId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"advert-management",
+										"purchases"
+									],
+									"query": [
+										{
+											"key": "email",
+											"value": "chukwuka.ezeaka@gmail.com"
+										},
+										{
+											"key": "eventId",
+											"value": "{{eventId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "Create Event",
 					"request": {
 						"method": "POST",
@@ -4309,7 +7137,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"event_notification\": {\n        \"email\": true,\n        \"sms\": true,\n        \"whatsapp\": true,\n        \"voice\": false\n    },\n    \"reminder_notification\": {\n        \"email\": true,\n        \"sms\": true,\n        \"whatsapp\": true,\n        \"voice\": false\n    },\n    \"thankyou_notification\": {\n        \"email\": true,\n        \"sms\": true,\n        \"whatsapp\": true,\n        \"voice\": false\n    }\n}",
+							"raw": "{\n    \"event_notification\": {\n        \"email\": false,\n        \"sms\": false,\n        \"whatsapp\": true,\n        \"voice\": false\n    },\n    \"reminder_notification\": {\n        \"email\": true,\n        \"sms\": true,\n        \"whatsapp\": true,\n        \"voice\": false\n    },\n    \"thankyou_notification\": {\n        \"email\": false,\n        \"sms\": false,\n        \"whatsapp\": true,\n        \"voice\": false\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -4803,796 +7631,6 @@
 						}
 					},
 					"response": []
-				}
-			]
-		},
-		{
-			"name": "Ticket",
-			"item": [
-				{
-					"name": "Coupons",
-					"item": [
-						{
-							"name": "Create coupon",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"event\": \"67ef9ef742e432ece1e388a3\",\n  \"code\": \"EARLY20\",\n  \"name\": \"Early Bird Discount\",\n  \"description\": \"coupon description\",\n  \"type\": \"percentage\",\n  \"value\": 10,\n  \"min_purchase\": 5000,\n  \"max_discount\": 1000,\n  \"usage_limit\": 10,\n  \"is_active\": true,\n  \"valid_from\": \"2024-01-01T00:00:00.000Z\",\n  \"valid_until\": \"2024-12-31T23:59:59.000Z\",\n  \"applicable_tickets\": [\n    \"68691ddbc3284b01c5158ace\"\n  ],\n  \"apply_to_all_tickets\": false\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/coupons",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"coupons"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get all coupons for an event",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/coupons/event/{{eventId}}",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"coupons",
-										"event",
-										"{{eventId}}"
-									]
-								}
-							},
-							"response": [
-								{
-									"name": "200",
-									"originalRequest": {
-										"method": "GET",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n  \"event\": \"67ef9ef742e432ece1e388a3\",\n  \"code\": \"EARLY20\",\n  \"name\": \"Early Bird Discount\",\n  \"description\": \"coupon description\",\n  \"type\": \"percentage\",\n  \"value\": 10,\n  \"min_purchase\": 5,\n  \"max_discount\": 0,\n  \"usage_limit\": 10,\n  \"is_active\": true,\n  \"valid_from\": \"2024-01-01T00:00:00.000Z\",\n  \"valid_until\": \"2024-12-31T23:59:59.000Z\",\n  \"applicable_tickets\": [\n    \"68691ddbc3284b01c5158ace\"\n  ],\n  \"apply_to_all_tickets\": false\n}"
-										},
-										"url": {
-											"raw": "{{baseUrl}}/coupons/event/{{eventId}}",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"coupons",
-												"event",
-												"{{eventId}}"
-											]
-										}
-									},
-									"status": "OK",
-									"code": 200,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "X-Powered-By",
-											"value": "Express"
-										},
-										{
-											"key": "Access-Control-Allow-Origin",
-											"value": "*"
-										},
-										{
-											"key": "Content-Type",
-											"value": "application/json; charset=utf-8"
-										},
-										{
-											"key": "Content-Length",
-											"value": "1098"
-										},
-										{
-											"key": "ETag",
-											"value": "W/\"44a-zK8afoCM1wGlNuWmtizBABjTgU0\""
-										},
-										{
-											"key": "Date",
-											"value": "Thu, 31 Jul 2025 12:28:04 GMT"
-										},
-										{
-											"key": "Connection",
-											"value": "keep-alive"
-										},
-										{
-											"key": "Keep-Alive",
-											"value": "timeout=5"
-										}
-									],
-									"cookie": [],
-									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Event coupons fetched successfully\",\n    \"data\": {\n        \"pagination\": {\n            \"prevPage\": null,\n            \"currentPage\": 1,\n            \"nextPage\": null,\n            \"pageTotal\": 1,\n            \"pageSize\": 1,\n            \"total\": 1\n        },\n        \"coupons\": [\n            {\n                \"type\": \"percentage\",\n                \"used_count\": 0,\n                \"is_active\": true,\n                \"applicable_tickets\": [\n                    {\n                        \"_id\": \"68691ddbc3284b01c5158ace\",\n                        \"name\": \"Standard\",\n                        \"price\": 1000\n                    }\n                ],\n                \"apply_to_all_tickets\": false,\n                \"_id\": \"688b60aca3996941a8d2a056\",\n                \"event\": \"67ef9ef742e432ece1e388a3\",\n                \"code\": \"EARLY20\",\n                \"name\": \"Early Bird Discount\",\n                \"description\": \"coupon description\",\n                \"value\": 10,\n                \"min_purchase\": 5,\n                \"max_discount\": 0,\n                \"usage_limit\": 10,\n                \"valid_from\": \"2024-01-01T00:00:00.000Z\",\n                \"valid_until\": \"2024-12-31T23:59:59.000Z\",\n                \"created_by\": {\n                    \"_id\": \"67602747c0fb825740339b3a\",\n                    \"fullname\": \"Chukwuka Ezeaka\",\n                    \"email\": \"yoitsburby@gmail.com\",\n                    \"id\": \"67602747c0fb825740339b3a\"\n                },\n                \"createdAt\": \"2025-07-31T12:25:16.165Z\",\n                \"updatedAt\": \"2025-07-31T12:25:16.165Z\",\n                \"is_expired\": true,\n                \"is_not_started\": false,\n                \"is_usage_limit_reached\": false,\n                \"is_valid\": false,\n                \"usage_percentage\": 0,\n                \"id\": \"688b60aca3996941a8d2a056\"\n            }\n        ],\n        \"statistics\": {\n            \"total_coupons\": 1,\n            \"active_coupons\": 1,\n            \"total_usage\": 0,\n            \"total_savings\": 0\n        }\n    }\n}"
-								}
-							]
-						},
-						{
-							"name": "Get coupon by id",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/coupons/{{couponId}}",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"coupons",
-										"{{couponId}}"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Update coupon",
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"code\": \"EARLY20\",\n  \"name\": \"Early Bird Discount\",\n  \"description\": \"coupon description\",\n  \"type\": \"percentage\",\n  \"value\": 10,\n  \"min_purchase\": 5000,\n  \"max_discount\": 1000,\n  \"usage_limit\": 10,\n  \"is_active\": true,\n  \"valid_from\": \"2025-07-28T00:00:00.000Z\",\n  \"valid_until\": \"2025-08-10T23:59:59.000Z\",\n  \"applicable_tickets\": [\n    \"68691ddbc3284b01c5158ace\"\n  ],\n  \"apply_to_all_tickets\": false\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/coupons/{{couponId}}",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"coupons",
-										"{{couponId}}"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Delete coupons",
-							"request": {
-								"method": "DELETE",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/coupons/{{couponId}}",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"coupons",
-										"{{couponId}}"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Validate coupon code",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"code\": \"EARLY20\",\n  \"total_amount\": 2000,\n  \"tickets\": [\n    {\n      \"ticket_id\": \"68691ddbc3284b01c5158ace\",\n      \"quantity\": 2\n    }\n  ]\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/coupons/event/{{eventId}}/validate",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"coupons",
-										"event",
-										"{{eventId}}",
-										"validate"
-									]
-								}
-							},
-							"response": [
-								{
-									"name": "201",
-									"originalRequest": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n  \"code\": \"EARLY20\",\n  \"total_amount\": 2000,\n  \"tickets\": [\n    {\n      \"ticket_id\": \"68691ddbc3284b01c5158ace\",\n      \"quantity\": 2\n    }\n  ]\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{baseUrl}}/coupons/event/{{eventId}}/validate",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"coupons",
-												"event",
-												"{{eventId}}",
-												"validate"
-											]
-										}
-									},
-									"status": "Created",
-									"code": 201,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "X-Powered-By",
-											"value": "Express"
-										},
-										{
-											"key": "Access-Control-Allow-Origin",
-											"value": "*"
-										},
-										{
-											"key": "Content-Type",
-											"value": "application/json; charset=utf-8"
-										},
-										{
-											"key": "Content-Length",
-											"value": "256"
-										},
-										{
-											"key": "ETag",
-											"value": "W/\"100-W+9uV/D1ynbNZ9Qq8NhEZZ1LFiQ\""
-										},
-										{
-											"key": "Date",
-											"value": "Thu, 31 Jul 2025 12:49:51 GMT"
-										},
-										{
-											"key": "Connection",
-											"value": "keep-alive"
-										},
-										{
-											"key": "Keep-Alive",
-											"value": "timeout=5"
-										}
-									],
-									"cookie": [],
-									"body": "{\n    \"status\": \"success\",\n    \"message\": \"Coupon is valid\",\n    \"data\": {\n        \"coupon\": {\n            \"id\": \"688b60aca3996941a8d2a056\",\n            \"code\": \"EARLY20\",\n            \"name\": \"Early Bird Discount\",\n            \"type\": \"percentage\",\n            \"value\": 10\n        },\n        \"discount_amount\": 200,\n        \"original_amount\": 2000,\n        \"final_amount\": 1800,\n        \"savings\": 200\n    }\n}"
-								},
-								{
-									"name": "400",
-									"originalRequest": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n  \"code\": \"EARLY20\",\n  \"total_amount\": 2000,\n  \"tickets\": [\n    {\n      \"ticket_id\": \"68691ddbc3284b01c5158ace\",\n      \"quantity\": 2\n    }\n  ]\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{baseUrl}}/coupons/event/{{eventId}}/validate",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"coupons",
-												"event",
-												"{{eventId}}",
-												"validate"
-											]
-										}
-									},
-									"status": "Bad Request",
-									"code": 400,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "X-Powered-By",
-											"value": "Express"
-										},
-										{
-											"key": "Access-Control-Allow-Origin",
-											"value": "*"
-										},
-										{
-											"key": "Content-Type",
-											"value": "application/json; charset=utf-8"
-										},
-										{
-											"key": "Content-Length",
-											"value": "62"
-										},
-										{
-											"key": "ETag",
-											"value": "W/\"3e-zcFSpiSkFe5iaSdqe3V6T9p/fCE\""
-										},
-										{
-											"key": "Date",
-											"value": "Thu, 31 Jul 2025 13:04:00 GMT"
-										},
-										{
-											"key": "Connection",
-											"value": "keep-alive"
-										},
-										{
-											"key": "Keep-Alive",
-											"value": "timeout=5"
-										}
-									],
-									"cookie": [],
-									"body": "{\n    \"status\": \"error\",\n    \"message\": \"Minimum purchase amount is 5000\"\n}"
-								}
-							]
-						}
-					]
-				},
-				{
-					"name": "Create ticket category",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"General Admission\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/ticket/category",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"ticket",
-								"category"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Ticket Categories",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/ticket/category",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"ticket",
-								"category"
-							]
-						}
-					},
-					"response": [
-						{
-							"name": "200",
-							"originalRequest": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/ticket/category",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"ticket",
-										"category"
-									]
-								}
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"header": [
-								{
-									"key": "X-Powered-By",
-									"value": "Express"
-								},
-								{
-									"key": "Access-Control-Allow-Origin",
-									"value": "*"
-								},
-								{
-									"key": "Content-Type",
-									"value": "application/json; charset=utf-8"
-								},
-								{
-									"key": "Content-Length",
-									"value": "125"
-								},
-								{
-									"key": "ETag",
-									"value": "W/\"7d-z/3lFAZtoaww4g+a5D566N/LBDQ\""
-								},
-								{
-									"key": "Date",
-									"value": "Sat, 05 Jul 2025 12:42:16 GMT"
-								},
-								{
-									"key": "Connection",
-									"value": "keep-alive"
-								},
-								{
-									"key": "Keep-Alive",
-									"value": "timeout=5"
-								}
-							],
-							"cookie": [],
-							"body": "{\n    \"status\": \"success\",\n    \"message\": \"category list fetched\",\n    \"data\": [\n        {\n            \"_id\": \"68691cb5aa337885c460e65c\",\n            \"name\": \"General Admission\"\n        }\n    ]\n}"
-						}
-					]
-				},
-				{
-					"name": "Create ticket",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"event\": \"67ef9ef742e432ece1e388a3\",\n    \"name\": \"Standard\",\n    \"category\": \"68691cb5aa337885c460e65c\",\n    \"price\": 1000,\n    \"description\": \"\",\n    \"quantity\": 50,\n    \"currency\": \"NGN\",\n    \"sale_start_date\": \"2025-07-15\",\n    \"sale_end_date\": \"2025-07-30\",\n    \"min_per_order\": 1,\n    \"max_per_order\": 4,\n    \"is_active\": true,\n    \"requires_approval\": false,\n    \"is_free\": false\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/ticket/",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"ticket",
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get tickets for event",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/ticket/event/{{eventId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"ticket",
-								"event",
-								"{{eventId}}"
-							]
-						}
-					},
-					"response": [
-						{
-							"name": "200",
-							"originalRequest": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/ticket/event/{{eventId}}",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"ticket",
-										"event",
-										"{{eventId}}"
-									]
-								}
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"header": [
-								{
-									"key": "X-Powered-By",
-									"value": "Express"
-								},
-								{
-									"key": "Access-Control-Allow-Origin",
-									"value": "*"
-								},
-								{
-									"key": "Content-Type",
-									"value": "application/json; charset=utf-8"
-								},
-								{
-									"key": "Content-Length",
-									"value": "1093"
-								},
-								{
-									"key": "ETag",
-									"value": "W/\"445-cyLAE1KTTYRme2BDfuEkbcdf4fY\""
-								},
-								{
-									"key": "Date",
-									"value": "Sat, 05 Jul 2025 12:50:51 GMT"
-								},
-								{
-									"key": "Connection",
-									"value": "keep-alive"
-								},
-								{
-									"key": "Keep-Alive",
-									"value": "timeout=5"
-								}
-							],
-							"cookie": [],
-							"body": "{\n    \"status\": \"success\",\n    \"message\": \"tickets fetched\",\n    \"data\": [\n        {\n            \"is_active\": true,\n            \"requires_approval\": false,\n            \"is_free\": false,\n            \"sold_out\": false,\n            \"_id\": \"68691ddbc3284b01c5158ace\",\n            \"event\": \"67ef9ef742e432ece1e388a3\",\n            \"name\": \"Standard\",\n            \"category\": {\n                \"_id\": \"68691cb5aa337885c460e65c\",\n                \"name\": \"General Admission\"\n            },\n            \"price\": 1000,\n            \"quantity\": 50,\n            \"currency\": \"NGN\",\n            \"sale_start_date\": \"2025-07-15T00:00:00.000Z\",\n            \"sale_end_date\": \"2025-07-30T00:00:00.000Z\",\n            \"min_per_order\": 1,\n            \"max_per_order\": 4,\n            \"quantity_remaining\": 50,\n            \"createdAt\": \"2025-07-05T12:43:07.792Z\",\n            \"updatedAt\": \"2025-07-05T12:43:07.792Z\"\n        },\n        {\n            \"is_active\": true,\n            \"requires_approval\": false,\n            \"is_free\": false,\n            \"sold_out\": false,\n            \"_id\": \"68691fa4528b6b03f5cedd30\",\n            \"event\": \"67ef9ef742e432ece1e388a3\",\n            \"name\": \"VIP\",\n            \"category\": {\n                \"_id\": \"68691cb5aa337885c460e65c\",\n                \"name\": \"General Admission\"\n            },\n            \"price\": 3000,\n            \"description\": \"VIP access\",\n            \"quantity\": 50,\n            \"currency\": \"NGN\",\n            \"sale_start_date\": \"2025-07-15T00:00:00.000Z\",\n            \"sale_end_date\": \"2025-07-30T00:00:00.000Z\",\n            \"min_per_order\": 1,\n            \"max_per_order\": 4,\n            \"quantity_remaining\": 50,\n            \"createdAt\": \"2025-07-05T12:50:44.189Z\",\n            \"updatedAt\": \"2025-07-05T12:50:44.189Z\"\n        }\n    ]\n}"
-						}
-					]
-				},
-				{
-					"name": "Edit ticket",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"VIP\",\n    \"category\": \"68691cb5aa337885c460e65c\",\n    \"price\": 3000,\n    \"description\": \"VIP access\",\n    \"quantity\": 50,\n    \"currency\": \"NGN\",\n    \"sale_start_date\": \"2025-07-15\",\n    \"sale_end_date\": \"2025-07-30\",\n    \"min_per_order\": 1,\n    \"max_per_order\": 4,\n    \"is_active\": true,\n    \"requires_approval\": false,\n    \"is_free\": false\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/ticket/{{ticketid}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"ticket",
-								"{{ticketid}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete ticket",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/ticket/{{ticketid}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"ticket",
-								"{{ticketid}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Buy ticket",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"tickets\": [\n        {\n            \"ticketId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        },\n        {\n            \"ticketId\": \"68691ddbc3284b01c5158ace\",\n            \"quantity\": 2\n        }\n    ]\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/ticket/event/{{eventId}}/buy",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"ticket",
-								"event",
-								"{{eventId}}",
-								"buy"
-							]
-						}
-					},
-					"response": [
-						{
-							"name": "200",
-							"originalRequest": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"tickets\": [\n        {\n            \"ticketId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        },\n        {\n            \"ticketId\": \"68691ddbc3284b01c5158ace\",\n            \"quantity\": 2\n        }\n    ]\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/ticket/event/{{eventId}}/buy",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"ticket",
-										"event",
-										"{{eventId}}",
-										"buy"
-									]
-								}
-							},
-							"status": "Created",
-							"code": 201,
-							"_postman_previewlanguage": "json",
-							"header": [
-								{
-									"key": "X-Powered-By",
-									"value": "Express"
-								},
-								{
-									"key": "Access-Control-Allow-Origin",
-									"value": "*"
-								},
-								{
-									"key": "Content-Type",
-									"value": "application/json; charset=utf-8"
-								},
-								{
-									"key": "Content-Length",
-									"value": "123"
-								},
-								{
-									"key": "ETag",
-									"value": "W/\"7b-3YWuJ3L7gXG9RhtVkcMNsoYLdUk\""
-								},
-								{
-									"key": "Date",
-									"value": "Sat, 05 Jul 2025 13:05:41 GMT"
-								},
-								{
-									"key": "Connection",
-									"value": "keep-alive"
-								},
-								{
-									"key": "Keep-Alive",
-									"value": "timeout=5"
-								}
-							],
-							"cookie": [],
-							"body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"amount\": 11000,\n        \"currency\": \"NGN\",\n        \"checkoutUrl\": \"https://checkout.paystack.com/z61fy7xm600e4n1\"\n    }\n}"
-						}
-					]
-				},
-				{
-					"name": "Buy ticket mobile",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"tickets\": [\n        {\n            \"ticketId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        },\n        {\n            \"ticketId\": \"68691ddbc3284b01c5158ace\",\n            \"quantity\": 2\n        }\n    ]\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/ticket/event/{{eventId}}/buy",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"ticket",
-								"event",
-								"{{eventId}}",
-								"buy"
-							]
-						}
-					},
-					"response": [
-						{
-							"name": "200",
-							"originalRequest": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"email\": \"chukwuka.ezeaka@gmail.com\",\n    \"name\": \"Chukwuka Ezeaka\",\n    \"path\": \"\",\n    \"tickets\": [\n        {\n            \"ticketId\": \"68691fa4528b6b03f5cedd30\",\n            \"quantity\": 3\n        },\n        {\n            \"ticketId\": \"68691ddbc3284b01c5158ace\",\n            \"quantity\": 2\n        }\n    ]\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/ticket/event/{{eventId}}/buy/mobile",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"ticket",
-										"event",
-										"{{eventId}}",
-										"buy",
-										"mobile"
-									]
-								}
-							},
-							"status": "Created",
-							"code": 201,
-							"_postman_previewlanguage": "json",
-							"header": [
-								{
-									"key": "X-Powered-By",
-									"value": "Express"
-								},
-								{
-									"key": "Access-Control-Allow-Origin",
-									"value": "*"
-								},
-								{
-									"key": "Content-Type",
-									"value": "application/json; charset=utf-8"
-								},
-								{
-									"key": "Content-Length",
-									"value": "275"
-								},
-								{
-									"key": "ETag",
-									"value": "W/\"113-veDFz9tjmVQnpnXqzN9kr+bwTvg\""
-								},
-								{
-									"key": "Date",
-									"value": "Sat, 05 Jul 2025 13:03:47 GMT"
-								},
-								{
-									"key": "Connection",
-									"value": "keep-alive"
-								},
-								{
-									"key": "Keep-Alive",
-									"value": "timeout=5"
-								}
-							],
-							"cookie": [],
-							"body": "{\n    \"status\": \"success\",\n    \"data\": {\n        \"tx_ref\": \"SMINV202507050203471316573518836\",\n        \"amount\": 1100000,\n        \"currency\": \"NGN\",\n        \"email\": \"chukwuka.ezeaka@gmail.com\",\n        \"paystackpubk\": \"pk_test_95c9358df659cc6e679deb09f36afccbeacb31d2\",\n        \"paystackseck\": \"sk_test_320351ef1896a71b35d92d5e79ff836f22edd03c\"\n    }\n}"
-						}
-					]
 				}
 			]
 		},
@@ -6251,6 +8289,285 @@
 			"name": "User mangement",
 			"item": [
 				{
+					"name": "Partners",
+					"item": [
+						{
+							"name": "Partner discount",
+							"item": [
+								{
+									"name": "Create discount",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"name\": \"Standard Partner discount\",\n  \"description\": \"discount descripiton\",\n  \"type\": \"percentage\",\n  \"value\": 10,\n  \"min_purchase\": 200,\n  \"max_discount\": 0,\n  \"is_active\": true\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/user/partners/discount",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"user",
+												"partners",
+												"discount"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get partner discounts",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/user/partners/discount",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"user",
+												"partners",
+												"discount"
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "200",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/user/partners/discount",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"user",
+														"partners",
+														"discount"
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "X-Powered-By",
+													"value": "Express"
+												},
+												{
+													"key": "Access-Control-Allow-Origin",
+													"value": "*"
+												},
+												{
+													"key": "Content-Type",
+													"value": "application/json; charset=utf-8"
+												},
+												{
+													"key": "Content-Length",
+													"value": "425"
+												},
+												{
+													"key": "ETag",
+													"value": "W/\"1a9-9vbtBMX1t0wK3cyUCEMEiSLHcCk\""
+												},
+												{
+													"key": "Date",
+													"value": "Fri, 01 Aug 2025 10:22:43 GMT"
+												},
+												{
+													"key": "Connection",
+													"value": "keep-alive"
+												},
+												{
+													"key": "Keep-Alive",
+													"value": "timeout=5"
+												}
+											],
+											"cookie": [],
+											"body": "{\n    \"status\": \"success\",\n    \"message\": \"Discounts fetched\",\n    \"data\": {\n        \"status\": \"success\",\n        \"message\": \"PartnerDiscounts fetched\",\n        \"data\": [\n            {\n                \"type\": \"percentage\",\n                \"is_active\": true,\n                \"_id\": \"688c94e65c13e83e43b438df\",\n                \"name\": \"Standard Partner discount\",\n                \"description\": \"discount descripiton\",\n                \"value\": 10,\n                \"min_purchase\": 200,\n                \"max_discount\": 0,\n                \"createdAt\": \"2025-08-01T10:20:22.054Z\",\n                \"updatedAt\": \"2025-08-01T10:20:22.054Z\",\n                \"id\": \"688c94e65c13e83e43b438df\"\n            }\n        ]\n    }\n}"
+										}
+									]
+								},
+								{
+									"name": "Update discount",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"name\": \"Standard Partner discount\",\n  \"description\": \"discount descripiton\",\n  \"type\": \"percentage\",\n  \"value\": 10,\n  \"min_purchase\": 200,\n  \"max_discount\": 0,\n  \"is_active\": true\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/user/partners/discount/{{discountId}}",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"user",
+												"partners",
+												"discount",
+												"{{discountId}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "New Request",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": ""
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Make user a partner",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"userId\":\"67602747c0fb825740339b3a\",\n    \"discountId\": \"688c94e65c13e83e43b438df\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/user/partners/add",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"user",
+										"partners",
+										"add"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove partner",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"userId\": \"67602747c0fb825740339b3a\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/user/partners/remove",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"user",
+										"partners",
+										"remove"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Partners",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": ""
+								}
+							},
+							"response": [
+								{
+									"name": "200",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/user/partners",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"user",
+												"partners"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "1373"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"55d-Lk+3wPRyStB9Sm1LenmioRoz/Rk\""
+										},
+										{
+											"key": "Date",
+											"value": "Fri, 01 Aug 2025 10:41:09 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"status\": \"success\",\n    \"message\": \"User details fetched\",\n    \"data\": {\n        \"pagination\": {\n            \"prevPage\": null,\n            \"currentPage\": 1,\n            \"nextPage\": null,\n            \"pageTotal\": 1,\n            \"pageSize\": 1,\n            \"total\": 1\n        },\n        \"data\": [\n            {\n                \"is_active\": true,\n                \"_id\": \"688c99bf7da9304425b80a96\",\n                \"user\": {\n                    \"device_token\": [\n                        \"cQ7EzmqhHHKr8z0oR5wf0o:APA91bELSRnckRjnoxKbHVLe9m-OGMGG1vNpKf1oSlxa104VCHkcCK6or1bFdKb0mQNMXD1XEuj0QsjsgxbfEUAYCl-AFCdowFQQdhWXSjxoJMe7otZ3zdQfCkadV_sxSNEY5W3pM7_O\"\n                    ],\n                    \"roles\": [\n                        \"675d38d166fb0b0a454009fd\"\n                    ],\n                    \"is_active\": true,\n                    \"isSuspended\": false,\n                    \"isDeleted\": false,\n                    \"isPartner\": true,\n                    \"_id\": \"67602747c0fb825740339b3a\",\n                    \"fullname\": \"Chukwuka Ezeaka\",\n                    \"email\": \"yoitsburby@gmail.com\",\n                    \"password\": \"$2a$11$A9e5R0jrlHWkiHxeRJpxduE6NwbBV/wDSBiEIMquZPLL7hCRa9tLy\",\n                    \"phone\": \"+234+23408123456789\",\n                    \"activation_code\": null,\n                    \"activation_expires_in\": null,\n                    \"createdAt\": \"2024-12-16T13:12:39.046Z\",\n                    \"updatedAt\": \"2025-08-01T10:33:08.883Z\",\n                    \"__v\": 1,\n                    \"notification_counter\": 960,\n                    \"referral_code\": \"BriuWz\",\n                    \"id\": \"67602747c0fb825740339b3a\"\n                },\n                \"createdAt\": \"2025-08-01T10:41:02.912Z\",\n                \"discount\": {\n                    \"type\": \"percentage\",\n                    \"is_active\": true,\n                    \"_id\": \"688c94e65c13e83e43b438df\",\n                    \"name\": \"Standard Partner discount\",\n                    \"description\": \"discount descripiton\",\n                    \"value\": 10,\n                    \"min_purchase\": 200,\n                    \"max_discount\": 0,\n                    \"createdAt\": \"2025-08-01T10:20:22.054Z\",\n                    \"updatedAt\": \"2025-08-01T10:20:22.054Z\",\n                    \"__v\": 0,\n                    \"id\": \"688c94e65c13e83e43b438df\"\n                },\n                \"updatedAt\": \"2025-08-01T10:41:02.912Z\",\n                \"id\": \"688c99bf7da9304425b80a96\"\n            }\n        ]\n    }\n}"
+								}
+							]
+						}
+					]
+				},
+				{
 					"name": "Get logged in user",
 					"request": {
 						"method": "GET",
@@ -6476,27 +8793,6 @@
 								"user",
 								"{{userId}}",
 								"suspend"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "make user a partner",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/user/{{userId}}/partner",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"user",
-								"{{userId}}",
-								"partner"
 							]
 						}
 					},

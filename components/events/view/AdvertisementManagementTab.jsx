@@ -31,6 +31,18 @@ import {
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import StatusButton from "@/components/StatusButton";
+import {
+  CreateAdvertManager,
+  useGetEventAdvertsManager,
+  UpdateAdvertManager,
+  DeleteAdvertManager,
+} from "@/app/adverts/controllers/advertController";
+import {
+  useGetAdvertCategoriesManager,
+  CreateAdvertCategoryManager,
+} from "@/app/adverts/controllers/advertController";
+import Loader from "@/components/Loader";
+import AdvertCouponSystem from "@/components/adverts/AdvertCouponSystem";
 
 const AdvertCard = ({
   advert,
@@ -439,97 +451,26 @@ const AdvertisementManagementTab = ({ event }) => {
     preview_image: "",
   });
 
-  // Mock data - replace with actual API calls
-  const mockAdverts = [
-    {
-      id: "1",
-      name: "Premium Banner - Main Stage",
-      description: "Large banner displayed prominently behind main stage",
-      price: 5000,
-      currency: "USD",
-      quantity: 2,
-      sold: 1,
-      status: "active",
-      category: "Premium Banner",
-      sale_start_date: "2024-01-01",
-      sale_end_date: "2024-12-31",
-      revenue: 5000,
-      is_free: false,
-      dimensions: "20x8 ft",
-      placement: "Main Stage Background",
-      format: "banner",
-      duration: "Full Event Duration",
-      is_virtual: false,
-      content_url: "",
-      preview_image: "https://via.placeholder.com/800x320/4F7942/FFFFFF?text=Tech+Solutions+Banner",
-    },
-    {
-      id: "2",
-      name: "Virtual Banner - Mobile App",
-      description: "Virtual banner displayed in event mobile app",
-      price: 2000,
-      currency: "USD",
-      quantity: 10,
-      sold: 7,
-      status: "active",
-      category: "Virtual Advertisement",
-      sale_start_date: "2024-01-01",
-      sale_end_date: "2024-12-31",
-      revenue: 14000,
-      is_free: false,
-      dimensions: "1200x400 px",
-      placement: "Mobile App Home Screen",
-      format: "banner",
-      duration: "Full Event Duration",
-      is_virtual: true,
-      content_url: "https://example.com/virtual-banner.jpg",
-      preview_image: "https://via.placeholder.com/1200x400/B8860B/FFFFFF?text=Virtual+Mobile+Banner",
-    },
-    {
-      id: "3",
-      name: "Virtual Video Ad - Event Portal",
-      description: "15-second video ad displayed on virtual event portal",
-      price: 3000,
-      currency: "USD",
-      quantity: 5,
-      sold: 3,
-      status: "active",
-      category: "Virtual Advertisement",
-      sale_start_date: "2024-01-01",
-      sale_end_date: "2024-12-31",
-      revenue: 9000,
-      is_free: false,
-      dimensions: "1920x1080 px",
-      placement: "Virtual Event Portal",
-      format: "video",
-      duration: "15 seconds, plays before sessions",
-      is_virtual: true,
-      content_url: "https://example.com/sample-video.mp4",
-      preview_image: "https://via.placeholder.com/1920x1080/8FBC8F/000000?text=Virtual+Video+Ad+Preview",
-    },
-    {
-      id: "4",
-      name: "Sponsored Social Post",
-      description: "Sponsored post on event's social media channels",
-      price: 500,
-      currency: "USD",
-      quantity: 20,
-      sold: 12,
-      status: "active",
-      category: "Social Media",
-      sale_start_date: "2024-01-01",
-      sale_end_date: "2024-12-31",
-      revenue: 6000,
-      is_free: false,
-      dimensions: "1080x1080 px",
-      placement: "Instagram & Facebook",
-      format: "sponsored_post",
-      duration: "24 hours featured",
-      is_virtual: false,
-      content_url: "",
-      preview_image: "https://via.placeholder.com/1080x1080/FF6347/FFFFFF?text=Social+Media+Post",
-    },
-  ];
+  // API Integrations
+  const {
+    data: advertsData,
+    isLoading: loadingAdverts,
+    refetch: refetchAdverts,
+  } = useGetEventAdvertsManager(event?.id || event?._id);
+  const { data: categoriesData, refetch: refetchCategories } =
+    useGetAdvertCategoriesManager();
+  const { createAdvert, isLoading: creatingAdvert } = CreateAdvertManager();
+  const { updateAdvert, isLoading: updatingAdvert } = UpdateAdvertManager({
+    advertId: editingAdvert?._id,
+  });
+  const { deleteAdvert, isLoading: deletingAdvert } = DeleteAdvertManager({
+    advertId: editingAdvert?._id,
+  });
+  const { createAdvertCategory, isLoading: creatingCategory } =
+    CreateAdvertCategoryManager();
+
+  const isLoading =
+    creatingAdvert || updatingAdvert || deletingAdvert || creatingCategory;
 
   const mockOrders = [
     {
@@ -566,17 +507,40 @@ const AdvertisementManagementTab = ({ event }) => {
     },
   ];
 
-  const mockCategories = [
-    { _id: "1", name: "Premium Banner" },
-    { _id: "2", name: "Digital Screen" },
-    { _id: "3", name: "Social Media" },
-    { _id: "4", name: "Print Materials" },
-  ];
-
-  const isLoading = false;
-
   const handleToggleAdvertStatus = async (advertId, newStatus) => {
-    console.log("Toggle advert status:", advertId, newStatus);
+    try {
+      const advert = advertsData?.data.find((a) => a._id === advertId);
+      if (!advert) return;
+
+      const updateData = {
+        name: advert.name,
+        category:
+          typeof advert.category === "object"
+            ? advert.category._id
+            : advert.category,
+        price: advert.price,
+        description: advert.description,
+        format: advert.format,
+        dimensions: advert.dimensions,
+        placement: advert.placement,
+        duration: advert.duration,
+        quantity: advert.quantity,
+        currency: advert.currency,
+        sale_start_date: advert.sale_start_date.split("T")[0],
+        sale_end_date: advert.sale_end_date.split("T")[0],
+        min_per_order: advert.min_per_order,
+        max_per_order: advert.max_per_order,
+        is_active: newStatus === "active",
+        requires_approval: advert.requires_approval,
+        is_free: advert.is_free,
+        is_virtual: advert.is_virtual,
+      };
+
+      await updateAdvert(updateData);
+      await refetchAdverts();
+    } catch (error) {
+      console.error("Error updating advert status:", error);
+    }
   };
 
   const handleUpdateOrderStatus = (orderId, newStatus) => {
@@ -617,24 +581,49 @@ const AdvertisementManagementTab = ({ event }) => {
         return;
       }
 
-      console.log("Save advert:", formData);
+      const advertData = {
+        event: event?.id || event?._id,
+        name: formData.name,
+        category: formData.category,
+        price: formData.price,
+        description: formData.description,
+        format: formData.format,
+        dimensions: formData.dimensions,
+        placement: formData.placement,
+        duration: formData.duration,
+        quantity: formData.quantity,
+        currency: formData.currency,
+        sale_start_date: formData.sale_start_date,
+        sale_end_date: formData.sale_end_date,
+        min_per_order: formData.min_per_order,
+        max_per_order: formData.max_per_order,
+        is_active: formData.is_active,
+        requires_approval: formData.requires_approval,
+        is_free: formData.is_free,
+        is_virtual: formData.is_virtual,
+      };
+
+      if (editingAdvert) {
+        await updateAdvert(advertData);
+      } else {
+        await createAdvert(advertData);
+      }
+
+      await refetchAdverts();
       setShowAdvertModal(false);
       setEditingAdvert(null);
-      toast.success(editingAdvert ? "Advertisement updated successfully" : "Advertisement created successfully");
     } catch (error) {
       console.error("Error saving advert:", error);
-      toast.error("Failed to save advertisement");
     }
   };
 
   const handleDeleteAdvert = async () => {
     try {
-      console.log("Delete advert:", editingAdvert?.id);
+      await deleteAdvert();
+      await refetchAdverts();
       document.getElementById("delete-advert").close();
-      toast.success("Advertisement deleted successfully");
     } catch (error) {
       console.error("Error deleting advert:", error);
-      toast.error("Failed to delete advertisement");
     }
   };
 
@@ -645,13 +634,12 @@ const AdvertisementManagementTab = ({ event }) => {
         return;
       }
 
-      console.log("Save category:", categoryFormData);
+      await createAdvertCategory(categoryFormData);
+      await refetchCategories();
       setShowCategoryModal(false);
       setCategoryFormData({ name: "" });
-      toast.success("Category created successfully");
     } catch (error) {
       console.error("Error creating category:", error);
-      toast.error("Failed to create category");
     }
   };
 
@@ -659,13 +647,19 @@ const AdvertisementManagementTab = ({ event }) => {
     { id: "overview", label: "Overview", icon: BarChart3 },
     { id: "adverts", label: "Ad Slots", icon: Monitor },
     { id: "orders", label: "Orders", icon: Users },
+    { id: "coupons", label: "Coupons", icon: Percent },
     { id: "analytics", label: "Analytics", icon: TrendingUp },
   ];
 
-  const totalRevenue = mockAdverts.reduce((sum, advert) => sum + (advert.revenue || 0), 0);
-  const totalSold = mockAdverts.reduce((sum, advert) => sum + advert.sold, 0);
-  const totalAvailable = mockAdverts.reduce((sum, advert) => sum + (advert.quantity - advert.sold), 0);
-  const activeTypes = mockAdverts.filter(advert => advert.status === "active").length;
+  const adverts = advertsData?.data || [];
+  const totalRevenue = 0; // Calculate from actual revenue data when available
+  const totalSold = adverts.reduce((sum, advert) => sum + (advert.quantity - advert.quantity_remaining), 0);
+  const totalAvailable = adverts.reduce((sum, advert) => sum + advert.quantity_remaining, 0);
+  const activeTypes = adverts.filter(advert => advert.is_active).length;
+
+  if (loadingAdverts) {
+    return <Loader />;
+  }
 
   return (
     <div className="space-y-6">
@@ -735,14 +729,15 @@ const AdvertisementManagementTab = ({ event }) => {
           <div className="bg-white p-6 rounded-lg border">
             <h3 className="text-lg font-semibold mb-4">Sales Overview</h3>
             <div className="space-y-3">
-              {mockAdverts.map((advert) => {
-                const soldPercentage = (advert.sold / advert.quantity) * 100;
+              {adverts.map((advert) => {
+                const sold = advert.quantity - advert.quantity_remaining;
+                const soldPercentage = (sold / advert.quantity) * 100;
                 return (
-                  <div key={advert.id}>
+                  <div key={advert._id}>
                     <div className="flex justify-between text-sm mb-1">
                       <span>{advert.name}</span>
                       <span>
-                        {advert.sold}/{advert.quantity} (
+                        {sold}/{advert.quantity} (
                         {soldPercentage.toFixed(1)}%)
                       </span>
                     </div>
@@ -832,52 +827,121 @@ const AdvertisementManagementTab = ({ event }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {mockAdverts.map((advert) => (
-              <AdvertCard
-                key={advert.id}
-                advert={advert}
-                onViewDetails={handleViewAdvertDetails}
-                onEdit={() => {
-                  setEditingAdvert(advert);
+          {loadingAdverts ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brandOrange mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading advertisements...</p>
+            </div>
+          ) : adverts.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-lg border">
+              <Monitor className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No advertisements yet
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Create your first advertisement slot to start selling.
+              </p>
+              <CustomButton
+                buttonText="Create First Advertisement"
+                prefixIcon={<Plus size={16} />}
+                buttonColor="bg-brandOrange"
+                textColor="text-whiteColor"
+                radius="rounded-full"
+                onClick={() => {
+                  setEditingAdvert(null);
                   setFormData({
-                    name: advert.name,
-                    category: advert.category,
-                    price: advert.price,
-                    description: advert.description || "",
-                    quantity: advert.quantity,
-                    currency: advert.currency,
-                    sale_start_date: advert.sale_start_date,
-                    sale_end_date: advert.sale_end_date,
+                    event: event?.id,
+                    name: "",
+                    category: "",
+                    price: 0,
+                    description: "",
+                    quantity: 5,
+                    currency: "USD",
+                    sale_start_date: "",
+                    sale_end_date: "",
                     min_per_order: 1,
                     max_per_order: 3,
-                    is_active: advert.status === "active",
+                    is_active: true,
                     requires_approval: false,
-                    is_free: advert.is_free,
-                    dimensions: advert.dimensions || "",
-                    placement: advert.placement || "",
-                    format: advert.format || "banner",
-                    duration: advert.duration || "",
-                    is_virtual: advert.is_virtual || false,
-                    content_url: advert.content_url || "",
-                    preview_image: advert.preview_image || "",
+                    is_free: false,
+                    dimensions: "",
+                    placement: "",
+                    format: "banner",
+                    duration: "",
+                    is_virtual: false,
+                    content_url: "",
+                    preview_image: "",
                   });
                   setShowAdvertModal(true);
                 }}
-                onDelete={() => {
-                  setEditingAdvert(advert);
-                  document.getElementById("delete-advert").showModal();
-                }}
-                onToggleStatus={() =>
-                  handleToggleAdvertStatus(
-                    advert.id,
-                    advert.status === "active" ? "paused" : "active"
-                  )
-                }
-                isLoading={isLoading}
               />
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {adverts.map((advert) => (
+                <AdvertCard
+                  key={advert._id}
+                  advert={{
+                    ...advert,
+                    id: advert._id,
+                    sold: advert.quantity - advert.quantity_remaining,
+                    status: advert.is_active
+                      ? advert.sold_out
+                        ? "sold_out"
+                        : "active"
+                      : "paused",
+                    category:
+                      typeof advert.category === "object"
+                        ? advert.category.name
+                        : advert.category,
+                    revenue: 0, // Hardcoded as requested
+                  }}
+                  onViewDetails={handleViewAdvertDetails}
+                  onEdit={() => {
+                    setEditingAdvert(advert);
+                    setFormData({
+                      name: advert.name,
+                      category:
+                        typeof advert.category === "object"
+                          ? advert.category._id
+                          : advert.category,
+                      price: advert.price,
+                      description: advert.description || "",
+                      quantity: advert.quantity,
+                      currency: advert.currency,
+                      sale_start_date:
+                        advert.sale_start_date?.split("T")[0] || "",
+                      sale_end_date: advert.sale_end_date?.split("T")[0] || "",
+                      min_per_order: advert.min_per_order,
+                      max_per_order: advert.max_per_order,
+                      is_active: advert.is_active,
+                      requires_approval: advert.requires_approval,
+                      is_free: advert.is_free,
+                      dimensions: advert.dimensions || "",
+                      placement: advert.placement || "",
+                      format: advert.format || "banner",
+                      duration: advert.duration || "",
+                      is_virtual: advert.is_virtual || false,
+                      content_url: advert.content_url || "",
+                      preview_image: advert.preview_image || "",
+                    });
+                    setShowAdvertModal(true);
+                  }}
+                  onDelete={() => {
+                    setEditingAdvert(advert);
+                    document.getElementById("delete-advert").showModal();
+                  }}
+                  onToggleStatus={() =>
+                    handleToggleAdvertStatus(
+                      advert._id,
+                      advert.is_active ? "paused" : "active"
+                    )
+                  }
+                  isLoading={isLoading}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -923,6 +987,8 @@ const AdvertisementManagementTab = ({ event }) => {
           </div>
         </div>
       )}
+
+      {activeTab === "coupons" && <AdvertCouponSystem eventId={event?.id} />}
 
       {activeTab === "analytics" && (
         <div className="space-y-6">
@@ -1267,8 +1333,8 @@ const AdvertisementManagementTab = ({ event }) => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-mustard focus:border-mustard"
                     >
                       <option value="">Select category</option>
-                      {mockCategories.map((cat) => (
-                        <option key={cat._id} value={cat.name}>
+                      {categoriesData?.data?.map((cat) => (
+                        <option key={cat._id} value={cat._id}>
                           {cat.name}
                         </option>
                       ))}
