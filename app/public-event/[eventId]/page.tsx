@@ -32,6 +32,12 @@ import GetPublicFormManager from "@/app/events/controllers/forms/getPublicFormCo
 import { useParams, useRouter } from "next/navigation";
 import Loader from "@/components/Loader";
 import FeedbackModal from "@/components/events/publicComponents/FeedbackModal";
+import TicketsSection from "@/components/events/publicComponents/TicketsSection";
+import BoothsSection from "@/components/events/publicComponents/BoothsSection";
+import AdvertsSection from "@/components/events/publicComponents/AdvertsSection";
+import ActiveBoothsSection from "@/components/events/publicComponents/ActiveBoothsSection";
+import ActiveAdvertsSection from "@/components/events/publicComponents/ActiveAdvertsSection";
+import ExistingCustomerBanner from "@/components/events/publicComponents/ExistingCustomerBanner";
 import useDebounce from "@/utils/UseDebounce";
 import { toast } from "react-toastify";
 import CreateFormSubmissionManager from "@/app/events/controllers/forms/createFormSubmissionController";
@@ -1058,6 +1064,28 @@ export default function ConferenceWebsite() {
           </div>
         </section>
       )}
+
+      {/* Existing Customer Banner */}
+      <div className="px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <ExistingCustomerBanner eventId={eventId} />
+        </div>
+      </div>
+
+      {/* Tickets Section */}
+      <TicketsSection eventId={eventId} />
+
+      {/* Booths Section */}
+      <BoothsSection eventId={eventId} />
+
+      {/* Adverts Section */}
+      <AdvertsSection eventId={eventId} />
+
+      {/* Active Booths Section */}
+      <ActiveBoothsSection eventId={eventId} />
+
+      {/* Active Adverts Section */}
+      <ActiveAdvertsSection eventId={eventId} />
 
       {/* About Section */}
       {/* <section

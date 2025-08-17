@@ -153,3 +153,93 @@ export const BuyTicketMobileManager = () => {
     error,
   };
 };
+
+// Get Customer Events (all events customer has tickets for)
+export const useGetCustomerEventsManager = (email: string) => {
+  return useQuery<BaseResponse, Error>(
+    ["customerEvents", email],
+    async () => {
+      const response = await AxiosWithToken.get(`/ticket/events`, {
+        params: { email }
+      });
+      return response.data;
+    },
+    {
+      enabled: !!email,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000,
+    }
+  );
+};
+
+// Get Customer Tickets for Specific Event
+export const useGetCustomerTicketsForEventManager = (email: string, eventId: string) => {
+  return useQuery<BaseResponse, Error>(
+    ["customerTicketsForEvent", email, eventId],
+    async () => {
+      const response = await AxiosWithToken.get(`/ticket/purchases`, {
+        params: { email, eventId }
+      });
+      return response.data;
+    },
+    {
+      enabled: !!email && !!eventId,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000,
+    }
+  );
+};
+
+// Request Edit Code for Ticket
+export const RequestTicketEditCodeManager = () => {
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(`/ticket/request-edit-code`, ["ticketEditCode"], true);
+
+  const requestEditCode = async (email: string, eventId: string) => {
+    try {
+      await postCaller({ email, eventId });
+    } catch (error) {
+      console.error("Error requesting ticket edit code:", error);
+    }
+  };
+
+  return {
+    requestEditCode,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
+};
+
+// Edit Ticket Details
+export const EditTicketDetailsManager = () => {
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(`/ticket/edit-details`, ["customerTickets"], true);
+
+  const editTicketDetails = async (editData: {
+    email: string;
+    eventId: string;
+    code: string;
+    tickets: Array<{
+      ticketId: string;
+      name?: string;
+      phone?: string;
+      additionalInfo?: string;
+    }>;
+  }) => {
+    try {
+      await postCaller(editData);
+    } catch (error) {
+      console.error("Error editing ticket details:", error);
+    }
+  };
+
+  return {
+    editTicketDetails,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
+};

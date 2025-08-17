@@ -13,6 +13,10 @@ import DeleteConfirmationModal from "../DeleteConfirmationModal";
 import { useGetCreditPricingManager } from "@/app/events/controllers/creditManagement/getCreditPricingController";
 import { UpdateCreditPricingManager } from "@/app/events/controllers/creditManagement/updateCreditPricingController";
 import { CreateCreditPricingManager } from "@/app/events/controllers/creditManagement/createCreditPricingController";
+import useGetPartnerDiscountsManager from "@/app/admin/settings/controllers/getPartnerDiscountsController";
+import { CreatePartnerDiscountManager } from "@/app/admin/settings/controllers/createPartnerDiscountController";
+import { UpdatePartnerDiscountManager } from "@/app/admin/settings/controllers/updatePartnerDiscountController";
+import { DeletePartnerDiscountManager } from "@/app/admin/settings/controllers/deletePartnerDiscountController";
 
 const ConfigurationSection = () => {
   const { data, isLoading } = useGetPricingsManager();
@@ -23,6 +27,8 @@ const ConfigurationSection = () => {
   const { createPricing, isLoading: updating } = CreatePricingManager();
   const { data: discounts, isLoading: loadingDiscounts } =
     useGetDiscountsManager();
+  const { data: partnerDiscounts, isLoading: loadingPartnerDiscounts } =
+    useGetPartnerDiscountsManager();
   const { createDiscount, isLoading: addingDiscounts } =
     CreateDiscountsManager();
   const { updateDiscounts, isLoading: updatingDiscount } =
@@ -32,6 +38,17 @@ const ConfigurationSection = () => {
     isLoading: deletingDiscount,
     isSuccess,
   } = DeleteDiscountManager({ discountId: discountId });
+
+  // Partner discount controllers
+  const { createPartnerDiscount, isLoading: addingPartnerDiscounts } =
+    CreatePartnerDiscountManager();
+  const { updatePartnerDiscount, isLoading: updatingPartnerDiscount } =
+    UpdatePartnerDiscountManager({ discountId: discountId });
+  const {
+    deletePartnerDiscount,
+    isLoading: deletingPartnerDiscount,
+    isSuccess: partnerDiscountDeleted,
+  } = DeletePartnerDiscountManager({ discountId: discountId });
 
   const [formData, setFormData] = useState({
     event_price_naira: 0,
@@ -63,6 +80,19 @@ const ConfigurationSection = () => {
     no_of_invites: "",
     percent: "",
     type: "default",
+  });
+
+  // Partner discount state
+  const [partnerDiscountArray, setPartnerDiscountArray] = useState([]);
+  const [editingPartnerId, setEditingPartnerId] = useState(null);
+  const [newPartnerDiscount, setNewPartnerDiscount] = useState({
+    name: "",
+    description: "",
+    type: "percentage",
+    value: "",
+    min_purchase: "",
+    max_discount: "",
+    is_active: true,
   });
 
   useEffect(() => {
@@ -113,6 +143,18 @@ const ConfigurationSection = () => {
       setDiscountArray(formattedDiscounts);
     }
   }, [discounts]);
+
+  useEffect(() => {
+    if (partnerDiscounts?.data?.data) {
+      const formattedPartnerDiscounts = partnerDiscounts.data.data.map((discount) => ({
+        ...discount,
+        value: Number(discount.value) || 0,
+        min_purchase: Number(discount.min_purchase) || 0,
+        max_discount: Number(discount.max_discount) || 0,
+      }));
+      setPartnerDiscountArray(formattedPartnerDiscounts);
+    }
+  }, [partnerDiscounts]);
 
   const handleSavePricingChanges = () => {
     const updatedFormData = {
@@ -194,7 +236,59 @@ const ConfigurationSection = () => {
     await deleteDiscount();
   };
 
-  if (isLoading || loadingDiscounts || loadingCreditPricing || creatingCreditPricing) return <Loader />;
+  // Partner discount handlers
+  const handlePartnerDiscountChange = (index, field, value) => {
+    setPartnerDiscountArray((prev) => {
+      const updated = [...prev];
+      updated[index] = {
+        ...updated[index],
+        [field]: field === "type" || field === "name" || field === "description" ? value : Number(value) || 0,
+      };
+      return updated;
+    });
+  };
+
+  const handleAddPartnerDiscount = () => {
+    if (!newPartnerDiscount.name || !newPartnerDiscount.value) return;
+
+    const discountToAdd = {
+      name: newPartnerDiscount.name,
+      description: newPartnerDiscount.description,
+      type: newPartnerDiscount.type,
+      value: Number(newPartnerDiscount.value) || 0,
+      min_purchase: Number(newPartnerDiscount.min_purchase) || 0,
+      max_discount: Number(newPartnerDiscount.max_discount) || 0,
+      is_active: newPartnerDiscount.is_active,
+    };
+
+    createPartnerDiscount(discountToAdd);
+    setNewPartnerDiscount({
+      name: "",
+      description: "",
+      type: "percentage",
+      value: "",
+      min_purchase: "",
+      max_discount: "",
+      is_active: true,
+    });
+  };
+
+  const handleEditPartnerDiscount = (discount) => {
+    const updatedDiscount = {
+      ...discount,
+      value: Number(discount.value) || 0,
+      min_purchase: Number(discount.min_purchase) || 0,
+      max_discount: Number(discount.max_discount) || 0,
+    };
+    updatePartnerDiscount(updatedDiscount);
+    setEditingPartnerId(null);
+  };
+
+  const handleDeletePartnerDiscount = async () => {
+    await deletePartnerDiscount();
+  };
+
+  if (isLoading || loadingDiscounts || loadingPartnerDiscounts || loadingCreditPricing || creatingCreditPricing) return <Loader />;
 
   return (
     <div className="flex w-full bg-white rounded-lg flex-col text-brandBlack p-10">
@@ -704,6 +798,219 @@ const ConfigurationSection = () => {
               buttonText={"Delete Discount"}
               isLoading={deletingDiscount}
               onClick={() => deleteDiscount()}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="divider my-10"></div>
+
+      {/* Partner Discounts Section */}
+      <div className="flex items-start gap-32">
+        <div className="flex flex-col items-start">
+          <p className="text-16px font-semibold">Partner Discounts</p>
+          <p className="text-14px text-textGrey2 w-[200px] mb-10">
+            Configure discount tiers for partners when making users partners.
+          </p>
+        </div>
+        <div className="relative w-[546px] flex flex-col">
+          {/* Existing Partner Discounts List */}
+          <div className="space-y-4 mb-6">
+            {partnerDiscountArray.map((discount, index) => (
+              <div
+                key={discount._id || index}
+                className="bg-gray-50 p-4 rounded-lg"
+              >
+                <div className="grid grid-cols-5 gap-4">
+                  {editingPartnerId === discount._id ? (
+                    <>
+                      <div>
+                        <InputWithFullBoarder
+                          label="Name"
+                          type="text"
+                          value={discount.name}
+                          onChange={(e) =>
+                            handlePartnerDiscountChange(index, "name", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <InputWithFullBoarder
+                          label="Description"
+                          type="text"
+                          value={discount.description}
+                          onChange={(e) =>
+                            handlePartnerDiscountChange(index, "description", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <InputWithFullBoarder
+                          label="Value %"
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                          value={discount.value}
+                          onChange={(e) =>
+                            handlePartnerDiscountChange(index, "value", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <InputWithFullBoarder
+                          label="Min Purchase"
+                          type="number"
+                          min="0"
+                          step="1"
+                          value={discount.min_purchase}
+                          onChange={(e) =>
+                            handlePartnerDiscountChange(index, "min_purchase", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2 mt-7">
+                        <CustomButton
+                          buttonText="Save"
+                          onClick={() => handleEditPartnerDiscount(discount)}
+                          isLoading={updatingPartnerDiscount}
+                          className="w-full text-sm"
+                        />
+                        <CustomButton
+                          buttonText="Cancel"
+                          buttonColor="bg-gray-100"
+                          textColor="text-gray-700"
+                          onClick={() => setEditingPartnerId(null)}
+                          className="w-full text-sm"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Name
+                        </label>
+                        <p className="p-2">{discount.name}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Description
+                        </label>
+                        <p className="p-2 text-sm">{discount.description}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Value
+                        </label>
+                        <p className="p-2">{discount.value}%</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Min Purchase
+                        </label>
+                        <p className="p-2">{discount.min_purchase}</p>
+                      </div>
+                      <div className="flex items-center gap-4 mt-7">
+                        <Pencil
+                          className="cursor-pointer text-gray-600 hover:text-brandBlack"
+                          size={20}
+                          onClick={() => {
+                            setDiscountId(discount.id);
+                            setEditingPartnerId(discount._id);
+                          }}
+                        />
+                        <Trash2
+                          className="cursor-pointer text-redColor"
+                          size={20}
+                          onClick={() => {
+                            setDiscountId(discount.id);
+                            document.getElementById("deletePartner").showModal();
+                          }}
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Add New Partner Discount Form */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h3 className="font-semibold mb-4">Add New Partner Discount</h3>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <InputWithFullBoarder
+                  label="Name"
+                  type="text"
+                  value={newPartnerDiscount.name}
+                  onChange={(e) =>
+                    setNewPartnerDiscount({
+                      ...newPartnerDiscount,
+                      name: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <InputWithFullBoarder
+                  label="Description"
+                  type="text"
+                  value={newPartnerDiscount.description}
+                  onChange={(e) =>
+                    setNewPartnerDiscount({
+                      ...newPartnerDiscount,
+                      description: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <InputWithFullBoarder
+                  label="Discount Value %"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  value={newPartnerDiscount.value}
+                  onChange={(e) =>
+                    setNewPartnerDiscount({
+                      ...newPartnerDiscount,
+                      value: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <InputWithFullBoarder
+                  label="Min Purchase Amount"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={newPartnerDiscount.min_purchase}
+                  onChange={(e) =>
+                    setNewPartnerDiscount({
+                      ...newPartnerDiscount,
+                      min_purchase: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
+            <CustomButton
+              buttonText="Add Partner Discount"
+              onClick={handleAddPartnerDiscount}
+              isLoading={addingPartnerDiscounts}
+            />
+            
+            <DeleteConfirmationModal
+              title={"Delete Partner Discount"}
+              body={`Are you sure you want to delete this partner discount?`}
+              buttonText={"Delete Partner Discount"}
+              isLoading={deletingPartnerDiscount}
+              onClick={() => deletePartnerDiscount()}
+              id="deletePartner"
             />
           </div>
         </div>

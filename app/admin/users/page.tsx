@@ -20,12 +20,16 @@ import { MakeUserPartnerManager } from "./controllers/makeUserPartnerController"
 import { SuspendUnsuspendUserManager } from "./controllers/suspendUnsuspendUserController";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 import { DeleteUserManager } from "./controllers/deleteUserController";
+import PartnershipModal from "@/components/modals/PartnershipModal";
 
 const UsersPage = () => {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUserName, setSelectedUserName] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [showPartnershipModal, setShowPartnershipModal] = useState(false);
+  const [partnershipType, setPartnershipType] = useState("make");
 
   // Debounce search term with 1 second delay
   const debouncedSearchTerm = useDebounce(searchTerm, 1000);
@@ -34,17 +38,25 @@ const UsersPage = () => {
     page: currentPage, 
     searchQuery: debouncedSearchTerm 
   });
-  const { makePartner } = MakeUserPartnerManager({ userId: selectedUser });
+  const { makePartner, isLoading: makingPartner } = MakeUserPartnerManager();
   const { manageSuspend } = SuspendUnsuspendUserManager({
     userId: selectedUser,
   });
   const { deleteUser, isLoading: deleting } = DeleteUserManager({
     userId: selectedUser,
   });
-  useEffect(() => {
-    if (selectedUser) {
+  const handlePartnershipAction = (discountId = null) => {
+    const payload = {
+      userId: selectedUser,
+      ...(partnershipType === "make" && { discountId })
+    };
+    
+    if (partnershipType === "make") {
+      makePartner(payload);
     }
-  }, [selectedUser]);
+    
+    setShowPartnershipModal(false);
+  };
 
   // Reset to page 1 when search term changes
   useEffect(() => {
@@ -125,14 +137,14 @@ const UsersPage = () => {
               selectedRows={[]}
               popUpFunction={(option, inx, val) => {
                 setSelectedUser(val?.id);
+                setSelectedUserName(val?.fullname);
                 if (inx === 0) {
                   router.push(`/admin/users/user?id=${val?.id}`);
                 }
                 if (inx === 1) {
                   //make user a partner
-                  if (selectedUser === val?.id) {
-                    makePartner();
-                  }
+                  setPartnershipType("make");
+                  setShowPartnershipModal(true);
                 }
                 if (inx === 2) {
                   //suspend user
@@ -172,6 +184,15 @@ const UsersPage = () => {
         id="delete"
         buttonColor=""
         successFul={false}
+      />
+      
+      <PartnershipModal
+        isOpen={showPartnershipModal}
+        onClose={() => setShowPartnershipModal(false)}
+        onConfirm={handlePartnershipAction}
+        isLoading={makingPartner}
+        userName={selectedUserName}
+        type={partnershipType}
       />
     </BaseDashboardNavigation>
   );

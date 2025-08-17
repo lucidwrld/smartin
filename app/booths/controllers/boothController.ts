@@ -244,6 +244,106 @@ export const BuyBoothMobileManager = () => {
   };
 };
 
+// Get Customer Events (all events customer has booths for)
+export const useGetCustomerBoothEventsManager = (email: string) => {
+  return useQuery<BaseResponse, Error>(
+    ["customerBoothEvents", email],
+    async () => {
+      const response = await AxiosWithToken.get(`/booths/events`, {
+        params: { email }
+      });
+      return response.data;
+    },
+    {
+      enabled: !!email,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000,
+    }
+  );
+};
+
+// Request Edit Code for Booth
+export const RequestBoothEditCodeManager = () => {
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(`/booths/request-edit-code`, ["boothEditCode"], true);
+
+  const requestEditCode = async (email: string, eventId: string) => {
+    try {
+      await postCaller({ email, eventId });
+    } catch (error) {
+      console.error("Error requesting booth edit code:", error);
+    }
+  };
+
+  return {
+    requestEditCode,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
+};
+
+// Edit Booth Details
+export const EditBoothDetailsManager = () => {
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(`/booths/edit-details`, ["customerBooths"], true);
+
+  const editBoothDetails = async (editData: {
+    email: string;
+    eventId: string;
+    code: string;
+    booths: Array<{
+      boothId: string;
+      name?: string;
+      phone?: string;
+      company_name?: string;
+      company?: string;
+      email?: string;
+      website?: string;
+      industry?: string;
+      description?: string;
+      logo?: string;
+      cover_banner?: string;
+      brochure?: string;
+      video?: string;
+      address?: string;
+      facebook?: string;
+      twitter?: string;
+      linkedin?: string;
+      instagram?: string;
+      services?: Array<{
+        name: string;
+        description?: string;
+        image?: string;
+        link?: string;
+      }>;
+      products?: Array<{
+        name: string;
+        description?: string;
+        image?: string;
+        link?: string;
+        price?: string;
+      }>;
+      additionalInfo?: string;
+    }>;
+  }) => {
+    try {
+      await postCaller(editData);
+    } catch (error) {
+      console.error("Error editing booth details:", error);
+    }
+  };
+
+  return {
+    editBoothDetails,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
+};
+
 export const useGetCustomerBoothsManager = (email: string) => {
   return useQuery<BaseResponse, Error>(
     ["customerBooths", email],
@@ -272,6 +372,38 @@ export const useGetCustomerBoothsForEventManager = (email: string, eventId: stri
     },
     {
       enabled: !!email && !!eventId,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000,
+    }
+  );
+};
+
+// Get Active Booths for Event Display (all purchased booths for this event)
+export const useGetActiveBoothsForEventManager = (eventId: string) => {
+  return useQuery<BaseResponse, Error>(
+    ["activeBooths", eventId],
+    async () => {
+      const response = await AxiosWithToken.get(`/booths/active/event/${eventId}`);
+      return response.data;
+    },
+    {
+      enabled: !!eventId,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000,
+    }
+  );
+};
+
+// Get Detailed Booth Information
+export const useGetBoothDetailsManager = (boothId: string) => {
+  return useQuery<BaseResponse, Error>(
+    ["boothDetails", boothId],
+    async () => {
+      const response = await AxiosWithToken.get(`/booths/details/${boothId}`);
+      return response.data;
+    },
+    {
+      enabled: !!boothId,
       refetchOnWindowFocus: false,
       staleTime: 5 * 60 * 1000,
     }

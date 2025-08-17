@@ -252,6 +252,81 @@ export const BuyAdvertMobileManager = () => {
   };
 };
 
+// Get Customer Events (all events customer has adverts for)
+export const useGetCustomerAdvertEventsManager = (email: string) => {
+  return useQuery<BaseResponse, Error>(
+    ["customerAdvertEvents", email],
+    async () => {
+      const response = await AxiosWithToken.get(`/advert-management/events`, {
+        params: { email }
+      });
+      return response.data;
+    },
+    {
+      enabled: !!email,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000,
+    }
+  );
+};
+
+// Request Edit Code for Advert
+export const RequestAdvertEditCodeManager = () => {
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(`/advert-management/request-edit-code`, ["advertEditCode"], true);
+
+  const requestEditCode = async (email: string, eventId: string) => {
+    try {
+      await postCaller({ email, eventId });
+    } catch (error) {
+      console.error("Error requesting advert edit code:", error);
+    }
+  };
+
+  return {
+    requestEditCode,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
+};
+
+// Edit Advert Details
+export const EditAdvertDetailsManager = () => {
+  const { postCaller, isLoading, isSuccess, error, data } =
+    usePostManager<BaseResponse>(`/advert-management/edit-details`, ["customerAdverts"], true);
+
+  const editAdvertDetails = async (editData: {
+    email: string;
+    eventId: string;
+    code: string;
+    adverts: Array<{
+      advertId: string;
+      name?: string;
+      phone?: string;
+      company?: string;
+      content_url?: string;
+      preview_image_url?: string;
+      additionalInfo?: string;
+    }>;
+  }) => {
+    try {
+      await postCaller(editData);
+    } catch (error) {
+      console.error("Error editing advert details:", error);
+    }
+  };
+
+  return {
+    editAdvertDetails,
+    data,
+    isLoading,
+    isSuccess,
+    error,
+  };
+};
+
 export const useGetCustomerAdvertsManager = (email: string) => {
   return useQuery<BaseResponse, Error>(
     ["customerAdverts", email],
@@ -280,6 +355,22 @@ export const useGetCustomerAdvertsForEventManager = (email: string, eventId: str
     },
     {
       enabled: !!email && !!eventId,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000,
+    }
+  );
+};
+
+// Get Active Adverts for Event Display (all purchased ads for this event)
+export const useGetActiveAdvertsForEventManager = (eventId: string) => {
+  return useQuery<BaseResponse, Error>(
+    ["activeAdverts", eventId],
+    async () => {
+      const response = await AxiosWithToken.get(`/advert-management/active/event/${eventId}`);
+      return response.data;
+    },
+    {
+      enabled: !!eventId,
       refetchOnWindowFocus: false,
       staleTime: 5 * 60 * 1000,
     }

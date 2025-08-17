@@ -20,7 +20,8 @@ import UserCard from "@/components/UserCard";
 import { formatDateToLongString } from "@/utils/formatDateToLongString";
 import useGetAllEventsManager from "@/app/events/controllers/getAllEventsController";
 import { formatDate } from "@/utils/formatDate";
-import { MakeUserPartnerManager } from "../controllers/makeUserPartnerController";
+import { MakeUserPartnerManager, RemoveUserPartnerManager } from "../controllers/makeUserPartnerController";
+import PartnershipModal from "@/components/modals/PartnershipModal";
 import { ConfirmBankPaymentManager } from "@/app/transactions/controllers/confirmBankPaymentController";
 import { SuspendUnsuspendUserManager } from "../controllers/suspendUnsuspendUserController";
 import { AddUserCreditsManager } from "@/app/events/controllers/creditManagement/addUserCreditsController";
@@ -35,7 +36,8 @@ const UserDetailsPage = () => {
     userId: id,
     enabled: Boolean(id),
   });
-  const { makePartner } = MakeUserPartnerManager({ userId: id });
+  const { makePartner, isLoading: makingPartner } = MakeUserPartnerManager();
+  const { removePartner, isLoading: removingPartner } = RemoveUserPartnerManager();
   const { manageSuspend } = SuspendUnsuspendUserManager({
     userId: id,
   });
@@ -49,6 +51,10 @@ const UserDetailsPage = () => {
     quantity: ''
   });
   const [creditItems, setCreditItems] = useState([]);
+  
+  // Partnership modal state
+  const [showPartnershipModal, setShowPartnershipModal] = useState(false);
+  const [partnershipAction, setPartnershipAction] = useState("make"); // "make" or "remove"
   const { data, isLoading: loadingTransactions } = useGetAllTransactionsManager(
     {
       enabled: Boolean(id),
@@ -142,6 +148,33 @@ const UserDetailsPage = () => {
     setCreditItems([]);
   };
 
+  const handleMakePartner = () => {
+    setPartnershipAction("make");
+    setShowPartnershipModal(true);
+  };
+
+  const handleRemovePartner = () => {
+    setPartnershipAction("remove");
+    setShowPartnershipModal(true);
+  };
+
+  const handlePartnershipConfirm = async (discountId) => {
+    if (partnershipAction === "make") {
+      const payload = {
+        userId: id,
+        discountId: discountId
+      };
+      await makePartner(payload);
+    } else {
+      // For remove, use the separate remove controller
+      const payload = {
+        userId: id
+      };
+      await removePartner(payload);
+    }
+    setShowPartnershipModal(false);
+  };
+
   const channelOptions = [
     { value: 'email', label: 'Email' },
     { value: 'sms', label: 'SMS' },
@@ -187,19 +220,16 @@ const UserDetailsPage = () => {
                 buttonText="Remove Partner Status"
                 buttonColor="bg-red-50"
                 textColor="text-red-600"
-                onClick={() => {
-                  makePartner();
-                }}
+                onClick={handleRemovePartner}
+                disabled={makingPartner || removingPartner}
               />
             ) : (
               <CustomButton
                 buttonText="Make Partner"
                 buttonColor="bg-green-50"
                 textColor="text-green-600"
-                onClick={() => {
-                  /* Handle make partner */
-                  makePartner();
-                }}
+                onClick={handleMakePartner}
+                disabled={makingPartner || removingPartner}
               />
             )}
             <CustomButton
@@ -686,6 +716,16 @@ const UserDetailsPage = () => {
           </div>
         )}
       </div>
+
+      {/* Partnership Modal */}
+      <PartnershipModal
+        isOpen={showPartnershipModal}
+        onClose={() => setShowPartnershipModal(false)}
+        onConfirm={handlePartnershipConfirm}
+        isLoading={makingPartner || removingPartner}
+        userName={user?.data?.user?.fullname || ""}
+        type={partnershipAction}
+      />
     </BaseDashboardNavigation>
   );
 };
