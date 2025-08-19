@@ -41,7 +41,7 @@ AxiosWithToken.interceptors.request.use(
     }
 
     const authToken = isAdminRoute ? adminToken : token;
-    console.log("Using token:", authToken);
+    // console.log("Using token:", authToken);
 
     config.headers.Authorization = authToken || "";
     retryCount = 0;
