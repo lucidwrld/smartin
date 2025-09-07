@@ -69,16 +69,16 @@ export const UpdateHostsManager = () => {
 export const DeleteHostsManager = () => {
   const { deleteCaller, isLoading, isSuccess, error, data } =
     useDeleteManager<BaseResponse>(
-      `/api/v1/event/delete/host`,
+      `/event/delete/host`,
       ["event"],
       true
     );
 
-  const deleteHosts = async (eventId: string, hostIds: string[]) => {
+  const deleteHosts = async (eventId: string, ids: string[]) => {
     try {
       const payload = {
         eventId,
-        hostIds,
+        ids,
       };
       await deleteCaller(payload);
     } catch (error) {
@@ -156,11 +156,11 @@ export const DeleteSponsorsManager = () => {
   const { deleteCaller, isLoading, isSuccess, error, data } =
     useDeleteManager<BaseResponse>(`/event/delete/sponsors`, ["event"], true);
 
-  const deleteSponsors = async (eventId: string, sponsorIds: string[]) => {
+  const deleteSponsors = async (eventId: string, ids: string[]) => {
     try {
       const payload = {
         eventId,
-        sponsorIds,
+        ids,
       };
       await deleteCaller(payload);
     } catch (error) {
@@ -238,11 +238,11 @@ export const DeletePartnersManager = () => {
   const { deleteCaller, isLoading, isSuccess, error, data } =
     useDeleteManager<BaseResponse>(`/event/delete/partners`, ["event"], true);
 
-  const deletePartners = async (eventId: string, partnerIds: string[]) => {
+  const deletePartners = async (eventId: string, ids: string[]) => {
     try {
       const payload = {
         eventId,
-        partnerIds,
+        ids,
       };
       await deleteCaller(payload);
     } catch (error) {
@@ -416,11 +416,11 @@ export const DeleteResourcesManager = () => {
   const { deleteCaller, isLoading, isSuccess, error, data } =
     useDeleteManager<BaseResponse>(`/event/delete/resources`, ["event"], true);
 
-  const deleteResources = async (eventId: string, resourceIds: string[]) => {
+  const deleteResources = async (eventId: string, ids: string[]) => {
     try {
       const payload = {
         eventId,
-        resourceIds,
+        ids,
       };
       await deleteCaller(payload);
     } catch (error) {

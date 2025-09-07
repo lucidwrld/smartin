@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
 // Define the main backend base URL
-const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+const BACKEND_BASE_URL = "https://smart-invites-qe7l2.ondigitalocean.app/api/v1";
 
 export async function GET(
   request: NextRequest,
@@ -10,7 +10,7 @@ export async function GET(
 ) {
   try {
     const { formId } = params;
-
+    console.log(formId)
     if (!formId) {
       return NextResponse.json(
         { error: "Form ID is required" },

@@ -27,6 +27,7 @@ import {
   DeleteVendorsManager,
 } from "@/app/events/controllers/eventManagementController";
 import { Event, Vendor } from "@/app/events/types";
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 
 interface VendorCardProps {
   vendor: Vendor;
@@ -134,7 +135,7 @@ const VendorCard: React.FC<VendorCardProps> = ({
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <h4 className="font-medium text-gray-900 truncate">{name}</h4>
+              <h4 className="font-medium text-[30px] text-gray-900 truncate">{name}</h4>
               <span
                 className={`px-2 py-1 text-xs rounded ${getStatusColor(
                   status
@@ -263,7 +264,7 @@ const VendorCard: React.FC<VendorCardProps> = ({
             <Edit2 className="w-4 h-4" />
           </button>
           <button
-            onClick={() => onDelete(vendorId)}
+            onClick={() => onDelete()}
             disabled={isLoading}
             className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
             title="Delete vendor"
@@ -329,6 +330,7 @@ const VendorModal: React.FC<VendorModalProps> = ({
 
   useEffect(() => {
     if (vendor) {
+      console.log(vendor)
       setFormData({
         name: vendor.name || "",
         company: vendor.company || "",
@@ -344,7 +346,7 @@ const VendorModal: React.FC<VendorModalProps> = ({
         payment_status: vendor.payment_status || "pending",
         notes: vendor.notes || "",
         services_provided: vendor.services_provided || "",
-        contract_date: vendor.contract_date || "",
+        contract_date: new Date(vendor.contract_date).toISOString().split('T')[0] || "",
       });
     } else {
       setFormData({
@@ -436,7 +438,7 @@ const VendorModal: React.FC<VendorModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 top-0 bg-black bg-opacity-50 !mt-0 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
@@ -454,7 +456,8 @@ const VendorModal: React.FC<VendorModalProps> = ({
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <InputWithFullBoarder
-                label="Vendor/Contact Name *"
+                label="Vendor/Contact Name"
+                isRequired
                 value={formData.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
@@ -462,7 +465,8 @@ const VendorModal: React.FC<VendorModalProps> = ({
                 placeholder="Enter vendor name"
               />
               <InputWithFullBoarder
-                label="Company *"
+                label="Company "
+                isRequired
                 value={formData.company}
                 onChange={(e) =>
                   setFormData({ ...formData, company: e.target.value })
@@ -474,7 +478,7 @@ const VendorModal: React.FC<VendorModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Service Type *
+                  Service Type  <span className="text-red-600">*</span>
                 </label>
                 <select
                   value={formData.service_type}
@@ -616,6 +620,7 @@ const VendorModal: React.FC<VendorModalProps> = ({
               />
               <InputWithFullBoarder
                 label="Contract Date"
+                isRequired
                 value={formData.contract_date}
                 onChange={(e) =>
                   setFormData({ ...formData, contract_date: e.target.value })
@@ -667,18 +672,20 @@ const VendorModal: React.FC<VendorModalProps> = ({
 
 interface VendorsManagementTabProps {
   event: Event;
+  refetch: () => void;
   onFilterChange?: (filters: { status: string; service: string }) => void;
 }
 
 const VendorsManagementTab: React.FC<VendorsManagementTabProps> = ({
   event,
   onFilterChange,
+  refetch,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVendor, setEditingVendor] = useState<Vendor | null>(null);
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterService, setFilterService] = useState("all");
-
+  const [selectedId, setSelectedId] = useState(null)
   // Controllers
   const {
     addVendors,
@@ -948,7 +955,7 @@ const VendorsManagementTab: React.FC<VendorsManagementTabProps> = ({
               key={vendor.id || vendor._id}
               vendor={vendor}
               onEdit={handleEditVendor}
-              onDelete={handleDeleteVendor}
+              onDelete={() => {setSelectedId(vendor.id || vendor._id); typeof document !== "undefined" && document.getElementById("delete").showModal()}}
               onUpdateStatus={handleUpdateStatus}
               isLoading={isLoading}
             />
@@ -967,6 +974,12 @@ const VendorsManagementTab: React.FC<VendorsManagementTabProps> = ({
         onSave={handleSaveVendor}
         isLoading={isLoading}
       />
+      <DeleteConfirmationModal id={"delete"} successFul={false} title={"Delete Vendor"} isLoading={deleting} buttonColor={"bg-red-500"} buttonText={"Delete"} body={"Are you sure you want to delete this vendor?"} 
+        onClick={async () => { 
+         await deleteVendors(event.id || event._id, [selectedId])
+        } 
+        }
+        />
     </div>
   );
 };

@@ -24,6 +24,7 @@ import useGetUserDetailsManager from "@/app/profile-settings/controllers/get_Use
 
 const SubscriptionsPage = () => {
     const [selectedPlan, setSelectedPlan] = useState(null);
+    const [selectedPlanId, setSelectedPlanId] = useState(null);
     const [activeTab, setActiveTab] = useState("plans");
 
     // Get user details and currency
@@ -327,7 +328,7 @@ const SubscriptionsPage = () => {
                                                     ) : (
                                                         <CustomButton
                                                             buttonText={
-                                                                purchasing
+                                                                (purchasing && ((plan._id || plan.id) === selectedPlanId))
                                                                     ? "Processing..."
                                                                     : "Subscribe Now"
                                                             }
@@ -340,12 +341,15 @@ const SubscriptionsPage = () => {
                                                             radius="rounded-lg"
                                                             className="w-full"
                                                             isLoading={
-                                                                purchasing
+                                                                (purchasing && ((plan._id || plan.id) === selectedPlanId))
                                                             }
                                                             onClick={() =>
-                                                                handlePurchase(
+                                                             {
+                                                                setSelectedPlanId(plan._id || plan.id)
+                                                                   handlePurchase(
                                                                     plan
                                                                 )
+                                                             }
                                                             }
                                                         />
                                                     )}

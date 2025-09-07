@@ -92,12 +92,12 @@ export const DeleteStakeholdersManager = () => {
 
   const deleteStakeholders = async (
     eventId: string,
-    stakeholderIds: string[]
+    ids: string[]
   ) => {
     try {
       const payload = {
         eventId,
-        stakeholderIds,
+        ids,
       };
       await deleteCaller(payload);
     } catch (error) {

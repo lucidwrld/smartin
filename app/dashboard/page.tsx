@@ -180,7 +180,7 @@ const CreditCard = () => {
       </div>
       
       <div className="mt-3">
-        <Link href="/events" className="text-brandPurple text-sm hover:underline font-medium">
+        <Link href="/wallet" className="text-brandPurple text-sm hover:underline font-medium">
           Purchase more credits →
         </Link>
       </div>

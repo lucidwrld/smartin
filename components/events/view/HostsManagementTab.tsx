@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Event, Host } from "@/app/events/types";
 import {
   Plus,
@@ -24,9 +24,11 @@ import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import ImageUploader from "@/components/ImageUploader";
 import { AddHostsManager, UpdateHostsManager, DeleteHostsManager } from "@/app/events/controllers/eventManagementController";
 import useFileUpload from "@/utils/fileUploadController";
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 
 interface HostsManagementTabProps {
   event: Event;
+  refetch: () => void;
 }
 
 interface HostFormData {
@@ -45,17 +47,32 @@ interface HostFormData {
   role: string;
 }
 
-const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event }) => {
+const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event, refetch }) => {
   // Get data directly from event prop - no local storage
   const hosts: Host[] = event?.hosts || [];
   const [showModal, setShowModal] = useState<boolean>(false);
   const [editingHost, setEditingHost] = useState<Host | null>(null);
-
+  const [selectedId, setSelectedId] = useState(null)
   // Controllers
   const { addHosts, isLoading: adding, isSuccess: addSuccess } = AddHostsManager();
   const { updateHosts, isLoading: updating, isSuccess: updateSuccess } = UpdateHostsManager();
   const { deleteHosts, isLoading: deleting, isSuccess: deleteSuccess } = DeleteHostsManager();
 
+  useEffect(() => {
+     if(addSuccess){
+        refetch()
+        handleCloseModal();
+      }
+      if(updateSuccess){
+        refetch()
+        handleCloseModal();
+      }
+      if(deleteSuccess){
+        refetch()
+        typeof document !== "undefined" && document.getElementById("delete").close()
+      }
+
+  }, [addSuccess, updateSuccess, deleteSuccess])
   // File upload hook for profile image uploads
   const {
     handleFileUpload: uploadFile,
@@ -228,8 +245,7 @@ const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event }) => {
         
         await addHosts(event.id, [hostData]);
       }
-
-      handleCloseModal();
+ 
     } catch (error) {
       console.error("Error saving host:", error);
       alert("Error saving host. Please try again.");
@@ -363,7 +379,7 @@ const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event }) => {
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleDelete(host.id)}
+                      onClick={() => {setSelectedId(host.id); typeof document !== "undefined" && document.getElementById("delete").showModal()}}
                       className="p-1 text-gray-500 hover:text-red-600 rounded"
                       title="Delete host"
                     >
@@ -449,7 +465,7 @@ const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event }) => {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 !mt-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
@@ -669,6 +685,17 @@ const HostsManagementTab: React.FC<HostsManagementTabProps> = ({ event }) => {
           </div>
         </div>
       )}
+      <DeleteConfirmationModal id={"delete"} successFul={false} title={`Delete Host`} isLoading={deleting} buttonColor={"bg-red-500"} buttonText={"Delete"} body={`Are you sure you want to delete this host?`} 
+      onClick={async () => { 
+         try {
+          await deleteHosts(event.id, [selectedId]);
+        } catch (error) {
+          console.error("Error deleting host:", error);
+          alert("Error deleting host. Please try again.");
+        }
+      } 
+      }
+      />
     </div>
   );
 };

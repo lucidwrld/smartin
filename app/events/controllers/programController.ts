@@ -84,16 +84,16 @@ export const UpdateProgramManager = () => {
 export const DeleteProgramManager = () => {
   const { deleteCaller, isLoading, isSuccess, error, data } =
     useDeleteManager<ProgramResponse>(
-      `/api/v1/event/delete/program`,
-      ["event"],
+      `/event/delete/program`,
+      ["program_event"],
       true
     );
 
-  const deleteProgram = async (eventId: string, programIds: string[]) => {
+  const deleteProgram = async (eventId: string, ids: string[]) => {
     try {
       const payload = {
         eventId,
-        programIds,
+        ids,
       };
       await deleteCaller(payload);
     } catch (error) {

@@ -32,6 +32,7 @@ import {
   UpdateProgramManager,
   DeleteProgramManager,
 } from "@/app/events/controllers/programController";
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 
 interface AgendaItemProps {
   item: ProgramItem;
@@ -137,6 +138,11 @@ const AgendaItem: React.FC<AgendaItemProps> = ({
               >
                 {item.type}
               </span>
+              {item.is_public === true && (
+                <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">
+                  Public
+                </span>
+              )}
               {item.is_public === false && (
                 <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded">
                   Private
@@ -211,7 +217,7 @@ const AgendaItem: React.FC<AgendaItemProps> = ({
             <Edit2 className="w-4 h-4" />
           </button>
           <button
-            onClick={() => onDelete(item.id)}
+            onClick={() => onDelete()}
             disabled={isLoading}
             className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
             title="Delete agenda item"
@@ -291,6 +297,12 @@ const AgendaModal: React.FC<AgendaModalProps> = ({ isOpen, onClose, item, onSave
     materials: Array<{name: string; url: string}>;
   }
 
+  function convertTo24Hour(time12h) {
+  // Create a dummy date with the time
+  const date = new Date(`1970-01-01 ${time12h}`);
+  return date.toTimeString().slice(0, 5); // Extract HH:MM
+}
+
   const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",
@@ -311,8 +323,8 @@ const AgendaModal: React.FC<AgendaModalProps> = ({ isOpen, onClose, item, onSave
         title: item.title || item.description || "",
         description: item.description || "",
         type: item.type || "presentation",
-        startTime: item.start_time || "",
-        endTime: item.end_time || "",
+        startTime: convertTo24Hour(item.start_time) || "",
+        endTime: convertTo24Hour(item.end_time) || "",
         location: item.location || "",
         speaker: item.speaker || "",
         speakerTitle: item.speaker_title || "",
@@ -367,7 +379,7 @@ const AgendaModal: React.FC<AgendaModalProps> = ({ isOpen, onClose, item, onSave
   ];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 !mt-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
@@ -435,6 +447,7 @@ const AgendaModal: React.FC<AgendaModalProps> = ({ isOpen, onClose, item, onSave
               />
               <InputWithFullBoarder
                 label="End Time *"
+                min={convertTo24Hour(formData.start_time)}
                 value={formData.endTime}
                 onChange={(e) =>
                   setFormData({ ...formData, endTime: e.target.value })
@@ -516,6 +529,7 @@ const ProgramManagementTab: React.FC<ProgramManagementTabProps> = ({ event }) =>
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [filterType, setFilterType] = useState("all");
+  const [selectedId, setSelectedId] = useState(null)
   const [sortBy, setSortBy] = useState("time");
 
   // Helper function to convert 24-hour time to 12-hour format with am/pm
@@ -866,7 +880,10 @@ const ProgramManagementTab: React.FC<ProgramManagementTabProps> = ({ event }) =>
               key={item.id}
               item={item}
               onEdit={handleEditItem}
-              onDelete={handleDeleteItem}
+              onDelete={() => {
+                setSelectedId(item.id); 
+                typeof document !== "undefined" && document.getElementById("delete").showModal()}
+              }
               onToggleVisibility={handleToggleVisibility}
               isLoading={isLoading}
               formatDate={formatDate}
@@ -886,6 +903,12 @@ const ProgramManagementTab: React.FC<ProgramManagementTabProps> = ({ event }) =>
         onSave={handleSaveItem}
         isLoading={isLoading}
       />
+      <DeleteConfirmationModal id={"delete"} successFul={false} title={"Delete Agenda"} isLoading={deleting} buttonColor={"bg-red-500"} buttonText={"Delete"} body={"Are you sure you want to delete this agenda?"} 
+        onClick={async () => { 
+          await deleteProgram(event.id, [selectedId]);
+        } 
+        }
+        />
     </div>
   );
 };

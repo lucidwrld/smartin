@@ -42,7 +42,7 @@ const StatCard = ({ icon: Icon, label, value }) => (
   </div>
 );
 
-const GuestListTab = ({ eventId, analytics, event }) => {
+const GuestListTab = ({ eventId, analytics, event, refetch }) => {
   const route = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [inviteCount, setInviteCount] = useState(50);
@@ -63,13 +63,7 @@ const GuestListTab = ({ eventId, analytics, event }) => {
   const { addInvitees, isLoading: addingGuests, isSuccess: guestsAdded } = AddInviteesManager();
 
   // Handle successful guest addition
-  useEffect(() => {
-    if (guestsAdded) {
-      // Reset form and go back to guest list
-      setGuestFormData({ guestList: [{ name: "", email: "", phone: "" }] });
-      setShowAddGuest(false);
-    }
-  }, [guestsAdded]);
+  
 
   const handleSubmitGuests = async () => {
     try {
@@ -101,11 +95,18 @@ const GuestListTab = ({ eventId, analytics, event }) => {
   const [guestForAttendance, setGuestForAttendance] = useState(null);
   const { data: userDetails } = useGetUserDetailsManager();
   const currency = userDetails?.data?.user?.currency || "USD";
-  const { data, isLoading } = useGetEventInviteesManager({
+  const { data, isLoading, refetch:recall } = useGetEventInviteesManager({
     eventId,
     page: currentPage,
   });
 
+  useEffect(() => {
+    if (guestsAdded) { 
+      recall()
+      setGuestFormData({ guestList: [{ name: "", email: "", phone: "" }] });
+      setShowAddGuest(false);
+    }
+  }, [guestsAdded]);
   const { removeGuests, isLoading: removing } = RemoveInvitedGuests({
     eventId: eventId,
   });
@@ -293,7 +294,7 @@ const GuestListTab = ({ eventId, analytics, event }) => {
   const renderActionButtons = () => {
     if (selectedGuestIds.length > 0) {
       return (
-        <div className="flex flex-col md:flex-row gap-2 md:gap-3 w-full md:w-auto md:ml-auto">
+        <div className="flex flex-col md:flex-row gap-2 md:gap-3   w-full md:w-auto ">
           <CustomButton
             buttonText={`Remove (${selectedGuestIds.length})`}
             onClick={() => {
@@ -352,7 +353,7 @@ const GuestListTab = ({ eventId, analytics, event }) => {
     }
 
     return (
-      <div className="flex flex-col md:flex-row gap-2 md:gap-3 w-full md:w-auto md:ml-auto">
+      <div className="flex   flex-col md:flex-row gap-2 md:gap-3 w-full md:w-full md:ml-auto">
         <CustomButton
           buttonText="Invite All"
           prefixIcon={<Send className="w-3 h-3 md:w-4 md:h-4" />}
@@ -431,8 +432,8 @@ const GuestListTab = ({ eventId, analytics, event }) => {
 
   return (
     <div className="mt-4 md:mt-6 flex flex-col w-full gap-3 md:gap-4 text-brandBlack p-2 md:p-0">
-      <div className="flex flex-col md:flex-row gap-3 md:gap-4">
-        <div className="grid grid-cols-2 md:flex md:flex-row gap-2 md:gap-4">
+      <div className="flex flex-col   gap-3 md:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4  gap-2 md:gap-4">
           {stats.map((stat, index) => (
             <StatCard
               key={index}

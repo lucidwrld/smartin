@@ -35,6 +35,8 @@ const EventPage = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [coverFile, setCoverFile] = useState(null);
   const [mediaFiles, setMediaFiles] = useState([]);
+  const [logoFile, setLogoFile] = useState(null);
+  const [bannerFile, setBannerFile] = useState(null);
 
   const { data: userDetails } = useGetUserDetailsManager();
   const currency = userDetails?.data?.user?.currency || "USD";
@@ -331,11 +333,19 @@ const EventPage = () => {
       }
       return;
     }
-
-    // Handle image files
+ 
+    if (["image", "logo", "banner_image", "video"].includes(field)) { 
     if (field === "image") {
       setCoverFile(value);
-    } else if (field === "gallery") {
+    } else if (field === "logo") { 
+      setLogoFile && setLogoFile(value);
+    } else if (field === "banner_image") { 
+      setBannerFile && setBannerFile(value);
+    }
+     
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    return;
+  } else if (field === "gallery") {
       setMediaFiles(value);
       setFormData((prev) => ({ ...prev, gallery: value }));
     } else if (field.startsWith("donation.")) {

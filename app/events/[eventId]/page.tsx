@@ -64,7 +64,7 @@ interface EventDetailsPageProps {
 
 const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
   const { eventId } = React.use(params);
-  const { data: event, isLoading } = useGetSingleEventManager({ eventId });
+  const { data: event, isLoading , refetch} = useGetSingleEventManager({ eventId });
   const { data: analytics, isLoading: loadingAnalytics } =
     useGetEventAnalyticsManager({ eventId });
 
@@ -257,13 +257,14 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
               />
             )}
             {currentView === 1 && (
-              <GiftRegistryTab event={event?.data} isLoading={isLoading} />
+              <GiftRegistryTab event={event?.data} isLoading={isLoading} refetch={refetch} />
             )}
             {currentView === 2 && (
               <GuestListTab
                 eventId={eventId}
                 analytics={analytics?.data}
                 event={event?.data}
+                refetch={refetch}
               />
             )}
             {currentView === 3 && <TableArrangement eventId={eventId} />}
@@ -271,26 +272,26 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
             {currentView === 5 && <AccessManagement event={event?.data} />}
             {currentView === 6 && <FeedbackManagementTab eventId={eventId} />}
             {currentView === 7 && (
-              <ResourcesManagementTab event={event?.data} />
+              <ResourcesManagementTab event={event?.data} refetch={refetch} />
             )}
-            {currentView === 8 && <VendorsManagementTab event={event?.data} />}
+            {currentView === 8 && <VendorsManagementTab event={event?.data} refetch={refetch} />}
             {currentView === 9 && <ProgramManagementTab event={event?.data} />}
             {currentView === 10 && (
-              <StakeholdersManagementTab event={event?.data} />
+              <StakeholdersManagementTab event={event?.data} refetch={refetch} />
             )}
             {currentView === 11 && (
               <TicketingManagementTab event={event?.data} />
             )}
-            {currentView === 12 && <PollsManagementTab event={event?.data} />}
-            {currentView === 13 && <SponsorsPartnersTab event={event?.data} />}
-            {currentView === 14 && <HostsManagementTab event={event?.data} />}
+            {currentView === 12 && <PollsManagementTab event={event?.data} refetch={refetch} />}
+            {currentView === 13 && <SponsorsPartnersTab event={event?.data} refetch={refetch} />}
+            {currentView === 14 && <HostsManagementTab event={event?.data} refetch={refetch} />}
             {currentView === 15 && (
               <BroadcastManagementTab event={event?.data} />
             )}
             {currentView === 16 && (
               <SessionsManagementTab event={event?.data} />
             )}
-            {currentView === 17 && <FormsManagementTab event={event?.data} />}
+            {currentView === 17 && <FormsManagementTab event={event?.data} refetch={refetch} />}
             {currentView === 18 && (
               <InvitationManagementTab
                 event={event?.data}
@@ -298,7 +299,7 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
                 comingSoon={true}
               />
             )}
-            {currentView === 19 && <GalleryManagementTab event={event?.data} />}
+            {currentView === 19 && <GalleryManagementTab event={event?.data} refetch={refetch}  />}
             {currentView === 20 && <BoothManagementTab event={event?.data} />}
             {currentView === 21 && <AdvertisementManagementTab event={event?.data} />}
             {currentView === 22 && <TodoManagementTab event={event?.data} />}

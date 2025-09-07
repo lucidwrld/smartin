@@ -1,24 +1,14 @@
 import useUpdateManager from "@/constants/controller_templates/put_controller_template";
+ 
 
-interface BaseResponse {
-  status: string;
-  message: string;
-  data: any;
-}
-
-interface UpdateFormFieldsPayload {
-  formId: string;
-  fields: any;
-}
-
-export const UpdateFormFieldsManager = (formId: string) => {
+export const UpdateFormManager = (formId: string) => {
   const { updateCaller, isLoading, isSuccess, error, data } = useUpdateManager(
     `/event/forms/${formId}`,
-    ["form-fields", "event-forms-fields"],
+    ["form", "event-forms"],
     true
   );
 
-  const updateFormFields = async (fields: any) => {
+  const updateForm = async (fields: any) => {
     try {
       await updateCaller(fields);
     } catch (error) {
@@ -27,7 +17,7 @@ export const UpdateFormFieldsManager = (formId: string) => {
   };
 
   return {
-    updateFormFields,
+    updateForm,
     data,
     isLoading,
     isSuccess,
@@ -35,4 +25,4 @@ export const UpdateFormFieldsManager = (formId: string) => {
   };
 };
 
-export default UpdateFormFieldsManager;
+export default UpdateFormManager;

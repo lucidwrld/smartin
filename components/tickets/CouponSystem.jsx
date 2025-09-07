@@ -26,11 +26,13 @@ import {
 import { useGetEventTicketsManager } from "@/app/tickets/controllers/ticketController";
 import Loader from "@/components/Loader";
 import { toast } from "react-toastify";
+import DeleteConfirmationModal from "../DeleteConfirmationModal";
 
 const CouponSystem = ({ eventId }) => {
-
+  const [selectedId, setSelectedId] = useState(null)
   const [showModal, setShowModal] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState(null);
+  const [pendingToggleCoupon, setPendingToggleCoupon] = useState(null);
   const [formData, setFormData] = useState({
     code: "",
     name: "",
@@ -165,9 +167,10 @@ const CouponSystem = ({ eventId }) => {
     }
   };
 
-  const toggleStatus = async (coupon) => {
+
+  const toggleStatus = async (coupon) => { 
     try {
-      setEditingCoupon(coupon);
+      
       await updateCoupon({
         ...coupon,
         event: eventId,
@@ -182,6 +185,19 @@ const CouponSystem = ({ eventId }) => {
       console.error("Error toggling coupon status:", error);
     }
   };
+
+  useEffect(() => {
+  if (pendingToggleCoupon && editingCoupon?._id) {
+    toggleStatus(pendingToggleCoupon);
+    setPendingToggleCoupon(null);
+  }
+}, [editingCoupon]);
+
+const handleToggleClick = (coupon) => {
+  setEditingCoupon({ _id: (coupon._id || coupon.id) });
+  setPendingToggleCoupon(coupon);
+};
+
 
   const copyCouponCode = (code) => {
     navigator.clipboard.writeText(code);
@@ -368,7 +384,7 @@ const CouponSystem = ({ eventId }) => {
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => toggleStatus(coupon)}
+                    onClick={() => {handleToggleClick(coupon)}}
                     className={`p-2 rounded ${
                       coupon.is_active 
                         ? 'text-green-600 bg-green-50' 
@@ -386,7 +402,10 @@ const CouponSystem = ({ eventId }) => {
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => handleDelete(coupon._id || coupon.id)}
+                    onClick={() => { 
+                      setEditingCoupon({ _id: (coupon._id || coupon.id) });
+                      typeof document !== "undefined" && document.getElementById("delete").showModal()
+                    }}
                     className="p-2 text-gray-500 hover:text-red-600 rounded"
                     title="Delete coupon"
                   >
@@ -401,7 +420,7 @@ const CouponSystem = ({ eventId }) => {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 !mt-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
@@ -505,6 +524,7 @@ const CouponSystem = ({ eventId }) => {
                   <InputWithFullBoarder
                     label="Valid Until"
                     type="date"
+                    min={formData.valid_from && new Date(formData.valid_from).toISOString().split('T')[0]}
                     value={formData.valid_until}
                     onChange={(e) => setFormData({...formData, valid_until: e.target.value})}
                   />
@@ -569,10 +589,13 @@ const CouponSystem = ({ eventId }) => {
                     buttonText={editingCoupon ? "Update Coupon" : "Create Coupon"}
                     buttonColor="bg-purple-600"
                     radius="rounded-md"
+                    disabled={isLoading}
                     onClick={handleSave}
+                    isLoading={isLoading}
                   />
                   <CustomButton
                     buttonText="Cancel"
+                    disabled={isLoading}
                     buttonColor="bg-gray-300"
                     textColor="text-gray-700"
                     radius="rounded-md"
@@ -584,6 +607,19 @@ const CouponSystem = ({ eventId }) => {
           </div>
         </div>
       )}
+      <DeleteConfirmationModal id={"delete"} successFul={false} title={"Delete Coupon"} isLoading={deletingCoupon} buttonColor={"bg-red-500"} buttonText={"Delete"} body={"Are you sure you want to delete this Coupon?"} 
+                    onClick={async () => { 
+                     try { 
+                        
+                        await deleteCoupon();
+                        await refetchCoupons();
+                        setEditingCoupon(null);
+                      } catch (error) {
+                        console.error("Error deleting coupon:", error);
+                      }
+                    } 
+                    }
+                    />
     </div>
   );
 };

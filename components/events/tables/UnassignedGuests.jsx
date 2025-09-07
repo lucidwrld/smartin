@@ -45,7 +45,7 @@ const UnassignedGuests = ({ eventId, apiTables }) => {
       <h2 className="text-lg md:text-xl font-semibold mb-4">
         Unassigned Participants ({data?.data.length})
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2   gap-3">
         {data?.data.map((participant) => (
           <div
             key={participant.id}

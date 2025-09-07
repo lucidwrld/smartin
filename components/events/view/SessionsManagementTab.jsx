@@ -40,14 +40,20 @@ import SessionAttendanceManager from "@/app/events/controllers/sessions/controll
 import useGetSessionRegistrationsManager from "@/app/events/controllers/sessions/controllers/getSessionRegistrationsController";
 import useGetSessionAttendanceManager from "@/app/events/controllers/sessions/controllers/getSessionAttendanceController";
 import GetEventFormsManager from "@/app/events/controllers/forms/getEventFormsController";
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 
 const SessionsManagementTab = ({ event }) => {
   const [showModal, setShowModal] = useState(false);
   const [editingSession, setEditingSession] = useState(null);
+  const [selectedData, setSelectedData] = useState(null)
   const [viewingSession, setViewingSession] = useState(null);
   const [activeView, setActiveView] = useState("overview"); // "overview", "registrations", "attendance"
   const [attendanceCode, setAttendanceCode] = useState("");
-
+function convertTo24Hour(time12h) {
+  // Create a dummy date with the time
+  const date = new Date(`1970-01-01 ${time12h}`);
+  return date.toTimeString().slice(0, 5); 
+}
   // Session controllers - using infinite scroll
   const {
     data: sessionsData,
@@ -83,8 +89,9 @@ const SessionsManagementTab = ({ event }) => {
     deleteSession,
     isLoading: deleting,
     isSuccess: deleteSuccess,
-  } = DeleteSessionManager(sessionToDelete?._id);
+  } = DeleteSessionManager(selectedData?._id);
 
+  
   // Session attendance and registration controllers - only when viewing specific session
   const { markAttendance, isLoading: markingAttendance } =
     SessionAttendanceManager(viewingSession?._id || "");
@@ -137,27 +144,25 @@ const SessionsManagementTab = ({ event }) => {
   ];
 
   // Handle success states
-  useEffect(() => {
-    if (createSuccess) {
-      handleCloseModal();
-      refetchSessions();
-    }
-  }, [createSuccess]);
+   
 
   useEffect(() => {
-    if (updateSuccess) {
-      handleCloseModal();
-      refetchSessions();
-    }
-  }, [updateSuccess]);
-
-  useEffect(() => {
-    if (deleteSuccess) {
-      setSessionToDelete(null);
-      refetchSessions();
-    }
-  }, [deleteSuccess]);
-
+       if(createSuccess){
+          refetchSessions()
+          handleCloseModal();
+        }
+        if(updateSuccess){
+          refetchSessions()
+          handleCloseModal();
+        }
+        if(deleteSuccess){
+          refetchSessions()
+          setSessionToDelete(null);
+          setSelectedData(null)
+          typeof document !== "undefined" && document.getElementById("delete").close()
+        }
+  
+    }, [createSuccess, updateSuccess, deleteSuccess])
   const handleOpenModal = (session = null) => {
     setEditingSession(session);
 
@@ -296,9 +301,7 @@ const SessionsManagementTab = ({ event }) => {
   };
 
   const handleDelete = async (session) => {
-    if (!confirm("Are you sure you want to delete this session?")) {
-      return;
-    }
+    
 
     try {
       setSessionToDelete(session);
@@ -964,7 +967,7 @@ const SessionsManagementTab = ({ event }) => {
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleDelete(session)}
+                      onClick={() => {setSelectedData(session);typeof document !== "undefined" && document.getElementById("delete").showModal()}}
                       className="p-2 text-gray-500 hover:text-red-600 rounded"
                       title="Delete session"
                       disabled={deleting}
@@ -1109,6 +1112,7 @@ const SessionsManagementTab = ({ event }) => {
                   <InputWithFullBoarder
                     label="End Time"
                     type="time"
+                    min={formData.start_time && convertTo24Hour(formData.start_time)}
                     value={formData.end_time}
                     onChange={(e) =>
                       handleInputChange("end_time", e.target.value)
@@ -1327,6 +1331,12 @@ const SessionsManagementTab = ({ event }) => {
           </div>
         </div>
       )}
+      <DeleteConfirmationModal id={"delete"} successFul={false} title={`Delete Session`} isLoading={deleting} buttonColor={"bg-red-500"} buttonText={"Delete"} body={`Are you sure you want to delete this Session?`} 
+            onClick={() => { 
+               handleDelete(selectedData)
+            } 
+            }
+            />
     </div>
   );
 };

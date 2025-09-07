@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Plus, Trash2, Download, Eye, Upload, X } from "lucide-react";
 import CustomButton from "@/components/Button";
 import Gallery from "@/components/Gallery";
@@ -7,16 +7,22 @@ import { EditEventManager } from "@/app/events/controllers/editEventController";
 import useFileUpload from "@/utils/fileUploadController";
 import { toast } from "react-toastify";
 
-const GalleryManagementTab = ({ event }) => {
+const GalleryManagementTab = ({ event, refetch }) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadingFiles, setUploadingFiles] = useState([]);
 
-  const { updateEvent, isLoading: updating } = EditEventManager({
+  const { updateEvent, isLoading: updating, isSuccess } = EditEventManager({
     eventId: event?.id,
   });
   const { handleFileUpload, isLoading: uploadingFile } = useFileUpload();
 
+  useEffect(() => {
+    if(isSuccess){
+      refetch()
+
+    }
+  }, [isSuccess])
   const gallery = event?.gallery || [];
 
   const handleFileSelect = (e) => {

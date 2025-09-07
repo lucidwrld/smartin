@@ -16,7 +16,7 @@ import deleteIcon from "./deleteIcon.svg";
 import viewDocument from "./viewDocument.svg";
 import accessCard from "./accessCard.svg";
 import googleCalendar from "./googleCalendar.svg";
-
+import success from "./success.svg"
 export {
   emptyState,
   googleCalendar,
@@ -36,4 +36,5 @@ export {
   dashboard,
   notificationWithAlert,
   notification,
+  success,
 };

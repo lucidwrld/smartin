@@ -50,14 +50,14 @@ const AuthShell: React.FC<AuthShellProps> = ({
             className="max-w-[80%] md:max-w-[30%]"
           />
         </Link>
-        <div className=" max-w-[95%] md:max-w-[452px] w-full mx-auto h-full flex flex-col items-center justify-center gap-10 relative">
+        <div className=" max-w-[95%] md:max-w-[452px] w-full mx-auto h-full flex flex-col items-center justify-center  gap-7 relative">
           <div className="flex flex-col items-start w-full">
-            <p className="font-semibold text-[36px]">{title}</p>
-            <p className="text-14px text-textGrey ">
+            <p className="font-semibold text-[32px]">{title}</p>
+            <p className="text-12px text-textGrey ">
               {subtitle1}
               <span
                 role="button"
-                className="text-brandOrange ml-2"
+                className="text-brandOrange animate-pulse ml-2"
                 onClick={subtitle2Click}
               >
                 {subtitle2}
@@ -79,7 +79,7 @@ const AuthShell: React.FC<AuthShellProps> = ({
               Forgot password?
               <span
                 role="button"
-                className="text-brandOrange ml-2"
+                className="text-brandOrange animate-pulse ml-2"
                 onClick={() => {
                   router.push("/auth/forgot-password");
                 }}

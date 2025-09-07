@@ -411,8 +411,8 @@ const BoothManagementTab = ({ event }) => {
   } = useGetEventBoothsManager(event?.id || event?._id);
   const { data: categoriesData, refetch: refetchCategories } =
     useGetBoothCategoriesManager();
-  const { createBooth, isLoading: creatingBooth } = CreateBoothManager();
-  const { updateBooth, isLoading: updatingBooth } = UpdateBoothManager({
+  const { createBooth, isLoading: creatingBooth, isSuccess: createdBooth } = CreateBoothManager();
+  const { updateBooth, isLoading: updatingBooth, isSuccess: updatedBooth } = UpdateBoothManager({
     boothId: editingBooth?._id,
   });
   const { deleteBooth, isLoading: deletingBooth } = DeleteBoothManager({
@@ -421,6 +421,18 @@ const BoothManagementTab = ({ event }) => {
   const { createBoothCategory, isLoading: creatingCategory } =
     CreateBoothCategoryManager();
 
+  useEffect(() => {
+    if(createdBooth){
+      refetchBooths();
+      setShowBoothModal(false);
+      setEditingBooth(null);
+    }
+    if(updatedBooth){
+      refetchBooths();
+      setShowBoothModal(false);
+      setEditingBooth(null);
+    }
+  }, [createdBooth, updatedBooth])
   const isLoading =
     creatingBooth || updatingBooth || deletingBooth || creatingCategory;
 
@@ -534,9 +546,7 @@ const BoothManagementTab = ({ event }) => {
         await createBooth(boothData);
       }
 
-      await refetchBooths();
-      setShowBoothModal(false);
-      setEditingBooth(null);
+      
     } catch (error) {
       console.error("Error saving booth:", error);
     }
@@ -932,7 +942,7 @@ const BoothManagementTab = ({ event }) => {
       )}
 
       {showCategoryModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 !mt-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-md w-full">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
@@ -987,7 +997,7 @@ const BoothManagementTab = ({ event }) => {
       )}
 
       {showBoothModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 !mt-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
@@ -1126,6 +1136,7 @@ const BoothManagementTab = ({ event }) => {
                   <InputWithFullBoarder
                     label="Sale End Date"
                     type="date"
+                    min={formData.sale_start_date && new Date(formData.sale_start_date).toISOString().split('T')[0]}
                     value={formData.sale_end_date}
                     onChange={(e) =>
                       setFormData({

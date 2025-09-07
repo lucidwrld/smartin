@@ -17,7 +17,7 @@ export const GetEventFormsManager = ({
   eventId,
   enabled = true,
 }: GetEventFormsParams) => {
-  const { data, isLoading, isSuccess, error } = useQuery({
+  const { data, isLoading, isSuccess, error, refetch } = useQuery({
     queryKey: ["event-forms", eventId],
     queryFn: async (): Promise<BaseResponse> => {
       try {
@@ -39,6 +39,7 @@ export const GetEventFormsManager = ({
     isLoading,
     isSuccess,
     error,
+    refetch
   };
 };
 

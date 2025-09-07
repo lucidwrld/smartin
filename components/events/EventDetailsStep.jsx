@@ -12,28 +12,28 @@ export const EventDetailsStep = ({
   const [imagePreview, setImagePreview] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null);
   const [bannerPreview, setBannerPreview] = useState(null);
-  const today = new Date().toISOString().split("T")[0];
-
+  const today = new Date().toISOString().split("T")[0]; 
+  const imagePreviewer = (file) => { 
+      return URL.createObjectURL(file)
+  }
   const handleImageUpload = (e, type = "image") => {
     const file = e.target.files[0];
     if (file) {
-      if (type === "logo") {
-        onFormDataChange("logo", file);
-        const reader = new FileReader();
-        reader.onloadend = () => setLogoPreview(reader.result);
-        reader.readAsDataURL(file);
-      } else if (type === "banner") {
-        onFormDataChange("banner_image", file);
-        const reader = new FileReader();
-        reader.onloadend = () => setBannerPreview(reader.result);
-        reader.readAsDataURL(file);
-      } else {
-        // Existing image upload logic - UNCHANGED
-        onFormDataChange("image", file);
-        const reader = new FileReader();
-        reader.onloadend = () => setImagePreview(reader.result);
-        reader.readAsDataURL(file);
-      }
+      // Use the centralized form handler
+      onFormDataChange(type, file);
+      
+      // Handle preview generation
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (type === "logo") {
+          setLogoPreview(reader.result);
+        } else if (type === "banner_image") {
+          setBannerPreview(reader.result);
+        } else {
+          setImagePreview(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -164,8 +164,7 @@ export const EventDetailsStep = ({
     }
 
     return formattedStart;
-  };
-
+  };  
   return (
     <div className="flex flex-col w-full text-brandBlack">
       <p className="text-16px leading-[28px] mb-5 text-textGrey2">
@@ -183,7 +182,7 @@ export const EventDetailsStep = ({
             {imagePreview || formData.image ? (
               <div className="relative w-full h-full group">
                 <img
-                  src={imagePreview || formData.image}
+                  src={imagePreview || (formData.image instanceof File ? imagePreviewer(formData.image) : formData.image)}
                   alt="Preview"
                   className="w-full h-full object-cover rounded-lg"
                 />
@@ -474,7 +473,7 @@ export const EventDetailsStep = ({
                 >
                   {logoPreview || formData.logo ? (
                     <img
-                      src={logoPreview || formData.logo}
+                      src={logoPreview || (formData.logo instanceof File ? imagePreviewer(formData.logo) : formData.logo)}
                       alt="Logo Preview"
                       className="w-full h-full object-contain rounded-lg"
                     />
@@ -513,7 +512,7 @@ export const EventDetailsStep = ({
                 >
                   {bannerPreview || formData.banner_image ? (
                     <img
-                      src={bannerPreview || formData.banner_image}
+                      src={bannerPreview || (formData.banner_image instanceof File ? imagePreviewer(formData.banner_image) : formData.banner_image)}
                       alt="Banner Preview"
                       className="w-full h-full object-cover rounded-lg"
                     />
@@ -538,7 +537,7 @@ export const EventDetailsStep = ({
                     type="file"
                     className="hidden"
                     accept="image/*"
-                    onChange={(e) => handleImageUpload(e, "banner")}
+                    onChange={(e) => handleImageUpload(e, "banner_image")}
                   />
                 </div>
               </div>

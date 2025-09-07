@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MoreVertical, Copy } from "lucide-react";
 import HeaderWithEdit from "@/components/HeaderWithEdit";
 import Link from "next/link";
@@ -70,15 +70,21 @@ const AccountDetails = ({ accountInfo, isLoading }) => {
   );
 };
 
-const GiftRegistryTab = ({ event, isViewOnly = false }) => {
+const GiftRegistryTab = ({ event, isViewOnly = false, refetch }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     items: event?.items || [],
     donation: event?.donation || {}
   });
 
-  const { updateEvent, isLoading: isSaving } = EditEventManager({ eventId: event?.id });
+  const { updateEvent, isLoading: isSaving , isSuccess} = EditEventManager({ eventId: event?.id });
 
+  useEffect(() => {
+    if(isSuccess){
+      refetch()
+      setIsEditing(false);
+    }
+  }, [isSuccess])
   const handleFormDataChange = (field, value) => {
     if (field.includes('.')) {
       const [parent, child] = field.split('.');
@@ -97,7 +103,7 @@ const GiftRegistryTab = ({ event, isViewOnly = false }) => {
         items: formData.items,
         donation: formData.donation
       });
-      setIsEditing(false);
+      
     } catch (error) {
       console.error('Error saving gift registry:', error);
     }

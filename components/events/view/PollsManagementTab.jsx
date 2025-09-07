@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Plus,
   Trash2,
@@ -32,6 +32,7 @@ import useGetEventPollsManager from "@/app/events/controllers/polls/getEventPoll
 import { CreatePollManager } from "@/app/events/controllers/polls/createPollController";
 import { UpdatePollManager } from "@/app/events/controllers/polls/updatePollController";
 import useGetPollSubmissionsManager from "@/app/events/controllers/polls/getPollSubmissionsController";
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 
 const PollCard = ({
   poll,
@@ -254,7 +255,7 @@ const PollCard = ({
             <Edit2 className="w-4 h-4" />
           </button>
           <button
-            onClick={() => onDelete(id)}
+            onClick={() => onDelete()}
             disabled={isLoading}
             className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
             title="Delete poll"
@@ -302,8 +303,8 @@ const PollModal = ({ isOpen, onClose, poll, onSave, isLoading }) => {
         is_public: poll.is_public !== undefined ? poll.is_public : true,
         show_voter_result:
           poll.show_voter_result !== undefined ? poll.show_voter_result : true,
-        start_date: poll.start_date || "",
-        end_date: poll.end_date || "",
+        start_date: poll.start_date ? new Date(poll.start_date).toISOString().split('T')[0] : "",
+        end_date: poll.end_date ? new Date(poll.end_date).toISOString().split('T')[0]  : "",
       });
     } else {
       setFormData({
@@ -395,7 +396,7 @@ const PollModal = ({ isOpen, onClose, poll, onSave, isLoading }) => {
   ];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 !mt-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
@@ -554,6 +555,7 @@ const PollModal = ({ isOpen, onClose, poll, onSave, isLoading }) => {
               />
               <InputWithFullBoarder
                 label="End Date (Optional)"
+                min={formData.start_date &&  new Date(formData.start_date).toISOString().split('T')[0]}
                 value={formData.end_date}
                 onChange={(e) =>
                   setFormData({ ...formData, end_date: e.target.value })
@@ -904,7 +906,7 @@ const SubmissionsView = ({ poll, onBack, page, pageSize, onPageChange }) => {
   );
 };
 
-const PollsManagementTab = ({ event }) => {
+const PollsManagementTab = ({ event, refetch }) => {
   const [polls, setPolls] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isResultsModalOpen, setIsResultsModalOpen] = useState(false);
@@ -917,6 +919,7 @@ const PollsManagementTab = ({ event }) => {
   const [submissionsPage, setSubmissionsPage] = useState(1);
   const [submissionsPageSize] = useState(10);
 
+  const [selectedId, setSelectedId] = useState(null)
   // API hooks
   const {
     data: pollsData,
@@ -930,8 +933,22 @@ const PollsManagementTab = ({ event }) => {
   
   // For updates, we need to manage the pollId state properly
   const [updatePollId, setUpdatePollId] = useState("default");
-  const updatePollController = UpdatePollManager({ pollId: updatePollId });
+  const  {updatePoll, isLoading:updating, isSuccess:updateSuccess } = UpdatePollManager({ pollId: updatePollId }) 
 
+  useEffect(() => {
+    if(createSuccess){
+      refetch()
+      setIsModalOpen(false);
+      setEditingPoll(null);
+      setUpdatePollId("default");
+    }
+    if(updateSuccess){
+      refetch()
+      setIsModalOpen(false);
+      setEditingPoll(null);
+      setUpdatePollId("default");
+    }
+  }, [createSuccess, updateSuccess])
   // Load polls from API
   React.useEffect(() => {
     if (pollsData?.data) {
@@ -960,7 +977,7 @@ const PollsManagementTab = ({ event }) => {
         // Wait for the controller to be ready
         await new Promise(resolve => setTimeout(resolve, 0));
         
-        await updatePollController.updatePoll({
+        await  updatePoll({
           ...pollData,
           event: event.id,
         });
@@ -972,9 +989,7 @@ const PollsManagementTab = ({ event }) => {
         });
       }
 
-      setIsModalOpen(false);
-      setEditingPoll(null);
-      setUpdatePollId("default");
+      
     } catch (error) {
       console.error("Error saving poll:", error);
     } finally {
@@ -1006,7 +1021,7 @@ const PollsManagementTab = ({ event }) => {
       // Wait for the controller to be ready
       await new Promise(resolve => setTimeout(resolve, 0));
       
-      await updatePollController.updatePoll({
+      await updatePoll({
         ...poll,
         is_public: isActive,
         event: event.id,
@@ -1223,8 +1238,8 @@ const PollsManagementTab = ({ event }) => {
             <PollCard
               key={poll.id}
               poll={poll}
-              onEdit={handleEditPoll}
-              onDelete={handleDeletePoll}
+              onEdit={handleEditPoll} 
+              onDelete={() => {setSelectedId(poll.id); typeof document !== "undefined" && document.getElementById("delete").showModal()}}
               onToggleStatus={handleToggleStatus}
               onToggleVisibility={handleToggleActive}
               onViewResults={handleViewResults}
@@ -1246,7 +1261,7 @@ const PollsManagementTab = ({ event }) => {
         }}
         poll={editingPoll}
         onSave={handleSavePoll}
-        isLoading={isLoading}
+        isLoading={isLoading || updating}
       />
 
       {/* Results Modal */}
@@ -1258,6 +1273,17 @@ const PollsManagementTab = ({ event }) => {
         }}
         poll={selectedPoll}
       />
+      <DeleteConfirmationModal id={"delete"} successFul={false} title={`Delete Poll`} isLoading={updating} buttonColor={"bg-red-500"} buttonText={"Delete"} body={`Are you sure you want to delete this poll?`} 
+            onClick={async () => { 
+                setPolls(polls.filter((p) => p.id !== selectedId));
+                const payload = polls.filter((p) => p.id !== selectedId)
+                await  updatePoll({
+                payload,
+                event: event.id,
+              });
+            } 
+            }
+            />
     </div>
   );
 };

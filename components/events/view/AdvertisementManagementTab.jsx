@@ -459,8 +459,8 @@ const AdvertisementManagementTab = ({ event }) => {
   } = useGetEventAdvertsManager(event?.id || event?._id);
   const { data: categoriesData, refetch: refetchCategories } =
     useGetAdvertCategoriesManager();
-  const { createAdvert, isLoading: creatingAdvert } = CreateAdvertManager();
-  const { updateAdvert, isLoading: updatingAdvert } = UpdateAdvertManager({
+  const { createAdvert, isLoading: creatingAdvert, isSuccess:createdAdvert } = CreateAdvertManager();
+  const { updateAdvert, isLoading: updatingAdvert, isSuccess:updatedAdvert } = UpdateAdvertManager({
     advertId: editingAdvert?._id,
   });
   const { deleteAdvert, isLoading: deletingAdvert } = DeleteAdvertManager({
@@ -469,6 +469,19 @@ const AdvertisementManagementTab = ({ event }) => {
   const { createAdvertCategory, isLoading: creatingCategory } =
     CreateAdvertCategoryManager();
 
+    useEffect(() => {
+
+      if(createdAdvert){
+        refetchAdverts();
+      setShowAdvertModal(false);
+      setEditingAdvert(null);
+      }
+      if(updatedAdvert){
+        refetchAdverts();
+      setShowAdvertModal(false);
+      setEditingAdvert(null);
+      }
+    }, [createdAdvert,updatedAdvert])
   const isLoading =
     creatingAdvert || updatingAdvert || deletingAdvert || creatingCategory;
 
@@ -601,17 +614,14 @@ const AdvertisementManagementTab = ({ event }) => {
         requires_approval: formData.requires_approval,
         is_free: formData.is_free,
         is_virtual: formData.is_virtual,
-      };
-
+      }; 
       if (editingAdvert) {
         await updateAdvert(advertData);
       } else {
         await createAdvert(advertData);
       }
 
-      await refetchAdverts();
-      setShowAdvertModal(false);
-      setEditingAdvert(null);
+      
     } catch (error) {
       console.error("Error saving advert:", error);
     }
@@ -1007,7 +1017,7 @@ const AdvertisementManagementTab = ({ event }) => {
 
       {/* Advertisement Details Modal */}
       {showDetailsModal && viewingAdvert && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 !mt-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
@@ -1238,7 +1248,7 @@ const AdvertisementManagementTab = ({ event }) => {
       )}
 
       {showCategoryModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 !mt-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-md w-full">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
@@ -1293,7 +1303,7 @@ const AdvertisementManagementTab = ({ event }) => {
       )}
 
       {showAdvertModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 !mt-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
@@ -1460,6 +1470,7 @@ const AdvertisementManagementTab = ({ event }) => {
                   <InputWithFullBoarder
                     label="Sale End Date"
                     type="date"
+                    min={formData.sale_start_date && new Date(formData.sale_start_date).toISOString().split('T')[0]}
                     value={formData.sale_end_date}
                     onChange={(e) =>
                       setFormData({

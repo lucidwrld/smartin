@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Event, Sponsor, Partner } from "@/app/events/types";
 import {
   Plus,
@@ -26,9 +26,11 @@ import {
   DeletePartnersManager,
 } from "@/app/events/controllers/eventManagementController";
 import useFileUpload from "@/utils/fileUploadController";
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 
 interface SponsorsPartnersTabProps {
   event: Event;
+  refetch: () => void;
 }
 
 interface SponsorFormData {
@@ -53,7 +55,7 @@ interface PartnerFormData {
   details: string;
 }
 
-const SponsorsPartnersTab: React.FC<SponsorsPartnersTabProps> = ({ event }) => {
+const SponsorsPartnersTab: React.FC<SponsorsPartnersTabProps> = ({ event, refetch }) => {
   const [activeTab, setActiveTab] = useState<"sponsors" | "partners">(
     "sponsors"
   );
@@ -61,6 +63,8 @@ const SponsorsPartnersTab: React.FC<SponsorsPartnersTabProps> = ({ event }) => {
   const [editingItem, setEditingItem] = useState<Sponsor | Partner | null>(
     null
   );
+  const [selectedId, setSelectedId] = useState(null)
+  const [selectedType, setSelectedType] = useState(null)
   const [modalType, setModalType] = useState<"sponsor" | "partner">("sponsor");
 
   // Get data directly from event prop - no local storage
@@ -68,17 +72,49 @@ const SponsorsPartnersTab: React.FC<SponsorsPartnersTabProps> = ({ event }) => {
   const partners: Partner[] = event?.partners || [];
 
   // Controllers
-  const { addSponsors, isLoading: addingSponsors } = AddSponsorsManager();
-  const { updateSponsors, isLoading: updatingSponsors } =
+  const { addSponsors, isLoading: addingSponsors, isSuccess: addedSponsor } = AddSponsorsManager();
+  const { updateSponsors, isLoading: updatingSponsors, isSuccess: updatedSponsor } =
     UpdateSponsorsManager();
-  const { deleteSponsors, isLoading: deletingSponsors } =
+  const { deleteSponsors, isLoading: deletingSponsors, isSuccess: deletedSponsor } =
     DeleteSponsorsManager();
-  const { addPartners, isLoading: addingPartners } = AddPartnersManager();
-  const { updatePartners, isLoading: updatingPartners } =
+  const { addPartners, isLoading: addingPartners, isSuccess: addedPartner } = AddPartnersManager();
+  const { updatePartners, isLoading: updatingPartners, isSuccess: updatedPartner } =
     UpdatePartnersManager();
-  const { deletePartners, isLoading: deletingPartners } =
+  const { deletePartners, isLoading: deletingPartners, isSuccess: deletedPartner } =
     DeletePartnersManager();
 
+    useEffect(() => {
+      if(addedSponsor){
+        refetch()
+        handleCloseModal();
+      }
+      if(updatedSponsor){
+        refetch()
+        handleCloseModal();
+      }
+      if(deletedSponsor){
+        refetch()
+        typeof document !== "undefined" && document.getElementById("delete").close()
+      }
+    }, [addedSponsor, updatedSponsor,
+       deletedSponsor
+    ])
+    useEffect(() => {
+      if(addedPartner){
+        refetch()
+        handleCloseModal();
+      }
+      if(updatedPartner){
+        refetch()
+        handleCloseModal();
+      }
+      if(deletedPartner){
+        refetch()
+        typeof document !== "undefined" && document.getElementById("delete").close()
+      }
+    }, [addedPartner, updatedPartner,
+       deletedPartner
+    ])
   // File upload hook for logo uploads
   const {
     handleFileUpload: uploadFile,
@@ -353,7 +389,7 @@ const SponsorsPartnersTab: React.FC<SponsorsPartnersTabProps> = ({ event }) => {
         }
       }
 
-      handleCloseModal();
+      
     } catch (error) {
       console.error("Error saving:", error);
       alert("Error saving. Please try again.");
@@ -506,7 +542,11 @@ const SponsorsPartnersTab: React.FC<SponsorsPartnersTabProps> = ({ event }) => {
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete("sponsor", sponsor.id)}
+                        onClick={() => {
+                          setSelectedType("sponsor")
+                          setSelectedId(sponsor.id)
+                          typeof document !== "undefined" && document.getElementById("delete").showModal()
+                        }}
                         className="p-1 text-gray-500 hover:text-red-600 rounded"
                         title="Delete sponsor"
                       >
@@ -605,7 +645,11 @@ const SponsorsPartnersTab: React.FC<SponsorsPartnersTabProps> = ({ event }) => {
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete("partner", partner.id)}
+                        onClick={() => {
+                          setSelectedType("partner")
+                          setSelectedId(partner.id)
+                          typeof document !== "undefined" && document.getElementById("delete").showModal()
+                        }}
                         className="p-1 text-gray-500 hover:text-red-600 rounded"
                         title="Delete partner"
                       >
@@ -654,7 +698,7 @@ const SponsorsPartnersTab: React.FC<SponsorsPartnersTabProps> = ({ event }) => {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 !mt-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
@@ -925,6 +969,21 @@ const SponsorsPartnersTab: React.FC<SponsorsPartnersTabProps> = ({ event }) => {
           </div>
         </div>
       )}
+       <DeleteConfirmationModal id={"delete"} successFul={false} title={`Delete ${selectedType === "sponsor" ? "Sponsor" : "Partner" }`} isLoading={deletingSponsors || deletingPartners} buttonColor={"bg-red-500"} buttonText={"Delete"} body={`Are you sure you want to delete this ${selectedType === "sponsor" ? "Sponsor" : "Partner" }?`} 
+                    onClick={async () => { 
+                      try {
+                        if (selectedType === "sponsor") {
+                          await deleteSponsors(event.id, [selectedId]);
+                        } else {
+                          await deletePartners(event.id, [selectedId]);
+                        }
+                      } catch (error) {
+                        console.error("Error deleting:", error);
+                        alert("Error deleting. Please try again.");
+                      } 
+                    } 
+                    }
+                    />
     </div>
   );
 };

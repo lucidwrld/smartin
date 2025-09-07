@@ -18,14 +18,20 @@ import {
   Calendar,
   Download,
   Search,
+  ArrowLeft,
+  Send,
 } from "lucide-react";
 import CustomButton from "@/components/Button";
 import InputWithFullBoarder from "@/components/InputWithFullBoarder";
 import useGetEventFormsManager from "@/app/events/controllers/forms/getEventFormsController";
 import useCreateFormManager from "@/app/events/controllers/forms/createFormController";
+import useUpdateFormManager from "@/app/events/controllers/forms/updateFormController";
 import useUpdateFormFieldsManager from "@/app/events/controllers/forms/updateFormFieldsController";
+import useDeleteFormManager from "@/app/events/controllers/forms/deleteFormController";
 import useGetFormSubmissionsManager from "@/app/events/controllers/forms/getFormSubmissionsController";
 import useDebounce from "@/utils/UseDebounce";
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
+import GetPublicFormManager from "@/app/events/controllers/forms/getPublicFormController";
 
 const FormSubmissionsView = ({ forms, event }) => {
   const form = forms[0]; // Use the first (and only) form passed in
@@ -271,7 +277,7 @@ const FormSubmissionsView = ({ forms, event }) => {
   );
 };
 
-const FormsManagementTab = ({ event }) => {
+const FormsManagementTab = ({ event, refetch }) => {
   const [showModal, setShowModal] = useState(false);
   const [editingForm, setEditingForm] = useState(null);
   const [showFieldModal, setShowFieldModal] = useState(false);
@@ -279,12 +285,15 @@ const FormsManagementTab = ({ event }) => {
   const [activeFormId, setActiveFormId] = useState(null);
   const [currentFormId, setCurrentFormId] = useState(null);
   const [activeTab, setActiveTab] = useState("forms");
-
+  const [selectedId, setSelectedId] = useState(null)
+  const [selectedFieldId, setSelectedFieldId] = useState(null)
+  const [show, setShow] = useState(0)
   // API hooks
   const {
     data: formsData,
     isLoading: formsLoading,
     error: formsError,
+    refetch: recall
   } = useGetEventFormsManager({
     eventId: event?.id,
     enabled: !!event?.id,
@@ -292,13 +301,50 @@ const FormsManagementTab = ({ event }) => {
 
   const { createForm, data, isLoading, isSuccess } = useCreateFormManager();
   const {
+      data: formResponse,
+      isLoading: loadingForm,
+      error: formError,
+    } = GetPublicFormManager({
+      selectedId,
+      enabled: Boolean(selectedId),
+    });
+  const {
+    updateForm,
+    data: updateFormData,
+    isLoading: updateFormLoading,
+    isSuccess: updateFormSuccess,
+    error: updateFormError,
+  } = useUpdateFormManager(activeFormId);
+  const {
     updateFormFields,
     data: updateData,
     isLoading: updateLoading,
     isSuccess: updateSuccess,
     error: updateError,
   } = useUpdateFormFieldsManager(activeFormId);
-
+  const {
+    deleteForm, 
+    isLoading: deleteLoading,
+    isSuccess: deleteSuccess,
+    error: deleteError,
+  } = useDeleteFormManager(selectedId);
+  useEffect(() => {
+    if(updateFormSuccess){
+      refetch()
+      recall()
+      setShowModal(false);
+      document.getElementById("toggle_visibility").close()
+    }
+    if(updateSuccess){
+      refetch()
+      recall()
+      document.getElementById("form_field").close()
+    }
+    if(deleteSuccess){
+      refetch()
+      recall()
+    }
+  }, [deleteSuccess, updateSuccess, updateFormSuccess])
   const [formData, setFormData] = useState({
     name: "",
     is_required: false,
@@ -448,7 +494,7 @@ const FormsManagementTab = ({ event }) => {
           updatePayload.form_fields = editingForm.form_fields;
         }
 
-        await updateFormFields(updatePayload);
+         await updateForm(updatePayload);  
       } else {
         // Create new form
         await createForm({
@@ -511,67 +557,12 @@ const FormsManagementTab = ({ event }) => {
     }
   };
 
-  const handleDeleteForm = async (formId) => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this form? All submissions will be lost."
-      )
-    ) {
-      return;
-    }
+   
 
-    try {
-      // Form deletion will be handled by backend when endpoint is available
-      console.log("Delete form:", formId);
-    } catch (error) {
-      console.error("Error deleting form:", error);
-      alert("Error deleting form. Please try again.");
-    }
-  };
-
-  const handleShareForm = async (form) => {
-    const shareUrl = `${window.location.origin}/forms/${event.id}/${form.id}`;
-
-    try {
-      // Try to use the modern clipboard API
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(shareUrl);
-        alert(`Form link copied to clipboard!\n\n${shareUrl}`);
-      } else {
-        // Fallback for older browsers
-        const textArea = document.createElement("textarea");
-        textArea.value = shareUrl;
-        textArea.style.position = "fixed";
-        textArea.style.left = "-999999px";
-        textArea.style.top = "-999999px";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-
-        try {
-          document.execCommand("copy");
-          alert(`Form link copied to clipboard!\n\n${shareUrl}`);
-        } catch (err) {
-          console.error("Unable to copy to clipboard:", err);
-          // Show the URL in a prompt so user can copy manually
-          prompt("Copy this form link:", shareUrl);
-        } finally {
-          document.body.removeChild(textArea);
-        }
-      }
-    } catch (error) {
-      console.error("Error copying to clipboard:", error);
-      // Show the URL in a prompt as final fallback
-      prompt("Copy this form link:", shareUrl);
-    }
-  };
+   
 
   const handleDeleteField = async (formId, fieldId) => {
-    if (!confirm("Are you sure you want to delete this field?")) {
-      return;
-    }
-
-    try {
+     try {
       const currentForm = (formsData?.data || []).find((f) => f.id === formId);
       if (!currentForm) return;
 
@@ -593,12 +584,11 @@ const FormsManagementTab = ({ event }) => {
       if (!currentForm) return;
 
       // Update the form with the toggled status
-
-      await updateFormFields({
-        ...currentForm,
+      const payload = {
+           ...currentForm,
         [field]: !currentForm[field],
-        form_fields: currentForm.form_fields || [],
-      });
+      } 
+      await updateForm(payload); 
     } catch (error) {
       console.error("Error toggling form status:", error);
       alert("Error updating form status. Please try again.");
@@ -637,10 +627,128 @@ const FormsManagementTab = ({ event }) => {
 
     return { totalForms, activeForms, totalSubmissions, totalFields };
   };
+  const renderFormField = (field, index) => {  
+  
+      switch (field.type) {
+        case "text":
+        case "email":
+        case "phone":
+          return (
+            <InputWithFullBoarder
+              key={index}
+              label={field.label}
+              type={field.type} 
+              disabled
+              placeholder={
+                field.placeholder || `Enter ${field.label.toLowerCase()}`
+              }
+              isRequired={field.required}
+               
+            />
+          );
+  
+        case "textarea":
+          return (
+            <InputWithFullBoarder
+              key={index}
+              label={field.label}
+              disabled
+              placeholder={
+                field.placeholder || `Enter ${field.label.toLowerCase()}`
+              }
+              isTextArea={true}
+              rows={4}
+              isRequired={field.required}
+               
+            />
+          );
+  
+        case "select":
+          return (
+            <div key={index} className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {field.label}
+                {field.required && <span className="text-red-600 ml-1">*</span>}
+              </label>
+              <select 
+                disabled
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 border-gray-300`}
+                required={field.required}
+              >
+                <option value="">Select {field.label}</option>
+                {field.options?.map((option, optionIndex) => (
+                  <option key={optionIndex} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select> 
+            </div>
+          );
+  
+        case "radio":
+          return (
+            <div key={index} className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {field.label}
+                {field.required && <span className="text-red-600 ml-1">*</span>}
+              </label>
+              <div className="space-y-2">
+                {field.options?.map((option, optionIndex) => (
+                  <label key={optionIndex} className="flex items-center">
+                    <input
+                      type="radio"
+                      name={`field_${index}`}
+                      disabled
+                      className="mr-2 text-purple-600 focus:ring-purple-500"
+                    />
+                    <span className="text-sm">{option}</span>
+                  </label>
+                ))}
+              </div> 
+            </div>
+          );
+  
+        case "checkbox":
+          return (
+            <div key={index} className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {field.label}
+                {field.required && <span className="text-red-600 ml-1">*</span>}
+              </label>
+              <div className="space-y-2">
+                {field.options?.map((option, optionIndex) => (
+                  <label key={optionIndex} className="flex items-center">
+                    <input
+                      type="checkbox" 
+                      disabled
+                      className="mr-2 text-purple-600 focus:ring-purple-500"
+                    />
+                    <span className="text-sm">{option}</span>
+                  </label>
+                ))}
+              </div> 
+            </div>
+          );
+  
+        default:
+          return (
+            <InputWithFullBoarder
+              key={index}
+              label={field.label}
+              disabled
+              placeholder={
+                field.placeholder || `Enter ${field.label.toLowerCase()}`
+              }
+              isRequired={field.required}
+               
+            />
+          );
+      }
+    };
 
   const stats = getTotalStats();
 
-  if (formsLoading) {
+  if (formsLoading || loadingForm) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="text-center">
@@ -668,7 +776,70 @@ const FormsManagementTab = ({ event }) => {
   }
 
   return (
-    <div className="space-y-6">
+    ( Boolean(show) && selectedId) ?
+      <div>
+        <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <button
+                      onClick={() => {setShow(0)}}
+                      className="p-2 text-gray-500 hover:text-gray-700 rounded"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                    </button>
+                  <div>
+                     
+                    <p className="text-gray-600">{formResponse?.data}</p>
+                  </div>
+                </div>
+              </div>
+        
+              {/* Form Description */}
+              {formResponse?.data.description && (
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                  <p className="text-gray-700">{formResponse?.data.description}</p>
+                </div>
+              )}
+        
+              {/* Form */}
+              <div  className="space-y-6">
+                {/* Basic Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <InputWithFullBoarder
+                    label="Full Name" 
+                    disabled
+                    placeholder="Enter your full name"
+                    isRequired={true} 
+                  />
+                  <InputWithFullBoarder
+                    label="Email Address"
+                    type="email"
+                    disabled
+                    placeholder="Enter your email address"
+                    isRequired={true} 
+                  />
+                </div>
+        
+                {/* Dynamic Form Fields */}
+                {formResponse?.data.form_fields && formResponse?.data.form_fields.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium text-gray-900">Form Details</h3>
+                    {formResponse?.data.form_fields.map((field, index) => renderFormField(field, index))}
+                  </div>
+                )}
+         
+                <div className="flex justify-end pt-6">
+                  <CustomButton
+                    buttonText="Submit Form" 
+                    disabled 
+                    prefixIcon={<Send className="w-4 h-4" />}
+                    buttonColor="bg-purple-600"
+                    radius="rounded-md"
+                  />
+                </div>
+              </div>
+      </div>
+    :
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -833,7 +1004,9 @@ const FormsManagementTab = ({ event }) => {
                     </div>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => toggleFormStatus(form.id, "is_active")}
+                        onClick={() => {setActiveFormId(form.id);
+                          typeof document !== "undefined" && document.getElementById("toggle_visibility").showModal()
+                          }}
                         className={`p-2 rounded ${
                           form.is_active
                             ? "text-green-600 bg-green-50"
@@ -848,7 +1021,27 @@ const FormsManagementTab = ({ event }) => {
                         )}
                       </button>
                       <button
-                        onClick={() => handleShareForm(form)}
+                        onClick={() => { 
+                          const formUrl = `${window.location.origin}/forms/${event.id}/${form.id}`;
+
+                          // Try to use Web Share API if available
+                          if (navigator.share) {
+                            navigator
+                              .share({
+                                title: form.description,
+                                text: `Fill out this form: ${form.description}`,
+                                url: formUrl,
+                              })
+                              .catch((err) => {
+                                // Fallback to clipboard
+                                navigator.clipboard.writeText(formUrl);
+                                // You'll need a state to show a copied notification
+                              });
+                          } else {
+                            // Fallback to clipboard
+                            navigator.clipboard.writeText(formUrl); 
+                          }
+                        }}
                         className="p-2 text-gray-500 hover:text-green-600 rounded"
                         title="Share form"
                       >
@@ -862,7 +1055,10 @@ const FormsManagementTab = ({ event }) => {
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDeleteForm(form.id)}
+                        onClick={() => {
+                          setSelectedId(form.id)
+                          typeof document !== "undefined" && document.getElementById("delete").showModal()
+                        }}
                         className="p-2 text-gray-500 hover:text-red-600 rounded"
                         title="Delete form"
                       >
@@ -924,10 +1120,10 @@ const FormsManagementTab = ({ event }) => {
                             <button
                               onClick={() => {
                                 setActiveFormId(form.id);
-                                handleDeleteField(
-                                  form.id,
-                                  field._id || field.id
-                                );
+                                setSelectedFieldId(field._id || field.id)
+                                typeof document !== "undefined" && document.getElementById("form_field").showModal()
+                                
+                                
                               }}
                               className="p-1 text-gray-500 hover:text-red-600 rounded"
                               title="Delete field"
@@ -974,7 +1170,7 @@ const FormsManagementTab = ({ event }) => {
 
       {/* Form Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 !mt-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto mx-4">
             <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-6">
@@ -1016,6 +1212,7 @@ const FormsManagementTab = ({ event }) => {
                   <InputWithFullBoarder
                     label="Registration End Date"
                     type="date"
+                    min={formData.registration_start_date && new Date(formData.registration_start_date).toISOString().split("T")[0]}
                     value={formData.registration_end_date}
                     onChange={(e) =>
                       setFormData((prev) => ({
@@ -1085,7 +1282,7 @@ const FormsManagementTab = ({ event }) => {
                     prefixIcon={<Save className="w-4 h-4" />}
                     buttonColor="bg-purple-600"
                     radius="rounded-md"
-                    isLoading={editingForm ? updateLoading : isLoading}
+                    isLoading={editingForm ? updateFormLoading : isLoading}
                     onClick={handleSaveForm}
                   />
                   <CustomButton
@@ -1246,7 +1443,35 @@ const FormsManagementTab = ({ event }) => {
           </div>
         </div>
       )}
-    </div>
+      <DeleteConfirmationModal title={"Delete Form"} isLoading={deleteLoading} buttonColor={"bg-red-500"} buttonText={"Delete"} body={"Are you sure you want to delete this form?"} 
+            onClick={async () => { 
+              try {
+                 deleteForm()
+              } catch (error) {
+                console.error("Error deleting resource:", error);
+                toast.error("Error deleting resource. Please try again.");
+              }
+            } 
+            }
+            />
+      <DeleteConfirmationModal id={"form_field"} title={"Remove Field"} isLoading={updateLoading}   buttonText={"Remove"} body={"Are you sure you want to delete this field?"} 
+            onClick={() => {
+              handleDeleteField(
+                activeFormId,
+                selectedFieldId
+              );
+            }
+            }
+            />     
+      <DeleteConfirmationModal id={"toggle_visibility"} successFul={!formData.is_active} title={formData.is_active ? "Make Inactive " : "Make Active"} isLoading={updateFormLoading}   buttonText={"Switch"} buttonColor={formData.is_active ? "bg-red-500" : "bg-[#8D0BF0]"} body={`Are you sure you want to this form ${formData.is_active ? "Inactive" : "active"}?`} 
+            onClick={() => {
+              toggleFormStatus(activeFormId, "is_active")
+            }
+            }
+            />            
+    </div>  
+            
+   
   );
 };
 

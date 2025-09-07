@@ -347,7 +347,7 @@ const BoothCouponSystem = ({ eventId }) => {
 
       {/* Create/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 !mt-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
@@ -481,6 +481,7 @@ const BoothCouponSystem = ({ eventId }) => {
                   <InputWithFullBoarder
                     label="Valid Until *"
                     type="date"
+                    min={formData.valid_from && new Date(formData.valid_from).toISOString().split('T')[0]}
                     value={formData.valid_until}
                     onChange={(e) =>
                       setFormData({ ...formData, valid_until: e.target.value })

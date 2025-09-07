@@ -125,7 +125,7 @@ const CreateAccountPage = () => {
                 />
               </div>
             </div>
-            <div className="w-full">
+            <div className="w-full grid lg:grid-cols-2 gap-x-3">
               {/* @ts-ignore */}
               <InputWithFullBoarder
                 id={`fullname`}
@@ -156,7 +156,8 @@ const CreateAccountPage = () => {
               {/* @ts-ignore */}
               <InputWithFullBoarder
                 hasSuffix={true}
-                isRequired={true}
+                isRequired={true} 
+                wrapperClassName={"lg:col-span-2"}
                 id={"password"}
                 label={"Password"}
                 type={viewPassword ? `text` : `password`}
@@ -176,7 +177,7 @@ const CreateAccountPage = () => {
                   )
                 }
               />
-              <label className="flex items-start gap-2">
+              <label className="flex lg:col-span-2 items-start gap-2">
                 <input
                   type="checkbox"
                   className="mt-1"
@@ -188,7 +189,7 @@ const CreateAccountPage = () => {
                     I understand and agree to the
                   </p>
                   <span
-                    className="text-brandOrange w-auto text-sm   cursor-pointer"
+                    className="text-brandOrange w-auto text-sm animate-pulse   cursor-pointer"
                     onClick={() =>
                       (document.getElementById("term_modal") as any)?.showModal()
                     }
@@ -200,7 +201,7 @@ const CreateAccountPage = () => {
                     onClick={() =>
                       (document.getElementById("privacy_modal") as any)?.showModal()
                     }
-                    className="text-brandOrange text-sm w-auto cursor-pointer"
+                    className="text-brandOrange animate-pulse text-sm w-auto cursor-pointer"
                   >
                     Privacy Policy
                   </span>

@@ -30,7 +30,7 @@ const VerifyAccountPage = () => {
   }, [search]);
 
   const { isLoading, refetch } = useVerifyOtp(
-    Boolean(formData.otp) && formData.otp.length === 4,
+    Boolean(formData.otp) && formData.otp.length === 6,
     formData.otp,
     type
   );

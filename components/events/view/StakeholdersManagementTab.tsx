@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Event, Stakeholder } from "@/app/events/types";
 import {
   Plus,
@@ -30,6 +30,7 @@ import {
   UpdateStakeholdersManager,
   DeleteStakeholdersManager,
 } from "@/app/events/controllers/stakeholdersController";
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 
 interface StakeholderCardProps {
   stakeholder: Stakeholder;
@@ -412,7 +413,7 @@ const StakeholderModal: React.FC<StakeholderModalProps> = ({
         expertise: stakeholder.expertise || "",
         availability: stakeholder.availability || "",
         priority: stakeholder.priority || "medium",
-        last_contact: stakeholder.last_contact || "",
+        last_contact: stakeholder?.last_contact ?  new Date(stakeholder?.last_contact).toISOString().split('T')[0] : "",
       });
     } else {
       setFormData({
@@ -495,7 +496,7 @@ const StakeholderModal: React.FC<StakeholderModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 !mt-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
@@ -753,20 +754,24 @@ const StakeholderModal: React.FC<StakeholderModalProps> = ({
 
 interface StakeholdersManagementTabProps {
   event: Event;
+  refetch: () => void;
+
 }
 
 const StakeholdersManagementTab: React.FC<StakeholdersManagementTabProps> = ({
   event,
+  refetch
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStakeholder, setEditingStakeholder] = useState(null);
-
+  const [selectedId, setSelectedId] = useState(null)
   // Controllers
   const {
     addStakeholders,
     isLoading: adding,
     isSuccess: addSuccess,
   } = AddStakeholdersManager();
+
   const {
     updateStakeholders,
     isLoading: updating,
@@ -778,6 +783,21 @@ const StakeholdersManagementTab: React.FC<StakeholdersManagementTabProps> = ({
     isSuccess: deleteSuccess,
   } = DeleteStakeholdersManager();
 
+  useEffect(() => {
+    if(addSuccess){
+      setIsModalOpen(false);
+      setEditingStakeholder(null);
+    }
+    if(updateSuccess){
+      refetch()
+      setIsModalOpen(false);
+      setEditingStakeholder(null);
+    }
+    if(deleteSuccess){
+      refetch()
+      typeof document !== "undefined" && document.getElementById("delete").close()
+    }
+  }, [addSuccess, updateSuccess, deleteSuccess])  
   const isLoading = adding || updating || deleting;
 
   // Get stakeholders directly from event prop - no local storage
@@ -868,8 +888,7 @@ const StakeholdersManagementTab: React.FC<StakeholdersManagementTabProps> = ({
         await addStakeholders(event.id, [completeStakeholderData]);
       }
 
-      setIsModalOpen(false);
-      setEditingStakeholder(null);
+      
     } catch (error) {
       console.error("Error saving stakeholder:", error);
       alert("Error saving stakeholder. Please try again.");
@@ -1030,8 +1049,8 @@ const StakeholdersManagementTab: React.FC<StakeholdersManagementTabProps> = ({
               key={stakeholder.id}
               stakeholder={stakeholder}
               onEdit={handleEditStakeholder}
-              onDelete={handleDeleteStakeholder}
-              onToggleStatus={handleToggleStatus}
+              onDelete={() => {setSelectedId(stakeholder.id); typeof document !== "undefined" && document.getElementById("delete").showModal()}}
+             onToggleStatus={handleToggleStatus}
               isLoading={isLoading}
             />
           ))}
@@ -1049,6 +1068,12 @@ const StakeholdersManagementTab: React.FC<StakeholdersManagementTabProps> = ({
         onSave={handleSaveStakeholder}
         isLoading={isLoading}
       />
+      <DeleteConfirmationModal id={"delete"} successFul={false} title={"Delete Stakeholder"} isLoading={deleting} buttonColor={"bg-red-500"} buttonText={"Delete"} body={"Are you sure you want to delete this stakeholder?"} 
+              onClick={async () => { 
+               await deleteStakeholders(event.id, [selectedId]);
+              } 
+              }
+              />
     </div>
   );
 };

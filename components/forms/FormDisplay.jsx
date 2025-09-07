@@ -64,11 +64,13 @@ const FormDisplay = ({
     }
   }, [submitSuccess, onSubmitSuccess]);
 
-  const handleInputChange = (fieldIndex, value) => {
+  const handleInputChange = (fieldIndex, value, label, type) => {
     setFormData((prev) => {
       const newResponses = [...prev.responses];
       newResponses[fieldIndex] = {
         ...newResponses[fieldIndex],
+        type: type,
+        label: label,
         response: value,
       };
       return { ...prev, responses: newResponses };
@@ -109,28 +111,30 @@ const FormDisplay = ({
     }
 
     // Validate form fields
-    form.fields.forEach((field, index) => {
+    form.form_fields.forEach((field, index) => {
       if (field.required && !formData.responses[index]?.response?.trim()) {
         errors[`field_${index}`] = `${field.label} is required`;
       }
     });
-
+    console.log(errors)
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
+    console.log("df")
     e.preventDefault();
-
+    console.log(formData)
     if (!validateForm()) {
       toast.error("Please fill in all required fields");
       return;
     }
+    console.log(formData)
 
     await createFormSubmission(formData);
   };
 
-  const renderFormField = (field, index) => {
+  const renderFormField = (field, index) => { 
     const value = formData.responses[index]?.response || "";
     const error = validationErrors[`field_${index}`];
 
@@ -144,7 +148,7 @@ const FormDisplay = ({
             label={field.label}
             type={field.type}
             value={value}
-            onChange={(e) => handleInputChange(index, e.target.value)}
+            onChange={(e) => handleInputChange(index, e.target.value,field.label,field.type )}
             placeholder={
               field.placeholder || `Enter ${field.label.toLowerCase()}`
             }
@@ -159,7 +163,7 @@ const FormDisplay = ({
             key={index}
             label={field.label}
             value={value}
-            onChange={(e) => handleInputChange(index, e.target.value)}
+            onChange={(e) => handleInputChange(index, e.target.value,field.label,field.type )}
             placeholder={
               field.placeholder || `Enter ${field.label.toLowerCase()}`
             }
@@ -179,7 +183,7 @@ const FormDisplay = ({
             </label>
             <select
               value={value}
-              onChange={(e) => handleInputChange(index, e.target.value)}
+              onChange={(e) => handleInputChange(index, e.target.value,field.label,field.type )}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 ${
                 error ? "border-red-500" : "border-gray-300"
               }`}
@@ -211,7 +215,7 @@ const FormDisplay = ({
                     name={`field_${index}`}
                     value={option}
                     checked={value === option}
-                    onChange={(e) => handleInputChange(index, e.target.value)}
+                    onChange={(e) => handleInputChange(index, e.target.value,field.label,field.type )}
                     className="mr-2 text-purple-600 focus:ring-purple-500"
                   />
                   <span className="text-sm">{option}</span>
@@ -243,12 +247,12 @@ const FormDisplay = ({
                       if (e.target.checked) {
                         handleInputChange(
                           index,
-                          [...currentValues, option].join(", ")
+                          [...currentValues, option].join(", "),field.label,field.type 
                         );
                       } else {
                         handleInputChange(
                           index,
-                          currentValues.filter((v) => v !== option).join(", ")
+                          currentValues.filter((v) => v !== option).join(", "),field.label,field.type 
                         );
                       }
                     }}
@@ -268,7 +272,7 @@ const FormDisplay = ({
             key={index}
             label={field.label}
             value={value}
-            onChange={(e) => handleInputChange(index, e.target.value)}
+            onChange={(e) => handleInputChange(index, e.target.value,field.label,field.type )}
             placeholder={
               field.placeholder || `Enter ${field.label.toLowerCase()}`
             }
@@ -386,10 +390,10 @@ const FormDisplay = ({
         </div>
 
         {/* Dynamic Form Fields */}
-        {form.fields && form.fields.length > 0 && (
+        {form.form_fields && form.form_fields.length > 0 && (
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-gray-900">Form Details</h3>
-            {form.fields.map((field, index) => renderFormField(field, index))}
+            {form.form_fields.map((field, index) => renderFormField(field, index))}
           </div>
         )}
 

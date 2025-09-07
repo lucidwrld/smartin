@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Plus,
   Trash2,
@@ -24,6 +24,8 @@ import {
   DeleteResourcesManager,
 } from "@/app/events/controllers/eventManagementController";
 import useFileUpload from "@/utils/fileUploadController";
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
+import { toast } from "react-toastify";
 
 const ResourceCard = ({ resource, onEdit, onDelete, isLoading }) => {
   const {
@@ -94,7 +96,7 @@ const ResourceCard = ({ resource, onEdit, onDelete, isLoading }) => {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <h4 className="font-medium text-gray-900 truncate">{name}</h4>
+              <h4 className="font-medium text-[25px] capitalize text-gray-900 truncate">{name}</h4>
               <span
                 className={`px-2 py-1 text-xs rounded ${getTypeColor(type)}`}
               >
@@ -168,7 +170,7 @@ const ResourceCard = ({ resource, onEdit, onDelete, isLoading }) => {
             <Edit2 className="w-4 h-4" />
           </button>
           <button
-            onClick={() => onDelete(id)}
+            onClick={() => onDelete()}
             disabled={isLoading}
             className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
             title="Delete resource"
@@ -303,8 +305,7 @@ const ResourceModal = ({ isOpen, onClose, resource, onSave, isLoading }) => {
       file_size: selectedFile?.size || formData.file_size,
       mode: resourceMode,
     };
-
-    onSave(resourceData);
+     onSave(resourceData); 
   };
 
   if (!isOpen) return null;
@@ -330,7 +331,7 @@ const ResourceModal = ({ isOpen, onClose, resource, onSave, isLoading }) => {
   ];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 !mt-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
@@ -528,13 +529,13 @@ const ResourceModal = ({ isOpen, onClose, resource, onSave, isLoading }) => {
   );
 };
 
-const ResourcesManagementTab = ({ event }) => {
+const ResourcesManagementTab = ({ event, refetch }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingResource, setEditingResource] = useState(null);
   const [resources, setResources] = useState([]);
   const [filterType, setFilterType] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
-
+  const [selectedId, setSelectedId] = useState(null)
   // Controllers
   const {
     addResources,
@@ -554,6 +555,22 @@ const ResourcesManagementTab = ({ event }) => {
 
   const isLoading = adding || updating || deleting;
 
+  useEffect(() => {
+    if(deleteSuccess){
+      refetch()
+     typeof document !== "undefined" && document.getElementById("delete").close()
+    }
+    if(updateSuccess){
+      refetch()
+      setIsModalOpen(false);
+      setEditingResource(null);
+    }
+    if(addSuccess){
+      refetch()
+      setIsModalOpen(false);
+      setEditingResource(null);
+    }
+  }, [updateSuccess, addSuccess, deleteSuccess])
   // Initialize with real data from event
   React.useEffect(() => {
     if (event?.resources && Array.isArray(event.resources)) {
@@ -592,20 +609,14 @@ const ResourcesManagementTab = ({ event }) => {
         file_size: resourceData.file_size, // File size in bytes
         download_count: resourceData.download_count || 0, // Download tracking
         createdAt: resourceData.createdAt, // Creation timestamp
-      };
-
-      console.log(`thi sis the resource id: ${resourceData?.id}`);
+      }; 
 
       if (editingResource) {
-        // Update existing resource
         await updateResources(event.id, resourceData?.id, [resourcePayload]);
       } else {
-        // Add new resource
-        await addResources(event.id, null, [resourcePayload]);
+        await addResources(event.id, [resourcePayload]);
       }
-
-      setIsModalOpen(false);
-      setEditingResource(null);
+ 
     } catch (error) {
       console.error("Error saving resource:", error);
       alert("Error saving resource. Please try again.");
@@ -760,10 +771,13 @@ const ResourcesManagementTab = ({ event }) => {
         <div className="space-y-4">
           {filteredResources.map((resource) => (
             <ResourceCard
-              key={resource.id}
+              key={resource.id} 
               resource={resource}
               onEdit={handleEditResource}
-              onDelete={handleDeleteResource}
+              onDelete={() => {
+                setSelectedId(resource.id)
+                typeof document !== "undefined" && document.getElementById("delete").showModal()
+              }}
               isLoading={isLoading}
             />
           ))}
@@ -780,6 +794,17 @@ const ResourcesManagementTab = ({ event }) => {
         resource={editingResource}
         onSave={handleSaveResource}
         isLoading={isLoading}
+      />
+      <DeleteConfirmationModal title={"Delete Resource"} isLoading={deleting} buttonColor={"bg-red-500"} buttonText={"Delete"} body={"Are you sure you want to delete this resource?"} 
+      onClick={async () => { 
+        try {
+          await deleteResources(event.id, [selectedId]);
+        } catch (error) {
+          console.error("Error deleting resource:", error);
+          toast.error("Error deleting resource. Please try again.");
+        }
+      } 
+      }
       />
     </div>
   );
