@@ -49,7 +49,7 @@ const UnassignedGuests = ({ eventId, apiTables }) => {
         {data?.data.map((participant) => (
           <div
             key={participant.id}
-            className="bg-gray-100 p-3 rounded-lg flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full"
+            className="bg-gray-100 p-3 rounded-lg flex flex-col  sm:flex-row items-start sm:items-center gap-2 w-full"
           >
             <span className="text-sm font-medium min-w-[120px]">
               {participant.name}
