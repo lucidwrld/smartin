@@ -3,7 +3,7 @@ import useUpdateManager from "@/constants/controller_templates/put_controller_te
 
 export const UpdateFormManager = (formId: string) => {
   const { updateCaller, isLoading, isSuccess, error, data } = useUpdateManager(
-    `/event/forms/${formId}`,
+    `/event/forms/${formId}/update`,
     ["form", "event-forms"],
     true
   );

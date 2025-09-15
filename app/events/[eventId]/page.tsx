@@ -275,7 +275,7 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = ({ params }) => {
               <ResourcesManagementTab event={event?.data} refetch={refetch} />
             )}
             {currentView === 8 && <VendorsManagementTab event={event?.data} refetch={refetch} />}
-            {currentView === 9 && <ProgramManagementTab event={event?.data} />}
+            {currentView === 9 && <ProgramManagementTab event={event?.data} refetch={refetch} />}
             {currentView === 10 && (
               <StakeholdersManagementTab event={event?.data} refetch={refetch} />
             )}

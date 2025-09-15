@@ -705,6 +705,22 @@ const VendorsManagementTab: React.FC<VendorsManagementTabProps> = ({
 
   const isLoading = adding || updating || deleting;
 
+  useEffect(() => {
+    if(addSuccess){
+      refetch()
+      setIsModalOpen(false);
+      setEditingVendor(null);
+    }
+    if(updateSuccess){
+      refetch()
+      setIsModalOpen(false);
+      setEditingVendor(null);
+    }
+    if(deleteSuccess){
+      refetch()
+      typeof document !== "undefined" && document.getElementById("delete").close()
+    }
+  }, [addSuccess, updateSuccess, deleteSuccess])
   // Get vendors directly from props (already filtered by backend)
   const vendors =
     event?.vendors && Array.isArray(event.vendors) ? event.vendors : [];
@@ -762,8 +778,7 @@ const VendorsManagementTab: React.FC<VendorsManagementTabProps> = ({
         await addVendors(event.id || event._id, vendorPayload);
       }
 
-      setIsModalOpen(false);
-      setEditingVendor(null);
+      
     } catch (error) {
       console.error("Error saving vendor:", error);
       alert("Error saving vendor. Please try again.");
@@ -775,8 +790,7 @@ const VendorsManagementTab: React.FC<VendorsManagementTabProps> = ({
       // Only send the status field for update
       const statusUpdate = { status: newStatus } as Vendor;
       await updateVendors(event.id || event._id, vendorId, statusUpdate);
-    } catch (error) {
-      console.error("Error updating vendor status:", error);
+    } catch (error) { 
       alert("Error updating vendor status. Please try again.");
     }
   };

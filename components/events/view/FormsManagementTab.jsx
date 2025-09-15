@@ -343,6 +343,7 @@ const FormsManagementTab = ({ event, refetch }) => {
     if(deleteSuccess){
       refetch()
       recall()
+      document.getElementById("delete").close()
     }
   }, [deleteSuccess, updateSuccess, updateFormSuccess])
   const [formData, setFormData] = useState({
@@ -931,7 +932,7 @@ const FormsManagementTab = ({ event, refetch }) => {
                 <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-4">
                   <div className="flex-1">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                      <h3 className="text-lg font-semibold">{form.name}</h3>
+                      <h3 className="text-[30px] font-semibold">{form.name}</h3>
                       <div className="flex flex-wrap items-center gap-2">
                         {form.is_required && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
@@ -959,7 +960,7 @@ const FormsManagementTab = ({ event, refetch }) => {
                       </div>
                     </div>
 
-                    <p className="text-gray-600 text-sm mb-3">
+                    <p className="text-gray-600 text-[25px] mb-3">
                       {form.description}
                     </p>
 

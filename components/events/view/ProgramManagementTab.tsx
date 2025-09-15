@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Event, ProgramItem } from "@/app/events/types";
 import jsPDF from "jspdf";
 import {
@@ -525,7 +525,7 @@ interface ProgramManagementTabProps {
   event: Event;
 }
 
-const ProgramManagementTab: React.FC<ProgramManagementTabProps> = ({ event }) => {
+const ProgramManagementTab: React.FC<ProgramManagementTabProps> = ({ event, refetch }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [filterType, setFilterType] = useState("all");
@@ -575,6 +575,22 @@ const ProgramManagementTab: React.FC<ProgramManagementTabProps> = ({ event }) =>
 
   const isLoading = adding || updating || deleting;
 
+  useEffect(() => {
+      if(addSuccess){
+        refetch()
+        setIsModalOpen(false);
+      setEditingItem(null);
+      }
+      if(updateSuccess){
+        refetch()
+        setIsModalOpen(false);
+      setEditingItem(null);
+      }
+      if(deleteSuccess){
+        refetch()
+        typeof document !== "undefined" && document.getElementById("delete").close()
+      }
+    }, [addSuccess, updateSuccess, deleteSuccess])
   // Get agenda items directly from event prop - no local storage
   const agendaItems: ProgramItem[] = event?.program && Array.isArray(event.program) ? event.program : [];
 
@@ -657,8 +673,7 @@ const ProgramManagementTab: React.FC<ProgramManagementTabProps> = ({ event }) =>
         await addProgram(event.id, [completeProgramItem]);
       }
 
-      setIsModalOpen(false);
-      setEditingItem(null);
+      
     } catch (error) {
       console.error("Error saving program item:", error);
       alert("Error saving program item. Please try again.");
