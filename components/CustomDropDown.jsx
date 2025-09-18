@@ -10,6 +10,8 @@ const CustomDropdown = ({
   isRequired,
   none,
   textClass,
+  wrapperClassname,
+  className,
   placeholder,
   showSelections = true,
   addValueClick,
@@ -17,15 +19,15 @@ const CustomDropdown = ({
   valuesArray,
 }) => {
   return (
-    <div className={`${!none && "mb-4"} h-fit  flex flex-col gap-2`}>
+    <div className={`${!none && "mb-4"} h-fit  flex flex-col gap-2 ${wrapperClassname}`}>
       <h3 className={`text-[12px]  font-medium flex gap-1 text-black`}>
         {title} {isRequired && <p className="text-red-600">*</p>}
       </h3>
-      <div className="h-fit  w-full  flex flex-row justify-between items-center border border-lightGrey bg-gray6  rounded-md placeholder:text-[12px]  focus:outline-none">
+      <div className={`h-fit  w-full  flex flex-row justify-between items-center border border-lightGrey bg-gray6  rounded-md placeholder:text-[12px]  focus:outline-none ${className}`}>
         <select
           onChange={onChange}
           value={value}
-          className={`w-full text-left ${textClass} text-[10px] text-black h-fit p-2 py-[13px] flex justify-between items-center bg-transparent outline-none`}
+          className={`w-full text-left ${textClass} text-[10px] text-black  h-fit p-2 py-[13px] flex justify-between items-center bg-transparent outline-none `}
         >
           <option value="" disabled hidden>
             {placeholder}

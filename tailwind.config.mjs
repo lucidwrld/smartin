@@ -4,6 +4,7 @@ module.exports = {
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./utils/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     fontFamily: {
@@ -33,6 +34,7 @@ module.exports = {
       },
       backgroundImage: {
         gradientMain: "linear-gradient(180deg, #AE69D8 0%, #FF8336 100%)",
+        signin: "linear-gradient(105.43deg, #7308C3 -0.34%, #37045D 117.4%)",
       },
       colors: {
         whiteColor: "#FFFFFF",

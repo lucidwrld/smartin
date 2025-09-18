@@ -22,7 +22,7 @@ const InputWithFullBoarder = ({
   disabled = false,
   hasSuffix,
   placeholder,
-  row = "50",
+  row = 50,
   icon,
   accept,
   none,

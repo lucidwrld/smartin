@@ -523,6 +523,7 @@ const AgendaModal: React.FC<AgendaModalProps> = ({ isOpen, onClose, item, onSave
 
 interface ProgramManagementTabProps {
   event: Event;
+  refetch: () => void;
 }
 
 const ProgramManagementTab: React.FC<ProgramManagementTabProps> = ({ event, refetch }) => {

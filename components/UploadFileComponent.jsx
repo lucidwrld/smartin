@@ -16,11 +16,12 @@ const UploadFileComponent = ({
   accept = "",
   fileName,
   onChange,
+  classN,
   className,
   buttonClick,
 }) => {
   return multiple ? (
-    <div className={`${className} mb-6 flex items-center justify-between `}>
+    <div className={` mb-6 flex items-center justify-between w-full  ${className}`}>
       <div className="flex items-center justify-start gap-2">
         {files.length <= 0 ? (
           <svg
