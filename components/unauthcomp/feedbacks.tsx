@@ -37,7 +37,7 @@ export default function FeedbackTabManagement(){
                     <div className="w-full h-fit flex mt-5 items-center justify-center gap-5">
                         {
                             images.map((el,l) => (
-                                <Image key={l} alt="" src={el} width={60} height={60} />
+                                <Image key={l} alt="" src={el} className="w-[30px] h-[30px] lg:w-[60px] lg:h-[60px]" width={undefined} height={undefined} />
                             ))
                         } 
 

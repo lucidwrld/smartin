@@ -7,7 +7,7 @@ import { Mail, Phone } from "lucide-react";
 export default function TicketPage(){
 
     return(
-        <div className="w-full min-h-dvh flex flex-col items-center py-10">
+        <div className="w-full min-h-dvh flex flex-col items-center px-5 py-10">
             <div className="max-w-[1220px] w-full flex flex-col gap-10 h-auto">
                 <div className="w-full h-fit flex justify-between items-center">
                     <h2 className="text-[40px] leading-[55px] text-backgroundPurple font-light">
@@ -15,7 +15,7 @@ export default function TicketPage(){
                     </h2>
 
                 </div>
-                <div className="w-full flex gap-[20px]">
+                <div className="w-full flex flex-col lg:flex-row gap-[20px]">
                     <div className="max-w-[756px] p-[31px] flex flex-col w-full h-fit gap-[20px] border-[1px] border-[#CDCDCD] rounded-[6px] flex-shrink-0">
                         <div className="pb-[17px] border-b-[1px] border-[#CDCDCD] w-full h-fit">
                             <h2 className="text-backgroundPurple text-[25px] leading-[25px] font-light">
@@ -31,10 +31,10 @@ export default function TicketPage(){
                         </div>
                         <div className="w-full h-fit flex mb-3 items-center justify-between gap-10">
                             <div className="w-fit h-fit flex flex-col gap-1">
-                                <h1 className="text-[20px] leading-[25px] font-light text-backgroundPurple">
+                                <h1 className="lg:text-[20px] text-[16px] leading-[22px] lg:leading-[25px] font-light text-backgroundPurple">
                                     Send Tickets to different email addresses?
                                 </h1>
-                                <p className="text-[14px] leading-[16px] font-normal text-[#94A3B8]">
+                                <p className="text-[10px] leading-[14px] lg:text-[14px] lg:leading-[16px] font-normal text-[#94A3B8]">
                                     Leave blank to send tickets to the payment email.
                                 </p>
                             </div>

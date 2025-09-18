@@ -78,7 +78,7 @@ export default function UnauthEvent(){
                         Sign In
                     </div>
                 </div>
-                <div className="flex-shrink-0 flex flex-col lg:flex-row  w-full h-fit ">
+                <div className="flex-shrink-0 flex flex-col lg:flex-row gap-10 lg:gap-0  w-full h-fit ">
                     {/* Left side */}
                     <div className="w-full flex-shrink-0 lg:sticky top-0 flex flex-col gap-[24px] h-fit max-w-[348px] ">
                         <div className="w-full rounded-[10px] h-[434px] bg-brandPurple">

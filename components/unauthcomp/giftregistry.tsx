@@ -13,7 +13,7 @@ export default function GiftRegistryTabManagement(){
                 <div className="w-full h-[1px] bg-[#CDCDCD]">
                     </div>        
             </div>
-            <div className="w-full h-fit grid grid-cols-3 gap-[6px]">
+            <div className="w-full h-fit grid grid-cols-2 lg:grid-cols-3 gap-[6px]">
               { [...Array(6)].map((_,l) => ( 
                 <div key={l} className="border-[1px] border-[#CDCDCD] rounded-[6px] p-[4px] flex flex-col ">
                     <Image width={undefined} src={babycarrier} alt="" height={undefined} className="w-full h-[164px] rounded-[6px] object-cover" />

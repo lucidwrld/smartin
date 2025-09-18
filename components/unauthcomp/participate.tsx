@@ -199,8 +199,8 @@ export default function ParticipateTabManagement(){
                 <div className="flex w-full flex-col h-fit gap-[9px]">
                     {
                        [...Array(3)].map((_,l) => (
-                            <div key={l} className="border-[1px] w-full flex-shrink-0 flex-col-reverse lg:flex-row  gap-[15px] border-[#CDCDCD] rounded-[6px] p-[7px]">
-                               <Image src={bookabooth} alt="" width={undefined} height={undefined} className="rounded-[4px] w-full lg:w-[187px] h-[187px]" />   
+                            <div key={l} className="border-[1px] w-full flex-shrink-0 flex flex-col-reverse lg:flex-row  gap-[15px] border-[#CDCDCD] rounded-[6px] p-[7px]">
+                               <Image src={bookabooth} alt="" width={undefined} height={undefined} className="rounded-[4px] w-full lg:w-[187px] object-cover h-[187px]" />   
                                <div className="w-full h-auto flex flex-col gap-3"> 
                                     <div className="w-full h-fit flex justify-end"> 
                                     

@@ -38,7 +38,7 @@ const CountdownTimer = ({tarDate}) => {
       <div className="relative">
         {/* Main ticket body */}
         <div 
-          className="   py-9 pb-10 w-fit px-2 flex items-center justify-center  rounded-lg relative bg-backgroundPurple overflow-hidden shadow-lg"  
+          className="  py-6 pb-7 lg:py-9 lg:pb-10 w-fit px-2 flex items-center justify-center  rounded-lg relative bg-backgroundPurple overflow-hidden shadow-lg"  
         >
           {/* Decorative notches on sides */}
             <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1/2 w-3 h-3 bg-white rounded-full"></div>
@@ -47,7 +47,7 @@ const CountdownTimer = ({tarDate}) => {
             
            
           {/* Time value */}
-          <div className="text-white text-4xl mt-0 p-0 md:text-[75px] font-bold   tracking-tighter" style={{ fontFamily: 'DIN, Arial, sans-serif' }}>
+          <div className="text-white text-2xl lg:text-4xl mt-0 p-0 md:text-[75px] font-bold   tracking-tighter" style={{ fontFamily: 'DIN, Arial, sans-serif' }}>
             {String(value).padStart(2, '0')}
           </div>
         </div>
