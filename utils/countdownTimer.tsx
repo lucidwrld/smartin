@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
- 
 
-const CountdownTimer = ({tarDate}) => {
+const CountdownTimer = ({ tarDate }) => {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -9,10 +8,16 @@ const CountdownTimer = ({tarDate}) => {
     seconds: 0
   });
 
-  // Set target date (you can modify this)
-     const targetDate = tarDate;
+  // Convert tarDate to number if it's not already
+  const targetDate = typeof tarDate === 'string' ? new Date(tarDate).getTime() : tarDate;
 
   useEffect(() => {
+    // Early return if no valid target date
+    if (!targetDate || isNaN(targetDate)) {
+      setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      return;
+    }
+
     const timer = setInterval(() => {
       const now = new Date().getTime();
       const distance = targetDate - now;
@@ -30,33 +35,30 @@ const CountdownTimer = ({tarDate}) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [targetDate]);   
+  }, [targetDate]);
+
+  // Don't render if no valid target date
+  if (!targetDate || isNaN(targetDate)) {
+    return null;
+  }
 
   const TimeUnit = ({ value, label }) => (
     <div className="flex flex-col items-center">
-      {/* Ticket-style container */}
       <div className="relative">
-        {/* Main ticket body */}
         <div 
-          className="  py-6 pb-7 lg:py-9 lg:pb-10 w-fit px-2 flex items-center justify-center  rounded-lg relative bg-backgroundPurple overflow-hidden shadow-lg"  
+          className="py-6 pb-7 lg:py-9 lg:pb-10 w-fit px-2 flex items-center justify-center rounded-lg relative bg-backgroundPurple overflow-hidden shadow-lg"  
         >
-          {/* Decorative notches on sides */}
-            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1/2 w-3 h-3 bg-white rounded-full"></div>
-          <div className="absolute  top-1/2   w-full   bg-white h-[1px]"></div>
+          <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1/2 w-3 h-3 bg-white rounded-full"></div>
+          <div className="absolute top-1/2 w-full bg-white h-[1px]"></div>
           <div className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-1/2 w-3 h-3 bg-white rounded-full"></div>
-            
-           
-          {/* Time value */}
-          <div className="text-white text-2xl lg:text-4xl mt-0 p-0 md:text-[75px] font-bold   tracking-tighter" style={{ fontFamily: 'DIN, Arial, sans-serif' }}>
+          
+          <div className="text-white text-2xl lg:text-4xl mt-0 p-0 md:text-[75px] font-bold tracking-tighter" style={{ fontFamily: 'DIN, Arial, sans-serif' }}>
             {String(value).padStart(2, '0')}
           </div>
         </div>
       </div>
       
-      {/* Label below ticket */}
-      <div className="mt-3 text-gray-700 text-[14px] font-medium uppercase tracking-wide"
-      
->
+      <div className="mt-3 text-gray-700 text-[14px] font-medium uppercase tracking-wide">
         {label}
       </div>
     </div>
@@ -64,7 +66,7 @@ const CountdownTimer = ({tarDate}) => {
 
   return (
     <div className="flex flex-wrap justify-center py-20 gap-6 md:gap-8">
-        <style>
+      <style>
         {`
           @font-face {
             font-family: 'DIN';
@@ -87,10 +89,10 @@ const CountdownTimer = ({tarDate}) => {
           }
         `}
       </style>
-        <TimeUnit value={timeLeft.days} label="Days" />
-        <TimeUnit value={timeLeft.hours} label="Hours" />
-        <TimeUnit value={timeLeft.minutes} label="Minutes" />
-        <TimeUnit value={timeLeft.seconds} label="Seconds" />
+      <TimeUnit value={timeLeft.days} label="Days" />
+      <TimeUnit value={timeLeft.hours} label="Hours" />
+      <TimeUnit value={timeLeft.minutes} label="Minutes" />
+      <TimeUnit value={timeLeft.seconds} label="Seconds" />
     </div>
   );
 };

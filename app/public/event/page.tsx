@@ -9,10 +9,17 @@ import ParticipateTabManagement from "@/components/unauthcomp/participate"
 import { facebook, greyPeople, instagram, locationPin, profile, testimage, timeIcon, x, youtube } from "@/public/icons"
 import { logoMain1 } from "@/public/images"
 import CountdownTimer from "@/utils/countdownTimer"
-import { MoveRight } from "lucide-react"
+import { MoveRight, Pause, Play } from "lucide-react"
 import Image from "next/image"
-import { useState } from "react"
-import { FaArrowRight } from "react-icons/fa"
+import { useEffect, useRef, useState } from "react"
+import { FaArrowRight } from "react-icons/fa" 
+import useGetSingleEventPublicManager from "@/app/events/controllers/getSingleEventPublicController" 
+import Loader from "@/components/Loader"
+import { DescriptionWithSeeMore } from "@/utils/seemoreFunc"
+import { useGetEventTicketsManager } from "@/app/tickets/controllers/ticketController"
+import { useGetEventAdvertsManager } from "@/app/adverts/controllers/advertController"
+import { useGetEventBoothsManager } from "@/app/booths/controllers/boothController"
+
 
 const cardBox = ({type,month,date, }) => {
     return (
@@ -36,7 +43,60 @@ const cardBox = ({type,month,date, }) => {
     )
 }
 export default function UnauthEvent(){
+    const [participateData, setParticipateData] = useState({})
+    const { data: event, isLoading , refetch} = useGetSingleEventPublicManager({ eventId: "68bad3fcfc8371001b2b0135", enabled: true });
     const [selectedCh, setSelectedCh] = useState("about")
+    const eventDetails = event?.data 
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
+    const videoRef = useRef(null);
+    console.log(eventDetails)
+    const togglePlay = () => {
+        if (videoRef.current) {
+        if (isPlaying) {
+            videoRef.current.pause();
+        } else {
+            videoRef.current.play();
+        }
+        setIsPlaying(!isPlaying);
+        }
+    };
+    
+    const {
+    data: ticketsData,
+    isLoading: loadingTickets,
+    refetch: refetchTickets,
+    } = useGetEventTicketsManager("68bad3fcfc8371001b2b0135");
+
+    const {
+    data: advertsData,
+    isLoading: loadingAdverts,
+    refetch: refetchAdverts,
+    } = useGetEventAdvertsManager("68bad3fcfc8371001b2b0135");
+
+    const {
+    data: boothsData,
+    isLoading: loadingBooths,
+    refetch: refetchBooths,
+    } = useGetEventBoothsManager("68bad3fcfc8371001b2b0135");
+
+    useEffect(() => {
+    // Only update if we have at least some data
+    if (ticketsData || advertsData || boothsData) {
+        setParticipateData(prevState => ({
+        ...prevState,
+        tickets: ticketsData?.data,
+        adverts: advertsData?.data,
+        booths: boothsData?.data
+        }));
+    }
+    }, [ticketsData, advertsData, boothsData]);
+    
+    
+    if(isLoading || loadingTickets || loadingAdverts || loadingBooths){
+        return <Loader />
+    }
+    
     return(
         <div className="w-full p-10 h-full flex gap-[28px]">
             <div className="w-full h-[calc(100dvh-80px)] border-r-[1px] border-[#CDCDCD] hidden lg:flex flex-col justify-between">
@@ -81,16 +141,42 @@ export default function UnauthEvent(){
                 <div className="flex-shrink-0 flex flex-col lg:flex-row gap-10 lg:gap-0  w-full h-fit ">
                     {/* Left side */}
                     <div className="w-full flex-shrink-0 lg:sticky top-0 flex flex-col gap-[24px] h-fit max-w-[348px] ">
-                        <div className="w-full rounded-[10px] h-[434px] bg-brandPurple">
-                           <Image src={testimage} alt="" height={undefined} width={undefined} className="w-full h-full rounded-[10px] object-cover" /> 
-                        </div>
+                        <div 
+                        className="relative w-full rounded-[10px] h-[434px] bg-purple-600 overflow-hidden cursor-pointer"
+                        onMouseEnter={() => setIsHovered(true)}
+                        onMouseLeave={() => setIsHovered(false)}
+                        onClick={togglePlay}
+                        >
+                        <video
+                            ref={videoRef}
+                            className="w-full h-full rounded-[10px] object-cover"
+                            onPlay={() => setIsPlaying(true)}
+                            onPause={() => setIsPlaying(false)}
+                        >
+                            <source src={eventDetails?.video} type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
+                        
+                        {/* Play/Pause Button - appears on hover */}
+                        {(isHovered || !isPlaying) && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="bg-black  bg-opacity-80 rounded-full p-4 transition-all duration-200 hover:bg-opacity-70">
+                                {isPlaying ? (
+                                <Pause className="w-8 h-8 text-[#8d0bf0]" />
+                                ) : (
+                                <Play className="w-8 h-8 text-[#8d0bf0] ml-1" />
+                                )}
+                            </div>
+                            </div>
+                        )}
+                        </div> 
                         <div className="w-full h-fit flex flex-col gap-[19px]">
                             <div className="w-full h-fit flex gap-[10px] items-center">
                                 <Image src={profile} alt="" width={50} height={50} className="rounded-[10px] flex-shrink-0 object-cover" />
                                 <div className="w-full h-fit flex flex-col gap-[6px]">
                                     <h3 className="text-[12px] leading-[12px] font-normal text-[#94A3B8]">Hosted by</h3>
                                     <p className="text-[16px] leading-[20px] font-medium text-[#1B1B1B]">
-                                        Ifeanyi Ejindu
+                                        {eventDetails?.host}
                                     </p>
                                 </div>
                             </div>
@@ -111,14 +197,14 @@ export default function UnauthEvent(){
                         <div className="w-full h-fit flex flex-col">
                             <div className="w-full h-fit flex gap-[40px] flex-col">
                                 <h1 className="text-backgroundPurple text-[48px] leading-[55px] font-semibold">
-                                    TECH EVENT
+                                    {eventDetails?.name}
                                 </h1>
                                 <div className="w-full h-fit grid gap-[19px] lg:grid-cols-2">
                                     {
                                         [
                                             {type: "date",date: "10",month: "oct", value: "Fri, October 10"},
                                             {type: "dates",date: "10 - 12",month: "oct", value: "Fri, October 10 -  Sun, October 12"},
-                                            {type: "location", value: "Transcort Hilton Resort"},
+                                            {type: "location", value: eventDetails?.venue},
                                             {type: "time", value: "1:00 PM - 10:30 PM"},
                                             {type: "time", value: "Different times"},
                                         ].map((el,l) => (
@@ -139,7 +225,7 @@ export default function UnauthEvent(){
                                 </div>
 
                             </div>
-                            {CountdownTimer({tarDate: new Date('2025-09-17T23:59:59').getTime()})}
+                            <CountdownTimer tarDate={new Date(eventDetails?.date).getTime()} />
                             <div className="w-full h-fit flex flex-col gap-[40px]">
                                 <div className="w-full h-fit flex flex-col gap-[9px]">
                                     <h1 className="text-[16px] leading-[16px] text-[#1B1B1B] font-normal">
@@ -148,9 +234,7 @@ export default function UnauthEvent(){
                                     <div className="w-full h-[1px] bg-[#CDCDCD]">
 
                                     </div>
-                                    <p className="text-[12px] leading-[18px] font-normal text-[#1B1B1B]">
-                                        Pizza ipsum dolor meat lovers buffalo. Tossed fresh spinach Chicago personal garlic ricotta ranch personal. Sauce extra ham beef tomato fresh. Garlic platter spinach string mouth. Broccoli roll dolor green pan green pizza pork crust pesto. Extra Chicago large pizza chicken fresh and mouth.... <span className="font-medium text-brandPurple">See more</span>
-                                    </p>
+                                    <DescriptionWithSeeMore description={eventDetails.description} /> 
 
                                 </div>
                                 <CustomButton buttonText="Register" buttonColor=" bg-signin" />
@@ -158,12 +242,12 @@ export default function UnauthEvent(){
                             </div>
 
                         </div>
-                        <EventTabManagement />
-                        <ParticipateTabManagement />
-                        <ExploreTabManagement />
-                        <CommunityTabManagement />
-                        <GiftRegistryTabManagement />
-                        <FeedbackTabManagement />
+                        <EventTabManagement eventDetails={eventDetails} />
+                        <ParticipateTabManagement participateData={participateData} />
+                        <ExploreTabManagement eventDetails={eventDetails}/>
+                        <CommunityTabManagement eventDetails={eventDetails} />
+                        {eventDetails?.items.length > 0 && <GiftRegistryTabManagement currency={eventDetails?.currency} giftDetails={eventDetails?.items} />}
+                        <FeedbackTabManagement eventDetails={eventDetails} />
                     </div>
                 </div>
             </div>
