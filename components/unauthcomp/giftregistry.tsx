@@ -19,9 +19,9 @@ export default function GiftRegistryTabManagement({giftDetails, currency}){
             </div>
             <div className="w-full h-fit grid grid-cols-2 lg:grid-cols-3 gap-[6px]">
               { giftDetails?.map((el,l) => ( 
-                  <div key={l} onClick={() => {router.push(el?.link)}} className="border-[1px] border-[#CDCDCD] cursor-pointer rounded-[6px] p-[4px] flex flex-col "> 
+                  <div key={l} onClick={() => {router.push(el?.link)}} className="border-[1px] group border-[#CDCDCD] cursor-pointer rounded-[6px] p-[4px] flex flex-col "> 
                     <div className="w-full h-[164px] bg-purple-100 rounded-[6px] flex items-center justify-center">
-                        <span className="text-purple-600 text-[60px]">🎁</span>
+                        <span className="text-purple-600 group-hover:scale-150 transition-transform duration-300 text-[60px]">🎁</span>
                       </div>
                     <div className="w-full h-fit flex flex-col px-[3px] py-4 gap-[7px]">
                         <h1 className="text-[14px] leading-[18px] text-[#64748B] font-normal">

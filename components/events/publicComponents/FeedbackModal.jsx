@@ -44,9 +44,9 @@ const StarRating = ({ rating, onRatingChange }) => {
 };
 
 const FeedbackModal = ({ isOpen, onClose, eventId }) => {
-  const [step, setStep] = useState(1); // 1: Enter code, 2: Submit feedback
+  const [step, setStep] = useState(1); 
   const [inviteCode, setInviteCode] = useState("");
-  const [codeToValidate, setCodeToValidate] = useState(""); // Only this triggers the API
+  const [codeToValidate, setCodeToValidate] = useState("");  
   const [validatedInvite, setValidatedInvite] = useState(null);
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState("");

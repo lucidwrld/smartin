@@ -10,7 +10,7 @@ const CountdownTimer = ({ tarDate }) => {
 
   // Convert tarDate to number if it's not already
   const targetDate = typeof tarDate === 'string' ? new Date(tarDate).getTime() : tarDate;
-
+   
   useEffect(() => {
     // Early return if no valid target date
     if (!targetDate || isNaN(targetDate)) {
@@ -43,16 +43,16 @@ const CountdownTimer = ({ tarDate }) => {
   }
 
   const TimeUnit = ({ value, label }) => (
-    <div className="flex flex-col items-center">
-      <div className="relative">
+    <div className="flex flex-col w-full items-center">
+      <div className="relative w-full">
         <div 
-          className="py-6 pb-7 lg:py-9 lg:pb-10 w-fit px-2 flex items-center justify-center rounded-lg relative bg-backgroundPurple overflow-hidden shadow-lg"  
+          className="py-6 pb-7 lg:py-9 lg:pb-10 w-full px-2 flex items-center justify-center rounded-lg relative bg-backgroundPurple overflow-hidden shadow-lg"  
         >
           <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1/2 w-3 h-3 bg-white rounded-full"></div>
           <div className="absolute top-1/2 w-full bg-white h-[1px]"></div>
           <div className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-1/2 w-3 h-3 bg-white rounded-full"></div>
           
-          <div className="text-white text-2xl lg:text-4xl mt-0 p-0 md:text-[75px] font-bold tracking-tighter" style={{ fontFamily: 'DIN, Arial, sans-serif' }}>
+          <div className="text-white text-4xl animate-pulse  mt-0 p-0 md:text-[60px] font-bold tracking-tighter" style={{ fontFamily: 'DIN, Arial, sans-serif' }}>
             {String(value).padStart(2, '0')}
           </div>
         </div>
@@ -65,7 +65,7 @@ const CountdownTimer = ({ tarDate }) => {
   );
 
   return (
-    <div className="flex flex-wrap justify-center py-20 gap-6 md:gap-8">
+    <div className="grid grid-cols-4 py-20 px-2 gap-6 md:gap-8">
       <style>
         {`
           @font-face {

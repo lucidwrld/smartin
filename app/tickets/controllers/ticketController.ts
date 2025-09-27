@@ -105,13 +105,13 @@ export const DeleteTicketManager = ({ ticketId }) => {
   };
 };
 
-export const BuyTicketManager = () => {
+export const BuyTicketManager = ({eventId}) => {
   const { postCaller, isLoading, isSuccess, error, data } =
-    usePostManager<BuyTicketResponse>(`/ticket/event/buy`, ["tickets"], true);
+    usePostManager<BuyTicketResponse>(`/ticket/event/${eventId}/buy`, ["tickets"], true);
 
-  const buyTicket = async (eventId: string, buyData: BuyTicketPayload) => {
+  const buyTicket = async (buyData: BuyTicketPayload) => {
     try {
-      await postCaller({ eventId, data: buyData });
+      await postCaller(buyData);
     } catch (error) {
       console.error("Error buying ticket:", error);
     }

@@ -1,8 +1,13 @@
 export function getVisibleSections(data, config, visibilityCheck = null) {
-  const defaultCheck = (item) => {
+  const defaultCheck = (item) => { 
+    if (item && typeof item === 'object' && 'role' in item  && 'status' in item) {
+       
+      return item.status === "active" && item.role.toLowerCase() === "speaker";
+    }
     if (item && typeof item === 'object' && 'is_public' in item) {
       return item.is_public === true;
     }
+    
      
     return true;
   };

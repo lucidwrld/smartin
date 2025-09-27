@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const ModalManagement = ({ children, id, type, title, className }) => {
+const ModalManagement = ({ children, id, type, title, className, hasSpecFunc = false,specialFunc }) => {
   return (
     <dialog
       id={id}
@@ -27,6 +27,9 @@ const ModalManagement = ({ children, id, type, title, className }) => {
           </h3>
           <button
             onClick={() => {
+              if(hasSpecFunc){
+                specialFunc()
+              }
               document.getElementById(id).close();
             }}
             className="w-[24px] bg-white h-[24px] outline-none border-none flex justify-center items-center"

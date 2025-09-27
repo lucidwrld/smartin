@@ -5,16 +5,19 @@ import Image from "next/image"
 import { useState } from "react"
 import CustomButton from "../Button"
 import { getVisibleSections, shouldShowSection } from "@/utils/publicFilter"
+import { useProgram } from "@/context/programContext"
+import { useRouter } from "next/navigation"
+import BookSession from "./bookSession"
  
  
 
 export default function EventTabManagement({ eventDetails }) {
   const [selectedTab, setSelectedTab] = useState(0)
-  
+  const [selectedId,setSelectedId] = useState("")
   // Configuration for your tabs
   const tabConfig = {
     "Programs": "program",
-    "Speakers": "hosts", 
+    "Speakers": "stakeholders", 
     "Sessions": "sessions"
   };
   
@@ -57,15 +60,17 @@ export default function EventTabManagement({ eventDetails }) {
       {/* Render content based on selected tab */}
       {visibleTabs[selectedTab] === "Programs" && renderProgramsSection(eventDetails)}
       {visibleTabs[selectedTab] === "Speakers" && renderSpeakersSection(eventDetails)}
-      {visibleTabs[selectedTab] === "Sessions" && renderSessionsSection(eventDetails)}
+      {visibleTabs[selectedTab] === "Sessions" && renderSessionsSection(eventDetails, setSelectedId)}
+      <BookSession selectedId={selectedId} setSelectedId={setSelectedId} />
     </div>
   )
 }
 
 // Helper functions to render each section
 function renderProgramsSection(eventDetails) {
+  const router = useRouter()
   const publicPrograms = eventDetails?.program?.filter(item => item.is_public) || [];
-  
+  const {setSelectedProgram} = useProgram()
   return (
     <div className="w-full h-fit flex flex-col gap-[10px]">
       <h1 className="text-[16px] leading-[16px] text-[#1B1B1B] font-normal">Programs</h1>
@@ -98,7 +103,13 @@ function renderProgramsSection(eventDetails) {
                   {program.speaker || "TBA"}
                 </span>
               </div>
-              <ChevronRight size={35} />
+              <ChevronRight className="cursor-pointer" onClick={() => {
+                const payLoad = {
+                  eventDetails, 
+                  program
+                }
+                console.log(payLoad)
+                setSelectedProgram(payLoad);  router.push("/public/program") }} size={35} />
             </div>
             <p className="text-[#64748B] text-[12px] leading-[16px] font-normal">
               {program.description || "Program description..."}        
@@ -117,7 +128,7 @@ function renderSpeakersSection(eventDetails) {
       <h1 className="text-[16px] leading-[16px] text-[#1B1B1B] font-normal">Speakers</h1>
       <div className="w-full h-[1px] bg-[#CDCDCD]"></div>  
       <div className="flex overflow-x-scroll w-full max-w-[528px] scrollbar-hide h-fit gap-[9px]">
-        {eventDetails?.hosts?.map((speaker, index) => (
+        {eventDetails?.stakeholders.filter((el) => el.role.toLowerCase() === "speaker")?.map((speaker, index) => (
           <div key={index} className="border-[1px] w-[220px] flex-shrink-0 flex flex-col gap-[15px] border-[#CDCDCD] rounded-[6px] p-[3px]">
             <Image 
               src={speaker.profile_image || profile} 
@@ -142,7 +153,7 @@ function renderSpeakersSection(eventDetails) {
   );
 }
 
-function renderSessionsSection(eventDetails) {
+function renderSessionsSection(eventDetails, setSelectedId) {
   const publicSessions = eventDetails?.sessions?.filter(item => item.is_public) || [];
   
   return (
@@ -195,7 +206,7 @@ function renderSessionsSection(eventDetails) {
             <p className="text-[#64748B] text-[12px] capitalize leading-[16px] font-normal">
               {session.description || "Session description..."}        
             </p>
-            <CustomButton buttonText="Register" className="!h-[40px] mt-3 py-0 items-center" buttonColor=" bg-signin" />
+            <CustomButton onClick={() => {setSelectedId(session.id); document.getElementById("book-session").showModal()}} buttonText="Register" className="!h-[40px] mt-3 py-0 items-center" buttonColor=" bg-signin" />
           </div>
         ))}
       </div>    

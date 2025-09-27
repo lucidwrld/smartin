@@ -9,7 +9,7 @@ import ParticipateTabManagement from "@/components/unauthcomp/participate"
 import { facebook, greyPeople, instagram, locationPin, profile, testimage, timeIcon, x, youtube } from "@/public/icons"
 import { logoMain1 } from "@/public/images"
 import CountdownTimer from "@/utils/countdownTimer"
-import { MoveRight, Pause, Play } from "lucide-react"
+import { MoveRight, Pause, Play, X } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 import { FaArrowRight } from "react-icons/fa" 
@@ -19,6 +19,9 @@ import { DescriptionWithSeeMore } from "@/utils/seemoreFunc"
 import { useGetEventTicketsManager } from "@/app/tickets/controllers/ticketController"
 import { useGetEventAdvertsManager } from "@/app/adverts/controllers/advertController"
 import { useGetEventBoothsManager } from "@/app/booths/controllers/boothController"
+import GetEventFormsMetadataManager from "@/app/events/controllers/forms/getEventFormsMetadataController" 
+import RegistrationForm from "@/components/register/registerForm"
+import { useProgram } from "@/context/programContext"
 
 
 const cardBox = ({type,month,date, }) => {
@@ -44,13 +47,32 @@ const cardBox = ({type,month,date, }) => {
 }
 export default function UnauthEvent(){
     const [participateData, setParticipateData] = useState({})
+    const {setSelectedEventId} = useProgram()
+    const [showRegistrationForms, setShowRegistrationForms] = useState(false);
+    const [currentFormIndex, setCurrentFormIndex] = useState(0);
     const { data: event, isLoading , refetch} = useGetSingleEventPublicManager({ eventId: "68bad3fcfc8371001b2b0135", enabled: true });
+    const { data: formsMetadata, isLoading: isFormsMetadataLoading } =
+        GetEventFormsMetadataManager({
+          eventId: "68bad3fcfc8371001b2b0135",
+          enabled: true,
+        });   
+    useEffect(() => {
+            setSelectedEventId("68bad3fcfc8371001b2b0135")
+    }, [])    
+    const hasRequiredForms = formsMetadata?.data?.hasRequiredForms || false;
+    const requiredForms = formsMetadata?.data?.requiredForms || [];
     const [selectedCh, setSelectedCh] = useState("about")
     const eventDetails = event?.data 
     const [isPlaying, setIsPlaying] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
-    const videoRef = useRef(null);
-    console.log(eventDetails)
+    const videoRef = useRef(null); 
+    const handleRegisterClick = () => {
+    if (hasRequiredForms && requiredForms.length > 0) {
+      setShowRegistrationForms(true);
+      setCurrentFormIndex(0);
+    }
+  };
+   
     const togglePlay = () => {
         if (videoRef.current) {
         if (isPlaying) {
@@ -92,6 +114,98 @@ export default function UnauthEvent(){
     }
     }, [ticketsData, advertsData, boothsData]);
     
+    function processEventDays(eventData) {
+        const eventDays = eventData.event_days;
+        const venue = eventData.venue;
+        
+        if (!eventDays || eventDays.length === 0) {
+            return [
+                {type: "dates", date: "", month: "", value: "No date set"},
+                {type: "location", value: venue},
+                {type: "time", value: "No time set"}
+            ];
+        }
+        
+        if (eventDays.length === 1) {
+            // Single day event
+            const eventDay = eventDays[0];
+            const date = new Date(eventDay.date);
+            const day = date.getDate();
+            const month = date.toLocaleDateString('en-US', { month: 'short' }).toLowerCase();
+            const fullMonth = date.toLocaleDateString('en-US', { month: 'long' });
+            const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'short' });
+            
+            // Format time from 24-hour to 12-hour
+            const [hours, minutes] = eventDay.time.split(':');
+            const timeObj = new Date();
+            timeObj.setHours(parseInt(hours), parseInt(minutes));
+            const formattedTime = timeObj.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            
+            return [
+                {
+                    type: "dates",
+                    date: day.toString(),
+                    month: month,
+                    value: `${dayOfWeek}, ${fullMonth} ${day}`
+                },
+                {
+                    type: "location", 
+                    value: venue
+                },
+                {
+                    type: "time", 
+                    value: formattedTime
+                }
+            ];
+        } else {
+            // Multiple days event
+            const startDate = new Date(eventDays[0].date);
+            const endDate = new Date(eventDays[eventDays.length - 1].date);
+            
+            const startDay = startDate.getDate();
+            const endDay = endDate.getDate();
+            const month = startDate.toLocaleDateString('en-US', { month: 'short' }).toLowerCase();
+            const fullStartMonth = startDate.toLocaleDateString('en-US', { month: 'long' });
+            const fullEndMonth = endDate.toLocaleDateString('en-US', { month: 'long' });
+            const startDayOfWeek = startDate.toLocaleDateString('en-US', { weekday: 'short' });
+            const endDayOfWeek = endDate.toLocaleDateString('en-US', { weekday: 'short' });
+            
+            return [
+                {
+                    type: "dates",
+                    date: `${startDay} - ${endDay}`,
+                    month: month,
+                    value: startDate.getMonth() === endDate.getMonth() 
+                        ? `${startDayOfWeek}, ${fullStartMonth} ${startDay} - ${endDayOfWeek}, ${fullEndMonth} ${endDay}`
+                        : `${startDayOfWeek}, ${fullStartMonth} ${startDay} - ${endDayOfWeek}, ${fullEndMonth} ${endDay}`
+                },
+                {
+                    type: "location", 
+                    value: venue
+                },
+                {
+                    type: "time", 
+                    value: "Different times"
+                }
+            ];
+        }
+    }
+    const themeClasses = {
+    bg: "bg-gray-50",
+    text:  "text-gray-900",
+    card: "bg-signin",
+    cardBorder: "border-gray-200",
+    cardHover:  "hover:border-gray-300",
+    nav:  "bg-white/95",
+    navBorder: "border-gray-200",
+    accent:  "text-white/50",
+    sectionBg:  "bg-gray-100/50",
+  };
+
     
     if(isLoading || loadingTickets || loadingAdverts || loadingBooths){
         return <Loader />
@@ -172,11 +286,11 @@ export default function UnauthEvent(){
                         </div> 
                         <div className="w-full h-fit flex flex-col gap-[19px]">
                             <div className="w-full h-fit flex gap-[10px] items-center">
-                                <Image src={profile} alt="" width={50} height={50} className="rounded-[10px] flex-shrink-0 object-cover" />
+                                <Image src={eventDetails?.hosts?.[0]?.profile_image} alt="" width={50} height={50} className="rounded-[10px] flex-shrink-0 object-cover" />
                                 <div className="w-full h-fit flex flex-col gap-[6px]">
                                     <h3 className="text-[12px] leading-[12px] font-normal text-[#94A3B8]">Hosted by</h3>
                                     <p className="text-[16px] leading-[20px] font-medium text-[#1B1B1B]">
-                                        {eventDetails?.host}
+                                        {eventDetails?.hosts?.[0]?.name}
                                     </p>
                                 </div>
                             </div>
@@ -185,12 +299,61 @@ export default function UnauthEvent(){
                             <div className="flex flex-col gap-[9px] w-full h-fit">
                               <h3 className="text-[12px] leading-[12px] font-normal text-[#94A3B8]">About Host</h3>
                               <p className="text-[12px] leading-[16px] font-normal text-[#1B1B1B]">
-                                Lorem ipsum dolor sit amet consectetur. Massa rhoncus eget eu amet viverra fames sit lorem. Tincidunt sollicitudin scelerisque nibh interdum. Scelerisque malesuada viverra vulputate cum duis. Nisl est dui tellus porttitor scelerisque tortor amet. Cursus duis in tortor libero egestas quis est. Id mi arcu sed mauris nulla. Condimentum massa aliquam egestas enim fames facilisi ut fermentum et. Sapien in sem fusce volutpat ante sed pharetra odio.
-                                Metus volutpat adipiscing iaculis morbi sit sed. 
+                                {eventDetails?.hosts?.[0]?.description} 
                               </p>
                             </div>  
 
                         </div>
+                        {eventDetails?.donation &&
+                            (eventDetails.donation.account_name ||
+                                eventDetails.donation.bank_name ||
+                                eventDetails.donation.account_number) && (
+                                <div className="lg:col-span-1">
+                                <h3 className="text-2xl text-backgroundPurple font-bold mb-6">
+                                    Direct Contribution
+                                </h3>
+                                <div
+                                    className={`${themeClasses.card} border ${themeClasses.cardBorder} rounded-lg p-6 sticky top-24`}
+                                >
+                                    <h4 className="font-semibold mb-4 text-white">Account Details</h4>
+                                    <div className="space-y-4 text-white text-sm">
+                                    <div>
+                                        <span
+                                        className={`block ${themeClasses.accent} text-xs uppercase tracking-wide mb-1`}
+                                        >
+                                        Bank Name
+                                        </span>
+                                        <span className="font-medium">
+                                        {eventDetails?.donation?.bank_name}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span
+                                        className={`block ${themeClasses.accent} text-xs uppercase tracking-wide mb-1`}
+                                        >
+                                        Account Name
+                                        </span>
+                                        <span className="font-medium">
+                                        {eventDetails?.donation?.account_name}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span
+                                        className={`block ${themeClasses.accent} text-xs uppercase tracking-wide mb-1`}
+                                        >
+                                        Account Number
+                                        </span>
+                                        <span className="font-medium font-mono">
+                                        {eventDetails?.donation?.account_number}
+                                        </span>
+                                    </div>
+                                     
+                                    </div>
+            
+                                    
+                                </div>
+                                </div>
+                            )}
                     </div>
                     {/* Right side */}
                     <div className="w-full flex flex-col lg:px-[58px] gap-[60px] h-full">
@@ -201,13 +364,7 @@ export default function UnauthEvent(){
                                 </h1>
                                 <div className="w-full h-fit grid gap-[19px] lg:grid-cols-2">
                                     {
-                                        [
-                                            {type: "date",date: "10",month: "oct", value: "Fri, October 10"},
-                                            {type: "dates",date: "10 - 12",month: "oct", value: "Fri, October 10 -  Sun, October 12"},
-                                            {type: "location", value: eventDetails?.venue},
-                                            {type: "time", value: "1:00 PM - 10:30 PM"},
-                                            {type: "time", value: "Different times"},
-                                        ].map((el,l) => (
+                                        processEventDays(eventDetails).map((el,l) => (
                                             <div key={l} className={`${l === 2 && "lg:col-span-2"} flex gap-[9px] items-center`}> 
                                                {cardBox({type: el.type, month:el.month, date:el.date })}  
                                                <div className="w-full h-fit flex flex-col gap-[6px]"> 
@@ -225,7 +382,7 @@ export default function UnauthEvent(){
                                 </div>
 
                             </div>
-                            <CountdownTimer tarDate={new Date(eventDetails?.date).getTime()} />
+                            <CountdownTimer tarDate={new Date(`${eventDetails?.event_days?.[0]?.date?.split('T')[0]}T${eventDetails?.event_days?.[0]?.time}:00.000Z`).getTime()} />
                             <div className="w-full h-fit flex flex-col gap-[40px]">
                                 <div className="w-full h-fit flex flex-col gap-[9px]">
                                     <h1 className="text-[16px] leading-[16px] text-[#1B1B1B] font-normal">
@@ -237,13 +394,13 @@ export default function UnauthEvent(){
                                     <DescriptionWithSeeMore description={eventDetails.description} /> 
 
                                 </div>
-                                <CustomButton buttonText="Register" buttonColor=" bg-signin" />
+                              {hasRequiredForms &&  <CustomButton onClick={() => {handleRegisterClick()}} buttonText="Register" buttonColor=" bg-signin" />}
 
                             </div>
 
                         </div>
                         <EventTabManagement eventDetails={eventDetails} />
-                        <ParticipateTabManagement participateData={participateData} />
+                        <ParticipateTabManagement participateData={participateData} currency={eventDetails?.currency} />
                         <ExploreTabManagement eventDetails={eventDetails}/>
                         <CommunityTabManagement eventDetails={eventDetails} />
                         {eventDetails?.items.length > 0 && <GiftRegistryTabManagement currency={eventDetails?.currency} giftDetails={eventDetails?.items} />}
@@ -251,7 +408,16 @@ export default function UnauthEvent(){
                     </div>
                 </div>
             </div>
-
+        {showRegistrationForms && (
+                <RegistrationForm 
+                requiredForms={requiredForms} 
+                eventId={""}
+                currentFormIndex={currentFormIndex} 
+                setCurrentFormIndex={setCurrentFormIndex} 
+                showRegistrationForms={showRegistrationForms} 
+                setShowRegistrationForms={setShowRegistrationForms} 
+            />
+        )}                            
         </div>
     )
 }

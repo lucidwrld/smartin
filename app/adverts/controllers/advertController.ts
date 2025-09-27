@@ -201,14 +201,13 @@ export const DeleteAdvertManager = ({ advertId }) => {
   };
 };
 
-export const BuyAdvertManager = () => {
+export const BuyAdvertManager = ({eventId}) => {
   const { postCaller, isLoading, isSuccess, error, data } =
-    usePostManager<BaseResponse>(`/advert-management/event/buy`, ["adverts"], true);
+    usePostManager<BaseResponse>(`/advert-management/event/${eventId}/buy`, ["adverts"], true);
 
-  const buyAdvert = async (eventId: string, buyData: BuyAdvertPayload) => {
-    try {
-      const endpoint = `/advert-management/event/${eventId}/buy`;
-      await postCaller(buyData, endpoint);
+  const buyAdvert = async ( buyData: BuyAdvertPayload) => {
+    try { 
+      await postCaller(buyData, );
     } catch (error) {
       console.error("Error buying advert:", error);
     }
@@ -223,21 +222,21 @@ export const BuyAdvertManager = () => {
   };
 };
 
-export const BuyAdvertMobileManager = () => {
+export const BuyAdvertMobileManager = ({eventId}) => {
   const { postCaller, isLoading, isSuccess, error, data } =
     usePostManager<BaseResponse>(
-      `/advert-management/event/buy/mobile`,
+      `/advert-management/event/${eventId}/buy/mobile`,
       ["adverts"],
       true
     );
 
-  const buyAdvertMobile = async (
-    eventId: string,
+  const buyAdvertMobile = async ( 
     buyData: BuyAdvertPayload
   ) => {
+    console.log(eventId)
     try {
-      const endpoint = `/advert-management/event/${eventId}/buy/mobile`;
-      await postCaller(buyData, endpoint);
+      
+      await postCaller(buyData);
     } catch (error) {
       console.error("Error buying advert mobile:", error);
     }

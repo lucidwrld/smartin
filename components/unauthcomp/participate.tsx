@@ -1,15 +1,22 @@
 import { bookabooth, profile, speaker } from "@/public/icons"
-import { Award, Calendar, CheckCircle, ChevronLeft, ChevronRight, Clock, MapPin, Mic, Minus, Plus, Store } from "lucide-react"
+import { Award, Building2, Calendar, CheckCircle, ChevronLeft, ChevronRight, Clock, MapPin, Mic, Minus, Plus, Store } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
 import { FaAngleRight } from "react-icons/fa"
 import CustomButton from "../Button"
 import { getVisibleSections, shouldShowSection } from "@/utils/publicFilter"
+import RegisterForADS from "./registerForAds"
+import RegisterForBooth from "./registerForBooth"
+import { useProgram } from "@/context/programContext"
+import { useRouter } from "next/navigation"
 
-export default function ParticipateTabManagement({participateData}){
+export default function ParticipateTabManagement({participateData, currency}){
+    const router = useRouter()
     const [selectedTab, setSelectedTab] = useState(0)
-    const [ticketQuantities, setTicketQuantities] = useState([]) // Track ticket quantities
-    
+    const {selectedTickets,setSelectedTickets, selectedEventId} = useProgram()
+    const [ticketQuantities, setTicketQuantities] = useState((selectedTickets && selectedTickets?.ticketss?.length > 0) ? selectedTickets.ticketss :[]) // Track ticket quantities
+    const [selectedAds, setSelectedAds] = useState(null)
+    const [selectedBooth, setSelectedBooth] = useState(null)
     const tabConfig = {
         "Tickets": "tickets",
         "Book Ad Spot": "adverts", 
@@ -31,7 +38,7 @@ export default function ParticipateTabManagement({participateData}){
     }
 
     // Handle ticket quantity changes
-    const updateTicketQuantity = (ticketId, change) => {
+    const updateTicketQuantity = (ticketId, change, name, price) => {
         setTicketQuantities(prev => {
             const existingTicketIndex = prev.findIndex(item => item.ticketId === ticketId);
             const ticket = participateData.tickets.find(t => t._id === ticketId);
@@ -50,7 +57,7 @@ export default function ParticipateTabManagement({participateData}){
                     // Update quantity
                     return prev.map((item, index) => 
                         index === existingTicketIndex 
-                            ? { ...item, quantity: finalQuantity }
+                            ? { ...item, quantity: finalQuantity, price: price * finalQuantity }
                             : item
                     );
                 }
@@ -58,7 +65,7 @@ export default function ParticipateTabManagement({participateData}){
                 // Add new ticket if change is positive
                 if (change > 0) {
                     const newQuantity = Math.min(change, maxQuantity);
-                    return [...prev, { ticketId, quantity: newQuantity }];
+                    return [...prev, { ticketId, quantity: newQuantity, name: name, price: price * newQuantity }];
                 }
                 return prev;
             }
@@ -153,7 +160,7 @@ export default function ParticipateTabManagement({participateData}){
                                                     <div className="w-fit h-fit flex items-center gap-[10px]">
                                                         <div 
                                                             className="cursor-pointer flex items-center justify-center bg-[#FFF0F7] w-[26px] h-[26px] rounded-[30px]"
-                                                            onClick={() => updateTicketQuantity(ticket._id, -1)}
+                                                            onClick={() => updateTicketQuantity(ticket._id, -1, ticket.name, ticket.price )}
                                                         >
                                                             <Minus size={16} />
                                                         </div>
@@ -162,7 +169,7 @@ export default function ParticipateTabManagement({participateData}){
                                                         </p>
                                                         <div 
                                                             className="cursor-pointer flex items-center justify-center bg-[#FFF0F7] w-[26px] h-[26px] rounded-[30px]"
-                                                            onClick={() => updateTicketQuantity(ticket._id, 1)}
+                                                            onClick={() => updateTicketQuantity(ticket._id, 1, ticket.name, ticket.price)}
                                                         >
                                                             <Plus size={16} />
                                                         </div>
@@ -180,7 +187,7 @@ export default function ParticipateTabManagement({participateData}){
                                         className={`w-full rounded-[10px] py-[13px] px-[16px] flex gap-[10px] cursor-pointer
                                             ${!isAvailable ? 'bg-gray-100 opacity-60' : 'bg-[#FFEBEF] border-l-[3px] border-backgroundPurple hover:bg-[#FFE1E7]'}
                                         `}
-                                        onClick={() => isAvailable && updateTicketQuantity(ticket._id, 1)}
+                                        onClick={() => isAvailable && updateTicketQuantity(ticket._id, 1, ticket.name, ticket.price)}
                                     >
                                         <div className="w-full h-fit flex flex-col gap-[10px]">
                                             <div className="w-full h-fit flex justify-between items-center">
@@ -228,6 +235,13 @@ export default function ParticipateTabManagement({participateData}){
                     {Object.values(ticketQuantities).some(qty => qty.quantity > 0) && (
                         <div className="px-[14px] w-full pb-[14px]">
                             <CustomButton 
+                                onClick={() => {
+                                    const payload = {
+                                        currency: currency,
+                                        ticketss: ticketQuantities
+                                    }
+                                    setSelectedTickets(payload);router.push("/public/ticket/")
+                                }}
                                 buttonText="Get tickets" 
                                 className="!h-[40px] w-full py-0 items-center" 
                                 buttonColor="bg-signin" 
@@ -249,7 +263,7 @@ export default function ParticipateTabManagement({participateData}){
                 <div className="flex w-full flex-col h-fit gap-[9px]">
                     {adverts.length > 0 ? adverts.map((advert, index) => (
                         <div key={index} className="border-[1px] w-full flex-shrink-0 flex flex-col-reverse lg:flex-row gap-[15px] border-[#CDCDCD] rounded-[6px] p-[7px]">
-                            <div className="lg:w-[147px] w-full h-[187px] flex-shrink-0 bg-brandPurple rounded-[4px] flex justify-center items-center">
+                            <div className="lg:w-[137px] w-full h-[187px] flex-shrink-0 bg-brandPurple rounded-[4px] flex justify-center items-center">
                                 <Image src={speaker} alt="" width={60} height={60} />
                             </div>
                             <div className="w-full h-auto flex flex-col gap-3">
@@ -281,8 +295,9 @@ export default function ParticipateTabManagement({participateData}){
                                         </div>
                                     </div>
                                     <CustomButton 
+                                        onClick={() => {setSelectedAds(advert);document.getElementById("book-ads").showModal()}}
                                         buttonText="Book Now" 
-                                        className="!h-[40px] w-fit py-0 items-center" 
+                                        className="!h-[40px] whitespace-nowrap w-fit py-0 items-center" 
                                         buttonColor="bg-signin" 
                                     />
                                 </div>
@@ -327,13 +342,9 @@ export default function ParticipateTabManagement({participateData}){
                 <div className="flex w-full flex-col h-fit gap-[9px]">
                     {booths.length > 0 ? booths.map((booth, index) => (
                         <div key={index} className="border-[1px] w-full flex-shrink-0 flex flex-col-reverse lg:flex-row gap-[15px] border-[#CDCDCD] rounded-[6px] p-[7px]">
-                            <Image 
-                                src={booth.image || bookabooth} 
-                                alt="" 
-                                width={undefined} 
-                                height={undefined} 
-                                className="rounded-[4px] w-full lg:w-[147px] object-cover h-[187px]" 
-                            />
+                            <div className="lg:w-[137px] w-full h-[187px] flex-shrink-0 bg-brandPurple rounded-[4px] flex justify-center items-center">
+                                <Building2 size={60} color="#fff"/> 
+                            </div>
                             <div className="w-full h-auto flex flex-col gap-3">
                                 <div className="w-full h-fit flex justify-end">
                                     <div className="w-fit p-[3px] rounded-[2px] bg-[#F5E7FF] text-[10px] font-medium leading-[10px] text-backgroundPurple">
@@ -363,6 +374,7 @@ export default function ParticipateTabManagement({participateData}){
                                         </div>
                                     </div>
                                     <CustomButton 
+                                        onClick={() => {setSelectedBooth(booth);document.getElementById("book-booth").showModal()}}
                                         buttonText="Book Now" 
                                         className="!h-[40px] w-fit py-0 items-center" 
                                         buttonColor="bg-signin" 
@@ -425,6 +437,8 @@ export default function ParticipateTabManagement({participateData}){
             {getCurrentTabName() === 'Tickets' && renderTicketsSection()}
             {getCurrentTabName() === 'Book Ad Spot' && renderAdvertsSection()}
             {getCurrentTabName() === 'Book a Booth' && renderBoothsSection()}
+          <RegisterForADS selectedAds={selectedAds} /> 
+          <RegisterForBooth selectedBooth={selectedBooth} />     
         </div>
     )
 }

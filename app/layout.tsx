@@ -4,7 +4,7 @@ import Provider from "./provider";
 import { Suspense } from "react";
 import { ToastContainer } from "react-toastify";
 import type { Metadata } from "next";
-
+import {ProgramProvider} from "@/context/programContext"
 const outfit = Outfit({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -41,10 +41,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={outfit.className}>
+        <ProgramProvider>
         <Provider>
           <Suspense>{children}</Suspense>
           <ToastContainer theme="colored" />
         </Provider>
+        </ProgramProvider>
       </body>
     </html>
   );

@@ -193,14 +193,13 @@ export const DeleteBoothManager = ({ boothId }) => {
   };
 };
 
-export const BuyBoothManager = () => {
+export const BuyBoothManager = ({eventId}) => {
   const { postCaller, isLoading, isSuccess, error, data } =
-    usePostManager<BaseResponse>(`/booths/event/buy`, ["booths"], true);
+    usePostManager<BaseResponse>(`/booths/event/${eventId}/buy`, ["booths"], true);
 
-  const buyBooth = async (eventId: string, buyData: BuyBoothPayload) => {
-    try {
-      const endpoint = `/booths/event/${eventId}/buy`;
-      await postCaller(buyData, endpoint);
+  const buyBooth = async (  buyData: BuyBoothPayload) => {
+    try { 
+      await postCaller(buyData, );
     } catch (error) {
       console.error("Error buying booth:", error);
     }
@@ -215,21 +214,19 @@ export const BuyBoothManager = () => {
   };
 };
 
-export const BuyBoothMobileManager = () => {
+export const BuyBoothMobileManager = ({eventId}) => {
   const { postCaller, isLoading, isSuccess, error, data } =
     usePostManager<BaseResponse>(
-      `/booths/event/buy/mobile`,
+      `/booths/event/${eventId}/buy/mobile`,
       ["booths"],
       true
     );
 
-  const buyBoothMobile = async (
-    eventId: string,
+  const buyBoothMobile = async ( 
     buyData: BuyBoothPayload
   ) => {
-    try {
-      const endpoint = `/booths/event/${eventId}/buy/mobile`;
-      await postCaller(buyData, endpoint);
+    try { 
+      await postCaller(buyData, );
     } catch (error) {
       console.error("Error buying booth mobile:", error);
     }

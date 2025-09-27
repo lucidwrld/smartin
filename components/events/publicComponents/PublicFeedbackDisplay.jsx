@@ -120,7 +120,7 @@ const MediaModal = ({
   );
 };
 
-const FeedbackCard = ({ feedback, colors }) => {
+export const FeedbackCard = ({ feedback, colors }) => {
   // Only added modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);

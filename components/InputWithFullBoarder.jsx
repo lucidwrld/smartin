@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const InputWithFullBoarder = ({
   id,
@@ -30,6 +30,8 @@ const InputWithFullBoarder = ({
   wrapperClassName,
   customValidator,
   customErrorMessage,
+  errorProp,
+  touchedProp,
   ...props
 }) => {
   const [error, setError] = useState("");
@@ -39,8 +41,14 @@ const InputWithFullBoarder = ({
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
-  };
+  }; 
 
+  useEffect(() => { 
+    if(errorProp){setError(errorProp)}
+  }, [errorProp])
+  useEffect(() => {
+    if(touchedProp){setTouched(touchedProp)}
+  }, [touchedProp])
   const validatePassword = (password) => {
     const hasUpperCase = /[A-Z]/.test(password);
     const hasLowerCase = /[a-z]/.test(password);
