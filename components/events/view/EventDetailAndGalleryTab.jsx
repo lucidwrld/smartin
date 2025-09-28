@@ -186,7 +186,7 @@ const EventDetailAndGalleryTab = ({ event, isLoading, analytics, analyticsCards 
                 suffixIcon={<Share2 size={16} />}
                 onClick={() => {
                   // Generate public event link
-                  const eventUrl = `${window.location.origin}/public-event/${event?.id}`;
+                  const eventUrl = `${window.location.origin}/public/event/${event?.id}`;
 
                   // Try to use Web Share API if available
                   if (navigator.share) {
@@ -251,7 +251,7 @@ const EventDetailAndGalleryTab = ({ event, isLoading, analytics, analyticsCards 
                 suffixIcon={<Share2 size={16} />}
                 onClick={() => {
                   // Generate public event link
-                  const eventUrl = `${window.location.origin}/public-event/${event?.id}`;
+                  const eventUrl = `${window.location.origin}/public/event/${event?.id}`;
 
                   // Try to use Web Share API if available
                   if (navigator.share) {

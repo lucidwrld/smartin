@@ -22,7 +22,17 @@ import { useGetEventBoothsManager } from "@/app/booths/controllers/boothControll
 import GetEventFormsMetadataManager from "@/app/events/controllers/forms/getEventFormsMetadataController" 
 import RegistrationForm from "@/components/register/registerForm"
 import { useProgram } from "@/context/programContext"
+import { useParams } from 'next/navigation'
 
+
+const isComponentVisible = (ComponentName, props) => {
+  try {
+    const component = ComponentName(props);
+    return component !== null;
+  } catch {
+    return false;
+  }
+};
 
 const cardBox = ({type,month,date, }) => {
     return (
@@ -46,18 +56,21 @@ const cardBox = ({type,month,date, }) => {
     )
 }
 export default function UnauthEvent(){
+    const params = useParams()
+    const id = params.id
+
     const [participateData, setParticipateData] = useState({})
     const {setSelectedEventId} = useProgram()
     const [showRegistrationForms, setShowRegistrationForms] = useState(false);
     const [currentFormIndex, setCurrentFormIndex] = useState(0);
-    const { data: event, isLoading , refetch} = useGetSingleEventPublicManager({ eventId: "68bad3fcfc8371001b2b0135", enabled: true });
+    const { data: event, isLoading , refetch} = useGetSingleEventPublicManager({ eventId: id, enabled: true });
     const { data: formsMetadata, isLoading: isFormsMetadataLoading } =
         GetEventFormsMetadataManager({
-          eventId: "68bad3fcfc8371001b2b0135",
+          eventId: id,
           enabled: true,
         });   
     useEffect(() => {
-            setSelectedEventId("68bad3fcfc8371001b2b0135")
+            setSelectedEventId(id)
     }, [])    
     const hasRequiredForms = formsMetadata?.data?.hasRequiredForms || false;
     const requiredForms = formsMetadata?.data?.requiredForms || [];
@@ -88,25 +101,25 @@ export default function UnauthEvent(){
     data: ticketsData,
     isLoading: loadingTickets,
     refetch: refetchTickets,
-    } = useGetEventTicketsManager("68bad3fcfc8371001b2b0135");
+    } = useGetEventTicketsManager(id);
 
     const {
     data: advertsData,
     isLoading: loadingAdverts,
     refetch: refetchAdverts,
-    } = useGetEventAdvertsManager("68bad3fcfc8371001b2b0135");
+    } = useGetEventAdvertsManager(id);
 
     const {
     data: boothsData,
     isLoading: loadingBooths,
     refetch: refetchBooths,
-    } = useGetEventBoothsManager("68bad3fcfc8371001b2b0135");
+    } = useGetEventBoothsManager(id);
 
     useEffect(() => {
     // Only update if we have at least some data
     if (ticketsData || advertsData || boothsData) {
         setParticipateData(prevState => ({
-        ...prevState,
+        ...prevState, 
         tickets: ticketsData?.data,
         adverts: advertsData?.data,
         booths: boothsData?.data
@@ -204,9 +217,56 @@ export default function UnauthEvent(){
     navBorder: "border-gray-200",
     accent:  "text-white/50",
     sectionBg:  "bg-gray-100/50",
-  };
+  }; 
+    const tabConfig = [
+    "About", 
+    "Overview", 
+    "Participate", 
+    "Explore", 
+    "Partners", 
+    "Gift Registry",
+    "Feedbacks"
+  ];
 
+    const componentMap = {
+    "about": <></>,
+    "overview": EventTabManagement,
+    "participate": ParticipateTabManagement,
+    "explore": ExploreTabManagement,
+    "partners": CommunityTabManagement,
+    "gift registry": GiftRegistryTabManagement,
+    "feedbacks": FeedbackTabManagement
+  };
+  
+  // Filter visible tabs based on whether component returns null
+  const visibleTabs = tabConfig.filter(tab => {
+    const tabLower = tab.toLowerCase();
     
+    // About and Feedbacks always show
+    if (tabLower === "about" || tabLower === "feedbacks") {
+      return true;
+    }
+    
+    // Participate uses participateData, others use eventDetails
+    const Component = componentMap[tabLower];
+    if (tabLower === "participate") {
+      return Component && isComponentVisible(Component, { participateData });
+    }
+    
+    // For other tabs, check if component returns null with eventDetails
+    return Component && isComponentVisible(Component, { eventDetails });
+  });
+
+ 
+  
+  const handleTabClick = (tabName) => {
+    setSelectedCh(tabName.toLowerCase());
+    // Scroll to component
+    document.getElementById(tabName.toLowerCase())?.scrollIntoView({ 
+      behavior: 'smooth' 
+    });
+  };
+ 
     if(isLoading || loadingTickets || loadingAdverts || loadingBooths){
         return <Loader />
     }
@@ -217,8 +277,8 @@ export default function UnauthEvent(){
                 <Image alt="" src={logoMain1} width={undefined} height={undefined} className="w-[168px] h-[27.65px]" />
                 <div className="w-fit h-fit flex flex-col gap-[30px]">
                     {
-                        ["About", "Overview", "Participate", "Explore", "Partners", "Gift Registry","Feedbacks"].map((el,l) => (
-                            <p key={l} onClick={() => {setSelectedCh(el.toLocaleLowerCase())}} className={`text-[16px] cursor-pointer leading-[20px] font-normal ${el.toLocaleLowerCase() === selectedCh ? "text-backgroundPurple" : "text-[#94A3B8]"}`}>
+                        visibleTabs.map((el,l) => (
+                            <p key={l} onClick={() => handleTabClick(el)}  className={`text-[16px] cursor-pointer leading-[20px] font-normal ${el.toLocaleLowerCase() === selectedCh ? "text-backgroundPurple" : "text-[#94A3B8]"}`}>
                               {el}  
                             </p>
                         ))
@@ -399,12 +459,12 @@ export default function UnauthEvent(){
                             </div>
 
                         </div>
-                        <EventTabManagement eventDetails={eventDetails} />
-                        <ParticipateTabManagement participateData={participateData} currency={eventDetails?.currency} />
-                        <ExploreTabManagement eventDetails={eventDetails}/>
-                        <CommunityTabManagement eventDetails={eventDetails} />
-                        {eventDetails?.items.length > 0 && <GiftRegistryTabManagement currency={eventDetails?.currency} giftDetails={eventDetails?.items} />}
-                        <FeedbackTabManagement eventDetails={eventDetails} />
+                        <div id="overview"><EventTabManagement eventDetails={eventDetails} /></div>
+                        <div id="participate"><ParticipateTabManagement participateData={participateData} currency={eventDetails?.currency} /></div>
+                        <div id="explore"><ExploreTabManagement eventDetails={eventDetails}/></div>
+                        <div id="partners"><CommunityTabManagement eventDetails={eventDetails} /></div>
+                        <div id="gift registry"><GiftRegistryTabManagement currency={eventDetails?.currency} giftDetails={eventDetails?.items} /></div>
+                        <div id="feedbacks"><FeedbackTabManagement eventDetails={eventDetails} /></div>
                     </div>
                 </div>
             </div>

@@ -9,6 +9,9 @@ import { formatAmount } from "@/utils/formatAmount"
 import { useRouter } from "next/navigation"
 
 export default function GiftRegistryTabManagement({giftDetails, currency}){ 
+    if(giftDetails?.length <= 0  ){
+        return null
+    }
     const router = useRouter() 
     return(
         <div className="w-full h-fit flex flex-col gap-[20px]">
