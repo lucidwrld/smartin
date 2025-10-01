@@ -40,28 +40,30 @@ const EventPage = () => {
 
   const { data: userDetails } = useGetUserDetailsManager();
   const currency = userDetails?.data?.user?.currency || "USD";
-  
+
   // Subscription checks
   const { data: userSubscriptions } = useGetUserSubscriptionsManager({});
-  const { data: userEventsResponse } = useGetAllEventsManager({ 
-    page: 1, 
-    pageSize: 100, 
-    enabled: !isEditMode // Only fetch for new events
+  const { data: userEventsResponse } = useGetAllEventsManager({
+    page: 1,
+    pageSize: 100,
+    enabled: !isEditMode, // Only fetch for new events
   });
-  
-  const currentSubscription = userSubscriptions?.subscriptions?.find(sub => sub.status === 'active');
+
+  const currentSubscription = userSubscriptions?.subscriptions?.find(
+    (sub) => sub.status === "active"
+  );
   const userEvents = userEventsResponse?.data?.events || [];
   const eventCount = userEvents.length;
-  
+
   // Check if user can create events based on subscription
   const canCreateEvent = isEditMode || checkEventCreationLimits();
-  
+
   function checkEventCreationLimits() {
     // If user has active subscription, they can create unlimited events
     if (currentSubscription) {
       return true;
     }
-    
+
     // Free users can create up to 3 events
     const FREE_EVENT_LIMIT = 3;
     return eventCount < FREE_EVENT_LIMIT;
@@ -166,21 +168,21 @@ const EventPage = () => {
     gallery: [],
     speakers: [],
     resources: [],
-    
+
     // Auto settings structure for backend
     auto_settings: {
       auto_reminder: {
         active: false,
-        recording: ""
+        recording: "",
       },
       auto_thankyou: {
         active: false,
-        recording: ""
-      }
+        recording: "",
+      },
     },
   });
 
-  // UI-only state (not sent to backend)
+  // UI-only state (not sent to backend)..
   const [uiState, setUiState] = useState({
     is_multi_day: false,
     enable_invitations: false,
@@ -251,8 +253,10 @@ const EventPage = () => {
         colors: event?.data?.colors || ["#6366f1", "#8b5cf6"],
         payment_mode: event?.data?.payment_mode || "pay_per_event",
         // Sync auto settings from backend to UI toggles
-        enable_auto_reminder: event?.data?.auto_settings?.auto_reminder?.active || false,
-        enable_auto_thank_you: event?.data?.auto_settings?.auto_thankyou?.active || false,
+        enable_auto_reminder:
+          event?.data?.auto_settings?.auto_reminder?.active || false,
+        enable_auto_thank_you:
+          event?.data?.auto_settings?.auto_thankyou?.active || false,
       });
 
       // Initialize UI state from event data
@@ -333,19 +337,19 @@ const EventPage = () => {
       }
       return;
     }
- 
-    if (["image", "logo", "banner_image", "video"].includes(field)) { 
-    if (field === "image") {
-      setCoverFile(value);
-    } else if (field === "logo") { 
-      setLogoFile && setLogoFile(value);
-    } else if (field === "banner_image") { 
-      setBannerFile && setBannerFile(value);
-    }
-     
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    return;
-  } else if (field === "gallery") {
+
+    if (["image", "logo", "banner_image", "video"].includes(field)) {
+      if (field === "image") {
+        setCoverFile(value);
+      } else if (field === "logo") {
+        setLogoFile && setLogoFile(value);
+      } else if (field === "banner_image") {
+        setBannerFile && setBannerFile(value);
+      }
+
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      return;
+    } else if (field === "gallery") {
       setMediaFiles(value);
       setFormData((prev) => ({ ...prev, gallery: value }));
     } else if (field.startsWith("donation.")) {
@@ -392,9 +396,9 @@ const EventPage = () => {
           ...prev.auto_settings,
           auto_reminder: {
             ...prev.auto_settings.auto_reminder,
-            active: value
-          }
-        }
+            active: value,
+          },
+        },
       }));
     } else if (field === "enable_auto_thank_you") {
       setFormData((prev) => ({
@@ -404,9 +408,9 @@ const EventPage = () => {
           ...prev.auto_settings,
           auto_thankyou: {
             ...prev.auto_settings.auto_thankyou,
-            active: value
-          }
-        }
+            active: value,
+          },
+        },
       }));
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
@@ -587,7 +591,10 @@ const EventPage = () => {
     }
 
     // Handle voice recording upload
-    if (formData.voice_recording && typeof formData.voice_recording === "object") {
+    if (
+      formData.voice_recording &&
+      typeof formData.voice_recording === "object"
+    ) {
       const voiceUrl = await handleFileUpload(formData.voice_recording);
       updatedData.voice_recording = voiceUrl;
     }
@@ -710,19 +717,22 @@ const EventPage = () => {
       <BaseDashboardNavigation title="Create Event">
         <div className="max-w-2xl mx-auto text-center py-12">
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-8 mb-6">
-            <h2 className="text-2xl font-bold text-amber-800 mb-4">Event Limit Reached</h2>
+            <h2 className="text-2xl font-bold text-amber-800 mb-4">
+              Event Limit Reached
+            </h2>
             <p className="text-amber-700 mb-6">
-              You've reached the free plan limit of 3 events. Subscribe to create unlimited events and unlock premium features.
+              You've reached the free plan limit of 3 events. Subscribe to
+              create unlimited events and unlock premium features.
             </p>
             <div className="space-y-3">
               <button
-                onClick={() => router.push('/subscriptions')}
+                onClick={() => router.push("/subscriptions")}
                 className="w-full bg-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700 transition-colors"
               >
                 View Subscription Plans
               </button>
               <button
-                onClick={() => router.push('/events')}
+                onClick={() => router.push("/events")}
                 className="w-full bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors"
               >
                 Back to Events
@@ -756,12 +766,13 @@ const EventPage = () => {
                   {eventCount === 2 ? "1 Event Remaining" : "Free Plan Limit"}
                 </h3>
                 <p className="text-sm text-amber-700">
-                  You have {3 - eventCount} event{3 - eventCount !== 1 ? 's' : ''} left on the free plan. 
+                  You have {3 - eventCount} event
+                  {3 - eventCount !== 1 ? "s" : ""} left on the free plan.
                   Upgrade to create unlimited events.
                 </p>
               </div>
               <button
-                onClick={() => router.push('/subscriptions')}
+                onClick={() => router.push("/subscriptions")}
                 className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-purple-700 transition-colors"
               >
                 Upgrade
