@@ -92,14 +92,14 @@ const formatCurrency = (amount) => {
 
 // Calculate totals
 const calculateTotals = (tickets) => {
-    const totalQuantity = tickets.reduce((sum, ticket) => sum + ticket.quantity, 0);
-    const totalPrice = tickets.reduce((sum, ticket) => sum + ticket.price, 0);
+    const totalQuantity = tickets?.reduce((sum, ticket) => sum + ticket.quantity, 0);
+    const totalPrice = tickets?.reduce((sum, ticket) => sum + ticket.price, 0);
     return { totalQuantity, totalPrice };
 };
 
 export default function TicketPage() {
     const {selectedTickets, selectedEventId, clearSelectedTickets} = useProgram()  
-    const { totalQuantity, totalPrice } = calculateTotals(selectedTickets.ticketss);
+    const { totalQuantity, totalPrice } = calculateTotals(selectedTickets?.ticketss ?? [{quantity: 0, price: 0}]);
     const [couponAmount, setCouponAmount] = useState(0)
     const [gotCoupon, setGotCoupon] = useState(false)
     const {buyTicket, isLoading, isSuccess} = BuyTicketManager({eventId: selectedEventId})
@@ -127,7 +127,7 @@ export default function TicketPage() {
                 email: values.buyer.email,
                 name: `${values.buyer.firstName} ${values.buyer.lastName}`,
                 path: `public/event/${selectedEventId}`,
-                tickets: selectedTickets.ticketss.map(ticket => ({
+                tickets: selectedTickets?.ticketss?.map(ticket => ({
                     ticketId: ticket.ticketId,
                     quantity: ticket.quantity
                 })),
@@ -160,7 +160,7 @@ export default function TicketPage() {
                 </div>
 
                 <Formik
-                    initialValues={generateInitialValues(selectedTickets.ticketss)}
+                    initialValues={generateInitialValues(selectedTickets?.ticketss)}
                     validationSchema={getValidationSchema(false)}
                     onSubmit={handleSubmit}
                 >
@@ -183,7 +183,7 @@ export default function TicketPage() {
                                 payload = {
                                     code: values.couponCode,
                                     total_amount: totalPrice,
-                                    tickets: selectedTickets.ticketss.map(ticket => ({
+                                    tickets: selectedTickets?.ticketss?.map(ticket => ({
                                         ticketId: ticket.ticketId,
                                         quantity: ticket.quantity
                                     }))
@@ -274,7 +274,7 @@ export default function TicketPage() {
                                 {/* Dynamic Attendee Forms - Only show when sendToDifferentEmails is true */}
                                 {values.sendToDifferentEmails && (
                                     <div className="w-full h-fit flex flex-col gap-[20px]">
-                                        {selectedTickets.ticketss.map((ticket, ticketIndex) => (
+                                        {selectedTickets?.ticketss?.map((ticket, ticketIndex) => (
                                             Array.from({ length: ticket.quantity }, (_, attendeeIndex) => {
                                                 const attendeeNumber = attendeeIndex + 1;
                                                 
@@ -352,7 +352,7 @@ export default function TicketPage() {
                                 <div className="p-[25px] flex flex-col gap-10">
                                     {/* Ticket Summary */}
                                     <div className="w-full h-fit flex flex-col gap-[10px]">
-                                        {selectedTickets.ticketss.map(ticket => (
+                                        {selectedTickets?.ticketss?.map(ticket => (
                                             <div key={ticket.ticketId} className="w-full h-fit flex justify-between items-center">
                                                 <h2 className="flex items-center gap-2 text-[20px] leading-[25px] text-backgroundPurple font-light">
                                                     {ticket.quantity} <span className="text-[12px] font-extralight">x</span> {ticket.name}
