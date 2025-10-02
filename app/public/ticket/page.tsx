@@ -122,6 +122,7 @@ export default function TicketPage() {
                 ...(gotCoupon && { couponCode: values.couponCode }),
             };
         } else {
+             
             // Format for simple ticket purchase
             payload = {
                 email: values.buyer.email,
@@ -358,7 +359,7 @@ export default function TicketPage() {
                                                     {ticket.quantity} <span className="text-[12px] font-extralight">x</span> {ticket.name}
                                                 </h2> 
                                                 <h2 className="flex items-center gap-2 text-[20px] leading-[25px] text-backgroundPurple font-medium">
-                                                    {selectedTickets.currency === 'NGN' ? '₦' : '$'}{formatCurrency(ticket.price)}
+                                                    {selectedTickets?.currency === 'NGN' ? '₦' : '$'}{formatCurrency(ticket.price)}
                                                 </h2>
                                             </div>
                                         ))}
@@ -397,11 +398,11 @@ export default function TicketPage() {
                                         </div>
                                         <div className="w-full h-fit flex justify-between">
                                             <p>Discount</p>
-                                            <p>{selectedTickets.currency === 'NGN' ? '₦' : '$'}{couponAmount}</p>
+                                            <p>{selectedTickets?.currency === 'NGN' ? '₦' : '$'}{couponAmount}</p>
                                         </div>
                                         <div className="w-full h-fit flex justify-between">
                                             <p>Fees</p>
-                                            <p>{selectedTickets.currency === 'NGN' ? '₦' : '$'}0</p>
+                                            <p>{selectedTickets?.currency === 'NGN' ? '₦' : '$'}0</p>
                                         </div> 
                                     </div>
 
@@ -411,7 +412,7 @@ export default function TicketPage() {
                                             Total
                                         </h2> 
                                         <h2 className="flex items-center gap-2 text-[25px] leading-[25px] text-backgroundPurple font-semibold">
-                                            {selectedTickets.currency === 'NGN' ? '₦' : '$'}{formatCurrency(totalPrice - couponAmount)}
+                                            {selectedTickets?.currency === 'NGN' ? '₦' : '$'}{formatCurrency(totalPrice - couponAmount)}
                                         </h2>
                                     </div>
 
