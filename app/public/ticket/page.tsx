@@ -55,8 +55,8 @@ const generateInitialValues = (tickets) => {
 };
 
 // Dynamic validation schema based on sendToDifferentEmails
-const getValidationSchema = (sendToDifferentEmails) => {
-    const baseSchema = {
+const getValidationSchema = (sendToDifferentEmails: boolean) => {
+    const baseSchema: any = {
         buyer: Yup.object({
             firstName: Yup.string().required("First name is required"),
             lastName: Yup.string().required("Last name is required"),
@@ -83,6 +83,7 @@ const getValidationSchema = (sendToDifferentEmails) => {
 
     return Yup.object(baseSchema);
 };
+
 
 // Helper function to format currency
 const formatCurrency = (amount) => {
