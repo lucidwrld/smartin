@@ -33,7 +33,7 @@ const generateInitialValues = (tickets) => {
     };
 
     // Generate ticket structure with attendees array
-    tickets.forEach(ticket => {
+    tickets?.forEach(ticket => {
         const ticketAttendees = [];
         for (let i = 0; i < ticket.quantity; i++) {
             ticketAttendees.push({
