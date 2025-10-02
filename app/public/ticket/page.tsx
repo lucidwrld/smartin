@@ -155,7 +155,7 @@ export default function TicketPage() {
             <div className="max-w-[1220px] w-full flex flex-col gap-10 h-auto">
                 <div className="w-full h-fit flex justify-between items-center">
                     <h2 className="text-[40px] leading-[55px] text-backgroundPurple font-light">
-                        Ticket Checkout
+                        Ticket Checkout 
                     </h2>
                 </div>
 
